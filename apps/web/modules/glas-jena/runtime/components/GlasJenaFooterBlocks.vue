@@ -61,6 +61,8 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 0.5rem 2rem;
+  max-width: var(--gj-box-width);
+  margin: 0 auto;
   padding: 1.25rem 1rem calc(1.25rem + var(--gj-mobile-navbar-height));
   background-color: var(--gj-footnote-bg);
   color: var(--gj-text-muted);

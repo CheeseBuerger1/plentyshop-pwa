@@ -38,6 +38,18 @@
   color: var(--gj-mid-blue);
 }
 
+/*
+ * Boxed layout like the LTS shop: content, breadcrumbs and footer centred at the same maximum width as the
+ * header. "Full width" blocks from the editor then span the box, not the whole window.
+ */
+.font-body main,
+.font-body [data-testid='narrow-container'],
+.font-body [data-testid='footer'] {
+  max-width: var(--gj-box-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Flat look: no rounded corners, no shadows */
 .font-body *,
 .font-body *::before,
