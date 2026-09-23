@@ -57,6 +57,39 @@
   outline-offset: 2px;
 }
 
+/*
+ * "Mehr" buttons: a TextCard button with the editor variant "Secondary" becomes the LTS "Mehr" button –
+ * a semi-transparent light field flush in the bottom right corner of the tile. Secondary is recognised by
+ * its `ring-inset` class (UiButton variant classes); primary buttons stay regular buttons.
+ */
+.font-body [data-testid='text-card']:has([data-testid='text-button'].ring-inset) {
+  position: relative;
+  min-height: 100%;
+}
+
+/* Keeps the text clear of the absolutely positioned button */
+.font-body [data-testid='text-card']:has([data-testid='text-button'].ring-inset)::after {
+  content: '';
+  display: block;
+  height: 2.75rem;
+}
+
+.font-body [data-testid='text-card'] [data-testid='text-button'].ring-inset {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  min-height: 2.75rem;
+  padding: 0.6rem 1.75rem;
+  font-weight: 300;
+  color: inherit;
+  background-color: rgb(255 255 255 / 0.35);
+}
+
+.font-body [data-testid='text-card'] [data-testid='text-button'].ring-inset:hover {
+  background-color: rgb(255 255 255 / 0.55);
+}
+
 /* Product card: add-to-cart as triangle corner top right */
 .font-body [data-testid='product-card'] {
   position: relative;
