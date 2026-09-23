@@ -1,0 +1,195 @@
+/*
+ * GLAS IN JENA – global shop styles.
+ * Scoped to `.font-body` (the shop area in app.vue) so the editor UI stays untouched.
+ * Colours and fonts that the shop editor offers (primary/secondary colour, header, footer, block
+ * backgrounds) are set in the editor, not here.
+ */
+
+:root {
+  --gj-slate-blue: #4b6a82;
+  --gj-mid-blue: #6e9bbf;
+  --gj-soft-green: #ddebc8;
+  --gj-tile-blue: #a9c9e3;
+  --gj-tile-grey-blue: #d6e1ea;
+  --gj-tile-lilac: #d4c8e8;
+  --gj-footer-bg: #253038;
+  --gj-footnote-bg: #f7f7f7;
+  --gj-text: #444444;
+  --gj-text-muted: #777777;
+  --gj-mobile-navbar-height: 62px;
+  --gj-box-width: 1200px;
+  --gj-header-height: 5rem;
+  --gj-logo-width: 7.5rem;
+  --gj-logo-overhang: 2.5rem;
+  --gj-tile-width: 5.5rem;
+}
+
+/* Typography */
+.font-body {
+  font-family: 'Source Sans 3', sans-serif;
+  color: var(--gj-text);
+}
+
+.font-body :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 300;
+}
+
+.font-body .rte-prose a {
+  color: var(--gj-mid-blue);
+}
+
+/*
+ * Boxed layout like the LTS shop: content, breadcrumbs and footer centred at the same maximum width as the
+ * header. "Full width" blocks from the editor then span the box, not the whole window.
+ */
+.font-body main,
+.font-body [data-testid='narrow-container'],
+.font-body [data-testid='footer'] {
+  max-width: var(--gj-box-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Flat look: no rounded corners, no shadows */
+.font-body *,
+.font-body *::before,
+.font-body *::after {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Exception: the question mark of the "Did you know" box is a circle, like in the LTS shop */
+.font-body [data-testid='did-you-know-icon'] {
+  border-radius: 9999px !important;
+}
+
+/* Rings are box-shadows too – keep a visible keyboard focus */
+.font-body :focus-visible {
+  outline: 2px solid var(--gj-mid-blue);
+  outline-offset: 2px;
+}
+
+/*
+ * "Mehr" buttons: a TextCard button with the editor variant "Secondary" becomes the LTS "Mehr" button –
+ * a semi-transparent light field flush in the bottom right corner of the tile. Secondary is recognised by
+ * its `ring-inset` class (UiButton variant classes); primary buttons stay regular buttons.
+ */
+.font-body [data-testid='text-card']:has([data-testid='text-button'].ring-inset) {
+  position: relative;
+  min-height: 100%;
+}
+
+/* Keeps the text clear of the absolutely positioned button */
+.font-body [data-testid='text-card']:has([data-testid='text-button'].ring-inset)::after {
+  content: '';
+  display: block;
+  height: 2.75rem;
+}
+
+.font-body [data-testid='text-card'] [data-testid='text-button'].ring-inset {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  min-height: 2.75rem;
+  padding: 0.6rem 1.75rem;
+  font-weight: 300;
+  color: inherit;
+  background-color: rgb(255 255 255 / 0.35);
+}
+
+.font-body [data-testid='text-card'] [data-testid='text-button'].ring-inset:hover {
+  background-color: rgb(255 255 255 / 0.55);
+}
+
+/*
+ * Product page tiles like the LTS shop: description, product details (technical data) and further details
+ * (item data) in their tile colours. The blocks have no background setting in the editor, so the colour is
+ * tied to the block type. Placed side by side in a three-column MultiGrid in the editor.
+ */
+.font-body [data-testid='item-text-block'] {
+  background-color: var(--gj-tile-blue);
+}
+
+.font-body [data-testid='technical-data-block'] {
+  background-color: var(--gj-tile-grey-blue);
+}
+
+.font-body [data-testid='item-data-block'] {
+  background-color: var(--gj-tile-lilac);
+}
+
+/* Equal tile heights: pass the stretched grid column height down through the column's row wrapper */
+.font-body
+  [data-testid='multi-grid-column']:has(
+    :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+  )
+  > div {
+  height: 100%;
+}
+
+.font-body :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block']) {
+  height: 100%;
+}
+
+.font-body
+  :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+  h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  text-align: center;
+}
+
+/* The accordion summary would otherwise turn light grey on hover inside the coloured tile */
+.font-body
+  :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+  summary:hover {
+  background-color: transparent;
+}
+
+/*
+ * Product slider title as mid blue bar ("Unsere Topseller", "Ersatzteile", "Zubehör") like the LTS shop.
+ * Only when the ProductRecommendedProducts block has a title text; an empty title renders no bar.
+ */
+.font-body [data-testid='recommended-block']:has([data-testid='text-html']) {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1.25rem;
+  background-color: var(--gj-mid-blue);
+  color: #fff;
+}
+
+.font-body [data-testid='recommended-block'] [data-testid='text-html'] > * {
+  margin: 0;
+  color: inherit;
+  font-size: 1.375rem;
+  line-height: 1.75rem;
+  font-weight: 300;
+}
+
+/* Product card: add-to-cart as triangle corner top right */
+.font-body [data-testid='product-card'] {
+  position: relative;
+}
+
+.font-body [data-testid='product-card'] [data-testid='add-to-basket-short'] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  width: 4rem;
+  min-width: 0;
+  height: 4rem;
+  padding: 0.6rem 0.6rem 0 0;
+  font-size: 0;
+  background-color: var(--gj-tile-grey-blue);
+  color: var(--gj-slate-blue);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.font-body [data-testid='product-card'] [data-testid='add-to-basket-short']:hover {
+  background-color: var(--gj-tile-blue);
+}
