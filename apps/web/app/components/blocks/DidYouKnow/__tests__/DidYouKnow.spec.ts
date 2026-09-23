@@ -136,21 +136,21 @@ describe('DidYouKnow', () => {
       const wrapper = mount(DidYouKnow, {
         props: createProps({ layout: { backgroundColor: '#DDEBC8', textColor: '#444444', paddingTop: 10 } }),
       });
-      const style = wrapper.get('[data-testid="did-you-know"]').attributes('style');
+      const style = (wrapper.get('[data-testid="did-you-know"]').element as HTMLElement).style;
 
-      expect(style).toContain('background-color: #DDEBC8');
-      expect(style).toContain('color: #444444');
-      expect(style).toContain('padding-top: 10px');
+      expect(style.backgroundColor).toBe('#DDEBC8');
+      expect(style.color).toBe('#444444');
+      expect(style.paddingTop).toBe('10px');
     });
 
     it('should fall back to slate blue and white without colours', () => {
       const wrapper = mount(DidYouKnow, {
         props: createProps({ layout: { backgroundColor: '', textColor: '' } }),
       });
-      const style = wrapper.get('[data-testid="did-you-know"]').attributes('style');
+      const style = (wrapper.get('[data-testid="did-you-know"]').element as HTMLElement).style;
 
-      expect(style).toContain('background-color: #4B6A82');
-      expect(style).toContain('color: #FFFFFF');
+      expect(style.backgroundColor).toBe('#4B6A82');
+      expect(style.color).toBe('#FFFFFF');
     });
   });
 });
