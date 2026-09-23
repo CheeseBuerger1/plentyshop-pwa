@@ -17,6 +17,11 @@
   --gj-text: #444444;
   --gj-text-muted: #777777;
   --gj-mobile-navbar-height: 62px;
+  --gj-box-width: 1200px;
+  --gj-header-height: 5rem;
+  --gj-logo-width: 7.5rem;
+  --gj-logo-overhang: 2.5rem;
+  --gj-tile-width: 5.5rem;
 }
 
 /* Typography */

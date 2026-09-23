@@ -1,6 +1,9 @@
 import { createResolver, defineNuxtModule } from 'nuxt/kit';
 
-const FOOTER_BLOCKS_COMPONENT = 'UiFooterBlocks';
+const COMPONENT_OVERRIDES: Record<string, string> = {
+  UiFooterBlocks: './runtime/components/GlasJenaFooterBlocks.vue',
+  UiHeaderBlocks: './runtime/components/GlasJenaHeaderBlocks.vue',
+};
 
 /**
  * GLAS IN JENA theme module.
@@ -19,9 +22,11 @@ export default defineNuxtModule({
     nuxt.options.css.push(resolve('./runtime/glas-jena.css'));
 
     nuxt.hook('components:extend', (components) => {
-      const footerBlocks = components.find((component) => component.pascalName === FOOTER_BLOCKS_COMPONENT);
-      if (footerBlocks) {
-        footerBlocks.filePath = resolve('./runtime/components/GlasJenaFooterBlocks.vue');
+      for (const component of components) {
+        const override = COMPONENT_OVERRIDES[component.pascalName];
+        if (override) {
+          component.filePath = resolve(override);
+        }
       }
     });
   },
