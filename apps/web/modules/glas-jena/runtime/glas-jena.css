@@ -90,6 +90,52 @@
   background-color: rgb(255 255 255 / 0.55);
 }
 
+/*
+ * Product page tiles like the LTS shop: description, product details (technical data) and further details
+ * (item data) in their tile colours. The blocks have no background setting in the editor, so the colour is
+ * tied to the block type. Placed side by side in a three-column MultiGrid in the editor.
+ */
+.font-body [data-testid='item-text-block'] {
+  background-color: var(--gj-tile-blue);
+}
+
+.font-body [data-testid='technical-data-block'] {
+  background-color: var(--gj-tile-grey-blue);
+}
+
+.font-body [data-testid='item-data-block'] {
+  background-color: var(--gj-tile-lilac);
+}
+
+/* Equal tile heights: pass the stretched grid column height down through the column's row wrapper */
+.font-body
+  [data-testid='multi-grid-column']:has(
+    :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+  )
+  > div {
+  height: 100%;
+}
+
+.font-body :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block']) {
+  height: 100%;
+}
+
+.font-body
+  :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+  h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  text-align: center;
+}
+
+/* The accordion summary would otherwise turn light grey on hover inside the coloured tile */
+.font-body
+  :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+  summary:hover {
+  background-color: transparent;
+}
+
 /* Product card: add-to-cart as triangle corner top right */
 .font-body [data-testid='product-card'] {
   position: relative;
