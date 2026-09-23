@@ -46,6 +46,11 @@
   box-shadow: none !important;
 }
 
+/* Exception: the question mark of the "Did you know" box is a circle, like in the LTS shop */
+.font-body [data-testid='did-you-know-icon'] {
+  border-radius: 9999px !important;
+}
+
 /* Rings are box-shadows too – keep a visible keyboard focus */
 .font-body :focus-visible {
   outline: 2px solid var(--gj-mid-blue);
