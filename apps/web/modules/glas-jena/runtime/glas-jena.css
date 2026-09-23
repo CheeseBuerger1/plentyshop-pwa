@@ -148,6 +148,25 @@
   background-color: transparent;
 }
 
+/*
+ * Product slider title as mid blue bar ("Unsere Topseller", "Ersatzteile", "Zubehör") like the LTS shop.
+ * Only when the ProductRecommendedProducts block has a title text; an empty title renders no bar.
+ */
+.font-body [data-testid='recommended-block']:has([data-testid='text-html']) {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1.25rem;
+  background-color: var(--gj-mid-blue);
+  color: #fff;
+}
+
+.font-body [data-testid='recommended-block'] [data-testid='text-html'] > * {
+  margin: 0;
+  color: inherit;
+  font-size: 1.375rem;
+  line-height: 1.75rem;
+  font-weight: 300;
+}
+
 /* Product card: add-to-cart as triangle corner top right */
 .font-body [data-testid='product-card'] {
   position: relative;
