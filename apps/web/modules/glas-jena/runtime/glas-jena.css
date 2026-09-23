@@ -1,0 +1,75 @@
+/*
+ * GLAS IN JENA – global shop styles.
+ * Scoped to `.font-body` (the shop area in app.vue) so the editor UI stays untouched.
+ * Colours and fonts that the shop editor offers (primary/secondary colour, header, footer, block
+ * backgrounds) are set in the editor, not here.
+ */
+
+:root {
+  --gj-slate-blue: #4b6a82;
+  --gj-mid-blue: #6e9bbf;
+  --gj-soft-green: #ddebc8;
+  --gj-tile-blue: #a9c9e3;
+  --gj-tile-grey-blue: #d6e1ea;
+  --gj-tile-lilac: #d4c8e8;
+  --gj-footer-bg: #253038;
+  --gj-footnote-bg: #f7f7f7;
+  --gj-text: #444444;
+  --gj-text-muted: #777777;
+  --gj-mobile-navbar-height: 62px;
+}
+
+/* Typography */
+.font-body {
+  font-family: 'Source Sans 3', sans-serif;
+  color: var(--gj-text);
+}
+
+.font-body :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 300;
+}
+
+.font-body .rte-prose a {
+  color: var(--gj-mid-blue);
+}
+
+/* Flat look: no rounded corners, no shadows */
+.font-body *,
+.font-body *::before,
+.font-body *::after {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Rings are box-shadows too – keep a visible keyboard focus */
+.font-body :focus-visible {
+  outline: 2px solid var(--gj-mid-blue);
+  outline-offset: 2px;
+}
+
+/* Product card: add-to-cart as triangle corner top right */
+.font-body [data-testid='product-card'] {
+  position: relative;
+}
+
+.font-body [data-testid='product-card'] [data-testid='add-to-basket-short'] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  width: 4rem;
+  min-width: 0;
+  height: 4rem;
+  padding: 0.6rem 0.6rem 0 0;
+  font-size: 0;
+  background-color: var(--gj-tile-grey-blue);
+  color: var(--gj-slate-blue);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+.font-body [data-testid='product-card'] [data-testid='add-to-basket-short']:hover {
+  background-color: var(--gj-tile-blue);
+}
