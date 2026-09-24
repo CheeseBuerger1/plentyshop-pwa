@@ -44,6 +44,18 @@
   }
 }
 
+/*
+ * No wishlist in the GLAS IN JENA shop. The wishlist pages are removed in index.ts and the heart buttons are
+ * switched off in the shop editor; these two spots have no setting and live in original files:
+ * the "Wishlist" section of the my-account menu and the wishlist benefit on the registration form.
+ * The heart icon is only used for the wishlist; that rule is not limited to `.font-body` because the
+ * registration form also appears in dialogs that may be rendered outside the shop area.
+ */
+.font-body [data-testid='account-page-sidebar'] ul:has(a[href$='/my-account/wishlist']),
+div:has(> svg[data-testid='favorite']) {
+  display: none;
+}
+
 /* Typography */
 .font-body {
   font-family: 'Source Sans 3', sans-serif;
