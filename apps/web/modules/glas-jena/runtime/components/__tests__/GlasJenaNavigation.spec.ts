@@ -1,4 +1,4 @@
-import type { VueWrapper } from '@vue/test-utils';
+import { flushPromises, type VueWrapper } from '@vue/test-utils';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaNavigation from '../GlasJenaNavigation.vue';
 import { NAVIGATION_HOVER_DELAY_MS } from '../../utils/navigation';
@@ -145,6 +145,66 @@ describe('GlasJenaNavigation', () => {
 
     expect(click.defaultPrevented).toBe(true);
     expect(isMenuShown(wrapper, 2)).toBe(true);
+  });
+
+  describe('keyboard', () => {
+    const mountAttached = () =>
+      mountSuspended(GlasJenaNavigation, {
+        props: { categories: navigationCategoriesFixture },
+        attachTo: document.body,
+        global: { stubs: { NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } } },
+      });
+
+    const press = async (key: string) => {
+      document.activeElement?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+      await flushPromises();
+    };
+
+    const focusedText = () => document.activeElement?.textContent?.trim();
+
+    it('should move along the main bar with the left and right arrow keys', async () => {
+      const wrapper = await mountAttached();
+      linkByText(wrapper, 'Tee & Kaffee').focus();
+
+      await press('ArrowRight');
+
+      expect(focusedText()).toBe('Diverses');
+
+      await press('ArrowRight');
+
+      expect(focusedText()).toBe('Tee & Kaffee');
+      wrapper.unmount();
+    });
+
+    it('should open flyouts with the arrow keys and return with ArrowLeft', async () => {
+      const wrapper = await mountAttached();
+      linkByText(wrapper, 'Tee & Kaffee').focus();
+
+      await press('ArrowDown');
+      expect(focusedText()).toBe('Kaffee & mehr');
+
+      await press('ArrowDown');
+      await press('ArrowRight');
+      expect(focusedText()).toBe('mit Glasfilter');
+      expect(isMenuShown(wrapper, 3)).toBe(true);
+
+      await press('ArrowLeft');
+      expect(focusedText()).toBe('Teekannen');
+      expect(isMenuShown(wrapper, 3)).toBe(false);
+      wrapper.unmount();
+    });
+
+    it('should keep the dropdown closed when Escape returns the focus to the main category', async () => {
+      const wrapper = await mountAttached();
+      linkByText(wrapper, 'Tee & Kaffee').focus();
+      await press('ArrowDown');
+
+      await press('Escape');
+
+      expect(focusedText()).toBe('Tee & Kaffee');
+      expect(isMenuShown(wrapper, 2)).toBe(false);
+      wrapper.unmount();
+    });
   });
 
   it('should close the dropdown when Escape is pressed', async () => {

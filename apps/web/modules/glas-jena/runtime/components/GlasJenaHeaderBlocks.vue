@@ -12,9 +12,7 @@
       </NuxtLink>
 
       <div class="gj-header__nav">
-        <!-- Desktop: LTS-style dropdowns; below lg the Navigation block only renders the drawer for the burger menu -->
         <GlasJenaNavigation v-if="viewport.isGreaterOrEquals('lg')" :categories="navigationBlock?.categories" />
-        <Navigation v-else v-bind="navigationBlock ?? {}" />
       </div>
 
       <button
@@ -30,7 +28,7 @@
 
       <NuxtLink
         :to="localePath(isAuthorized ? paths.account : paths.authLogin)"
-        class="gj-header__tile gj-header__tile--light"
+        class="gj-header__tile gj-header__tile--light gj-header__tile--account"
         data-testid="gj-header-account"
         :aria-label="isAuthorized ? t('account.heading') : t('authentication.login.openLoginForm')"
       >
@@ -40,7 +38,7 @@
       <button
         v-if="alternativeLocale"
         type="button"
-        class="gj-header__tile gj-header__tile--medium gj-header__tile--text"
+        class="gj-header__tile gj-header__tile--medium gj-header__tile--text gj-header__tile--language"
         data-testid="gj-header-language"
         :aria-label="t('common.navigation.languageSelector')"
         @click="onLanguageClick"
@@ -77,6 +75,14 @@
       <UiSearch class="w-full" :close="closeSearch" />
     </div>
 
+    <!--
+      Phones and tablets: LTS-style menu behind the burger; rendered hidden so its links are in the server HTML.
+      Teleported out of the header's stacking context so it covers the whole page like in the LTS shop.
+    -->
+    <Teleport v-if="viewport.isLessThan('lg')" to="body">
+      <GlasJenaMobileNavigation :categories="navigationBlock?.categories" />
+    </Teleport>
+
     <LanguageSelector />
   </div>
 </template>
@@ -84,8 +90,9 @@
 <script setup lang="ts">
 import { SfIconClose, SfIconMenu, SfIconPerson, SfIconSearch, SfIconShoppingCart } from '@storefront-ui/vue';
 import HeaderBlocks from '~/components/ui/HeaderBlocks/HeaderBlocks.vue';
-import Navigation from '~/components/blocks/Navigation/Navigation.vue';
 import LanguageSelector from '~/components/LanguageSelector/LanguageSelector.vue';
+import { getNativeLanguageName } from '../utils/locale';
+import GlasJenaMobileNavigation from './GlasJenaMobileNavigation.vue';
 import GlasJenaNavigation from './GlasJenaNavigation.vue';
 import { NAVIGATION_BLOCK_NAME } from '~/utils/blocks/block-names';
 import type { HeaderContainerBlock } from '~/components/blocks/structure/HeaderContainer/types';
@@ -101,8 +108,8 @@ const { open: openMegaMenu } = useMegaMenu();
 const { getAvailableLocales, switchLocale, toggle: toggleLanguageSelect } = useLocalization();
 const { locale: currentLocale } = useI18n();
 
-/** Phones and the block editor keep the original, editor-configurable header. */
-const useOriginalHeader = computed(() => viewport.isLessThan('md') || isEditing.value);
+/** The block editor keeps the original, editor-configurable header. */
+const useOriginalHeader = computed(() => isEditing.value);
 
 const navigationBlock = computed(
   () =>
@@ -135,8 +142,7 @@ const languageLabel = computed(() => {
   if (!hasSingleAlternativeLocale.value || !locale) {
     return currentLocale.value.toUpperCase();
   }
-  const nativeName = new Intl.DisplayNames([locale], { type: 'language' }).of(locale) ?? locale;
-  return nativeName.charAt(0).toUpperCase() + nativeName.slice(1);
+  return getNativeLanguageName(locale);
 });
 
 const onLanguageClick = async () => {
@@ -269,6 +275,43 @@ const closeSearch = () => {
 
   .gj-header__search {
     padding-left: 7rem;
+  }
+}
+
+/*
+ * Phone (below the shop's `@md:` breakpoint), like the LTS shop: four equally wide tiles –
+ * logo, menu, search, cart. The logo does not overhang; account and language move into the menu.
+ */
+@container (max-width: 767px) {
+  .gj-header {
+    --gj-header-height: 4.5rem;
+    --gj-logo-overhang: 0rem;
+  }
+
+  .gj-header__nav,
+  .gj-header__tile--account,
+  .gj-header__tile--language {
+    display: none;
+  }
+
+  .gj-header__logo,
+  .gj-header__tile {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+
+  .gj-header__logo {
+    align-items: center;
+  }
+
+  .gj-header__badge {
+    top: 0.9rem;
+    right: calc(50% - 1.5rem);
+  }
+
+  .gj-header__search {
+    padding-left: 1rem;
   }
 }
 </style>
