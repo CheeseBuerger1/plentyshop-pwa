@@ -12,6 +12,11 @@ mockNuxtImport('useViewport', () => () => ({
 }));
 mockNuxtImport('useEditor', () => () => ({ isEditing: ref(editorState.isEditing) }));
 mockNuxtImport('useCategoryTree', () => () => ({ data: ref([]), getCategoryTree: vi.fn() }));
+mockNuxtImport('useLocalization', () => () => ({
+  getAvailableLocales: () => ['de', 'en'],
+  switchLocale: vi.fn(),
+  toggle: vi.fn(),
+}));
 
 const mountHeader = () =>
   mountSuspended(GlasJenaHeaderBlocks, {

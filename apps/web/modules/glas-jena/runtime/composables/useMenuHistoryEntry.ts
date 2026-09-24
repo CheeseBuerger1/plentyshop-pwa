@@ -26,10 +26,21 @@ export const useMenuHistoryEntry = (isOpen: Ref<boolean>, close: () => void) => 
     waiting.splice(0).forEach((resolve) => resolve());
   };
 
+  /*
+   * history.back() is asynchronous: the step we started ourselves (closing the menu) may only arrive after
+   * the menu was opened again. That step must not close the reopened menu – only a real back press does.
+   */
   const onPopState = () => {
+    const wasOwnStep = isLeaving;
     settle();
-    if (isOpen.value && !isOwnEntry()) {
+    if (!wasOwnStep && isOpen.value && !isOwnEntry()) {
       close();
+    }
+  };
+
+  const addEntry = () => {
+    if (isOpen.value && !isOwnEntry()) {
+      window.history.pushState({ ...(window.history.state ?? {}), [MENU_HISTORY_KEY]: true }, '');
     }
   };
 
@@ -56,13 +67,16 @@ export const useMenuHistoryEntry = (isOpen: Ref<boolean>, close: () => void) => 
     if (!import.meta.client) {
       return;
     }
-    if (open && !isOwnEntry()) {
-      window.history.pushState({ ...(window.history.state ?? {}), [MENU_HISTORY_KEY]: true }, '');
-      return;
-    }
     if (!open) {
       leaveEntry();
+      return;
     }
+    /* Reopened while our previous entry is still being removed: add the new one once that step is done */
+    if (isLeaving) {
+      waiting.push(addEntry);
+      return;
+    }
+    addEntry();
   });
 
   onMounted(() => {

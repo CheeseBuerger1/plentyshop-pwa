@@ -11,11 +11,24 @@ mockNuxtImport('useLocalization', () => () => ({
   switchLocale: vi.fn(),
 }));
 
-const mountMenu = async () => {
+/*
+ * Every instance follows the shared useMegaMenu() state and traps the focus while open, so instances
+ * left over from earlier tests would open along and pull the focus. Unmount them after each test.
+ */
+const mounted: VueWrapper[] = [];
+
+const mountClosedMenu = async (attachTo?: HTMLElement) => {
   const wrapper = await mountSuspended(GlasJenaMobileNavigation, {
     props: { categories: navigationCategoriesFixture },
+    attachTo,
     global: { stubs: { NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } } },
   });
+  mounted.push(wrapper);
+  return wrapper;
+};
+
+const mountMenu = async () => {
+  const wrapper = await mountClosedMenu();
   useMegaMenu().open();
   await nextTick();
   return wrapper;
@@ -42,13 +55,11 @@ const clickNext = async (wrapper: VueWrapper, name: string) => {
 describe('GlasJenaMobileNavigation', () => {
   afterEach(() => {
     useMegaMenu().close();
+    mounted.splice(0).forEach((wrapper) => wrapper.unmount());
   });
 
   it('should render the links of all levels while the menu is closed', async () => {
-    const wrapper = await mountSuspended(GlasJenaMobileNavigation, {
-      props: { categories: navigationCategoriesFixture },
-      global: { stubs: { NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } } },
-    });
+    const wrapper = await mountClosedMenu();
 
     const hrefs = wrapper.findAll('[data-testid="gj-mobile-nav-link"]').map((link) => link.attributes('href'));
 
@@ -124,17 +135,12 @@ describe('GlasJenaMobileNavigation', () => {
   });
 
   it('should move the focus to the close button when opening', async () => {
-    const wrapper = await mountSuspended(GlasJenaMobileNavigation, {
-      props: { categories: navigationCategoriesFixture },
-      attachTo: document.body,
-      global: { stubs: { NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } } },
-    });
+    await mountClosedMenu(document.body);
 
     useMegaMenu().open();
     await flushPromises();
 
     expect(document.activeElement?.getAttribute('data-testid')).toBe('gj-mobile-nav-close');
-    wrapper.unmount();
   });
 
   it('should close the menu and navigate when a category link is tapped', async () => {

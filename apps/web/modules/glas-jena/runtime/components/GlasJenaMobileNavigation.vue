@@ -365,7 +365,12 @@ watch(isOpen, async (open) => {
 let removeRouteHook: (() => void) | undefined;
 
 onMounted(() => {
-  removeRouteHook = router.afterEach(close);
+  /* Only a real page change closes the menu; removing its history entry is a "navigation" to the same page */
+  removeRouteHook = router.afterEach((to, from) => {
+    if (to.fullPath !== from.fullPath) {
+      close();
+    }
+  });
 });
 
 onBeforeUnmount(() => {
