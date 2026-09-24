@@ -1,9 +1,8 @@
-import { mount, type VueWrapper } from '@vue/test-utils';
-import { mockNuxtImport } from '@nuxt/test-utils/runtime';
+import type { VueWrapper } from '@vue/test-utils';
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaNavigation from '../GlasJenaNavigation.vue';
 import { navigationCategoriesFixture } from './navigation.fixture';
 
-mockNuxtImport('useRouter', () => () => ({ afterEach: vi.fn(() => () => {}) }));
 mockNuxtImport('useCategoryTree', () => () => ({ data: ref([]), getCategoryTree: vi.fn() }));
 mockNuxtImport('useLocalizedPath', () => () => (path: string) => path);
 mockNuxtImport('useLocalization', () => () => ({
@@ -11,7 +10,7 @@ mockNuxtImport('useLocalization', () => () => ({
 }));
 
 const mountNavigation = () =>
-  mount(GlasJenaNavigation, {
+  mountSuspended(GlasJenaNavigation, {
     props: { categories: navigationCategoriesFixture },
     global: { stubs: { NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } } },
   });
@@ -33,8 +32,8 @@ const dispatchOnItem = async (wrapper: VueWrapper, text: string, type: 'mouseent
 };
 
 describe('GlasJenaNavigation', () => {
-  it('should render all main categories with their links', () => {
-    const wrapper = mountNavigation();
+  it('should render all main categories with their links', async () => {
+    const wrapper = await mountNavigation();
 
     const categories = wrapper.findAll('[data-testid="gj-nav-category"]');
 
@@ -43,7 +42,7 @@ describe('GlasJenaNavigation', () => {
   });
 
   it('should open the dropdown when hovering a main category', async () => {
-    const wrapper = mountNavigation();
+    const wrapper = await mountNavigation();
 
     await dispatchOnItem(wrapper, 'Tee & Kaffee', 'mouseenter');
 
@@ -51,7 +50,7 @@ describe('GlasJenaNavigation', () => {
   });
 
   it('should cascade flyouts down to the fourth level on hover', async () => {
-    const wrapper = mountNavigation();
+    const wrapper = await mountNavigation();
 
     await dispatchOnItem(wrapper, 'Tee & Kaffee', 'mouseenter');
     await dispatchOnItem(wrapper, 'Teekannen', 'mouseenter');
@@ -62,7 +61,7 @@ describe('GlasJenaNavigation', () => {
   });
 
   it('should close the dropdown when the mouse leaves the category', async () => {
-    const wrapper = mountNavigation();
+    const wrapper = await mountNavigation();
 
     await dispatchOnItem(wrapper, 'Tee & Kaffee', 'mouseenter');
     await dispatchOnItem(wrapper, 'Tee & Kaffee', 'mouseleave');
@@ -71,9 +70,11 @@ describe('GlasJenaNavigation', () => {
   });
 
   it('should open the dropdown on the first tap on touch devices instead of following the link', async () => {
-    const wrapper = mountNavigation();
+    const wrapper = await mountNavigation();
 
-    await wrapper.find('[data-testid="gj-nav"]').trigger('pointerdown', { pointerType: 'touch' });
+    const touch = new MouseEvent('pointerdown', { bubbles: true });
+    Object.defineProperty(touch, 'pointerType', { value: 'touch' });
+    wrapper.find('[data-testid="gj-nav"]').element.dispatchEvent(touch);
     const click = new MouseEvent('click', { cancelable: true, bubbles: true });
     linkByText(wrapper, 'Tee & Kaffee').dispatchEvent(click);
     await nextTick();
@@ -83,7 +84,7 @@ describe('GlasJenaNavigation', () => {
   });
 
   it('should close the dropdown when Escape is pressed', async () => {
-    const wrapper = mountNavigation();
+    const wrapper = await mountNavigation();
 
     await dispatchOnItem(wrapper, 'Tee & Kaffee', 'mouseenter');
     await wrapper.find('[data-testid="gj-nav"]').trigger('keydown', { key: 'Escape' });
