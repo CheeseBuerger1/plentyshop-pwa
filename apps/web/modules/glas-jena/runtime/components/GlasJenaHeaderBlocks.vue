@@ -12,7 +12,9 @@
       </NuxtLink>
 
       <div class="gj-header__nav">
-        <Navigation v-bind="navigationBlock ?? {}" />
+        <!-- Desktop: LTS-style dropdowns; below lg the Navigation block only renders the drawer for the burger menu -->
+        <GlasJenaNavigation v-if="viewport.isGreaterOrEquals('lg')" :categories="navigationBlock?.categories" />
+        <Navigation v-else v-bind="navigationBlock ?? {}" />
       </div>
 
       <button
@@ -84,6 +86,7 @@ import { SfIconClose, SfIconMenu, SfIconPerson, SfIconSearch, SfIconShoppingCart
 import HeaderBlocks from '~/components/ui/HeaderBlocks/HeaderBlocks.vue';
 import Navigation from '~/components/blocks/Navigation/Navigation.vue';
 import LanguageSelector from '~/components/LanguageSelector/LanguageSelector.vue';
+import GlasJenaNavigation from './GlasJenaNavigation.vue';
 import { NAVIGATION_BLOCK_NAME } from '~/utils/blocks/block-names';
 import type { HeaderContainerBlock } from '~/components/blocks/structure/HeaderContainer/types';
 import type { NavigationBlockProps } from '~/components/blocks/Navigation/types';
@@ -198,39 +201,6 @@ const closeSearch = () => {
   flex: 1;
   align-items: stretch;
   min-width: 0;
-}
-
-.gj-header__nav > :deep(div),
-.gj-header__nav :deep(nav) {
-  height: 100%;
-}
-
-/* The block's editor padding (inline style) would shrink the category buttons below the header height */
-.gj-header__nav :deep(nav > ul) {
-  height: 100%;
-  flex-wrap: nowrap;
-  align-items: stretch;
-  padding: 0 !important;
-  border: 0;
-}
-
-.gj-header__nav :deep(nav > ul > li) {
-  display: flex;
-}
-
-.gj-header__nav :deep([data-testid='category-button']) {
-  height: 100%;
-  margin: 0;
-  padding: 0 1.25rem;
-  font-weight: 400;
-  font-size: 0.95rem;
-  white-space: nowrap;
-}
-
-.gj-header__nav :deep([data-testid='category-button']:hover),
-.gj-header__nav :deep([data-testid='category-button'][aria-expanded='true']),
-.gj-header__nav :deep([data-testid='category-button'].router-link-active) {
-  background-color: var(--gj-tile-grey-blue);
 }
 
 .gj-header__tile {
