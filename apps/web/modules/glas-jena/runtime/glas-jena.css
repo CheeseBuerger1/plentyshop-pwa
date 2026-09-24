@@ -33,6 +33,17 @@
   --gj-mobile-navbar-height: 62px;
 }
 
+/*
+ * The cookie settings button and the preview-mode button sit 4.3rem above the bottom on phones to clear the
+ * NavbarBottom. Without it they move down to the same 0.5rem as on larger screens; with it (auth pages) the
+ * result stays at about 4.3rem (0.5rem + 62px).
+ */
+@container (max-width: 767px) {
+  .font-body .bottom-\[4\.3rem\] {
+    bottom: calc(0.5rem + var(--gj-mobile-navbar-height));
+  }
+}
+
 /* Typography */
 .font-body {
   font-family: 'Source Sans 3', sans-serif;

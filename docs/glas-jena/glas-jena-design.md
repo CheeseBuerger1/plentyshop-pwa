@@ -64,7 +64,7 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 - Daneben die Hauptnavigation auf Weiß: Tee & Kaffee ▾, Küche & Helfer ▾, Diverses, Gesundheitshelfer, Ersatzteile ▾ (Kategorien kommen aus PlentyONE).
 - Rechts als gleich große Blöcke: Konto (hellgrau), Sprachwechsel „English“ (hellgrau), Suche (hellgrau), **Warenkorb (Mittelblau)**.
 - Handy: Burger-Menü, Logo kompakt, Warenkorb bleibt sichtbar.
-- Der Glas-Jena-Header (`GlasJenaHeaderBlocks.vue`) läuft auf allen Geräten. Nur im Shop-Editor wird der Original-Header angezeigt, damit er dort konfigurierbar bleibt. Auf dem Handy entfällt damit auch die untere Navigationsleiste des Original-Headers (wie im LTS-Shop); nur die Login-/Registrierungsseiten zeigen sie weiterhin.
+- Der Glas-Jena-Header (`GlasJenaHeaderBlocks.vue`) läuft auf allen Geräten. Nur im Shop-Editor wird der Original-Header angezeigt, damit er dort konfigurierbar bleibt. Auf dem Handy entfällt damit auch die untere Navigationsleiste des Original-Headers (wie im LTS-Shop); nur die Login-/Registrierungsseiten zeigen sie weiterhin. Cookie- und Vorschau-Button rücken auf dem Handy entsprechend nach unten (`glas-jena.css`).
 
 ### Hauptnavigation (wie im LTS-Shop)
 
@@ -88,6 +88,9 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 - **Vollbild, dunkel** (`#2e3233`, weiße Schrift), liegt über der ganzen Seite (per Teleport in `<body>`, Ebene `z-modal-backdrop`); die Seite dahinter scrollt nicht mit.
 - Öffnet auf der **Ebene der aktuellen Kategorie**: deren Unterkategorien, bei Kategorien ohne Unterkategorien die Geschwister. Ohne aktive Kategorie die Hauptkategorien.
 - **Pfadleiste** oben (weiß): 🏠 / Tee & Kaffee / Teekannen – jedes Glied springt auf diese Ebene; rechts ✕ zum Schließen.
+- Beim Ebenenwechsel **gleitet** die neue Ebene herein (200 ms): tiefer von rechts, zurück von links. Bei „Bewegung reduzieren“ im Betriebssystem ohne Animation.
+- **Zurück-Taste** (Android, Wischgeste bei iOS) schließt das Menü, statt die Seite zu verlassen (`useMenuHistoryEntry`: solange das Menü offen ist, gibt es einen Verlaufseintrag mit derselben URL). Nach einem Link aus dem Menü führt ein Zurück direkt zur vorherigen Seite.
+- **Fokus:** Beim Öffnen springt der Fokus auf ✕, beim Schließen zurück auf den Menü-Button; Tab bleibt im Menü.
 - Darunter ↑ („eine Ebene hoch“), dann die Kategorien: Name öffnet die Kategorie, › zeigt die Unterkategorien. Kategorien auf dem Pfad zur aktuellen Seite sind halbfett.
 - Nach einer Trennlinie in Hellblau (`#abcae4`): **Konto** (Anmelden, Account erstellen, Mein Konto bzw. Mein Konto und Ausloggen) und **Language / Sprache** (alle Shopsprachen in ihrem eigenen Namen).
 - **SEO:** Alle Ebenen werden immer gerendert und nur ausgeblendet, so stehen alle Kategorie-Links auch im Server-HTML für Handys („mobile first“-Indexierung).

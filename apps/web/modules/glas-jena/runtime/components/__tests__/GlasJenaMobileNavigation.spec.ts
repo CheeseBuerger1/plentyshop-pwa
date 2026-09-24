@@ -1,4 +1,4 @@
-import type { VueWrapper } from '@vue/test-utils';
+import { flushPromises, type VueWrapper } from '@vue/test-utils';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaMobileNavigation from '../GlasJenaMobileNavigation.vue';
 import { navigationCategoriesFixture } from './navigation.fixture';
@@ -109,6 +109,47 @@ describe('GlasJenaMobileNavigation', () => {
       .findAll('[data-testid="gj-mobile-nav-language-list"] .gj-mnav__item')
       .map((item) => item.text());
     expect(languages).toEqual(['Deutsch', 'English']);
+  });
+
+  it('should add a history entry while open and close on the back button', async () => {
+    await mountMenu();
+
+    expect(window.history.state?.gjMobileMenu).toBe(true);
+
+    window.history.replaceState({}, '');
+    window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
+    await nextTick();
+
+    expect(useMegaMenu().isOpen.value).toBe(false);
+  });
+
+  it('should move the focus to the close button when opening', async () => {
+    const wrapper = await mountSuspended(GlasJenaMobileNavigation, {
+      props: { categories: navigationCategoriesFixture },
+      attachTo: document.body,
+      global: { stubs: { NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } } },
+    });
+
+    useMegaMenu().open();
+    await flushPromises();
+
+    expect(document.activeElement?.getAttribute('data-testid')).toBe('gj-mobile-nav-close');
+    wrapper.unmount();
+  });
+
+  it('should close the menu and navigate when a category link is tapped', async () => {
+    const wrapper = await mountMenu();
+    const push = vi.spyOn(useRouter(), 'push').mockResolvedValue(undefined);
+    window.history.replaceState({}, '');
+
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 });
+    wrapper.find('[data-testid="gj-mobile-nav-link"]').element.dispatchEvent(click);
+    await flushPromises();
+
+    expect(click.defaultPrevented).toBe(true);
+    expect(useMegaMenu().isOpen.value).toBe(false);
+    expect(push).toHaveBeenCalledWith('/category/1');
+    push.mockRestore();
   });
 
   it('should close the menu with the close button', async () => {

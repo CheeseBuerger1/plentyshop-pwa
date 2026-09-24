@@ -8,6 +8,9 @@ export interface GlasJenaNavigationProps {
 /** Views of the mobile menu (see VIEW_* in utils/navigation.ts). */
 export type GlasJenaMobileNavigationView = 'categories' | 'account' | 'language';
 
+/** Slide-in direction of a mobile menu level (see SLIDE_* in utils/navigation.ts). */
+export type GlasJenaSlideDirection = 'forward' | 'back' | 'none';
+
 export interface GlasJenaNavigationMenuProps {
   /** Categories shown in this dropdown level. */
   nodes: CategoryTreeItem[];
