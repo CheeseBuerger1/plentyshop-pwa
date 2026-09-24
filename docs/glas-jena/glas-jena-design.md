@@ -64,6 +64,7 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 - Daneben die Hauptnavigation auf Weiß: Tee & Kaffee ▾, Küche & Helfer ▾, Diverses, Gesundheitshelfer, Ersatzteile ▾ (Kategorien kommen aus PlentyONE).
 - Rechts als gleich große Blöcke: Konto (hellgrau), Sprachwechsel „English“ (hellgrau), Suche (hellgrau), **Warenkorb (Mittelblau)**.
 - Handy: Burger-Menü, Logo kompakt, Warenkorb bleibt sichtbar.
+- Der Glas-Jena-Header (`GlasJenaHeaderBlocks.vue`) läuft auf allen Geräten. Nur im Shop-Editor wird der Original-Header angezeigt, damit er dort konfigurierbar bleibt. Auf dem Handy entfällt damit auch die untere Navigationsleiste des Original-Headers (wie im LTS-Shop); nur die Login-/Registrierungsseiten zeigen sie weiterhin.
 
 ### Hauptnavigation (wie im LTS-Shop)
 
@@ -78,8 +79,19 @@ Umgesetzt in `apps/web/modules/glas-jena/runtime/components/GlasJenaNavigation.v
 - **SEO:** Alle Ebenen werden immer gerendert und nur ausgeblendet. Damit stehen alle Kategorie-Links im Server-HTML, wie im LTS-Shop.
 - **Touch-Geräte** (z. B. Tablet quer): erstes Antippen öffnet die Unterkategorien, zweites Antippen öffnet die Kategorie. Antippen außerhalb schließt das Menü.
 - **Tastatur** (Muster einer WAI-ARIA-Menüleiste): In der Hauptleiste wechseln ←/→ die Kategorie; Fokus (auch per Tab) öffnet das Dropdown, ↓ springt hinein. Im Dropdown bewegen ↑/↓ innerhalb der Ebene, → öffnet das Flyout und springt hinein, ← schließt es und geht eine Ebene zurück. Enter öffnet die Kategorie, Escape schließt das Menü und springt zur Hauptkategorie zurück.
-- **Unter 1024 px:** Burger-Menü mit dem Drawer der PWA (Ebene für Ebene mit Zurück-Button) – entspricht der mobilen LTS-Navigation.
-- Die Kategorien kommen aus dem Block „Navigation“ im Header bzw. aus dem Kategoriebaum von PlentyONE.
+- Die Kategorien kommen aus dem Block „Navigation“ im Header bzw. aus dem Kategoriebaum von PlentyONE (`useGlasJenaCategoryTree`, gemeinsam für Desktop und Handy).
+
+### Mobiles Menü (unter 1024 px, wie im LTS-Shop)
+
+Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Header (bzw. alles, was `useMegaMenu().open()` aufruft).
+
+- **Vollbild, dunkel** (`#2e3233`, weiße Schrift), liegt über der ganzen Seite (per Teleport in `<body>`, Ebene `z-modal-backdrop`); die Seite dahinter scrollt nicht mit.
+- Öffnet auf der **Ebene der aktuellen Kategorie**: deren Unterkategorien, bei Kategorien ohne Unterkategorien die Geschwister. Ohne aktive Kategorie die Hauptkategorien.
+- **Pfadleiste** oben (weiß): 🏠 / Tee & Kaffee / Teekannen – jedes Glied springt auf diese Ebene; rechts ✕ zum Schließen.
+- Darunter ↑ („eine Ebene hoch“), dann die Kategorien: Name öffnet die Kategorie, › zeigt die Unterkategorien. Kategorien auf dem Pfad zur aktuellen Seite sind halbfett.
+- Nach einer Trennlinie in Hellblau (`#abcae4`): **Konto** (Anmelden, Account erstellen, Mein Konto bzw. Mein Konto und Ausloggen) und **Language / Sprache** (alle Shopsprachen in ihrem eigenen Namen).
+- **SEO:** Alle Ebenen werden immer gerendert und nur ausgeblendet, so stehen alle Kategorie-Links auch im Server-HTML für Handys („mobile first“-Indexierung).
+- **Header auf dem Handy** (unter 768 px): vier gleich breite Kacheln wie im LTS – Logo (nicht überstehend), Menü, Suche, Warenkorb. Konto und Sprache stehen im Menü. Ab 768 px sind Konto und Sprache wieder Kacheln im Header.
 
 ### Startseite (Reihenfolge)
 
@@ -136,4 +148,4 @@ Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet ho
 - [ ] Copyright-Jahr im Footer automatisch setzen.
 - [ ] Alle „Wussten Sie schon“-Fakten aus dem LTS-Shop sammeln.
 - [ ] Englische Texte für den Sprachwechsel prüfen.
-- [ ] SEO mobil: Mit Handy-User-Agent (Google indexiert „mobile first“) enthält das Server-HTML keine Kategorie-Links in der Navigation – unter 768 px läuft der Original-Header, dessen Drawer erst beim Öffnen gerendert wird. Prüfen, ob das für die Indexierung der Unterkategorien reicht.
+- [x] SEO mobil: Das Server-HTML für Handys enthält jetzt alle Kategorie-Links (mobiles Menü, siehe oben).

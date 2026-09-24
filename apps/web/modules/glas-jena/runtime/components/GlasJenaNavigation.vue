@@ -50,8 +50,9 @@
 import { SfIconExpandMore } from '@storefront-ui/vue';
 import { onClickOutside } from '@vueuse/core';
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
+import { useGlasJenaCategoryTree } from '../composables/useGlasJenaCategoryTree';
 import { useHoverIntent } from '../composables/useHoverIntent';
-import { focusFirstLinkOfFlyout, isCategoryPathActive } from '../utils/navigation';
+import { focusFirstLinkOfFlyout } from '../utils/navigation';
 import GlasJenaNavigationMenu from './GlasJenaNavigationMenu.vue';
 import type { GlasJenaNavigationProps } from './types';
 
@@ -64,35 +65,13 @@ const props = withDefaults(defineProps<GlasJenaNavigationProps>(), {
   categories: () => [],
 });
 
-const localePath = useLocalizedPath();
-const { buildCategoryMenuLink } = useLocalization();
-const { data: fetchedCategoryTree, getCategoryTree } = useCategoryTree();
 const router = useRouter();
-const route = useRoute();
 const hoverIntent = useHoverIntent();
+const { categoryTree, buildLink, isActive, hasChildren } = useGlasJenaCategoryTree(() => props.categories);
 
 const navRef = ref<HTMLElement | null>(null);
 const openId = ref<number | null>(null);
 const lastPointerType = ref('mouse');
-
-const resolvedCategories = computed(() => (props.categories.length > 0 ? props.categories : fetchedCategoryTree.value));
-const categoryTree = ref<CategoryTreeItem[]>([]);
-
-/* getTree() touches the reactive source tree, so a computed would re-trigger itself (same pattern as the Navigation block) */
-watch(
-  resolvedCategories,
-  (categories) => {
-    categoryTree.value = categoryTreeGetters.getTree(categories);
-  },
-  { immediate: true },
-);
-
-const buildLink = (category: CategoryTreeItem) => localePath(buildCategoryMenuLink(category, categoryTree.value));
-
-/** Highlights the whole path to the current page (category and its ancestors), like the LTS shop. */
-const isActive = (category: CategoryTreeItem) => isCategoryPathActive(route.path, buildLink(category));
-
-const hasChildren = (node: CategoryTreeItem) => node.childCount > 0 && (node.children?.length ?? 0) > 0;
 
 const close = () => {
   hoverIntent.cancel();
@@ -209,12 +188,6 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => removeRouteHook?.());
-
-onNuxtReady(async () => {
-  if (props.categories.length === 0 && fetchedCategoryTree.value.length === 0) {
-    await getCategoryTree();
-  }
-});
 </script>
 
 <style scoped>

@@ -16,12 +16,21 @@
   --gj-footnote-bg: #f7f7f7;
   --gj-text: #444444;
   --gj-text-muted: #777777;
-  --gj-mobile-navbar-height: 62px;
+  /* Only set while the original mobile NavbarBottom is on the page (see below) */
+  --gj-mobile-navbar-height: 0px;
   --gj-box-width: 1200px;
   --gj-header-height: 5rem;
   --gj-logo-width: 7.5rem;
   --gj-logo-overhang: 2.5rem;
   --gj-tile-width: 5.5rem;
+}
+
+/*
+ * The GLAS IN JENA header replaces the original one on phones, and with it the fixed NavbarBottom.
+ * The auth layout (login, registration) still renders it, so keep room for it there.
+ */
+.font-body:has([data-testid='navbar-bottom']) {
+  --gj-mobile-navbar-height: 62px;
 }
 
 /* Typography */
