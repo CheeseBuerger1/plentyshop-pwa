@@ -64,7 +64,7 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 - Daneben die Hauptnavigation auf Weiß: Tee & Kaffee ▾, Küche & Helfer ▾, Diverses, Gesundheitshelfer, Ersatzteile ▾ (Kategorien kommen aus PlentyONE).
 - Rechts als gleich große Blöcke: Konto (hellgrau), Sprachwechsel „English“ (hellgrau), Suche (hellgrau), **Warenkorb (Mittelblau)**.
 - Handy: Burger-Menü, Logo kompakt, Warenkorb bleibt sichtbar.
-- Der Glas-Jena-Header (`GlasJenaHeaderBlocks.vue`) läuft auf allen Geräten. Nur im Shop-Editor wird der Original-Header angezeigt, damit er dort konfigurierbar bleibt. Auf dem Handy entfällt damit auch die untere Navigationsleiste des Original-Headers (wie im LTS-Shop); nur die Login-/Registrierungsseiten zeigen sie weiterhin. Cookie- und Vorschau-Button rücken auf dem Handy entsprechend nach unten (`glas-jena.css`).
+- Der Glas-Jena-Header (`GlasJenaHeaderBlocks.vue`) läuft auf allen Geräten. Nur im Shop-Editor wird der Original-Header angezeigt, damit er dort konfigurierbar bleibt. Auf dem Handy entfällt damit auch die untere Navigationsleiste des Original-Headers (wie im LTS-Shop), auch auf den Login-/Registrierungsseiten (`GlasJenaNavbarBottom.vue`). Cookie- und Vorschau-Button rücken auf dem Handy entsprechend nach unten (`glas-jena.css`).
 
 ### Hauptnavigation (wie im LTS-Shop)
 
@@ -112,6 +112,26 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 - Weißer Hintergrund, Produktbild freigestellt.
 - Oben rechts eine **Dreieck-Ecke** in Blaugrau mit Warenkorb-Symbol (In-den-Warenkorb).
 - Darunter Artikelname, Preis groß mit „\*“, Hinweis „\* inkl. ges. MwSt. zzgl. Versandkosten“ (Versandkosten als Link).
+- **Kein Herz / keine Wunschliste** (siehe unten).
+
+### Keine Wunschliste
+
+Der Shop bietet keine Wunschliste (wie der LTS-Shop).
+
+**Im Shop-Editor abschalten** (Regel „Shop-Editor zuerst“). Kategorie- und Artikelseiten haben je **eine gemeinsame Vorlage** für alle Kategorien bzw. Artikel; die Einstellung wird dort einmal gesetzt, nicht auf einzelnen Seiten:
+
+1. Linke Leiste, oberstes Symbol (Seiten, „Open pages drawer“) → ganz unten Abschnitt **„Page Layouts“**.
+2. **„Product category page“ → „Edit page“**: Block mit der Artikelliste anklicken → Bereich **„Item card“** → **„Show wishlist button“** aus.
+3. **„Product detail page“ → „Edit page“**: Block **Price Card** anklicken → Feld **„Add to wishlist“** aus.
+4. Nur im Vorschau-Modus speichern.
+
+Außerdem im Header, Block **Utility Bar**, Aktionen: „Wishlist“ aus (wirkt nur im Editor, der Shop nutzt den Glas-Jena-Header).
+
+**Im Modul erledigt** (Stellen ohne Editor-Einstellung, in Originaldateien):
+
+- Die Seiten `/wishlist` und `/my-account/wishlist` sind entfernt (`pages:extend` in `modules/glas-jena/index.ts`); alte Links landen auf der 404-Seite.
+- Abschnitt „Wunschliste“ im Menü von „Mein Konto“ und der Vorteil „Wunschliste“ im Registrierungsformular sind per CSS ausgeblendet (`glas-jena.css`).
+- Die untere Navigationsleiste (mit Wunschliste) ist auch auf den Login-/Registrierungsseiten ersetzt (`GlasJenaNavbarBottom.vue`, rendert nichts) – das Handy sieht dort aus wie im restlichen Shop.
 
 ### Footer
 
