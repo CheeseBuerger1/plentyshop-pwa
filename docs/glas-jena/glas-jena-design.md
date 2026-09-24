@@ -118,11 +118,14 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 
 Der Shop bietet keine Wunschliste (wie der LTS-Shop).
 
-**Im Shop-Editor abschalten** (Regel „Shop-Editor zuerst“):
+**Im Shop-Editor abschalten** (Regel „Shop-Editor zuerst“). Kategorie- und Artikelseiten haben je **eine gemeinsame Vorlage** für alle Kategorien bzw. Artikel; die Einstellung wird dort einmal gesetzt, nicht auf einzelnen Seiten:
 
-- Kategorieseiten, Block **Item Category** (Artikelliste): „Show wishlist button“ aus.
-- Artikelseite, Block **Price Card**: Feld „Add to wishlist“ aus.
-- Header, Block **Utility Bar**, Aktionen: „Wishlist“ aus (wirkt nur im Editor, der Shop nutzt den Glas-Jena-Header).
+1. Linke Leiste, oberstes Symbol (Seiten, „Open pages drawer“) → ganz unten Abschnitt **„Page Layouts“**.
+2. **„Product category page“ → „Edit page“**: Block mit der Artikelliste anklicken → Bereich **„Item card“** → **„Show wishlist button“** aus.
+3. **„Product detail page“ → „Edit page“**: Block **Price Card** anklicken → Feld **„Add to wishlist“** aus.
+4. Nur im Vorschau-Modus speichern.
+
+Außerdem im Header, Block **Utility Bar**, Aktionen: „Wishlist“ aus (wirkt nur im Editor, der Shop nutzt den Glas-Jena-Header).
 
 **Im Modul erledigt** (Stellen ohne Editor-Einstellung, in Originaldateien):
 
