@@ -10,6 +10,11 @@ export const VIEW_CATEGORIES = 'categories';
 export const VIEW_ACCOUNT = 'account';
 export const VIEW_LANGUAGE = 'language';
 
+/** Slide-in direction of a mobile menu level: deeper levels come from the right, going back from the left. */
+export const SLIDE_FORWARD = 'forward';
+export const SLIDE_BACK = 'back';
+export const SLIDE_NONE = 'none';
+
 /** Deliberately bilingual like in the LTS shop, so it is found whatever language is active. */
 export const LANGUAGE_MENU_LABEL = 'Language / Sprache';
 

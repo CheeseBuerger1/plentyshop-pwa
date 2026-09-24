@@ -18,7 +18,7 @@
           </button>
         </li>
         <li v-for="crumb in breadcrumbs" :key="crumb.id">
-          <button type="button" class="gj-mnav__crumb" @click="slideTo(crumb.id)">
+          <button type="button" class="gj-mnav__crumb" @click="slideBackTo(crumb.id)">
             {{ categoryTreeGetters.getName(crumb) }}
           </button>
         </li>
@@ -27,6 +27,7 @@
         </li>
       </ol>
       <button
+        ref="closeRef"
         type="button"
         class="gj-mnav__close"
         :aria-label="t('common.navigation.closeMenu')"
@@ -37,12 +38,13 @@
       </button>
     </div>
 
-    <nav class="gj-mnav__body">
+    <nav class="gj-mnav__body" @click.capture="onLinkClick">
       <ul
         v-for="level in levels"
         v-show="view === VIEW_CATEGORIES && level.id === parentId"
         :key="level.id ?? 'root'"
         class="gj-mnav__list"
+        :class="slideClass"
         :data-testid="`gj-mobile-nav-level-${level.id ?? 'root'}`"
       >
         <li v-if="level.id !== null">
@@ -56,7 +58,6 @@
             class="gj-mnav__link"
             :class="{ 'gj-mnav__link--active': isActive(node) }"
             data-testid="gj-mobile-nav-link"
-            @click="close"
           >
             {{ categoryTreeGetters.getName(node) }}
           </NuxtLink>
@@ -66,7 +67,7 @@
             class="gj-mnav__next"
             :aria-label="`${t('common.navigation.showSubcategories')} - ${categoryTreeGetters.getName(node)}`"
             data-testid="gj-mobile-nav-next"
-            @click="slideTo(node.id)"
+            @click="slideForwardTo(node.id)"
           >
             <SfIconChevronRight aria-hidden="true" />
           </button>
@@ -77,7 +78,11 @@
         <hr class="gj-mnav__separator" />
         <ul class="gj-mnav__list">
           <li class="gj-mnav__item">
-            <button type="button" class="gj-mnav__link gj-mnav__link--extra" @click="showView(VIEW_ACCOUNT)">
+            <button
+              type="button"
+              class="gj-mnav__link gj-mnav__link--extra"
+              @click="showView(VIEW_ACCOUNT, SLIDE_FORWARD)"
+            >
               {{ tLocal('account') }}
             </button>
             <button
@@ -85,13 +90,17 @@
               class="gj-mnav__next gj-mnav__link--extra"
               :aria-label="tLocal('account')"
               data-testid="gj-mobile-nav-account"
-              @click="showView(VIEW_ACCOUNT)"
+              @click="showView(VIEW_ACCOUNT, SLIDE_FORWARD)"
             >
               <SfIconChevronRight aria-hidden="true" />
             </button>
           </li>
           <li v-if="locales.length > 1" class="gj-mnav__item">
-            <button type="button" class="gj-mnav__link gj-mnav__link--extra" @click="showView(VIEW_LANGUAGE)">
+            <button
+              type="button"
+              class="gj-mnav__link gj-mnav__link--extra"
+              @click="showView(VIEW_LANGUAGE, SLIDE_FORWARD)"
+            >
               {{ LANGUAGE_MENU_LABEL }}
             </button>
             <button
@@ -99,7 +108,7 @@
               class="gj-mnav__next gj-mnav__link--extra"
               :aria-label="LANGUAGE_MENU_LABEL"
               data-testid="gj-mobile-nav-language"
-              @click="showView(VIEW_LANGUAGE)"
+              @click="showView(VIEW_LANGUAGE, SLIDE_FORWARD)"
             >
               <SfIconChevronRight aria-hidden="true" />
             </button>
@@ -107,20 +116,25 @@
         </ul>
       </template>
 
-      <ul v-else-if="view === VIEW_ACCOUNT" class="gj-mnav__list" data-testid="gj-mobile-nav-account-list">
+      <ul
+        v-else-if="view === VIEW_ACCOUNT"
+        class="gj-mnav__list"
+        :class="slideClass"
+        data-testid="gj-mobile-nav-account-list"
+      >
         <li>
           <button
             type="button"
             class="gj-mnav__up"
             :aria-label="t('common.actions.back')"
-            @click="showView(VIEW_CATEGORIES)"
+            @click="showView(VIEW_CATEGORIES, SLIDE_BACK)"
           >
             <SfIconArrowUpward aria-hidden="true" />
           </button>
         </li>
         <template v-if="isAuthorized">
           <li class="gj-mnav__item">
-            <NuxtLink :to="localePath(paths.account)" class="gj-mnav__link" @click="close">
+            <NuxtLink :to="localePath(paths.account)" class="gj-mnav__link">
               {{ t('account.heading') }}
             </NuxtLink>
           </li>
@@ -130,30 +144,30 @@
         </template>
         <template v-else>
           <li class="gj-mnav__item">
-            <NuxtLink :to="localePath(paths.authLogin)" class="gj-mnav__link" @click="close">
+            <NuxtLink :to="localePath(paths.authLogin)" class="gj-mnav__link">
               {{ t('authentication.login.submitLabel') }}
             </NuxtLink>
           </li>
           <li class="gj-mnav__item">
-            <NuxtLink :to="localePath(paths.register)" class="gj-mnav__link" @click="close">
+            <NuxtLink :to="localePath(paths.register)" class="gj-mnav__link">
               {{ t('authentication.signup.heading') }}
             </NuxtLink>
           </li>
           <li class="gj-mnav__item">
-            <NuxtLink :to="localePath(paths.account)" class="gj-mnav__link" @click="close">
+            <NuxtLink :to="localePath(paths.account)" class="gj-mnav__link">
               {{ t('account.heading') }}
             </NuxtLink>
           </li>
         </template>
       </ul>
 
-      <ul v-else class="gj-mnav__list" data-testid="gj-mobile-nav-language-list">
+      <ul v-else class="gj-mnav__list" :class="slideClass" data-testid="gj-mobile-nav-language-list">
         <li>
           <button
             type="button"
             class="gj-mnav__up"
             :aria-label="t('common.actions.back')"
-            @click="showView(VIEW_CATEGORIES)"
+            @click="showView(VIEW_CATEGORIES, SLIDE_BACK)"
           >
             <SfIconArrowUpward aria-hidden="true" />
           </button>
@@ -178,9 +192,18 @@
 import { SfIconArrowUpward, SfIconChevronRight, SfIconClose, SfIconHome, useTrapFocus } from '@storefront-ui/vue';
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
 import { useGlasJenaCategoryTree } from '../composables/useGlasJenaCategoryTree';
+import { useMenuHistoryEntry } from '../composables/useMenuHistoryEntry';
 import { getNativeLanguageName } from '../utils/locale';
-import { LANGUAGE_MENU_LABEL, VIEW_ACCOUNT, VIEW_CATEGORIES, VIEW_LANGUAGE } from '../utils/navigation';
-import type { GlasJenaMobileNavigationView, GlasJenaNavigationProps } from './types';
+import {
+  LANGUAGE_MENU_LABEL,
+  SLIDE_BACK,
+  SLIDE_FORWARD,
+  SLIDE_NONE,
+  VIEW_ACCOUNT,
+  VIEW_CATEGORIES,
+  VIEW_LANGUAGE,
+} from '../utils/navigation';
+import type { GlasJenaMobileNavigationView, GlasJenaNavigationProps, GlasJenaSlideDirection } from './types';
 
 /**
  * Mobile menu in the style of the LTS shop www.glas-jena.de: a full-screen dark panel that opens at
@@ -262,24 +285,50 @@ const findStartLevel = () => {
   return hasChildren(deepestActive) ? deepestActive.id : (activeParent?.id ?? null);
 };
 
-const slideTo = (id: number | null) => {
-  view.value = VIEW_CATEGORIES;
+/** Direction of the last level change; a level that becomes visible slides in from that side (like the LTS shop). */
+const slideDirection = ref<GlasJenaSlideDirection>(SLIDE_NONE);
+const slideClass = computed(() => `gj-mnav__list--${slideDirection.value}`);
+
+const showView = (next: GlasJenaMobileNavigationView, direction: GlasJenaSlideDirection) => {
+  slideDirection.value = direction;
+  view.value = next;
+};
+
+const slideTo = (id: number | null, direction: GlasJenaSlideDirection) => {
+  showView(VIEW_CATEGORIES, direction);
   parentId.value = id;
 };
 
-const showRoot = () => slideTo(null);
+const slideForwardTo = (id: number) => slideTo(id, SLIDE_FORWARD);
+const slideBackTo = (id: number | null) => slideTo(id, SLIDE_BACK);
+const showRoot = () => slideBackTo(null);
 
 const goUp = () => {
   const parent = parentId.value === null ? null : parentsById.value.parents.get(parentId.value);
-  slideTo(parent?.id ?? null);
+  slideBackTo(parent?.id ?? null);
 };
 
-const showView = (next: GlasJenaMobileNavigationView) => {
-  view.value = next;
+const { exitHistoryEntry } = useMenuHistoryEntry(isOpen, close);
+
+/**
+ * Links in the menu first remove the menu's history entry and navigate afterwards, so the back button
+ * then returns to the previous page. Listens in the capture phase so it runs before the link's own
+ * navigation, which then skips the prevented click. Modifier clicks (new tab/window) keep the default.
+ */
+const onLinkClick = async (event: MouseEvent) => {
+  const href = (event.target as HTMLElement | null)?.closest('a[href]')?.getAttribute('href');
+  if (!href || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+    return;
+  }
+  event.preventDefault();
+  close();
+  await exitHistoryEntry();
+  await router.push(href);
 };
 
 const onLocaleClick = async (locale: (typeof locales.value)[number]) => {
   close();
+  await exitHistoryEntry();
   if (locale !== currentLocale.value) {
     await switchLocale(locale);
   }
@@ -287,20 +336,41 @@ const onLocaleClick = async (locale: (typeof locales.value)[number]) => {
 
 const onLogout = () => handleLogout({ logout, toggle: close });
 
-watch(isOpen, (open) => {
+const closeRef = ref<HTMLElement>();
+/** The element that opened the menu (usually the burger); it gets the focus back on close. */
+let opener: HTMLElement | null = null;
+
+watch(isOpen, async (open) => {
   if (open) {
+    slideDirection.value = SLIDE_NONE;
     view.value = VIEW_CATEGORIES;
     parentId.value = findStartLevel();
   }
-  if (import.meta.client) {
-    document.documentElement.style.overflow = open ? 'hidden' : '';
+  if (!import.meta.client) {
+    return;
   }
+  document.documentElement.style.overflow = open ? 'hidden' : '';
+  if (open) {
+    opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    await nextTick();
+    closeRef.value?.focus();
+    return;
+  }
+  if (opener?.isConnected && panelRef.value?.contains(document.activeElement)) {
+    opener.focus();
+  }
+  opener = null;
 });
 
 let removeRouteHook: (() => void) | undefined;
 
 onMounted(() => {
-  removeRouteHook = router.afterEach(close);
+  /* Only a real page change closes the menu; removing its history entry is a "navigation" to the same page */
+  removeRouteHook = router.afterEach((to, from) => {
+    if (to.fullPath !== from.fullPath) {
+      close();
+    }
+  });
 });
 
 onBeforeUnmount(() => {
@@ -374,6 +444,7 @@ useTrapFocus(panelRef, { activeState: isOpen, arrowKeysUpDown: false, initialFoc
 
 .gj-mnav__body {
   flex: 1;
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -382,6 +453,34 @@ useTrapFocus(panelRef, { activeState: isOpen, arrowKeysUpDown: false, initialFoc
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* A level slides in whenever it becomes visible (display: none → shown restarts the animation) */
+.gj-mnav__list--forward {
+  animation: gj-mnav-slide-from-right 200ms ease-out;
+}
+
+.gj-mnav__list--back {
+  animation: gj-mnav-slide-from-left 200ms ease-out;
+}
+
+@keyframes gj-mnav-slide-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes gj-mnav-slide-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gj-mnav__list--forward,
+  .gj-mnav__list--back {
+    animation: none;
+  }
 }
 
 .gj-mnav__item {
