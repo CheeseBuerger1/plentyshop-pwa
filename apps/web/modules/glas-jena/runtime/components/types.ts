@@ -12,4 +12,8 @@ export interface GlasJenaNavigationMenuProps {
   level: number;
   /** Builds the localized link for a category. */
   buildLink: (category: CategoryTreeItem) => string;
+  /** Whether the category is the current page or one of its ancestors. */
+  isActive: (category: CategoryTreeItem) => boolean;
+  /** Whether this level is currently shown; hidden levels stay in the HTML for search engines. */
+  isOpen: boolean;
 }

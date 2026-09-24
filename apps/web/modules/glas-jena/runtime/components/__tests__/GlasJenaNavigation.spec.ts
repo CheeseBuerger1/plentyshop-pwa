@@ -1,6 +1,7 @@
 import type { VueWrapper } from '@vue/test-utils';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaNavigation from '../GlasJenaNavigation.vue';
+import { NAVIGATION_HOVER_DELAY_MS } from '../../utils/navigation';
 import { navigationCategoriesFixture } from './navigation.fixture';
 
 mockNuxtImport('useCategoryTree', () => () => ({ data: ref([]), getCategoryTree: vi.fn() }));
@@ -15,8 +16,14 @@ const mountNavigation = () =>
     global: { stubs: { NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } } },
   });
 
+const menu = (wrapper: VueWrapper, level: number) => wrapper.find(`[data-testid="gj-nav-menu-${level}"]`);
+
+/* v-show hides via inline `display: none`; isVisible() cannot see that on a detached element */
+const isMenuShown = (wrapper: VueWrapper, level: number) =>
+  menu(wrapper, level).exists() && (menu(wrapper, level).element as HTMLElement).style.display !== 'none';
+
 const menuTexts = (wrapper: VueWrapper, level: number) =>
-  wrapper.findAll(`[data-testid="gj-nav-menu-${level}"] > li > a`).map((link) => link.text());
+  Array.from(menu(wrapper, level).element.children).map((item) => item.querySelector('a')?.textContent?.trim());
 
 const linkByText = (wrapper: VueWrapper, text: string) => {
   const link = wrapper.findAll('a').find((candidate) => candidate.text() === text);
@@ -31,7 +38,16 @@ const dispatchOnItem = async (wrapper: VueWrapper, text: string, type: 'mouseent
   await nextTick();
 };
 
+const waitForHoverDelay = async () => {
+  vi.advanceTimersByTime(NAVIGATION_HOVER_DELAY_MS);
+  await nextTick();
+};
+
 describe('GlasJenaNavigation', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('should render all main categories with their links', async () => {
     const wrapper = await mountNavigation();
 
@@ -41,11 +57,21 @@ describe('GlasJenaNavigation', () => {
     expect(categories[0]?.attributes('href')).toBe('/category/1');
   });
 
+  it('should render the links of all levels while the menus are closed', async () => {
+    const wrapper = await mountNavigation();
+
+    const hrefs = wrapper.findAll('a').map((link) => link.attributes('href'));
+
+    expect(hrefs).toEqual(expect.arrayContaining(['/category/12', '/category/121', '/category/1212']));
+    expect(isMenuShown(wrapper, 2)).toBe(false);
+  });
+
   it('should open the dropdown when hovering a main category', async () => {
     const wrapper = await mountNavigation();
 
     await dispatchOnItem(wrapper, 'Tee & Kaffee', 'mouseenter');
 
+    expect(isMenuShown(wrapper, 2)).toBe(true);
     expect(menuTexts(wrapper, 2)).toEqual(['Kaffee & mehr', 'Teekannen']);
   });
 
@@ -56,17 +82,55 @@ describe('GlasJenaNavigation', () => {
     await dispatchOnItem(wrapper, 'Teekannen', 'mouseenter');
     await dispatchOnItem(wrapper, 'mit Glasfilter', 'mouseenter');
 
+    expect(isMenuShown(wrapper, 3)).toBe(true);
+    expect(isMenuShown(wrapper, 4)).toBe(true);
     expect(menuTexts(wrapper, 3)).toEqual(['mit Glasfilter', 'Leuchtkannen']);
     expect(menuTexts(wrapper, 4)).toEqual(['kleiner 1 L', 'größer 1 L']);
   });
 
-  it('should close the dropdown when the mouse leaves the category', async () => {
+  it('should keep a flyout open while the pointer briefly crosses a sibling item', async () => {
     const wrapper = await mountNavigation();
-
     await dispatchOnItem(wrapper, 'Tee & Kaffee', 'mouseenter');
+    await dispatchOnItem(wrapper, 'Teekannen', 'mouseenter');
+    vi.useFakeTimers();
+
+    await dispatchOnItem(wrapper, 'Teekannen', 'mouseleave');
+    await dispatchOnItem(wrapper, 'Kaffee & mehr', 'mouseenter');
+    await dispatchOnItem(wrapper, 'Kaffee & mehr', 'mouseleave');
+    await dispatchOnItem(wrapper, 'Teekannen', 'mouseenter');
+    await waitForHoverDelay();
+
+    expect(isMenuShown(wrapper, 3)).toBe(true);
+  });
+
+  it('should switch to a sibling item after the hover delay', async () => {
+    const wrapper = await mountNavigation();
+    await dispatchOnItem(wrapper, 'Tee & Kaffee', 'mouseenter');
+    await dispatchOnItem(wrapper, 'Teekannen', 'mouseenter');
+    vi.useFakeTimers();
+
+    await dispatchOnItem(wrapper, 'Teekannen', 'mouseleave');
+    await dispatchOnItem(wrapper, 'Kaffee & mehr', 'mouseenter');
+
+    expect(isMenuShown(wrapper, 3)).toBe(true);
+
+    await waitForHoverDelay();
+
+    expect(isMenuShown(wrapper, 3)).toBe(false);
+  });
+
+  it('should close the dropdown shortly after the mouse leaves the category', async () => {
+    const wrapper = await mountNavigation();
+    await dispatchOnItem(wrapper, 'Tee & Kaffee', 'mouseenter');
+    vi.useFakeTimers();
+
     await dispatchOnItem(wrapper, 'Tee & Kaffee', 'mouseleave');
 
-    expect(wrapper.find('[data-testid="gj-nav-menu-2"]').exists()).toBe(false);
+    expect(isMenuShown(wrapper, 2)).toBe(true);
+
+    await waitForHoverDelay();
+
+    expect(isMenuShown(wrapper, 2)).toBe(false);
   });
 
   it('should open the dropdown on the first tap on touch devices instead of following the link', async () => {
@@ -80,7 +144,7 @@ describe('GlasJenaNavigation', () => {
     await nextTick();
 
     expect(click.defaultPrevented).toBe(true);
-    expect(menuTexts(wrapper, 2)).toEqual(['Kaffee & mehr', 'Teekannen']);
+    expect(isMenuShown(wrapper, 2)).toBe(true);
   });
 
   it('should close the dropdown when Escape is pressed', async () => {
@@ -89,6 +153,6 @@ describe('GlasJenaNavigation', () => {
     await dispatchOnItem(wrapper, 'Tee & Kaffee', 'mouseenter');
     await wrapper.find('[data-testid="gj-nav"]').trigger('keydown', { key: 'Escape' });
 
-    expect(wrapper.find('[data-testid="gj-nav-menu-2"]').exists()).toBe(false);
+    expect(isMenuShown(wrapper, 2)).toBe(false);
   });
 });

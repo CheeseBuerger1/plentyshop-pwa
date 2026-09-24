@@ -13,12 +13,12 @@
       class="gj-nav-menu__item"
       @mouseenter="onItemEnter(node)"
       @mouseleave="onItemLeave(node)"
-      @focusin="onItemEnter(node)"
+      @focusin="onItemFocus(node)"
     >
       <NuxtLink
         :to="buildLink(node)"
         class="gj-nav-menu__link"
-        :class="{ 'gj-nav-menu__link--open': openChildId === node.id }"
+        :class="{ 'gj-nav-menu__link--open': openChildId === node.id, 'gj-nav-menu__link--active': isActive(node) }"
         data-testid="gj-nav-menu-link"
         :aria-haspopup="hasChildren(node) ? 'true' : undefined"
         :aria-expanded="hasChildren(node) ? openChildId === node.id : undefined"
@@ -28,11 +28,15 @@
         <SfIconChevronRight v-if="hasChildren(node)" size="xs" aria-hidden="true" class="gj-nav-menu__chevron" />
       </NuxtLink>
 
+      <!-- Always rendered (only hidden) so all category links are in the server HTML, like in the LTS shop -->
       <GlasJenaNavigationMenu
-        v-if="hasChildren(node) && openChildId === node.id"
+        v-if="hasChildren(node)"
+        v-show="openChildId === node.id"
         :nodes="node.children ?? []"
         :level="level + 1"
         :build-link="buildLink"
+        :is-active="isActive"
+        :is-open="isOpen && openChildId === node.id"
         class="gj-nav-menu--flyout"
       />
     </li>
@@ -42,20 +46,23 @@
 <script setup lang="ts">
 import { SfIconChevronRight } from '@storefront-ui/vue';
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
+import { useHoverIntent } from '../composables/useHoverIntent';
 import type { GlasJenaNavigationMenuProps } from './types';
 
 defineOptions({ name: 'GlasJenaNavigationMenu' });
-defineProps<GlasJenaNavigationMenuProps>();
+const props = defineProps<GlasJenaNavigationMenuProps>();
 
 const menuRef = ref<HTMLElement | null>(null);
 const openChildId = ref<number | null>(null);
 const isFlipped = ref(false);
 const lastPointerType = ref('mouse');
+const hoverIntent = useHoverIntent();
 
 const hasChildren = (node: CategoryTreeItem) => node.childCount > 0 && (node.children?.length ?? 0) > 0;
 
-const openChild = (node: CategoryTreeItem) => {
-  openChildId.value = hasChildren(node) ? node.id : null;
+const openChild = (node: CategoryTreeItem | null) => {
+  hoverIntent.cancel();
+  openChildId.value = node && hasChildren(node) ? node.id : null;
 };
 
 const onPointerDown = (event: PointerEvent) => {
@@ -67,22 +74,35 @@ const onKeyDown = () => {
 };
 
 /**
- * Like the LTS shop, submenus open on hover (and on keyboard focus).
- * Touch devices open them on the first tap instead (see onItemClick).
+ * Like the LTS shop, submenus open on hover. While a submenu is open, another item has to be
+ * hovered for a moment before it takes over, so a diagonal move into the flyout does not close it.
+ * Touch devices open submenus on the first tap instead (see onItemClick).
  */
 const onItemEnter = (node: CategoryTreeItem) => {
   if (lastPointerType.value === 'touch') {
     return;
   }
-  openChild(node);
+  if (openChildId.value === node.id) {
+    hoverIntent.cancel();
+    return;
+  }
+  if (openChildId.value === null) {
+    openChild(node);
+    return;
+  }
+  hoverIntent.schedule(() => openChild(node));
 };
 
 const onItemLeave = (node: CategoryTreeItem) => {
-  if (lastPointerType.value === 'touch') {
+  if (lastPointerType.value === 'touch' || openChildId.value !== node.id) {
     return;
   }
-  if (openChildId.value === node.id) {
-    openChildId.value = null;
+  hoverIntent.schedule(() => openChild(null));
+};
+
+const onItemFocus = (node: CategoryTreeItem) => {
+  if (lastPointerType.value !== 'touch') {
+    openChild(node);
   }
 };
 
@@ -94,13 +114,26 @@ const onItemClick = (event: MouseEvent, node: CategoryTreeItem) => {
   }
 };
 
-/** Flyouts that would leave the viewport on the right open to the left instead. */
-onMounted(() => {
+/** Flyouts that would leave the viewport on the right open to the left instead; measured once visible. */
+const updateFlip = () => {
+  isFlipped.value = false;
   const rect = menuRef.value?.getBoundingClientRect();
-  if (rect && rect.right > window.innerWidth) {
+  if (rect && rect.width > 0 && rect.right > window.innerWidth) {
     isFlipped.value = true;
   }
-});
+};
+
+watch(
+  () => props.isOpen,
+  async (isOpen) => {
+    if (!isOpen) {
+      openChild(null);
+      return;
+    }
+    await nextTick();
+    updateFlip();
+  },
+);
 </script>
 
 <style scoped>
@@ -149,7 +182,7 @@ onMounted(() => {
   background-color: #f8f9fa;
 }
 
-.gj-nav-menu__link.router-link-active {
+.gj-nav-menu__link--active {
   background-color: var(--gj-tile-grey-blue);
 }
 
