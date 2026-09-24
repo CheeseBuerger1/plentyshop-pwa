@@ -39,6 +39,7 @@
           :build-link="buildLink"
           :is-active="isActive"
           :is-open="openId === node.id"
+          @back="focusTrigger(node)"
         />
       </li>
     </ul>
@@ -50,7 +51,7 @@ import { SfIconExpandMore } from '@storefront-ui/vue';
 import { onClickOutside } from '@vueuse/core';
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
 import { useHoverIntent } from '../composables/useHoverIntent';
-import { isCategoryPathActive } from '../utils/navigation';
+import { focusFirstLinkOfFlyout, isCategoryPathActive } from '../utils/navigation';
 import GlasJenaNavigationMenu from './GlasJenaNavigationMenu.vue';
 import type { GlasJenaNavigationProps } from './types';
 
@@ -102,14 +103,60 @@ const onPointerDown = (event: PointerEvent) => {
   lastPointerType.value = event.pointerType;
 };
 
-const onKeyDown = (event: KeyboardEvent) => {
-  lastPointerType.value = 'keyboard';
-  if (event.key !== 'Escape' || openId.value === null) {
-    return;
-  }
+/** Set while the focus is moved programmatically to a main category that should stay closed. */
+let isFocusingClosed = false;
+
+const triggerLinks = () =>
+  Array.from(navRef.value?.querySelectorAll<HTMLElement>('[data-testid="gj-nav-category"]') ?? []);
+
+const focusTrigger = (node: CategoryTreeItem) => {
+  triggerLinks()[categoryTree.value.indexOf(node)]?.focus();
+};
+
+const closeAndFocusTrigger = () => {
   const trigger = navRef.value?.querySelector<HTMLElement>('[data-testid="gj-nav-category"][aria-expanded="true"]');
   close();
+  isFocusingClosed = true;
   trigger?.focus();
+  isFocusingClosed = false;
+};
+
+/**
+ * Keyboard: Left/Right move along the main bar, Down opens the dropdown and focuses its first
+ * entry, Escape closes it. The dropdown levels handle their own arrow keys.
+ */
+const onKeyDown = async (event: KeyboardEvent) => {
+  lastPointerType.value = 'keyboard';
+  if (event.key === 'Escape' && openId.value !== null) {
+    closeAndFocusTrigger();
+    return;
+  }
+
+  const triggers = triggerLinks();
+  const index = triggers.indexOf(event.target as HTMLElement);
+  const node = categoryTree.value[index];
+  if (index === -1 || !node) {
+    return;
+  }
+
+  switch (event.key) {
+    case 'ArrowRight':
+      event.preventDefault();
+      triggers[(index + 1) % triggers.length]?.focus();
+      break;
+    case 'ArrowLeft':
+      event.preventDefault();
+      triggers[(index - 1 + triggers.length) % triggers.length]?.focus();
+      break;
+    case 'ArrowDown':
+      if (hasChildren(node)) {
+        event.preventDefault();
+        openId.value = node.id;
+        await nextTick();
+        focusFirstLinkOfFlyout(triggers[index]?.parentElement);
+      }
+      break;
+  }
 };
 
 /**
@@ -132,8 +179,9 @@ const onItemLeave = () => {
   hoverIntent.schedule(close);
 };
 
+/** Focusing a main category opens its dropdown, so keyboard users also discover it with Tab. */
 const onItemFocus = (node: CategoryTreeItem) => {
-  if (lastPointerType.value !== 'touch') {
+  if (lastPointerType.value !== 'touch' && !isFocusingClosed) {
     onItemEnter(node);
   }
 };

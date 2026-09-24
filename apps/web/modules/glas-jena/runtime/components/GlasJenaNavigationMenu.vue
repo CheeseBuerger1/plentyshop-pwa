@@ -38,6 +38,7 @@
         :is-active="isActive"
         :is-open="isOpen && openChildId === node.id"
         class="gj-nav-menu--flyout"
+        @back="onChildBack(node)"
       />
     </li>
   </ul>
@@ -47,10 +48,13 @@
 import { SfIconChevronRight } from '@storefront-ui/vue';
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
 import { useHoverIntent } from '../composables/useHoverIntent';
+import { focusFirstLinkOfFlyout } from '../utils/navigation';
 import type { GlasJenaNavigationMenuProps } from './types';
 
 defineOptions({ name: 'GlasJenaNavigationMenu' });
 const props = defineProps<GlasJenaNavigationMenuProps>();
+/** ArrowLeft on this level: the parent closes it and takes the focus back. */
+const emit = defineEmits<{ back: [] }>();
 
 const menuRef = ref<HTMLElement | null>(null);
 const openChildId = ref<number | null>(null);
@@ -69,8 +73,55 @@ const onPointerDown = (event: PointerEvent) => {
   lastPointerType.value = event.pointerType;
 };
 
-const onKeyDown = () => {
+/** The links of this level's own items (not those of nested flyouts), in display order. */
+const itemLinks = () =>
+  Array.from(menuRef.value?.children ?? []).map((item) => item.firstElementChild as HTMLElement | null);
+
+const focusFirstChildLink = (index: number) => {
+  focusFirstLinkOfFlyout(menuRef.value?.children[index]);
+};
+
+/**
+ * Arrow keys like a WAI-ARIA menu: Up/Down move within this level, Right opens the flyout
+ * and focuses its first entry, Left returns to the parent level. Keys pressed inside a nested
+ * flyout are left to that flyout (they bubble up here, but their target is not one of our links).
+ */
+const onKeyDown = async (event: KeyboardEvent) => {
   lastPointerType.value = 'keyboard';
+  const links = itemLinks();
+  const index = links.indexOf(event.target as HTMLElement);
+  const node = props.nodes[index];
+  if (index === -1 || !node) {
+    return;
+  }
+
+  switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault();
+      links[(index + 1) % links.length]?.focus();
+      break;
+    case 'ArrowUp':
+      event.preventDefault();
+      links[(index - 1 + links.length) % links.length]?.focus();
+      break;
+    case 'ArrowRight':
+      if (hasChildren(node)) {
+        event.preventDefault();
+        openChild(node);
+        await nextTick();
+        focusFirstChildLink(index);
+      }
+      break;
+    case 'ArrowLeft':
+      event.preventDefault();
+      emit('back');
+      break;
+  }
+};
+
+const onChildBack = (node: CategoryTreeItem) => {
+  openChild(null);
+  itemLinks()[props.nodes.indexOf(node)]?.focus();
 };
 
 /**
@@ -100,9 +151,13 @@ const onItemLeave = (node: CategoryTreeItem) => {
   hoverIntent.schedule(() => openChild(null));
 };
 
+/**
+ * Keyboard focus does not open flyouts (ArrowRight does), but moving the focus to a sibling
+ * closes the flyout of the previous item. Focus inside an item's own flyout keeps it open.
+ */
 const onItemFocus = (node: CategoryTreeItem) => {
-  if (lastPointerType.value !== 'touch') {
-    openChild(node);
+  if (lastPointerType.value !== 'touch' && openChildId.value !== null && openChildId.value !== node.id) {
+    openChild(null);
   }
 };
 

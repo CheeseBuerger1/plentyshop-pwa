@@ -77,7 +77,7 @@ Umgesetzt in `apps/web/modules/glas-jena/runtime/components/GlasJenaNavigation.v
 - **Aktueller Pfad** blaugrau hinterlegt (`--gj-tile-grey-blue`): die aktuelle Kategorie und alle übergeordneten Kategorien in allen Ebenen, auch auf Artikelseiten darunter (z. B. auf „mit Glasfilter“: Tee & Kaffee, Teekannen und mit Glasfilter). Hover hellgrau (`#f8f9fa`); eckig, ohne Schatten.
 - **SEO:** Alle Ebenen werden immer gerendert und nur ausgeblendet. Damit stehen alle Kategorie-Links im Server-HTML, wie im LTS-Shop.
 - **Touch-Geräte** (z. B. Tablet quer): erstes Antippen öffnet die Unterkategorien, zweites Antippen öffnet die Kategorie. Antippen außerhalb schließt das Menü.
-- **Tastatur:** Tab öffnet die Ebenen der fokussierten Kategorie, Escape schließt und springt zurück zur Hauptkategorie.
+- **Tastatur** (Muster einer WAI-ARIA-Menüleiste): In der Hauptleiste wechseln ←/→ die Kategorie; Fokus (auch per Tab) öffnet das Dropdown, ↓ springt hinein. Im Dropdown bewegen ↑/↓ innerhalb der Ebene, → öffnet das Flyout und springt hinein, ← schließt es und geht eine Ebene zurück. Enter öffnet die Kategorie, Escape schließt das Menü und springt zur Hauptkategorie zurück.
 - **Unter 1024 px:** Burger-Menü mit dem Drawer der PWA (Ebene für Ebene mit Zurück-Button) – entspricht der mobilen LTS-Navigation.
 - Die Kategorien kommen aus dem Block „Navigation“ im Header bzw. aus dem Kategoriebaum von PlentyONE.
 
