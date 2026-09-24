@@ -15,12 +15,12 @@
         class="gj-nav__item"
         @mouseenter="onItemEnter(node)"
         @mouseleave="onItemLeave"
-        @focusin="onItemEnter(node)"
+        @focusin="onItemFocus(node)"
       >
         <NuxtLink
           :to="buildLink(node)"
           class="gj-nav__link"
-          :class="{ 'gj-nav__link--open': openId === node.id }"
+          :class="{ 'gj-nav__link--open': openId === node.id, 'gj-nav__link--active': isActive(node) }"
           data-testid="gj-nav-category"
           :aria-haspopup="hasChildren(node) ? 'true' : undefined"
           :aria-expanded="hasChildren(node) ? openId === node.id : undefined"
@@ -30,11 +30,15 @@
           <SfIconExpandMore v-if="hasChildren(node)" size="xs" aria-hidden="true" class="gj-nav__chevron" />
         </NuxtLink>
 
+        <!-- Always rendered (only hidden) so all category links are in the server HTML, like in the LTS shop -->
         <GlasJenaNavigationMenu
-          v-if="hasChildren(node) && openId === node.id"
+          v-if="hasChildren(node)"
+          v-show="openId === node.id"
           :nodes="node.children ?? []"
           :level="2"
           :build-link="buildLink"
+          :is-active="isActive"
+          :is-open="openId === node.id"
         />
       </li>
     </ul>
@@ -45,6 +49,8 @@
 import { SfIconExpandMore } from '@storefront-ui/vue';
 import { onClickOutside } from '@vueuse/core';
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
+import { useHoverIntent } from '../composables/useHoverIntent';
+import { isCategoryPathActive } from '../utils/navigation';
 import GlasJenaNavigationMenu from './GlasJenaNavigationMenu.vue';
 import type { GlasJenaNavigationProps } from './types';
 
@@ -61,6 +67,8 @@ const localePath = useLocalizedPath();
 const { buildCategoryMenuLink } = useLocalization();
 const { data: fetchedCategoryTree, getCategoryTree } = useCategoryTree();
 const router = useRouter();
+const route = useRoute();
+const hoverIntent = useHoverIntent();
 
 const navRef = ref<HTMLElement | null>(null);
 const openId = ref<number | null>(null);
@@ -80,9 +88,13 @@ watch(
 
 const buildLink = (category: CategoryTreeItem) => localePath(buildCategoryMenuLink(category, categoryTree.value));
 
+/** Highlights the whole path to the current page (category and its ancestors), like the LTS shop. */
+const isActive = (category: CategoryTreeItem) => isCategoryPathActive(route.path, buildLink(category));
+
 const hasChildren = (node: CategoryTreeItem) => node.childCount > 0 && (node.children?.length ?? 0) > 0;
 
 const close = () => {
+  hoverIntent.cancel();
   openId.value = null;
 };
 
@@ -100,11 +112,16 @@ const onKeyDown = (event: KeyboardEvent) => {
   trigger?.focus();
 };
 
-/** Touch devices open dropdowns on the first tap instead (see onItemClick). */
+/**
+ * Moving along the main bar switches dropdowns immediately. Leaving the navigation closes the
+ * dropdown only after a short delay, so briefly overshooting its edge does not close it.
+ * Touch devices open dropdowns on the first tap instead (see onItemClick).
+ */
 const onItemEnter = (node: CategoryTreeItem) => {
   if (lastPointerType.value === 'touch') {
     return;
   }
+  hoverIntent.cancel();
   openId.value = hasChildren(node) ? node.id : null;
 };
 
@@ -112,7 +129,13 @@ const onItemLeave = () => {
   if (lastPointerType.value === 'touch') {
     return;
   }
-  close();
+  hoverIntent.schedule(close);
+};
+
+const onItemFocus = (node: CategoryTreeItem) => {
+  if (lastPointerType.value !== 'touch') {
+    onItemEnter(node);
+  }
 };
 
 /** On touch devices the first tap on a category with subcategories opens them, the second tap follows the link. */
@@ -189,7 +212,7 @@ onNuxtReady(async () => {
   background-color: #f8f9fa;
 }
 
-.gj-nav__link.router-link-active {
+.gj-nav__link--active {
   background-color: var(--gj-tile-grey-blue);
 }
 

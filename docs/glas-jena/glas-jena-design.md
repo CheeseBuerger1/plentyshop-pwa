@@ -72,8 +72,10 @@ Umgesetzt in `apps/web/modules/glas-jena/runtime/components/GlasJenaNavigation.v
 - **Desktop (ab 1024 px):** Hauptkategorien gleich breit und zentriert in einer Zeile, Kategorien mit Unterkategorien mit ⌄-Pfeil.
 - **Hover** öffnet eine schmale Liste der 2. Ebene direkt unter der Kategorie (kein Mega-Menü über die ganze Breite).
 - Unterkategorien mit ›-Pfeil klappen beim Hovern als **Flyout nach rechts** auf, bis zur 4. Ebene (z. B. Tee & Kaffee → Teekannen → mit Glasfilter → kleiner 1 L). Droht ein Flyout rechts aus dem Bild zu ragen, öffnet es sich nach links.
+- **Hover-Verzögerung** (`NAVIGATION_HOVER_DELAY_MS`, 200 ms): Ist ein Flyout offen, übernimmt ein anderer Eintrag erst, wenn die Maus kurz darauf verweilt. Wer schräg ins Flyout fährt und dabei einen Nachbareintrag streift, verliert es nicht. Beim Verlassen der Navigation schließt das Menü ebenfalls erst nach dieser Zeit. Entlang der Hauptleiste wechseln die Dropdowns sofort.
 - **Klick** auf eine Kategorie führt immer direkt zur Kategorieseite; das Menü schließt sich danach.
-- Aktuelle Kategorie blaugrau hinterlegt (`--gj-tile-grey-blue`), Hover hellgrau (`#f8f9fa`); eckig, ohne Schatten.
+- **Aktueller Pfad** blaugrau hinterlegt (`--gj-tile-grey-blue`): die aktuelle Kategorie und alle übergeordneten Kategorien in allen Ebenen, auch auf Artikelseiten darunter (z. B. auf „mit Glasfilter“: Tee & Kaffee, Teekannen und mit Glasfilter). Hover hellgrau (`#f8f9fa`); eckig, ohne Schatten.
+- **SEO:** Alle Ebenen werden immer gerendert und nur ausgeblendet. Damit stehen alle Kategorie-Links im Server-HTML, wie im LTS-Shop.
 - **Touch-Geräte** (z. B. Tablet quer): erstes Antippen öffnet die Unterkategorien, zweites Antippen öffnet die Kategorie. Antippen außerhalb schließt das Menü.
 - **Tastatur:** Tab öffnet die Ebenen der fokussierten Kategorie, Escape schließt und springt zurück zur Hauptkategorie.
 - **Unter 1024 px:** Burger-Menü mit dem Drawer der PWA (Ebene für Ebene mit Zurück-Button) – entspricht der mobilen LTS-Navigation.
@@ -134,3 +136,4 @@ Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet ho
 - [ ] Copyright-Jahr im Footer automatisch setzen.
 - [ ] Alle „Wussten Sie schon“-Fakten aus dem LTS-Shop sammeln.
 - [ ] Englische Texte für den Sprachwechsel prüfen.
+- [ ] SEO mobil: Mit Handy-User-Agent (Google indexiert „mobile first“) enthält das Server-HTML keine Kategorie-Links in der Navigation – unter 768 px läuft der Original-Header, dessen Drawer erst beim Öffnen gerendert wird. Prüfen, ob das für die Indexierung der Unterkategorien reicht.
