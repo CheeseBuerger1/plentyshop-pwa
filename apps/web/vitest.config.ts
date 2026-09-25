@@ -6,7 +6,22 @@ const silenceLogsFromSuspenseComponent = (log: string): boolean => {
   return log.includes('<Suspense');
 };
 
+const isWindows = process.platform === 'win32';
+
+/**
+ * On Windows, Vitest treats the id of vite-plugin-pwa's virtual module (`/@vite-plugin-pwa/…`)
+ * as a file path and every test file fails during setup. Use a stub there instead.
+ */
+const windowsAliases = isWindows
+  ? {
+      'virtual:pwa-register/vue': fileURLToPath(new URL('./__tests__/__mocks__/pwa-register.mock.ts', import.meta.url)),
+    }
+  : {};
+
 export default defineVitestConfig({
+  resolve: {
+    alias: windowsAliases,
+  },
   test: {
     environmentOptions: {
       nuxtRuntimeConfig: {
@@ -29,6 +44,8 @@ export default defineVitestConfig({
       },
     },
     testTimeout: 6000,
+    // Booting the Nuxt test environment can take longer than Vitest's default 10 s on Windows
+    hookTimeout: isWindows ? 30000 : undefined,
     environment: 'nuxt',
     globals: true,
     // Nuxt's own client plugins (e.g. nuxt-viewport) emit async unhandled rejections while running
