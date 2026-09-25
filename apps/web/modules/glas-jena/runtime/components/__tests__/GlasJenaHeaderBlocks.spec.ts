@@ -1,9 +1,11 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaHeaderBlocks from '../GlasJenaHeaderBlocks.vue';
 
-const { viewportState, editorState } = vi.hoisted(() => ({
+const { viewportState, editorState, switchLocale, toggleLanguageSelect } = vi.hoisted(() => ({
   viewportState: { isDesktop: true },
   editorState: { isEditing: false },
+  switchLocale: vi.fn(),
+  toggleLanguageSelect: vi.fn(),
 }));
 
 mockNuxtImport('useViewport', () => () => ({
@@ -14,8 +16,8 @@ mockNuxtImport('useEditor', () => () => ({ isEditing: ref(editorState.isEditing)
 mockNuxtImport('useCategoryTree', () => () => ({ data: ref([]), getCategoryTree: vi.fn() }));
 mockNuxtImport('useLocalization', () => () => ({
   getAvailableLocales: () => ['de', 'en'],
-  switchLocale: vi.fn(),
-  toggle: vi.fn(),
+  switchLocale,
+  toggle: toggleLanguageSelect,
 }));
 
 const mountHeader = () =>
@@ -37,6 +39,16 @@ describe('GlasJenaHeaderBlocks', () => {
     viewportState.isDesktop = true;
     editorState.isEditing = false;
     useMegaMenu().close();
+    vi.clearAllMocks();
+  });
+
+  it('should switch to the other language directly without opening the language selector', async () => {
+    const wrapper = await mountHeader();
+
+    await wrapper.find('[data-testid="gj-header-language"]').trigger('click');
+
+    expect(switchLocale).toHaveBeenCalledWith(expect.any(String), false);
+    expect(toggleLanguageSelect).not.toHaveBeenCalled();
   });
 
   it('should render the GLAS IN JENA header with logo and cart outside the editor', async () => {
