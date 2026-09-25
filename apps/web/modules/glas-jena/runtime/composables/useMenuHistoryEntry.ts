@@ -14,14 +14,20 @@ const isOwnEntry = () => Boolean((window.history.state as Record<string, unknown
  * the menu; closing the menu any other way removes the entry again. The router's own state is copied into the
  * entry, so going back is a navigation to the same location for the router.
  *
- * Returns `exitHistoryEntry()`: resolves once the entry is gone, so a link in the menu can navigate afterwards
- * (otherwise the pending back step would undo that navigation, or leave a dead entry in the history).
+ * Returns `exitHistoryEntry()`: resolves once the entry is gone and the router has finished the navigation that
+ * the back step starts, so a link in the menu can navigate afterwards (otherwise the pending back step would undo
+ * that navigation, or leave a dead entry in the history). Waiting for the router matters for `navigateTo()`
+ * (e.g. the language switch): while a navigation is still running, it only returns the target instead of navigating.
  */
 export const useMenuHistoryEntry = (isOpen: Ref<boolean>, close: () => void) => {
+  const router = useRouter();
   let isLeaving = false;
   const waiting: (() => void)[] = [];
+  let removeRouterHook: (() => void) | undefined;
 
   const settle = () => {
+    removeRouterHook?.();
+    removeRouterHook = undefined;
     isLeaving = false;
     waiting.splice(0).forEach((resolve) => resolve());
   };
@@ -31,9 +37,14 @@ export const useMenuHistoryEntry = (isOpen: Ref<boolean>, close: () => void) => 
    * the menu was opened again. That step must not close the reopened menu – only a real back press does.
    */
   const onPopState = () => {
-    const wasOwnStep = isLeaving;
+    if (isLeaving) {
+      /* The router starts a navigation for this step (to the same location); settle once it has finished */
+      removeRouterHook ??= router.afterEach(settle);
+      setTimeout(settle, HISTORY_EXIT_TIMEOUT_MS);
+      return;
+    }
     settle();
-    if (!wasOwnStep && isOpen.value && !isOwnEntry()) {
+    if (isOpen.value && !isOwnEntry()) {
       close();
     }
   };
@@ -90,6 +101,7 @@ export const useMenuHistoryEntry = (isOpen: Ref<boolean>, close: () => void) => 
 
   onBeforeUnmount(() => {
     window.removeEventListener('popstate', onPopState);
+    removeRouterHook?.();
   });
 
   return { exitHistoryEntry };

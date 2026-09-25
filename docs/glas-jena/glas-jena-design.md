@@ -97,7 +97,7 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 - Beim Ebenenwechsel **gleitet** die neue Ebene herein (200 ms): tiefer von rechts, zurück von links. Bei „Bewegung reduzieren“ im Betriebssystem ohne Animation.
 - **Zurück-Taste** (Android, Wischgeste bei iOS) schließt das Menü, statt die Seite zu verlassen (`useMenuHistoryEntry`: solange das Menü offen ist, gibt es einen Verlaufseintrag mit derselben URL). Nach einem Link aus dem Menü führt ein Zurück direkt zur vorherigen Seite.
 - **Fokus:** Beim Öffnen springt der Fokus auf ✕, beim Schließen zurück auf den Menü-Button; Tab bleibt im Menü.
-- Darunter ↑ („eine Ebene hoch“), dann die Kategorien: Name öffnet die Kategorie, › zeigt die Unterkategorien. Kategorien auf dem Pfad zur aktuellen Seite sind halbfett.
+- Darunter ‹ („eine Ebene hoch“, Gegenstück zum › der Unterkategorien), dann die Kategorien: Name öffnet die Kategorie, › zeigt die Unterkategorien. Kategorien auf dem Pfad zur aktuellen Seite sind halbfett.
 - Nach einer Trennlinie in Hellblau (`#abcae4`): **Konto** (Anmelden, Account erstellen, Mein Konto bzw. Mein Konto und Ausloggen) und **Language / Sprache** (alle Shopsprachen in ihrem eigenen Namen).
 - **SEO:** Alle Ebenen werden immer gerendert und nur ausgeblendet, so stehen alle Kategorie-Links auch im Server-HTML für Handys („mobile first“-Indexierung).
 - **Header auf dem Handy** (unter 768 px) wie im LTS: Logo-Feld (Breite siehe Header), daneben Menü, Suche und Warenkorb als drei gleich breite Kacheln. Konto und Sprache stehen im Menü. Ab 768 px sind Konto und Sprache wieder Kacheln im Header.

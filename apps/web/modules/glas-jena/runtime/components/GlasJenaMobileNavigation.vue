@@ -49,7 +49,7 @@
       >
         <li v-if="level.id !== null">
           <button type="button" class="gj-mnav__up" :aria-label="t('common.actions.back')" @click="goUp">
-            <SfIconArrowUpward aria-hidden="true" />
+            <SfIconChevronLeft size="lg" aria-hidden="true" />
           </button>
         </li>
         <li v-for="node in level.nodes" :key="node.id" class="gj-mnav__item">
@@ -129,7 +129,7 @@
             :aria-label="t('common.actions.back')"
             @click="showView(VIEW_CATEGORIES, SLIDE_BACK)"
           >
-            <SfIconArrowUpward aria-hidden="true" />
+            <SfIconChevronLeft size="lg" aria-hidden="true" />
           </button>
         </li>
         <template v-if="isAuthorized">
@@ -169,7 +169,7 @@
             :aria-label="t('common.actions.back')"
             @click="showView(VIEW_CATEGORIES, SLIDE_BACK)"
           >
-            <SfIconArrowUpward aria-hidden="true" />
+            <SfIconChevronLeft size="lg" aria-hidden="true" />
           </button>
         </li>
         <li v-for="locale in locales" :key="locale" class="gj-mnav__item">
@@ -189,7 +189,7 @@
 </template>
 
 <script setup lang="ts">
-import { SfIconArrowUpward, SfIconChevronRight, SfIconClose, SfIconHome, useTrapFocus } from '@storefront-ui/vue';
+import { SfIconChevronLeft, SfIconChevronRight, SfIconClose, SfIconHome, useTrapFocus } from '@storefront-ui/vue';
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
 import { useGlasJenaCategoryTree } from '../composables/useGlasJenaCategoryTree';
 import { useMenuHistoryEntry } from '../composables/useMenuHistoryEntry';
