@@ -3,12 +3,14 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaMobileNavigation from '../GlasJenaMobileNavigation.vue';
 import { navigationCategoriesFixture } from './navigation.fixture';
 
+const { switchLocale } = vi.hoisted(() => ({ switchLocale: vi.fn() }));
+
 mockNuxtImport('useCategoryTree', () => () => ({ data: ref([]), getCategoryTree: vi.fn() }));
 mockNuxtImport('useLocalizedPath', () => () => (path: string) => path);
 mockNuxtImport('useLocalization', () => () => ({
   buildCategoryMenuLink: (category: { id: number }) => `/category/${category.id}`,
   getAvailableLocales: () => ['de', 'en'],
-  switchLocale: vi.fn(),
+  switchLocale,
 }));
 
 /*
@@ -132,6 +134,28 @@ describe('GlasJenaMobileNavigation', () => {
     await nextTick();
 
     expect(useMegaMenu().isOpen.value).toBe(false);
+  });
+
+  it('should switch the language only after the router has finished the back step of the menu', async () => {
+    const wrapper = await mountMenu();
+    await wrapper.find('[data-testid="gj-mobile-nav-language"]').trigger('click');
+    /* Like the browser: going back leaves the menu's entry and reports it with a popstate event */
+    const back = vi.spyOn(window.history, 'back').mockImplementation(() => {
+      window.history.replaceState({}, '');
+      window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
+    });
+
+    await wrapper.find('[data-testid="gj-mobile-nav-language-list"] [lang="en"]').trigger('click');
+    await flushPromises();
+
+    expect(switchLocale).not.toHaveBeenCalled();
+
+    await useRouter().replace({ query: { step: 'back' } });
+    await flushPromises();
+
+    expect(switchLocale).toHaveBeenCalledWith('en', false);
+    back.mockRestore();
+    switchLocale.mockClear();
   });
 
   it('should move the focus to the close button when opening', async () => {
