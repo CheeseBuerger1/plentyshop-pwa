@@ -1,9 +1,10 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaHeaderBlocks from '../GlasJenaHeaderBlocks.vue';
 
-const { viewportState, editorState, switchLocale, toggleLanguageSelect } = vi.hoisted(() => ({
+const { viewportState, editorState, localeState, switchLocale, toggleLanguageSelect } = vi.hoisted(() => ({
   viewportState: { isDesktop: true },
   editorState: { isEditing: false },
+  localeState: { available: ['de', 'en'] },
   switchLocale: vi.fn(),
   toggleLanguageSelect: vi.fn(),
 }));
@@ -15,10 +16,13 @@ mockNuxtImport('useViewport', () => () => ({
 mockNuxtImport('useEditor', () => () => ({ isEditing: ref(editorState.isEditing) }));
 mockNuxtImport('useCategoryTree', () => () => ({ data: ref([]), getCategoryTree: vi.fn() }));
 mockNuxtImport('useLocalization', () => () => ({
-  getAvailableLocales: () => ['de', 'en'],
+  getAvailableLocales: () => localeState.available,
   switchLocale,
   toggle: toggleLanguageSelect,
 }));
+
+/** vue-i18n's default locale; the test i18n instance in vitest.config.setup.ts sets none. */
+const TEST_LOCALE = 'en-US';
 
 const mountHeader = () =>
   mountSuspended(GlasJenaHeaderBlocks, {
@@ -38,17 +42,29 @@ describe('GlasJenaHeaderBlocks', () => {
   afterEach(() => {
     viewportState.isDesktop = true;
     editorState.isEditing = false;
+    localeState.available = ['de', 'en'];
     useMegaMenu().close();
     vi.clearAllMocks();
   });
 
-  it('should switch to the other language directly without opening the language selector', async () => {
+  it('should switch to the only other language directly without opening the language selector', async () => {
+    localeState.available = [TEST_LOCALE, 'de'];
     const wrapper = await mountHeader();
 
     await wrapper.find('[data-testid="gj-header-language"]').trigger('click');
 
-    expect(switchLocale).toHaveBeenCalledWith(expect.any(String), false);
+    expect(switchLocale).toHaveBeenCalledWith('de', false);
     expect(toggleLanguageSelect).not.toHaveBeenCalled();
+  });
+
+  it('should open the language selector when there are several other languages', async () => {
+    localeState.available = [TEST_LOCALE, 'de', 'fr'];
+    const wrapper = await mountHeader();
+
+    await wrapper.find('[data-testid="gj-header-language"]').trigger('click');
+
+    expect(toggleLanguageSelect).toHaveBeenCalled();
+    expect(switchLocale).not.toHaveBeenCalled();
   });
 
   it('should render the GLAS IN JENA header with logo and cart outside the editor', async () => {
