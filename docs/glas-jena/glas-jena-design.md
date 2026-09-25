@@ -62,9 +62,10 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 
 - Links das **Logo-Feld** in Schieferblau (Haus-Symbol, Teekannen-Grafik, Schriftzug „GLAS IN JENA“). Es ragt nach unten über die Header-Unterkante hinaus.
 - **Maße wie im LTS-Shop** (dort nachgemessen): Header überall **92 px** hoch. Das Logo-Bild (136 × 139 px, mit eigenem blauem Hintergrund) füllt die Breite des Logo-Felds:
-  - ab 1024 px: 136 × 139 px, ragt 47 px über den Header hinaus;
-  - darunter: 15 % der Breite, höchstens 136 px (z. B. 900 px → 133 px, 700 px → 105 px);
-  - unter 576 px: 18 % der Breite (z. B. 375 px → 68 px). Ist das Bild niedriger als der Header, ist das Feld bis zur Header-Unterkante im Blau des Bildes (`--gj-logo-blue`, `#4a677c`) gefüllt und das Logo sitzt unten.
+  - Fensterbreite ab 992 px: Feld und Bild 136 × 139 px, ragt 47 px über den Header hinaus;
+  - darunter: Feld 15 % der Header-Breite, das Bild höchstens 136 px breit, seitlich füllt das Logo-Blau (z. B. 991 px → Feld 146 px, Bild 136 px; 900 px → 133 px; 700 px → 105 px);
+  - unter 576 px: 18 % der Breite (z. B. 575 px → 104 px, 375 px → 68 px).
+  - Die Umschaltpunkte gelten wie im LTS-Shop für die **Fensterbreite** inklusive Scrollbalken (Media-Query), nicht für die Breite des Shop-Containers. Ist das Bild niedriger als der Header, ist das Feld bis zur Header-Unterkante im Blau des Bildes (`--gj-logo-blue`, `#4a677c`) gefüllt und das Logo sitzt unten.
 - **Beim Scrollen** bleibt der Header oben stehen, wenn im Shop-Editor beim Header „sticky“ eingeschaltet ist (im LTS-Shop immer so); das Logo behält dabei seine Größe und ragt weiter über den Inhalt.
 - Daneben die Hauptnavigation auf Weiß: Tee & Kaffee ▾, Küche & Helfer ▾, Diverses, Gesundheitshelfer, Ersatzteile ▾ (Kategorien kommen aus PlentyONE).
 - Rechts als gleich große Blöcke: Konto (hellgrau), Sprachwechsel „English“ (hellgrau), Suche (hellgrau), **Warenkorb (Mittelblau)**.
@@ -76,7 +77,7 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 
 Umgesetzt in `apps/web/modules/glas-jena/runtime/components/GlasJenaNavigation.vue` (Hauptleiste) und `GlasJenaNavigationMenu.vue` (Dropdown-Ebenen).
 
-- **Desktop (ab 1024 px):** Hauptkategorien gleich breit und zentriert in einer Zeile, Kategorien mit Unterkategorien mit ⌄-Pfeil.
+- **Desktop (ab 992 px Fensterbreite, wie im LTS-Shop):** Hauptkategorien gleich breit und zentriert in einer Zeile, Kategorien mit Unterkategorien mit ⌄-Pfeil.
 - **Hover** öffnet eine schmale Liste der 2. Ebene direkt unter der Kategorie (kein Mega-Menü über die ganze Breite).
 - Unterkategorien mit ›-Pfeil klappen beim Hovern als **Flyout nach rechts** auf, bis zur 4. Ebene (z. B. Tee & Kaffee → Teekannen → mit Glasfilter → kleiner 1 L). Droht ein Flyout rechts aus dem Bild zu ragen, öffnet es sich nach links.
 - **Hover-Verzögerung** (`NAVIGATION_HOVER_DELAY_MS`, 200 ms): Ist ein Flyout offen, übernimmt ein anderer Eintrag erst, wenn die Maus kurz darauf verweilt. Wer schräg ins Flyout fährt und dabei einen Nachbareintrag streift, verliert es nicht. Beim Verlassen der Navigation schließt das Menü ebenfalls erst nach dieser Zeit. Entlang der Hauptleiste wechseln die Dropdowns sofort.
@@ -85,9 +86,10 @@ Umgesetzt in `apps/web/modules/glas-jena/runtime/components/GlasJenaNavigation.v
 - **SEO:** Alle Ebenen werden immer gerendert und nur ausgeblendet. Damit stehen alle Kategorie-Links im Server-HTML, wie im LTS-Shop.
 - **Touch-Geräte** (z. B. Tablet quer): erstes Antippen öffnet die Unterkategorien, zweites Antippen öffnet die Kategorie. Antippen außerhalb schließt das Menü.
 - **Tastatur** (Muster einer WAI-ARIA-Menüleiste): In der Hauptleiste wechseln ←/→ die Kategorie; Fokus (auch per Tab) öffnet das Dropdown, ↓ springt hinein. Im Dropdown bewegen ↑/↓ innerhalb der Ebene, → öffnet das Flyout und springt hinein, ← schließt es und geht eine Ebene zurück. Enter öffnet die Kategorie, Escape schließt das Menü und springt zur Hauptkategorie zurück.
+- Umschaltpunkt Navigation ↔ Burger-Menü: eigener nuxt-viewport-Breakpoint `gjDesktopNavigation` (992 px), vom Modul ergänzt; der Shop-Breakpoint `lg` (1024 px) bleibt unverändert.
 - Die Kategorien kommen aus dem Block „Navigation“ im Header bzw. aus dem Kategoriebaum von PlentyONE (`useGlasJenaCategoryTree`, gemeinsam für Desktop und Handy).
 
-### Mobiles Menü (unter 1024 px, wie im LTS-Shop)
+### Mobiles Menü (unter 992 px, wie im LTS-Shop)
 
 Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Header (bzw. alles, was `useMegaMenu().open()` aufruft).
 
@@ -100,7 +102,7 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 - Darunter ‹ („eine Ebene hoch“, Gegenstück zum › der Unterkategorien), dann die Kategorien: Name öffnet die Kategorie, › zeigt die Unterkategorien. Kategorien auf dem Pfad zur aktuellen Seite sind halbfett.
 - Nach einer Trennlinie in Hellblau (`#abcae4`): **Konto** (Anmelden, Account erstellen, Mein Konto bzw. Mein Konto und Ausloggen) und **Language / Sprache** (alle Shopsprachen in ihrem eigenen Namen).
 - **SEO:** Alle Ebenen werden immer gerendert und nur ausgeblendet, so stehen alle Kategorie-Links auch im Server-HTML für Handys („mobile first“-Indexierung).
-- **Header auf dem Handy** (unter 768 px) wie im LTS: Logo-Feld (Breite siehe Header), daneben Menü, Suche und Warenkorb als drei gleich breite Kacheln. Konto und Sprache stehen im Menü. Ab 768 px sind Konto und Sprache wieder Kacheln im Header.
+- **Header mit Burger-Menü** (unter 992 px Fensterbreite, Handy und Tablet) wie im LTS: Logo-Feld (Breite siehe Header), daneben Menü, Suche und Warenkorb als drei gleich breite Kacheln über die volle Breite. Konto und Sprache stehen im Menü. Ab 992 px kommen Hauptnavigation, Konto und Sprache in den Header.
 
 ### Startseite (Reihenfolge)
 
@@ -147,7 +149,7 @@ Außerdem im Header, Block **Utility Bar**, Aktionen: „Wishlist“ aus (wirkt 
 
 ### Tablet-Ansicht (ca. 768–1279 px)
 
-- Header: Logo-Feld wächst mit der Breite (15 %, höchstens 136 px) und steht über. Hauptnavigation als Burger-Menü, sobald die Kategorien nicht mehr in eine Zeile passen. Konto, Suche und Warenkorb bleiben als Blöcke sichtbar, „English“ darf ins Menü wandern.
+- Header: Logo-Feld unter 992 px Fensterbreite 15 % breit (Bild höchstens 136 px) und steht über. Unter 992 px Hauptnavigation als Burger-Menü; daneben nur Suche und Warenkorb, Konto und Sprache stehen im Menü.
 - Hero: Bild und „Wussten Sie schon“-Box nebeneinander (etwa 60/40); im Hochformat untereinander.
 - Werksverkauf und „Unser hitzebeständiges Glas“: untereinander, jeweils volle Breite.
 - Kategorie-Kacheln: zu dritt nebeneinander (im Hochformat notfalls 2 + 1).

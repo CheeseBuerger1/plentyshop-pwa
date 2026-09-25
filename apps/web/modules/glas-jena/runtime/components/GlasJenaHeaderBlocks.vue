@@ -12,11 +12,14 @@
       </NuxtLink>
 
       <div class="gj-header__nav">
-        <GlasJenaNavigation v-if="viewport.isGreaterOrEquals('lg')" :categories="navigationBlock?.categories" />
+        <GlasJenaNavigation
+          v-if="viewport.isGreaterOrEquals(DESKTOP_NAVIGATION_BREAKPOINT)"
+          :categories="navigationBlock?.categories"
+        />
       </div>
 
       <button
-        v-if="viewport.isLessThan('lg')"
+        v-if="viewport.isLessThan(DESKTOP_NAVIGATION_BREAKPOINT)"
         type="button"
         class="gj-header__tile gj-header__tile--light"
         data-testid="gj-header-menu"
@@ -79,7 +82,7 @@
       Phones and tablets: LTS-style menu behind the burger; rendered hidden so its links are in the server HTML.
       Teleported out of the header's stacking context so it covers the whole page like in the LTS shop.
     -->
-    <Teleport v-if="viewport.isLessThan('lg')" to="body">
+    <Teleport v-if="viewport.isLessThan(DESKTOP_NAVIGATION_BREAKPOINT)" to="body">
       <GlasJenaMobileNavigation :categories="navigationBlock?.categories" />
     </Teleport>
 
@@ -92,6 +95,7 @@ import { SfIconClose, SfIconMenu, SfIconPerson, SfIconSearch, SfIconShoppingCart
 import HeaderBlocks from '~/components/ui/HeaderBlocks/HeaderBlocks.vue';
 import LanguageSelector from '~/components/LanguageSelector/LanguageSelector.vue';
 import { getNativeLanguageName } from '../utils/locale';
+import { DESKTOP_NAVIGATION_BREAKPOINT } from '../utils/navigation';
 import GlasJenaMobileNavigation from './GlasJenaMobileNavigation.vue';
 import GlasJenaNavigation from './GlasJenaNavigation.vue';
 import { NAVIGATION_BLOCK_NAME } from '~/utils/blocks/block-names';
@@ -289,18 +293,24 @@ const closeSearch = () => {
   }
 }
 
-/* Below the desktop navigation, like the LTS shop: the logo field takes 15 % of the width (at most 136 px) */
-@container (max-width: 1023px) {
-  .gj-header {
-    --gj-logo-width: min(15cqw, 8.5rem);
+/*
+ * Like the LTS shop: below a window width of 992 px the logo field takes 15 % of the header's width. The image
+ * stays at most 136 px wide; where the field is wider, the logo blue fills the sides.
+ * A media query on purpose: like on the LTS shop, the window width including the scrollbar counts (the shop's
+ * container is narrower by the scrollbar and would switch about 15 px later).
+ */
+@media (max-width: 991.98px) {
+  .gj-header__logo {
+    width: 15%;
   }
 }
 
 /*
- * Phone (below the shop's `@md:` breakpoint), like the LTS shop: logo field, then menu, search and cart
- * as three equally wide tiles. Account and language move into the menu.
+ * Burger layout (below the desktop navigation, window width under 992 px), like the LTS shop: logo field, then
+ * menu, search and cart as three equally wide tiles across the full width. Account and language move into the
+ * menu. Same breakpoint as `DESKTOP_NAVIGATION_MIN_WIDTH`, so no empty navigation area is left next to the logo.
  */
-@container (max-width: 767px) {
+@media (max-width: 991.98px) {
   .gj-header__nav,
   .gj-header__tile--account,
   .gj-header__tile--language {
@@ -322,10 +332,10 @@ const closeSearch = () => {
   }
 }
 
-/* Small phones, like the LTS shop: a slightly larger share of the width for the logo field */
-@container (max-width: 575px) {
-  .gj-header {
-    --gj-logo-width: 18cqw;
+/* Small phones, like the LTS shop (window width below 576 px): a slightly larger share of the width for the logo field */
+@media (max-width: 575.98px) {
+  .gj-header__logo {
+    width: 18%;
   }
 }
 </style>

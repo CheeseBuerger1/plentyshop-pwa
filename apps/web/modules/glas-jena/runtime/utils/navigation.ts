@@ -5,6 +5,13 @@
  */
 export const NAVIGATION_HOVER_DELAY_MS = 200;
 
+/**
+ * nuxt-viewport breakpoint of the desktop navigation, like the LTS shop: from a window width of 992 px the main
+ * categories are shown in the header, below that the burger menu. Registered by the module (index.ts).
+ */
+export const DESKTOP_NAVIGATION_BREAKPOINT = 'gjDesktopNavigation';
+export const DESKTOP_NAVIGATION_MIN_WIDTH = 992;
+
 /** Views of the mobile menu: the category levels, the account entries and the language list. */
 export const VIEW_CATEGORIES = 'categories';
 export const VIEW_ACCOUNT = 'account';
