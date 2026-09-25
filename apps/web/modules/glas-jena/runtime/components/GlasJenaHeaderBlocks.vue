@@ -147,7 +147,8 @@ const languageLabel = computed(() => {
 
 const onLanguageClick = async () => {
   if (hasSingleAlternativeLocale.value && alternativeLocale.value) {
-    await switchLocale(alternativeLocale.value);
+    // `false`: switching directly must not open the language selector panel
+    await switchLocale(alternativeLocale.value, false);
     return;
   }
   toggleLanguageSelect();
@@ -192,7 +193,7 @@ const closeSearch = () => {
   align-self: flex-start;
   width: var(--gj-logo-width);
   height: calc(var(--gj-header-height) + var(--gj-logo-overhang));
-  padding: 0.5rem;
+  padding: 0.1rem;
   background-color: var(--gj-slate-blue);
 }
 

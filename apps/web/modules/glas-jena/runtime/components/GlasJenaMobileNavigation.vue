@@ -330,7 +330,7 @@ const onLocaleClick = async (locale: (typeof locales.value)[number]) => {
   close();
   await exitHistoryEntry();
   if (locale !== currentLocale.value) {
-    await switchLocale(locale);
+    await switchLocale(locale, false);
   }
 };
 

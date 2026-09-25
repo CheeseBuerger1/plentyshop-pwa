@@ -203,6 +203,8 @@ onBeforeUnmount(() => removeRouteHook?.());
   margin: 0;
   padding: 0;
   list-style: none;
+  /* Closing line in the dropdown's border colour; the dropdown's top border lies exactly on it */
+  border-bottom: 1px solid var(--gj-tile-grey-blue);
 }
 
 /* Like the LTS shop: all main categories share the row equally, text centered */
