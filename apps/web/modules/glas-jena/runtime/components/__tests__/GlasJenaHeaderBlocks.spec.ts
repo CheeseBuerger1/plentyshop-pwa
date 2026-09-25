@@ -1,9 +1,10 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaHeaderBlocks from '../GlasJenaHeaderBlocks.vue';
 
-const { viewportState, editorState, localeState, switchLocale, toggleLanguageSelect } = vi.hoisted(() => ({
+const { viewportState, editorState, headerState, localeState, switchLocale, toggleLanguageSelect } = vi.hoisted(() => ({
   viewportState: { isDesktop: true },
   editorState: { isEditing: false },
+  headerState: { sticky: false },
   localeState: { available: ['de', 'en'] },
   switchLocale: vi.fn(),
   toggleLanguageSelect: vi.fn(),
@@ -14,6 +15,9 @@ mockNuxtImport('useViewport', () => () => ({
   isLessThan: () => !viewportState.isDesktop,
 }));
 mockNuxtImport('useEditor', () => () => ({ isEditing: ref(editorState.isEditing) }));
+mockNuxtImport('useBlocks', () => () => ({
+  headerContainer: computed(() => ({ content: [], configuration: { layout: { sticky: headerState.sticky } } })),
+}));
 mockNuxtImport('useCategoryTree', () => () => ({ data: ref([]), getCategoryTree: vi.fn() }));
 mockNuxtImport('useLocalization', () => () => ({
   getAvailableLocales: () => localeState.available,
@@ -42,6 +46,7 @@ describe('GlasJenaHeaderBlocks', () => {
   afterEach(() => {
     viewportState.isDesktop = true;
     editorState.isEditing = false;
+    headerState.sticky = false;
     localeState.available = ['de', 'en'];
     useMegaMenu().close();
     vi.clearAllMocks();
@@ -65,6 +70,20 @@ describe('GlasJenaHeaderBlocks', () => {
 
     expect(toggleLanguageSelect).toHaveBeenCalled();
     expect(switchLocale).not.toHaveBeenCalled();
+  });
+
+  it('should stay at the top while scrolling when the header is set to sticky in the editor', async () => {
+    headerState.sticky = true;
+
+    const wrapper = await mountHeader();
+
+    expect(wrapper.find('[data-testid="gj-header"]').classes()).toContain('gj-header-wrapper--sticky');
+  });
+
+  it('should scroll away with the page when the header is not set to sticky', async () => {
+    const wrapper = await mountHeader();
+
+    expect(wrapper.find('[data-testid="gj-header"]').classes()).not.toContain('gj-header-wrapper--sticky');
   });
 
   it('should render the GLAS IN JENA header with logo and cart outside the editor', async () => {

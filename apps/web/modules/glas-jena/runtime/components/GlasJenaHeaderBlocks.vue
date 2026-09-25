@@ -1,6 +1,6 @@
 <template>
   <HeaderBlocks v-if="useOriginalHeader" />
-  <div v-else class="gj-header-wrapper" data-testid="gj-header">
+  <div v-else class="gj-header-wrapper" :class="{ 'gj-header-wrapper--sticky': isSticky }" data-testid="gj-header">
     <header class="gj-header">
       <NuxtLink
         :to="localePath(paths.home)"
@@ -111,6 +111,11 @@ const { locale: currentLocale } = useI18n();
 /** The block editor keeps the original, editor-configurable header. */
 const useOriginalHeader = computed(() => isEditing.value);
 
+/** Like the original header (and the LTS shop, where it is always on): the editor's "sticky" layout setting. */
+const isSticky = computed(
+  () => (headerContainer.value as HeaderContainerBlock | undefined)?.configuration?.layout?.sticky ?? false,
+);
+
 const navigationBlock = computed(
   () =>
     (headerContainer.value as HeaderContainerBlock | undefined)?.content?.find(
@@ -173,6 +178,11 @@ const closeSearch = () => {
   background-color: #fff;
 }
 
+.gj-header-wrapper--sticky {
+  position: sticky;
+  top: 0;
+}
+
 /* Own stacking layer so the category dropdown paints above the search panel */
 .gj-header {
   position: relative;
@@ -184,7 +194,11 @@ const closeSearch = () => {
   margin: 0 auto;
 }
 
-/* Logo field in slate blue, overlapping the content below */
+/*
+ * Logo field like the LTS shop: the logo image (136 × 139 px, with its own blue background) fills the
+ * field's width and overhangs the header where it is taller. Where it is lower, the field is filled in
+ * the image's blue down to the header's lower edge and the logo sits at the bottom.
+ */
 .gj-header__logo {
   display: flex;
   flex-shrink: 0;
@@ -192,15 +206,17 @@ const closeSearch = () => {
   justify-content: center;
   align-self: flex-start;
   width: var(--gj-logo-width);
-  height: calc(var(--gj-header-height) + var(--gj-logo-overhang));
-  padding: 0.1rem;
-  background-color: var(--gj-slate-blue);
+  min-height: var(--gj-header-height);
+  background-color: var(--gj-logo-blue);
 }
 
 .gj-header__logo :deep(img) {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  width: 100%;
+  max-width: 8.5rem;
+  height: auto;
+  max-height: none;
+  /* Reserves the logo's height before the image has loaded, so the field does not jump */
+  aspect-ratio: 136 / 139;
 }
 
 .gj-header__nav {
@@ -248,7 +264,7 @@ const closeSearch = () => {
 
 .gj-header__badge {
   position: absolute;
-  top: 1.1rem;
+  top: calc(50% - 1.4rem);
   right: 1.1rem;
   min-width: 1.1rem;
   padding: 0 0.25rem;
@@ -266,53 +282,50 @@ const closeSearch = () => {
   background-color: var(--gj-footer-bg);
 }
 
-/* Tablet: smaller logo field and tiles */
+/* Tablet: smaller tiles */
 @container (max-width: 1279px) {
   .gj-header {
-    --gj-logo-width: 6rem;
-    --gj-logo-overhang: 1.5rem;
     --gj-tile-width: 4.25rem;
   }
+}
 
-  .gj-header__search {
-    padding-left: 7rem;
+/* Below the desktop navigation, like the LTS shop: the logo field takes 15 % of the width (at most 136 px) */
+@container (max-width: 1023px) {
+  .gj-header {
+    --gj-logo-width: min(15cqw, 8.5rem);
   }
 }
 
 /*
- * Phone (below the shop's `@md:` breakpoint), like the LTS shop: four equally wide tiles –
- * logo, menu, search, cart. The logo does not overhang; account and language move into the menu.
+ * Phone (below the shop's `@md:` breakpoint), like the LTS shop: logo field, then menu, search and cart
+ * as three equally wide tiles. Account and language move into the menu.
  */
 @container (max-width: 767px) {
-  .gj-header {
-    --gj-header-height: 4.5rem;
-    --gj-logo-overhang: 0rem;
-  }
-
   .gj-header__nav,
   .gj-header__tile--account,
   .gj-header__tile--language {
     display: none;
   }
 
-  .gj-header__logo,
   .gj-header__tile {
     flex: 1 1 0;
     width: auto;
     min-width: 0;
   }
 
-  .gj-header__logo {
-    align-items: center;
-  }
-
   .gj-header__badge {
-    top: 0.9rem;
     right: calc(50% - 1.5rem);
   }
 
   .gj-header__search {
     padding-left: 1rem;
+  }
+}
+
+/* Small phones, like the LTS shop: a slightly larger share of the width for the logo field */
+@container (max-width: 575px) {
+  .gj-header {
+    --gj-logo-width: 18cqw;
   }
 }
 </style>
