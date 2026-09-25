@@ -7,6 +7,8 @@
 
 :root {
   --gj-slate-blue: #4b6a82;
+  /* Background of the logo image; fills the logo field where it is larger than the image */
+  --gj-logo-blue: #4a677c;
   --gj-mid-blue: #6e9bbf;
   --gj-soft-green: #ddebc8;
   --gj-tile-blue: #a9c9e3;
@@ -19,9 +21,9 @@
   /* Only set while the original mobile NavbarBottom is on the page (see below) */
   --gj-mobile-navbar-height: 0px;
   --gj-box-width: 1200px;
-  --gj-header-height: 5rem;
-  --gj-logo-width: 7.5rem;
-  --gj-logo-overhang: 2.5rem;
+  /* Like the LTS shop: 92 px header, 136 px logo field (the size of the logo image) */
+  --gj-header-height: 5.75rem;
+  --gj-logo-width: 8.5rem;
   --gj-tile-width: 5.5rem;
 }
 

@@ -61,6 +61,11 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 ### Header
 
 - Links das **Logo-Feld** in Schieferblau (Haus-Symbol, Teekannen-Grafik, Schriftzug „GLAS IN JENA“). Es ragt nach unten über die Header-Unterkante hinaus.
+- **Maße wie im LTS-Shop** (dort nachgemessen): Header überall **92 px** hoch. Das Logo-Bild (136 × 139 px, mit eigenem blauem Hintergrund) füllt die Breite des Logo-Felds:
+  - ab 1024 px: 136 × 139 px, ragt 47 px über den Header hinaus;
+  - darunter: 15 % der Breite, höchstens 136 px (z. B. 900 px → 133 px, 700 px → 105 px);
+  - unter 576 px: 18 % der Breite (z. B. 375 px → 68 px). Ist das Bild niedriger als der Header, ist das Feld bis zur Header-Unterkante im Blau des Bildes (`--gj-logo-blue`, `#4a677c`) gefüllt und das Logo sitzt unten.
+- **Beim Scrollen** bleibt der Header oben stehen, wenn im Shop-Editor beim Header „sticky“ eingeschaltet ist (im LTS-Shop immer so); das Logo behält dabei seine Größe und ragt weiter über den Inhalt.
 - Daneben die Hauptnavigation auf Weiß: Tee & Kaffee ▾, Küche & Helfer ▾, Diverses, Gesundheitshelfer, Ersatzteile ▾ (Kategorien kommen aus PlentyONE).
 - Rechts als gleich große Blöcke: Konto (hellgrau), Sprachwechsel „English“ (hellgrau), Suche (hellgrau), **Warenkorb (Mittelblau)**.
 - Der Sprachwechsel wechselt bei nur einer weiteren Sprache per Klick direkt, ohne das Sprachwahl-Feld aufzuklappen (ebenso im mobilen Menü). Nur bei mehreren weiteren Sprachen öffnet er die Auswahl.
@@ -95,7 +100,7 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 - Darunter ↑ („eine Ebene hoch“), dann die Kategorien: Name öffnet die Kategorie, › zeigt die Unterkategorien. Kategorien auf dem Pfad zur aktuellen Seite sind halbfett.
 - Nach einer Trennlinie in Hellblau (`#abcae4`): **Konto** (Anmelden, Account erstellen, Mein Konto bzw. Mein Konto und Ausloggen) und **Language / Sprache** (alle Shopsprachen in ihrem eigenen Namen).
 - **SEO:** Alle Ebenen werden immer gerendert und nur ausgeblendet, so stehen alle Kategorie-Links auch im Server-HTML für Handys („mobile first“-Indexierung).
-- **Header auf dem Handy** (unter 768 px): vier gleich breite Kacheln wie im LTS – Logo (nicht überstehend), Menü, Suche, Warenkorb. Konto und Sprache stehen im Menü. Ab 768 px sind Konto und Sprache wieder Kacheln im Header.
+- **Header auf dem Handy** (unter 768 px) wie im LTS: Logo-Feld (Breite siehe Header), daneben Menü, Suche und Warenkorb als drei gleich breite Kacheln. Konto und Sprache stehen im Menü. Ab 768 px sind Konto und Sprache wieder Kacheln im Header.
 
 ### Startseite (Reihenfolge)
 
@@ -142,7 +147,7 @@ Außerdem im Header, Block **Utility Bar**, Aktionen: „Wishlist“ aus (wirkt 
 
 ### Tablet-Ansicht (ca. 768–1279 px)
 
-- Header: Logo-Feld etwas kleiner, darf weiterhin überstehen. Hauptnavigation als Burger-Menü, sobald die Kategorien nicht mehr in eine Zeile passen. Konto, Suche und Warenkorb bleiben als Blöcke sichtbar, „English“ darf ins Menü wandern.
+- Header: Logo-Feld wächst mit der Breite (15 %, höchstens 136 px) und steht über. Hauptnavigation als Burger-Menü, sobald die Kategorien nicht mehr in eine Zeile passen. Konto, Suche und Warenkorb bleiben als Blöcke sichtbar, „English“ darf ins Menü wandern.
 - Hero: Bild und „Wussten Sie schon“-Box nebeneinander (etwa 60/40); im Hochformat untereinander.
 - Werksverkauf und „Unser hitzebeständiges Glas“: untereinander, jeweils volle Breite.
 - Kategorie-Kacheln: zu dritt nebeneinander (im Hochformat notfalls 2 + 1).
@@ -153,7 +158,7 @@ Außerdem im Header, Block **Utility Bar**, Aktionen: „Wishlist“ aus (wirkt 
 
 ### Handy-Ansicht (unter 768 px)
 
-- Header: Logo-Feld kompakt im Header, **nicht überstehend**. Burger-Menü links oder rechts, Warenkorb immer sichtbar, Suche als Symbol.
+- Header: Logo-Feld schmal (15–18 % der Breite); ab etwa 600 px steht es wie im LTS-Shop leicht über. Burger-Menü links oder rechts, Warenkorb immer sichtbar, Suche als Symbol.
 - Kacheln stapeln sich untereinander (volle Breite).
 - Hero: Bild oben, „Wussten Sie schon“-Box darunter.
 - Topseller-Karussell mit 1–2 Artikeln pro Ansicht, wischbar.
