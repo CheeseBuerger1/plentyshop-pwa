@@ -1,6 +1,11 @@
 <template>
   <HeaderBlocks v-if="useOriginalHeader" />
-  <div v-else class="gj-header-wrapper" :class="{ 'gj-header-wrapper--sticky': isSticky }" data-testid="gj-header">
+  <div
+    v-else
+    class="gj-header-wrapper z-dropdown"
+    :class="{ 'gj-header-wrapper--sticky': isSticky }"
+    data-testid="gj-header"
+  >
     <header class="gj-header">
       <NuxtLink
         :to="localePath(paths.home)"
@@ -128,7 +133,7 @@ const switchLocalePath = useSwitchLocalePath();
 /** The block editor keeps the original, editor-configurable header. */
 const useOriginalHeader = computed(() => isEditing.value);
 
-/** Like the original header (and the LTS shop, where it is always on): the editor's "sticky" layout setting. */
+/** The editor's "sticky" layout setting, like the original header: sticky on all widths (from 992 px it always is, see CSS). */
 const isSticky = computed(
   () => (headerContainer.value as HeaderContainerBlock | undefined)?.configuration?.layout?.sticky ?? false,
 );
@@ -190,18 +195,38 @@ const closeSearch = () => {
   isSearchOpen.value = false;
   return true;
 };
+
+/* Moving to another page (e.g. via a category in the navigation) closes the search bar; filters on the same page do not */
+const route = useRoute();
+watch(() => route.path, closeSearch);
 </script>
 
 <style scoped>
+/*
+ * Layer `z-dropdown` (class in the template) like the original header: the overhanging logo and the open search
+ * bar lie over the page content; cookie bar and mobile menu stay above.
+ */
 .gj-header-wrapper {
   position: relative;
-  z-index: 20;
   background-color: #fff;
 }
 
 .gj-header-wrapper--sticky {
   position: sticky;
   top: 0;
+}
+
+/* From the desktop navigation on (window width 992 px, like the LTS shop) the header always stays at the top */
+@media (min-width: 992px) {
+  .gj-header-wrapper {
+    position: sticky;
+    top: 0;
+  }
+}
+
+/* Logo and tiles are partly links (logo, account, language, cart): no underline from the shop's global `html a` */
+.gj-header a {
+  text-decoration: none;
 }
 
 /* Own stacking layer so the category dropdown paints above the search panel */
@@ -299,9 +324,13 @@ const closeSearch = () => {
 /*
  * Search bar like the LTS shop: exactly as high as the logo overhangs the header (47 px), so both end at the same
  * line; the input is 34 px high and centred. It starts next to the logo field (`--gj-logo-width`), so it never
- * covers the overhanging logo.
+ * covers the overhanging logo. Like the logo, it lies over the page content instead of pushing it down.
  */
 .gj-header__search {
+  position: absolute;
+  top: var(--gj-header-height);
+  right: 0;
+  left: 0;
   display: flex;
   align-items: center;
   max-width: var(--gj-box-width);
@@ -319,6 +348,17 @@ const closeSearch = () => {
 @container (max-width: 1279px) {
   .gj-header {
     --gj-tile-width: 4.25rem;
+  }
+}
+
+/*
+ * Like the LTS shop: with the desktop navigation on narrow screens (window width 992–1199 px), the language tile is
+ * only as wide as its text plus 7 px on each side, so the main categories keep enough room and stay equally wide.
+ */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .gj-header__tile--language {
+    width: auto;
+    padding: 0 7px;
   }
 }
 

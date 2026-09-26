@@ -31,6 +31,20 @@
 }
 
 /*
+ * The header stays at the top from 992 px (or on all widths with the editor's "sticky" setting). Jumps to anchors
+ * and focused form fields keep clear of it and of the overhanging logo instead of ending up underneath.
+ */
+@media (min-width: 992px) {
+  html {
+    scroll-padding-top: calc(var(--gj-header-height) + var(--gj-logo-overhang));
+  }
+}
+
+html:has(.gj-header-wrapper--sticky) {
+  scroll-padding-top: calc(var(--gj-header-height) + var(--gj-logo-overhang));
+}
+
+/*
  * The GLAS IN JENA header replaces the original one on phones, and with it the fixed NavbarBottom.
  * The auth layout (login, registration) still renders it, so keep room for it there.
  */

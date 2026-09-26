@@ -1,3 +1,4 @@
+import { flushPromises } from '@vue/test-utils';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaHeaderBlocks from '../GlasJenaHeaderBlocks.vue';
 
@@ -141,5 +142,25 @@ describe('GlasJenaHeaderBlocks', () => {
     await wrapper.find('[data-testid="gj-header-search"]').trigger('click');
 
     expect(wrapper.find('[data-testid="gj-header-search-panel"]').exists()).toBe(false);
+  });
+
+  it('should close the search panel when moving to another page', async () => {
+    const wrapper = await mountHeader();
+    await wrapper.find('[data-testid="gj-header-search"]').trigger('click');
+
+    await useRouter().push('/gj-other-page');
+    await flushPromises();
+
+    expect(wrapper.find('[data-testid="gj-header-search-panel"]').exists()).toBe(false);
+  });
+
+  it('should keep the search panel open when only the query of the page changes', async () => {
+    const wrapper = await mountHeader();
+    await wrapper.find('[data-testid="gj-header-search"]').trigger('click');
+
+    await useRouter().push({ query: { page: '2' } });
+    await flushPromises();
+
+    expect(wrapper.find('[data-testid="gj-header-search-panel"]').exists()).toBe(true);
   });
 });

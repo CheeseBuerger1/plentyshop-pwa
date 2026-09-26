@@ -243,4 +243,14 @@ onBeforeUnmount(() => removeRouteHook?.());
   flex-shrink: 0;
   color: #777;
 }
+
+/*
+ * Like the LTS shop: on narrow desktop screens (window width 992–1199 px) the main categories have no side padding,
+ * so longer names such as "Gesundheitshelfer" still fit their share and all categories stay equally wide.
+ */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .gj-nav__link {
+    padding: 0;
+  }
+}
 </style>
