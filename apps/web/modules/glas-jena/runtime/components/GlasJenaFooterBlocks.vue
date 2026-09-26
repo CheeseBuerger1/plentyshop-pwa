@@ -11,7 +11,10 @@
           </ul>
         </nav>
         <p ref="copyrightRef" class="gj-footer__copyright" data-testid="gj-footer-copyright">
-          © {{ currentYear }} GLAS<sup>IN</sup>JENA
+          <!-- Invisible spaces: search engines and screen readers read "GLAS IN JENA", the look stays the same -->
+          © {{ currentYear }} GLAS<span class="gj-footer__brand-space">{{ ' ' }}</span
+          ><sup>IN</sup><span class="gj-footer__brand-space">{{ ' ' }}</span
+          >JENA
         </p>
       </div>
     </footer>
@@ -271,6 +274,11 @@ onBeforeUnmount(() => {
 
 .gj-footer__copyright sup {
   font-size: 0.6em;
+}
+
+/* Real spaces in the text of the brand name, without width */
+.gj-footer__brand-space {
+  font-size: 0;
 }
 
 /*
