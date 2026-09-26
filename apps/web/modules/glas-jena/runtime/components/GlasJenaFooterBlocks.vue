@@ -10,8 +10,11 @@
             </li>
           </ul>
         </nav>
+        <!--
+          Invisible spaces: search engines and screen readers read "GLAS IN JENA", the look stays the same.
+          The comment stays outside the paragraph: inside it, the server renders it but the client does not (hydration mismatch).
+        -->
         <p ref="copyrightRef" class="gj-footer__copyright" data-testid="gj-footer-copyright">
-          <!-- Invisible spaces: search engines and screen readers read "GLAS IN JENA", the look stays the same -->
           © {{ currentYear }} GLAS<span class="gj-footer__brand-space">{{ ' ' }}</span
           ><sup>IN</sup><span class="gj-footer__brand-space">{{ ' ' }}</span
           >JENA
@@ -273,6 +276,7 @@ onBeforeUnmount(() => {
 }
 
 .gj-footer__copyright sup {
+  margin-left: 2px;
   font-size: 0.6em;
 }
 
