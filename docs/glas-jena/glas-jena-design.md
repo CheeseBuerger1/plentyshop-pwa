@@ -32,8 +32,7 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 | Kachel Küche & Helfer                                                              | `#D6E1EA`                                            |
 | Kachel Gesundheitshelfer                                                           | `#D4C8E8` (Überschrift darin violett, ca. `#9B6FB5`) |
 | Header-Iconfelder (Konto, Sprache, Suche)                                          | Hellgrau, ca. `#F0F0F0` / `#E6E6E6`                  |
-| Footer oben                                                                        | Fast schwarz-blau, ca. `#253038`                     |
-| Footer unten (Copyright-Zeile)                                                     | Sehr helles Grau, ca. `#F7F7F7`                      |
+| Footer                                                                             | Fast schwarz-blau `#263238` (gemessen)               |
 | Fließtext                                                                          | Dunkelgrau, ca. `#444444`                            |
 | Links (z. B. „Versandkosten“)                                                      | Mittelblau `#6E9BBF`                                 |
 
@@ -175,8 +174,11 @@ Umgesetzt in `GlasJenaCookiebar.vue` (ersetzt die Original-Komponente `Cookiebar
 
 ### Footer
 
-- Obere Zeile dunkel (`#253038`): Links AGB, Widerruf, Datenschutz, Versand, Kontakt, Impressum; rechts Versandlogos (DHL, DPD) und Zahlungsarten (Sofort, Kreditkarte, Vorkasse) als helle Rahmen-Icons.
-- Untere Zeile hell: „© [aktuelles Jahr] GLAS IN JENA“ (Jahr automatisch), rechts „webdesign by 3W FUTURE“.
+Umgesetzt in `GlasJenaFooterBlocks.vue` (Links in `utils/footer.ts`); im Shop-Editor bleibt der Original-Footer.
+
+- **Eine dunkle Leiste** wie im LTS-Shop (`#263238`, 80 px hoch, so breit wie die Header-Box): links AGB, Widerruf, Datenschutz, Versand, Kontakt, Impressum (weiß, Light); **rechts das Copyright** „© [aktuelles Jahr] GLAS IN JENA“ (Jahr automatisch) statt der Versand- und Zahlungssymbole des LTS. Keine helle Zeile darunter, kein „webdesign by“.
+- Handy (unter 768 px): Links untereinander, Copyright darunter.
+- Die festen Knöpfe unten (Cookie-Symbol links, „Nach oben“ rechts, in der Vorschau zusätzlich der Vorschau-Knopf) verdecken am Seitenende nichts: Die Leiste hält ihre Breite frei, auf dem Handy der Platz unter dem Copyright.
 - Button „Nach oben“ unten rechts (hellblau, eckig).
 
 ### Tablet-Ansicht (ca. 768–1279 px)
@@ -187,7 +189,7 @@ Umgesetzt in `GlasJenaCookiebar.vue` (ersetzt die Original-Komponente `Cookiebar
 - Kategorie-Kacheln: zu dritt nebeneinander (im Hochformat notfalls 2 + 1).
 - Topseller-Karussell: 3 Artikel pro Ansicht, wischbar und mit Pfeilen.
 - Textblock „trendglas® in Jena“: Bild neben dem Text im Querformat, darunter im Hochformat.
-- Footer: Links in einer Zeile, Versand- und Zahlungslogos darunter.
+- Footer: Links in einer Zeile, Copyright rechts.
 - Alle Schaltflächen und Iconfelder groß genug für Finger (mindestens 44 × 44 px).
 
 ### Handy-Ansicht (unter 768 px)
@@ -196,7 +198,7 @@ Umgesetzt in `GlasJenaCookiebar.vue` (ersetzt die Original-Komponente `Cookiebar
 - Kacheln stapeln sich untereinander (volle Breite).
 - Hero: Bild oben, „Wussten Sie schon“-Box darunter.
 - Topseller-Karussell mit 1–2 Artikeln pro Ansicht, wischbar.
-- Footer: Links untereinander, Logos in einer umbrechenden Reihe.
+- Footer: Links untereinander, Copyright darunter.
 
 ### Test
 
@@ -208,7 +210,7 @@ Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet ho
 
 - [ ] Exakte Farbwerte und Schrift aus dem LTS-CSS übernehmen.
 - [ ] Artikeldaten prüfen: Viele Artikel zeigen „1 Milliliter“ als Einheit – vermutlich falsche Inhalts-/Grundpreis-Einheit in PlentyONE (betrifft PWA und LTS gleichermaßen).
-- [ ] Copyright-Jahr im Footer automatisch setzen.
+- [x] Copyright-Jahr im Footer automatisch setzen.
 - [ ] Alle „Wussten Sie schon“-Fakten aus dem LTS-Shop sammeln.
 - [ ] Englische Texte für den Sprachwechsel prüfen.
 - [x] SEO mobil: Das Server-HTML für Handys enthält jetzt alle Kategorie-Links (mobiles Menü, siehe oben).

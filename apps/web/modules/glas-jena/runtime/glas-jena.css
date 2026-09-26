@@ -14,7 +14,8 @@
   --gj-tile-blue: #a9c9e3;
   --gj-tile-grey-blue: #d6e1ea;
   --gj-tile-lilac: #d4c8e8;
-  --gj-footer-bg: #253038;
+  /* Footer bar of the LTS shop (measured); also the open search bar */
+  --gj-footer-bg: #263238;
   --gj-footnote-bg: #f7f7f7;
   --gj-text: #444444;
   --gj-text-muted: #777777;
@@ -111,6 +112,15 @@ html:has(.gj-header-wrapper--sticky) {
   .font-body .bottom-\[4\.3rem\] {
     bottom: calc(0.5rem + var(--gj-mobile-navbar-height));
   }
+}
+
+/*
+ * In preview mode the preview-mode button sits next to the cookie button (left, from 1280 px on the right), so the
+ * footer bar keeps its width free as well (see GlasJenaFooterBlocks.vue). Only the merchant sees this button.
+ */
+.font-body:has(.bottom-\[4\.3rem\]) .gj-footer {
+  --gj-footer-clearance-left: 8rem;
+  --gj-footer-clearance-right: 8rem;
 }
 
 /*
