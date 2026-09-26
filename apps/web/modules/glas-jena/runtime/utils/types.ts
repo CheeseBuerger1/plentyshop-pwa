@@ -96,3 +96,13 @@ export interface ShippingMethodLogo {
   src: string;
   label: string;
 }
+
+/**
+ * Target of an old LTS address, see ltsRedirect.ts: PWA path without language prefix, the language prefix of the old
+ * address (not yet checked against the shop's languages) and the query to send along.
+ */
+export interface LtsRedirect {
+  locale?: string;
+  path: string;
+  query: Record<string, unknown>;
+}

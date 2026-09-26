@@ -387,6 +387,17 @@ Umgesetzt in `GlasJenaFooterBlocks.vue` (Links in `utils/footer.ts`); im Shop-Ed
 - Topseller-Karussell mit 1–2 Artikeln pro Ansicht, wischbar.
 - Footer: Links in zwei Spalten, Zahlungssymbole und Copyright zentriert darunter.
 
+### Alte Adressen des LTS-Shops (Weiterleitungen)
+
+Umgesetzt in `runtime/middleware/ltsRedirect.ts` (global) mit der Tabelle `LTS_REDIRECTS` in `utils/ltsRedirect.ts`. Kategorien und Artikel haben in der PWA dieselben Adressen wie im LTS, umgeleitet werden nur die Adressen, die es in der PWA nicht gibt. Alle Weiterleitungen sind dauerhaft (301), damit Suchmaschinen die neue Adresse übernehmen. Die Sprache der alten Adresse bleibt erhalten (`/en/sbc5/gtc` → `/en/terms-and-conditions/`), ebenso Parameter und Anker.
+
+- **Systemseiten:** `/basket`, `/gtc`, `/password-reset`, `/change-mail` und die Inhaltskategorien `/sbc5/…` (Warenkorb, Kasse, AGB, Kontakt, Impressum, Datenschutz, Widerruf, Versand, Registrierung, Login, Konto) führen auf die PWA-Seite. Die E-Mail-Adresse ändert man in der PWA im Konto, dorthin führt `/change-mail`. In PlentyONE gibt es die `/sbc5/…`-Kategorien weiterhin, ohne Weiterleitung würde die PWA sie als leere Seiten zeigen.
+- **Neue Weiterleitung:** eine Zeile in `LTS_REDIRECTS` (alte Adresse ohne Sprachpräfix und ohne Schrägstrich am Ende → Schlüssel der PWA-Seite in `paths`), dazu ein Test. Der Vertragstest prüft, dass es jede Zielseite gibt.
+- **Suche:** Das LTS übergab den Suchbegriff als `?query=`, die PWA erwartet `?term=`. Eine Suche ohne Begriff führt auf die Startseite, weil die Suchseite der PWA ohne Begriff einen Fehler 500 wirft (Original).
+- **Doppeltes Sprachpräfix:** Das LTS erzeugte Links wie `/en/en/…`, die Suchmaschinen kennen könnten. Sie führen auf `/en/…`. Steckt dahinter eine Systemseite, geht es in einem Schritt zum Ziel.
+- **Nicht umgeleitet:** `/sbc5/our-glass` und `/sbc5/bank-details` sind echte Inhaltsseiten, ihr Inhalt steht im Shop-Editor. `/wish-list` bleibt 404, weil der Shop keine Wunschliste hat.
+- Die Middleware greift erst auf i18n zu, wenn sie eine alte Adresse erkannt hat (Grund wie bei `accountRedirect.ts`: Original-Tests ersetzen `useNuxtApp`). Den Pfad baut sie selbst, nämlich Sprachpräfix plus Pfad aus `paths`, weil `useLocalizedPath` keine Zielsprache kennt und `useLocalePath` per ESLint verboten ist. Das funktioniert, weil der Shop in jeder Sprache dieselben Pfade nutzt (`prefix_and_default`).
+
 ### Test
 
 Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet hoch), 1180 px (Tablet quer) und 1440 px (Desktop).
