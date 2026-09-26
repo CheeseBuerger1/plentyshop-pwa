@@ -22,6 +22,13 @@ export const SLIDE_FORWARD = 'forward';
 export const SLIDE_BACK = 'back';
 export const SLIDE_NONE = 'none';
 
+/**
+ * A plain left click without modifier keys. Only such clicks are handled in the app; modifier clicks
+ * (new tab or window) and other buttons keep the browser's default for the link.
+ */
+export const isPlainLeftClick = (event: MouseEvent) =>
+  event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+
 /** Deliberately bilingual like in the LTS shop, so it is found whatever language is active. */
 export const LANGUAGE_MENU_LABEL = 'Language / Sprache';
 

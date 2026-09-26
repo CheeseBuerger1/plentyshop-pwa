@@ -38,13 +38,25 @@
         <SfIconPerson />
       </NuxtLink>
 
+      <!-- A real link (with hreflang) to the other language version, so crawlers can follow it -->
+      <a
+        v-if="hasSingleAlternativeLocale && alternativeLocale"
+        :href="switchLocalePath(alternativeLocale)"
+        :hreflang="alternativeLocale"
+        :lang="alternativeLocale"
+        class="gj-header__tile gj-header__tile--medium gj-header__tile--text gj-header__tile--language"
+        data-testid="gj-header-language"
+        @click="onLanguageLinkClick"
+      >
+        {{ languageLabel }}
+      </a>
       <button
-        v-if="alternativeLocale"
+        v-else-if="alternativeLocale"
         type="button"
         class="gj-header__tile gj-header__tile--medium gj-header__tile--text gj-header__tile--language"
         data-testid="gj-header-language"
         :aria-label="t('common.navigation.languageSelector')"
-        @click="onLanguageClick"
+        @click="toggleLanguageSelect"
       >
         {{ languageLabel }}
       </button>
@@ -95,7 +107,7 @@ import { SfIconClose, SfIconMenu, SfIconPerson, SfIconSearch, SfIconShoppingCart
 import HeaderBlocks from '~/components/ui/HeaderBlocks/HeaderBlocks.vue';
 import LanguageSelector from '~/components/LanguageSelector/LanguageSelector.vue';
 import { getNativeLanguageName } from '../utils/locale';
-import { DESKTOP_NAVIGATION_BREAKPOINT } from '../utils/navigation';
+import { DESKTOP_NAVIGATION_BREAKPOINT, isPlainLeftClick } from '../utils/navigation';
 import GlasJenaMobileNavigation from './GlasJenaMobileNavigation.vue';
 import GlasJenaNavigation from './GlasJenaNavigation.vue';
 import { NAVIGATION_BLOCK_NAME } from '~/utils/blocks/block-names';
@@ -111,6 +123,7 @@ const { isAuthorized } = useCustomer();
 const { open: openMegaMenu } = useMegaMenu();
 const { getAvailableLocales, switchLocale, toggle: toggleLanguageSelect } = useLocalization();
 const { locale: currentLocale } = useI18n();
+const switchLocalePath = useSwitchLocalePath();
 
 /** The block editor keeps the original, editor-configurable header. */
 const useOriginalHeader = computed(() => isEditing.value);
@@ -154,13 +167,17 @@ const languageLabel = computed(() => {
   return getNativeLanguageName(locale);
 });
 
-const onLanguageClick = async () => {
-  if (hasSingleAlternativeLocale.value && alternativeLocale.value) {
-    // `false`: switching directly must not open the language selector panel
-    await switchLocale(alternativeLocale.value, false);
+/**
+ * The language link switches via `switchLocale` (which also updates the session). Modifier clicks keep the
+ * browser's default, e.g. opening the other language in a new tab.
+ */
+const onLanguageLinkClick = async (event: MouseEvent) => {
+  if (!alternativeLocale.value || !isPlainLeftClick(event)) {
     return;
   }
-  toggleLanguageSelect();
+  event.preventDefault();
+  // `false`: switching directly must not open the language selector panel
+  await switchLocale(alternativeLocale.value, false);
 };
 
 const isSearchOpen = ref(false);
