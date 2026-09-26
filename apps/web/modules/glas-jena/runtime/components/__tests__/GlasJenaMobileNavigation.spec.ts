@@ -3,13 +3,19 @@ import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaMobileNavigation from '../GlasJenaMobileNavigation.vue';
 import { navigationCategoriesFixture } from './navigation.fixture';
 
-const { switchLocale } = vi.hoisted(() => ({ switchLocale: vi.fn() }));
+const { switchLocale, localeState } = vi.hoisted(() => ({
+  switchLocale: vi.fn(),
+  localeState: { available: ['de', 'en'] },
+}));
+
+/** vue-i18n's default locale; the test i18n instance in vitest.config.setup.ts sets none. */
+const TEST_LOCALE = 'en-US';
 
 mockNuxtImport('useCategoryTree', () => () => ({ data: ref([]), getCategoryTree: vi.fn() }));
 mockNuxtImport('useLocalizedPath', () => () => (path: string) => path);
 mockNuxtImport('useLocalization', () => () => ({
   buildCategoryMenuLink: (category: { id: number }) => `/category/${category.id}`,
-  getAvailableLocales: () => ['de', 'en'],
+  getAvailableLocales: () => localeState.available,
   switchLocale,
 }));
 
@@ -56,6 +62,7 @@ const clickNext = async (wrapper: VueWrapper, name: string) => {
 
 describe('GlasJenaMobileNavigation', () => {
   afterEach(() => {
+    localeState.available = ['de', 'en'];
     useMegaMenu().close();
     mounted.splice(0).forEach((wrapper) => wrapper.unmount());
   });
@@ -101,7 +108,7 @@ describe('GlasJenaMobileNavigation', () => {
     expect(isShown(wrapper, 'gj-mobile-nav-level-12')).toBe(false);
   });
 
-  it('should list login and registration in the account view for guests', async () => {
+  it('should list login and registration below the categories in the account view for guests', async () => {
     const wrapper = await mountMenu();
 
     await wrapper.find('[data-testid="gj-mobile-nav-account"]').trigger('click');
@@ -110,7 +117,9 @@ describe('GlasJenaMobileNavigation', () => {
       .findAll('[data-testid="gj-mobile-nav-account-list"] .gj-mnav__item')
       .map((item) => item.text());
     expect(entries).toHaveLength(3);
-    expect(isShown(wrapper, 'gj-mobile-nav-level-root')).toBe(false);
+    /* Like the LTS shop: the categories stay visible above the account entries */
+    expect(isShown(wrapper, 'gj-mobile-nav-level-root')).toBe(true);
+    expect(wrapper.find('[data-testid="gj-mobile-nav-account"]').exists()).toBe(false);
   });
 
   it('should list every shop language in its own name', async () => {
@@ -122,6 +131,23 @@ describe('GlasJenaMobileNavigation', () => {
       .findAll('[data-testid="gj-mobile-nav-language-list"] .gj-mnav__item')
       .map((item) => item.text());
     expect(languages).toEqual(['Deutsch', 'English']);
+    expect(isShown(wrapper, 'gj-mobile-nav-level-root')).toBe(true);
+  });
+
+  it('should mark only the active language with a check mark', async () => {
+    localeState.available = ['de', TEST_LOCALE];
+    const wrapper = await mountMenu();
+
+    await wrapper.find('[data-testid="gj-mobile-nav-language"]').trigger('click');
+
+    const active = wrapper.findAll('[data-testid="gj-mobile-nav-language-active"]');
+    expect(active).toHaveLength(1);
+    expect(
+      wrapper.find(`[data-testid="gj-mobile-nav-language-list"] [lang="${TEST_LOCALE}"]`).attributes('aria-current'),
+    ).toBe('true');
+    expect(
+      wrapper.find('[data-testid="gj-mobile-nav-language-list"] [lang="de"]').attributes('aria-current'),
+    ).toBeUndefined();
   });
 
   it('should add a history entry while open and close on the back button', async () => {

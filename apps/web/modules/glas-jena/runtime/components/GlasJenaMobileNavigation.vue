@@ -22,9 +22,6 @@
             {{ categoryTreeGetters.getName(crumb) }}
           </button>
         </li>
-        <li v-if="view !== VIEW_CATEGORIES">
-          <span class="gj-mnav__crumb">{{ view === VIEW_ACCOUNT ? tLocal('account') : LANGUAGE_MENU_LABEL }}</span>
-        </li>
       </ol>
       <button
         ref="closeRef"
@@ -41,10 +38,10 @@
     <nav class="gj-mnav__body" @click.capture="onLinkClick">
       <ul
         v-for="level in levels"
-        v-show="view === VIEW_CATEGORIES && level.id === parentId"
+        v-show="level.id === parentId"
         :key="level.id ?? 'root'"
         class="gj-mnav__list"
-        :class="slideClass"
+        :class="categorySlideClass"
         :data-testid="`gj-mobile-nav-level-${level.id ?? 'root'}`"
       >
         <li v-if="level.id !== null">
@@ -74,9 +71,13 @@
         </li>
       </ul>
 
+      <!--
+        Like the LTS shop: the categories stay; only the part below the separator switches to the account
+        entries or the language list.
+      -->
+      <hr class="gj-mnav__separator" />
       <template v-if="view === VIEW_CATEGORIES">
-        <hr class="gj-mnav__separator" />
-        <ul class="gj-mnav__list">
+        <ul class="gj-mnav__list" :class="slideClass">
           <li class="gj-mnav__item">
             <button
               type="button"
@@ -118,7 +119,7 @@
 
       <ul
         v-else-if="view === VIEW_ACCOUNT"
-        class="gj-mnav__list"
+        class="gj-mnav__list gj-mnav__list--extra"
         :class="slideClass"
         data-testid="gj-mobile-nav-account-list"
       >
@@ -161,7 +162,12 @@
         </template>
       </ul>
 
-      <ul v-else class="gj-mnav__list" :class="slideClass" data-testid="gj-mobile-nav-language-list">
+      <ul
+        v-else
+        class="gj-mnav__list gj-mnav__list--extra"
+        :class="slideClass"
+        data-testid="gj-mobile-nav-language-list"
+      >
         <li>
           <button
             type="button"
@@ -176,13 +182,19 @@
         <li v-for="locale in locales" :key="locale" class="gj-mnav__item">
           <a
             :href="switchLocalePath(locale)"
-            class="gj-mnav__link"
+            class="gj-mnav__link gj-mnav__link--language"
             :class="{ 'gj-mnav__link--active': locale === currentLocale }"
             :hreflang="locale"
             :lang="locale"
+            :aria-current="locale === currentLocale ? 'true' : undefined"
             @click="onLocaleClick($event, locale)"
           >
             {{ getNativeLanguageName(locale) }}
+            <SfIconCheck
+              v-if="locale === currentLocale"
+              aria-hidden="true"
+              data-testid="gj-mobile-nav-language-active"
+            />
           </a>
         </li>
       </ul>
@@ -191,7 +203,14 @@
 </template>
 
 <script setup lang="ts">
-import { SfIconChevronLeft, SfIconChevronRight, SfIconClose, SfIconHome, useTrapFocus } from '@storefront-ui/vue';
+import {
+  SfIconCheck,
+  SfIconChevronLeft,
+  SfIconChevronRight,
+  SfIconClose,
+  SfIconHome,
+  useTrapFocus,
+} from '@storefront-ui/vue';
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
 import { useGlasJenaCategoryTree } from '../composables/useGlasJenaCategoryTree';
 import { useMenuHistoryEntry } from '../composables/useMenuHistoryEntry';
@@ -290,6 +309,12 @@ const findStartLevel = () => {
 };
 
 /** Direction of the last level change; a level that becomes visible slides in from that side (like the LTS shop). */
+/*
+ * Slide-in directions: the category levels and the part below the separator (account, language) move
+ * independently, so switching to the account entries leaves the categories in place.
+ */
+const categorySlideDirection = ref<GlasJenaSlideDirection>(SLIDE_NONE);
+const categorySlideClass = computed(() => `gj-mnav__list--${categorySlideDirection.value}`);
 const slideDirection = ref<GlasJenaSlideDirection>(SLIDE_NONE);
 const slideClass = computed(() => `gj-mnav__list--${slideDirection.value}`);
 
@@ -298,8 +323,10 @@ const showView = (next: GlasJenaMobileNavigationView, direction: GlasJenaSlideDi
   view.value = next;
 };
 
+/** Moving between category levels also shows the account and language entries below them again. */
 const slideTo = (id: number | null, direction: GlasJenaSlideDirection) => {
-  showView(VIEW_CATEGORIES, direction);
+  categorySlideDirection.value = direction;
+  showView(VIEW_CATEGORIES, SLIDE_NONE);
   parentId.value = id;
 };
 
@@ -352,6 +379,7 @@ let opener: HTMLElement | null = null;
 watch(isOpen, async (open) => {
   if (open) {
     slideDirection.value = SLIDE_NONE;
+    categorySlideDirection.value = SLIDE_NONE;
     view.value = VIEW_CATEGORIES;
     parentId.value = findStartLevel();
   }
@@ -510,7 +538,17 @@ useTrapFocus(panelRef, { activeState: isOpen, arrowKeysUpDown: false, initialFoc
   font-weight: 600;
 }
 
-.gj-mnav__link--extra {
+/* The active language gets a check mark on the right, like the shop's own language selector */
+.gj-mnav__link--language {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* Account and language: the entries and their second level (below the separator) in light blue */
+.gj-mnav__link--extra,
+.gj-mnav__list--extra {
   color: #abcae4;
 }
 
