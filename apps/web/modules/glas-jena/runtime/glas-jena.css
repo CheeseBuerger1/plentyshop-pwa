@@ -119,15 +119,6 @@ html:has(.gj-header-wrapper--sticky) {
 }
 
 /*
- * In preview mode the preview-mode button sits next to the cookie button (left, from 1280 px on the right), so the
- * footer bar keeps its width free as well (see GlasJenaFooterBlocks.vue). Only the merchant sees this button.
- */
-.font-body:has(.bottom-\[4\.3rem\]) .gj-footer {
-  --gj-footer-clearance-left: 8rem;
-  --gj-footer-clearance-right: 8rem;
-}
-
-/*
  * No wishlist in the GLAS IN JENA shop. The wishlist pages are removed in index.ts and the heart buttons are
  * switched off in the shop editor; these two spots have no setting and live in original files:
  * the "Wishlist" section of the my-account menu and the wishlist benefit on the registration form.

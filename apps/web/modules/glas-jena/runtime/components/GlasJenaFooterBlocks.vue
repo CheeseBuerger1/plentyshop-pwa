@@ -130,7 +130,7 @@ onBeforeUnmount(() => {
  */
 .gj-footer {
   --gj-footer-box-offset: max(0px, calc((100vw - var(--gj-box-width)) / 2));
-  /* Width of the fixed buttons to keep free; larger in preview mode, see glas-jena.css */
+  /* Width of the fixed buttons to keep free (only those customers see; the merchant's preview button is ignored) */
   --gj-footer-clearance-left: 3.75rem;
   --gj-footer-clearance-right: 3.75rem;
 
@@ -225,11 +225,8 @@ onBeforeUnmount(() => {
   display: none;
 }
 
-/*
- * Narrower link boxes below 1200 px window width (the LTS shop does so from 992 px), so the links fit in one line
- * down to 768 px – also in preview mode, where the bar keeps more room free for the preview button.
- */
-@media (min-width: 768px) and (max-width: 1199.98px) {
+/* Narrower link boxes between 992 and 1199 px window width, like the LTS shop */
+@media (min-width: 992px) and (max-width: 1199.98px) {
   .gj-footer__link {
     padding-right: 0.625rem;
     padding-left: 0.625rem;
