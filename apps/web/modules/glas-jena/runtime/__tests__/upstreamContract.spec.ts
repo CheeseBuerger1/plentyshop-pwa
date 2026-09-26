@@ -85,7 +85,8 @@ describe('upstream contract of the glas-jena module', () => {
 
   it('should find every original component the module replaces', () => {
     const componentFile = (name: string) => {
-      const path = name.replace(/^Ui/, 'components/ui/');
+      /* Nuxt names: `UiHeaderBlocks` → components/ui/HeaderBlocks…, `Cookiebar` → components/Cookiebar… */
+      const path = name.startsWith('Ui') ? name.replace(/^Ui/, 'components/ui/') : `components/${name}`;
       const fileName = path.split('/').pop();
       return [`${path}.vue`, `${path}/${fileName}.vue`].find((file) => existsSync(join(APP_DIR, file)));
     };
