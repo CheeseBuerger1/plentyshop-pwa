@@ -1,110 +1,114 @@
 <template>
   <HeaderBlocks v-if="useOriginalHeader" />
-  <div
-    v-else
-    class="gj-header-wrapper z-dropdown"
-    :class="{ 'gj-header-wrapper--sticky': isSticky }"
-    data-testid="gj-header"
-  >
-    <header class="gj-header">
-      <NuxtLink
-        :to="localePath(paths.home)"
-        :aria-label="t('common.actions.goToHomepage')"
-        class="gj-header__logo"
-        data-testid="gj-header-logo"
-      >
-        <UiLogo />
-      </NuxtLink>
+  <template v-else>
+    <div
+      class="gj-header-wrapper z-dropdown"
+      :class="{ 'gj-header-wrapper--sticky': isSticky }"
+      data-testid="gj-header"
+    >
+      <header class="gj-header">
+        <NuxtLink
+          :to="localePath(paths.home)"
+          :aria-label="t('common.actions.goToHomepage')"
+          class="gj-header__logo"
+          data-testid="gj-header-logo"
+        >
+          <UiLogo />
+        </NuxtLink>
 
-      <div class="gj-header__nav">
-        <GlasJenaNavigation
-          v-if="viewport.isGreaterOrEquals(DESKTOP_NAVIGATION_BREAKPOINT)"
-          :categories="navigationBlock?.categories"
-        />
+        <div class="gj-header__nav">
+          <GlasJenaNavigation
+            v-if="viewport.isGreaterOrEquals(DESKTOP_NAVIGATION_BREAKPOINT)"
+            :categories="navigationBlock?.categories"
+          />
+        </div>
+
+        <button
+          v-if="viewport.isLessThan(DESKTOP_NAVIGATION_BREAKPOINT)"
+          type="button"
+          class="gj-header__tile gj-header__tile--light"
+          data-testid="gj-header-menu"
+          :aria-label="t('common.navigation.openMenu')"
+          @click="openMegaMenu"
+        >
+          <SfIconMenu />
+        </button>
+
+        <NuxtLink
+          :to="localePath(isAuthorized ? paths.account : paths.authLogin)"
+          class="gj-header__tile gj-header__tile--light gj-header__tile--account"
+          data-testid="gj-header-account"
+          :aria-label="isAuthorized ? t('account.heading') : t('authentication.login.openLoginForm')"
+        >
+          <SfIconPerson />
+        </NuxtLink>
+
+        <!-- A real link (with hreflang) to the other language version, so crawlers can follow it -->
+        <a
+          v-if="hasSingleAlternativeLocale && alternativeLocale"
+          :href="switchLocalePath(alternativeLocale)"
+          :hreflang="alternativeLocale"
+          :lang="alternativeLocale"
+          class="gj-header__tile gj-header__tile--medium gj-header__tile--text gj-header__tile--language"
+          data-testid="gj-header-language"
+          @click="onLanguageLinkClick"
+        >
+          {{ languageLabel }}
+        </a>
+        <button
+          v-else-if="alternativeLocale"
+          type="button"
+          class="gj-header__tile gj-header__tile--medium gj-header__tile--text gj-header__tile--language"
+          data-testid="gj-header-language"
+          :aria-label="t('common.navigation.languageSelector')"
+          @click="toggleLanguageSelect"
+        >
+          {{ languageLabel }}
+        </button>
+
+        <button
+          type="button"
+          class="gj-header__tile gj-header__tile--dark"
+          data-testid="gj-header-search"
+          :aria-label="t('common.actions.search')"
+          :aria-expanded="isSearchOpen"
+          @click="toggleSearch"
+        >
+          <SfIconClose v-if="isSearchOpen" />
+          <SfIconSearch v-else />
+        </button>
+
+        <NuxtLink
+          :to="localePath(paths.cart)"
+          class="gj-header__tile gj-header__tile--cart"
+          data-testid="gj-header-cart"
+          :aria-label="t('cart.numberInCart', { count: cartItemsCount })"
+        >
+          <SfIconShoppingCart />
+          <span v-if="cartItemsCount > 0" class="gj-header__badge" data-testid="gj-header-cart-badge">
+            {{ cartItemsCount }}
+          </span>
+        </NuxtLink>
+      </header>
+
+      <div v-if="isSearchOpen" class="gj-header__search" data-testid="gj-header-search-panel">
+        <UiSearch class="w-full !py-0" :close="closeSearch" />
       </div>
 
-      <button
-        v-if="viewport.isLessThan(DESKTOP_NAVIGATION_BREAKPOINT)"
-        type="button"
-        class="gj-header__tile gj-header__tile--light"
-        data-testid="gj-header-menu"
-        :aria-label="t('common.navigation.openMenu')"
-        @click="openMegaMenu"
-      >
-        <SfIconMenu />
-      </button>
-
-      <NuxtLink
-        :to="localePath(isAuthorized ? paths.account : paths.authLogin)"
-        class="gj-header__tile gj-header__tile--light gj-header__tile--account"
-        data-testid="gj-header-account"
-        :aria-label="isAuthorized ? t('account.heading') : t('authentication.login.openLoginForm')"
-      >
-        <SfIconPerson />
-      </NuxtLink>
-
-      <!-- A real link (with hreflang) to the other language version, so crawlers can follow it -->
-      <a
-        v-if="hasSingleAlternativeLocale && alternativeLocale"
-        :href="switchLocalePath(alternativeLocale)"
-        :hreflang="alternativeLocale"
-        :lang="alternativeLocale"
-        class="gj-header__tile gj-header__tile--medium gj-header__tile--text gj-header__tile--language"
-        data-testid="gj-header-language"
-        @click="onLanguageLinkClick"
-      >
-        {{ languageLabel }}
-      </a>
-      <button
-        v-else-if="alternativeLocale"
-        type="button"
-        class="gj-header__tile gj-header__tile--medium gj-header__tile--text gj-header__tile--language"
-        data-testid="gj-header-language"
-        :aria-label="t('common.navigation.languageSelector')"
-        @click="toggleLanguageSelect"
-      >
-        {{ languageLabel }}
-      </button>
-
-      <button
-        type="button"
-        class="gj-header__tile gj-header__tile--dark"
-        data-testid="gj-header-search"
-        :aria-label="t('common.actions.search')"
-        :aria-expanded="isSearchOpen"
-        @click="toggleSearch"
-      >
-        <SfIconClose v-if="isSearchOpen" />
-        <SfIconSearch v-else />
-      </button>
-
-      <NuxtLink
-        :to="localePath(paths.cart)"
-        class="gj-header__tile gj-header__tile--cart"
-        data-testid="gj-header-cart"
-        :aria-label="t('cart.numberInCart', { count: cartItemsCount })"
-      >
-        <SfIconShoppingCart />
-        <span v-if="cartItemsCount > 0" class="gj-header__badge" data-testid="gj-header-cart-badge">
-          {{ cartItemsCount }}
-        </span>
-      </NuxtLink>
-    </header>
-
-    <div v-if="isSearchOpen" class="gj-header__search" data-testid="gj-header-search-panel">
-      <UiSearch class="w-full !py-0" :close="closeSearch" />
-    </div>
-
-    <!--
+      <!--
       Phones and tablets: LTS-style menu behind the burger; rendered hidden so its links are in the server HTML.
       Teleported out of the header's stacking context so it covers the whole page like in the LTS shop.
     -->
-    <Teleport v-if="viewport.isLessThan(DESKTOP_NAVIGATION_BREAKPOINT)" to="body">
-      <GlasJenaMobileNavigation :categories="navigationBlock?.categories" />
-    </Teleport>
+      <Teleport v-if="viewport.isLessThan(DESKTOP_NAVIGATION_BREAKPOINT)" to="body">
+        <GlasJenaMobileNavigation :categories="navigationBlock?.categories" />
+      </Teleport>
 
-    <LanguageSelector />
-  </div>
+      <LanguageSelector />
+    </div>
+
+    <!-- Next to the header, not inside it: the sticky header must not take the banner along -->
+    <GlasJenaPageBanner />
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -115,6 +119,7 @@ import { getNativeLanguageName } from '../utils/locale';
 import { DESKTOP_NAVIGATION_BREAKPOINT, isPlainLeftClick } from '../utils/navigation';
 import GlasJenaMobileNavigation from './GlasJenaMobileNavigation.vue';
 import GlasJenaNavigation from './GlasJenaNavigation.vue';
+import GlasJenaPageBanner from './GlasJenaPageBanner.vue';
 import { NAVIGATION_BLOCK_NAME } from '~/utils/blocks/block-names';
 import type { HeaderContainerBlock } from '~/components/blocks/structure/HeaderContainer/types';
 import type { NavigationBlockProps } from '~/components/blocks/Navigation/types';
@@ -366,16 +371,13 @@ watch(() => route.path, closeSearch);
  * Below the desktop navigation (window width under 992 px, same breakpoint as `DESKTOP_NAVIGATION_MIN_WIDTH`),
  * like the LTS shop. Media queries on purpose: like on the LTS shop, the window width including the scrollbar
  * counts (the shop's container is narrower by the scrollbar and would switch about 15 px later).
- * - The logo field takes 15 % of the header's width. The image stays at most 136 px wide; where the field is
- *   wider, the logo blue fills the sides. Set on the wrapper, so the search bar indents by the same width.
+ * - The logo field takes 15 % of the header's width (`--gj-logo-width` in glas-jena.css, so the search bar and the
+ *   page banner indent by the same width). The image stays at most 136 px wide; where the field is wider, the logo
+ *   blue fills the sides.
  * - Burger layout: logo field, then menu, search and cart as three equally wide tiles across the full width.
  *   Account and language move into the menu, so no empty navigation area is left next to the logo.
  */
 @media (max-width: 991.98px) {
-  .gj-header-wrapper {
-    --gj-logo-width: 15%;
-  }
-
   .gj-header__nav,
   .gj-header__tile--account,
   .gj-header__tile--language {
@@ -397,13 +399,6 @@ watch(() => route.path, closeSearch);
 @media (max-width: 619.98px) {
   .gj-header__search {
     padding-left: 1rem;
-  }
-}
-
-/* Small phones, like the LTS shop (window width below 576 px): a slightly larger share of the width for the logo field */
-@media (max-width: 575.98px) {
-  .gj-header-wrapper {
-    --gj-logo-width: 18%;
   }
 }
 </style>

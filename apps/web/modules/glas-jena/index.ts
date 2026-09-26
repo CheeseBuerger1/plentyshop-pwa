@@ -2,9 +2,12 @@ import { addTemplate, createResolver, defineNuxtModule } from 'nuxt/kit';
 import type { NuxtPage } from 'nuxt/schema';
 import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './runtime/utils/navigation';
 
-const COMPONENT_OVERRIDES: Record<string, string> = {
+/** Original components (Nuxt name) replaced by the module's own ones. */
+export const COMPONENT_OVERRIDES: Record<string, string> = {
   UiFooterBlocks: './runtime/components/GlasJenaFooterBlocks.vue',
   UiHeaderBlocks: './runtime/components/GlasJenaHeaderBlocks.vue',
+  /* Checkout: the original simplified header plus the page banner */
+  UiSimplifiedHeader: './runtime/components/GlasJenaSimplifiedHeader.vue',
   /* No bottom navbar on phones, like the LTS shop (the auth layout still renders it) */
   UiNavbarBottom: './runtime/components/GlasJenaNavbarBottom.vue',
 };

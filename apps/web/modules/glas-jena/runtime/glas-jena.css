@@ -31,6 +31,56 @@
 }
 
 /*
+ * Logo field below the desktop navigation, like the LTS shop (window width, see GlasJenaHeaderBlocks.vue):
+ * 15 % of the header's width, on small phones (below 576 px) 18 %. Header, search bar and page banner share it.
+ */
+@media (max-width: 991.98px) {
+  :root {
+    --gj-logo-width: 15%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  :root {
+    --gj-logo-width: 18%;
+  }
+}
+
+/*
+ * Page banner (GlasJenaPageBanner.vue): its title is the page's h1, like in the LTS shop. The headings of the
+ * original pages and layouts that repeat it are hidden while the banner is shown – category name (CategoryData
+ * block), search/tag results, cart/checkout, contact, "Mein Konto", password pages (auth layout). The banner is a
+ * sibling of `main` in the default and auth layouts. Legal texts keep their own headings.
+ */
+.gj-page-banner
+  ~ main
+  :is(
+    [data-testid='category-name'],
+    [data-testid='category-layout'] > h1,
+    [data-testid='checkout-layout'] > [data-testid='narrow-container'] > div:first-child > h1,
+    [data-testid='account-layout-heading']
+  ),
+.gj-page-banner ~ main > h1,
+.gj-page-banner ~ main > div > h1.typography-headline-3:first-child {
+  display: none;
+}
+
+/*
+ * Breadcrumbs (default layout, container right after the banner): always on product pages (they have no banner),
+ * on category pages only below the desktop navigation (window width under 992 px, where the category navigation
+ * is behind the burger), nowhere else (e.g. my account).
+ */
+.gj-page-banner:not(.gj-page-banner--category) ~ [data-testid='narrow-container']:has([data-testid='breadcrumbs']) {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .gj-page-banner--category ~ [data-testid='narrow-container']:has([data-testid='breadcrumbs']) {
+    display: none;
+  }
+}
+
+/*
  * The header stays at the top from 992 px (or on all widths with the editor's "sticky" setting). Jumps to anchors
  * and focused form fields keep clear of it and of the overhanging logo instead of ending up underneath.
  */
