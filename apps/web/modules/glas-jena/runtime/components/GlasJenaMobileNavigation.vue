@@ -84,12 +84,12 @@
               class="gj-mnav__link gj-mnav__link--extra"
               @click="showView(VIEW_ACCOUNT, SLIDE_FORWARD)"
             >
-              {{ tLocal('account') }}
+              {{ t('account.navBottomHeadingAccount') }}
             </button>
             <button
               type="button"
               class="gj-mnav__next gj-mnav__link--extra"
-              :aria-label="tLocal('account')"
+              :aria-label="t('account.navBottomHeadingAccount')"
               data-testid="gj-mobile-nav-account"
               @click="showView(VIEW_ACCOUNT, SLIDE_FORWARD)"
             >
@@ -237,7 +237,6 @@ const props = withDefaults(defineProps<GlasJenaNavigationProps>(), {
   categories: () => [],
 });
 
-const { t: tLocal } = useI18n({ useScope: 'local' });
 const { locale: currentLocale } = useI18n();
 const localePath = useLocalizedPath();
 const switchLocalePath = useSwitchLocalePath();
@@ -417,13 +416,6 @@ onBeforeUnmount(() => {
 
 useTrapFocus(panelRef, { activeState: isOpen, arrowKeysUpDown: false, initialFocus: false });
 </script>
-
-<i18n lang="json">
-{
-  "en": { "account": "Account" },
-  "de": { "account": "Konto" }
-}
-</i18n>
 
 <style scoped>
 /* Colours and sizes taken from the LTS mobile navigation */
