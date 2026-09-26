@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="rootRef">
     <FooterBlocks v-if="isEditing" />
     <footer v-else class="gj-footer" data-testid="gj-footer">
       <div class="gj-footer__inner">
@@ -43,22 +43,40 @@ const localePath = useLocalizedPath();
 
 const currentYear = new Date().getFullYear();
 const showBackToTop = ref(false);
+const rootRef = ref<HTMLElement | null>(null);
 
-const onScroll = () => {
+/**
+ * What scrolls the page: the window, or – with the editor UI (from 1024 px) – the page area of the editor, which
+ * scrolls instead of the window. Scroll events do not bubble, so they are caught on the document in the capture
+ * phase; only elements that contain the footer count (not e.g. a scrollable dropdown or slider).
+ */
+let scrollContainer: HTMLElement | undefined;
+
+const onScroll = (event?: Event) => {
+  const target = event?.target;
+  if (target instanceof HTMLElement) {
+    if (!rootRef.value || !target.contains(rootRef.value)) {
+      return;
+    }
+    scrollContainer = target;
+    showBackToTop.value = target.scrollTop > SCROLL_THRESHOLD;
+    return;
+  }
+  scrollContainer = undefined;
   showBackToTop.value = window.scrollY > SCROLL_THRESHOLD;
 };
 
 const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  (scrollContainer ?? window).scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 onMounted(() => {
-  window.addEventListener('scroll', onScroll, { passive: true });
+  document.addEventListener('scroll', onScroll, { capture: true, passive: true });
   onScroll();
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', onScroll);
+  document.removeEventListener('scroll', onScroll, { capture: true });
 });
 </script>
 

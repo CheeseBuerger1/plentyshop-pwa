@@ -59,7 +59,8 @@ describe('GlasJenaFooterBlocks', () => {
     const wrapper = await mountFooter();
 
     window.scrollY = 500;
-    window.dispatchEvent(new Event('scroll'));
+    /* A window scroll fires on the document */
+    document.dispatchEvent(new Event('scroll'));
     await nextTick();
 
     expect(isBackToTopHidden(wrapper)).toBe(false);
@@ -72,5 +73,50 @@ describe('GlasJenaFooterBlocks', () => {
     await wrapper.get('[data-testid="gj-back-to-top"]').trigger('click');
 
     expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+  });
+
+  describe('with the editor UI, where a page area scrolls instead of the window', () => {
+    const mountInScrollArea = async () => {
+      const scrollArea = document.createElement('div');
+      document.body.appendChild(scrollArea);
+      const wrapper = await mountSuspended(GlasJenaFooterBlocks, {
+        attachTo: scrollArea,
+        global: { stubs: { FooterBlocks: true } },
+      });
+      scrollArea.scrollTo = vi.fn();
+      return { wrapper, scrollArea };
+    };
+
+    const scrollAreaTo = async (element: HTMLElement, top: number) => {
+      element.scrollTop = top;
+      element.dispatchEvent(new Event('scroll'));
+      await nextTick();
+    };
+
+    it('should show the button when the page area is scrolled down and scroll that area back up', async () => {
+      const { wrapper, scrollArea } = await mountInScrollArea();
+
+      await scrollAreaTo(scrollArea, 500);
+      expect(isBackToTopHidden(wrapper)).toBe(false);
+
+      await wrapper.get('[data-testid="gj-back-to-top"]').trigger('click');
+      expect(scrollArea.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+
+      wrapper.unmount();
+      scrollArea.remove();
+    });
+
+    it('should ignore scrolling elements that do not contain the footer', async () => {
+      const { wrapper, scrollArea } = await mountInScrollArea();
+      const dropdown = document.createElement('div');
+      document.body.appendChild(dropdown);
+
+      await scrollAreaTo(dropdown, 500);
+      expect(isBackToTopHidden(wrapper)).toBe(true);
+
+      wrapper.unmount();
+      scrollArea.remove();
+      dropdown.remove();
+    });
   });
 });
