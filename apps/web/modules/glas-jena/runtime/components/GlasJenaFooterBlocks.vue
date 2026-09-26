@@ -157,7 +157,8 @@ onBeforeUnmount(() => {
 
   background-color: var(--gj-footer-bg);
   color: #fff;
-  font-weight: 300;
+  /* Regular instead of the LTS shop's Light: better legible on the dark background */
+  font-weight: 400;
 }
 
 .gj-footer__inner {
@@ -204,7 +205,7 @@ onBeforeUnmount(() => {
 
 /*
  * Like the LTS shop: each link is a box as high as the bar (28 px above and below, 18 px at the sides); on hover
- * the box turns darker instead of the text being underlined.
+ * the box turns lighter instead of the text being underlined (clearly visible, unlike the LTS shop's darker tone).
  */
 .gj-footer__link {
   display: block;

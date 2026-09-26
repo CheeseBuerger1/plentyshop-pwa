@@ -18,8 +18,8 @@
   --gj-tile-lilac: #d4c8e8;
   /* Footer bar of the LTS shop (measured); also the open search bar */
   --gj-footer-bg: #263238;
-  /* Footer link on hover, like the LTS shop */
-  --gj-footer-hover-bg: #1f282d;
+  /* Footer link on hover: lighter blue grey, clearly visible (the LTS shop's #1f282d was hardly noticeable) */
+  --gj-footer-hover-bg: #37474f;
   --gj-footnote-bg: #f7f7f7;
   --gj-text: #444444;
   --gj-text-muted: #777777;
