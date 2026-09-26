@@ -300,9 +300,11 @@ onBeforeUnmount(() => {
     margin-right: 0;
   }
 
+  /* The bottom line separates the links from the copyright, like the lines between the boxes */
   .gj-footer__links {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid rgb(255 255 255 / 0.12);
     white-space: normal;
   }
 
