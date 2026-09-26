@@ -24,6 +24,9 @@
   /* Like the LTS shop: 92 px header, 136 px logo field (the size of the logo image) */
   --gj-header-height: 5.75rem;
   --gj-logo-width: 8.5rem;
+  /* Height of the logo image at full size (139 px) and how far it overhangs the header (47 px) */
+  --gj-logo-height: 8.6875rem;
+  --gj-logo-overhang: calc(var(--gj-logo-height) - var(--gj-header-height));
   --gj-tile-width: 5.5rem;
 }
 
