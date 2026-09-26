@@ -172,16 +172,18 @@
             <SfIconChevronLeft size="lg" aria-hidden="true" />
           </button>
         </li>
+        <!-- Real links (with hreflang) to the language versions, so crawlers can follow them -->
         <li v-for="locale in locales" :key="locale" class="gj-mnav__item">
-          <button
-            type="button"
+          <a
+            :href="switchLocalePath(locale)"
             class="gj-mnav__link"
             :class="{ 'gj-mnav__link--active': locale === currentLocale }"
+            :hreflang="locale"
             :lang="locale"
-            @click="onLocaleClick(locale)"
+            @click="onLocaleClick($event, locale)"
           >
             {{ getNativeLanguageName(locale) }}
-          </button>
+          </a>
         </li>
       </ul>
     </nav>
@@ -202,6 +204,7 @@ import {
   VIEW_ACCOUNT,
   VIEW_CATEGORIES,
   VIEW_LANGUAGE,
+  isPlainLeftClick,
 } from '../utils/navigation';
 import type { GlasJenaMobileNavigationView, GlasJenaNavigationProps, GlasJenaSlideDirection } from './types';
 
@@ -218,6 +221,7 @@ const props = withDefaults(defineProps<GlasJenaNavigationProps>(), {
 const { t: tLocal } = useI18n({ useScope: 'local' });
 const { locale: currentLocale } = useI18n();
 const localePath = useLocalizedPath();
+const switchLocalePath = useSwitchLocalePath();
 const router = useRouter();
 const { isOpen, close } = useMegaMenu();
 const { isAuthorized, logout } = useCustomer();
@@ -316,8 +320,9 @@ const { exitHistoryEntry } = useMenuHistoryEntry(isOpen, close);
  * navigation, which then skips the prevented click. Modifier clicks (new tab/window) keep the default.
  */
 const onLinkClick = async (event: MouseEvent) => {
-  const href = (event.target as HTMLElement | null)?.closest('a[href]')?.getAttribute('href');
-  if (!href || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+  /* Language links (with hreflang) switch via switchLocale in onLocaleClick instead */
+  const href = (event.target as HTMLElement | null)?.closest('a[href]:not([hreflang])')?.getAttribute('href');
+  if (!href || !isPlainLeftClick(event)) {
     return;
   }
   event.preventDefault();
@@ -326,7 +331,11 @@ const onLinkClick = async (event: MouseEvent) => {
   await router.push(href);
 };
 
-const onLocaleClick = async (locale: (typeof locales.value)[number]) => {
+const onLocaleClick = async (event: MouseEvent, locale: (typeof locales.value)[number]) => {
+  if (!isPlainLeftClick(event)) {
+    return;
+  }
+  event.preventDefault();
   close();
   await exitHistoryEntry();
   if (locale !== currentLocale.value) {
