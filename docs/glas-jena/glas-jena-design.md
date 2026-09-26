@@ -53,6 +53,7 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 - **Flat und eckig:** keine abgerundeten Ecken, keine Schatten.
 - **Geboxtes Layout:** Inhalt auf feste Maximalbreite zentriert, mit Rand links und rechts (Desktop).
 - **Farbflächen als Gestaltungsmittel:** Inhalte stehen in vollflächig gefärbten Kacheln.
+- **Listen mit Haken:** Aufzählungen in Textblöcken (Rich Text, Bild mit Text) stehen wie im LTS-Shop mit mittelblauen Haken ✓ statt Punkten, 40 px eingerückt (`glas-jena.css`, gilt für den angezeigten Text, nicht für das Eingabefeld im Editor). Nummerierte Listen bleiben nummeriert. Im Editor einfach eine normale Aufzählung anlegen.
 - **„Mehr“-Buttons:** halbtransparente helle Fläche unten rechts in der jeweiligen Kachel, Schrift Light.
 
 ---

@@ -144,6 +144,21 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
+ * Lists in text blocks with blue check marks instead of dots, like the LTS shop (e.g. "Unser hitzebeständiges
+ * Glas", the tile of the same name on the home page): check mark 21 × 16 px in the mid blue (#6e9bbf, as the
+ * image cannot use the CSS variable), indented by 40 px. Only the rendered text (`rte-prose--render`), so the
+ * editor's input field keeps its dots; numbered lists stay numbered.
+ */
+.font-body .rte-prose--render ul {
+  padding-left: 2.5rem;
+  list-style-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='16' viewBox='0 0 21 16'%3E%3Cpath d='M1.5 8.5l6 6L19.5 1.5' fill='none' stroke='%236e9bbf' stroke-width='2'/%3E%3C/svg%3E");
+}
+
+.font-body .rte-prose--render ul li {
+  padding-left: 0.25rem;
+}
+
+/*
  * Boxed layout like the LTS shop: content, breadcrumbs and footer centred at the same maximum width as the
  * header. "Full width" blocks from the editor then span the box, not the whole window.
  */
