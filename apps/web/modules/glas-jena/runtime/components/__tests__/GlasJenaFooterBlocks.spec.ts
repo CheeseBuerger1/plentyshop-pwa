@@ -37,7 +37,10 @@ describe('GlasJenaFooterBlocks', () => {
   it('should show the copyright with the current year in the footer bar', async () => {
     const wrapper = await mountFooter();
 
-    expect(wrapper.get('[data-testid="gj-footer-copyright"]').text()).toContain(`© ${new Date().getFullYear()} GLAS`);
+    /* The brand name reads with spaces for search engines and screen readers */
+    expect(wrapper.get('[data-testid="gj-footer-copyright"]').element.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      `© ${new Date().getFullYear()} GLAS IN JENA`,
+    );
   });
 
   it('should keep the original footer in the block editor', async () => {
