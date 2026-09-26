@@ -21,12 +21,14 @@ import {
  *
  * `isCategoryPage`: the page is a category page (its breadcrumbs stay visible on narrow screens, see glas-jena.css).
  *
+ * Translates with the shop's global `t()`: the banner component already calls `useI18n` for its local messages,
+ * and a second call in the same component makes vue-i18n warn.
+ *
  * @param getErrorTitle Title of an error page for its HTTP status code; the text lives with the banner component.
  */
 export const usePageBanner = (getErrorTitle: (statusCode: number) => string) => {
   const route = useRoute();
   const getRouteBaseName = useRouteBaseName();
-  const { t } = useI18n();
   const { data: productsCatalog } = useProducts();
   const error = useError();
 

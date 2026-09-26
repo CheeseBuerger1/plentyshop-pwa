@@ -11,8 +11,14 @@ mockNuxtImport('useRoute', () => () => ({ query: routeState.query, params: route
 mockNuxtImport('useRouteBaseName', () => () => () => routeState.baseName);
 mockNuxtImport('useProducts', () => () => ({ data: ref({ category: catalogState.category }) }));
 /* The test i18n instance has no messages: returns the key and the parameters, so the tests can check both */
+const { translate } = vi.hoisted(() => ({
+  translate: (key: string, params?: Record<string, unknown>) =>
+    params ? `${key}: ${Object.values(params).join(', ')}` : key,
+}));
+/* Global `t` for the shop's texts (usePageBanner), `useI18n` only for the component's local error text (marked) */
+mockNuxtImport('t', () => translate);
 mockNuxtImport('useI18n', () => () => ({
-  t: (key: string, params?: Record<string, unknown>) => (params ? `${key}: ${Object.values(params).join(', ')}` : key),
+  t: (key: string, params?: Record<string, unknown>) => `local ${translate(key, params)}`,
 }));
 mockNuxtImport('useError', () => () => ref(errorState.error));
 
@@ -79,6 +85,6 @@ describe('GlasJenaPageBanner', () => {
   it('should show the status code on an error page', async () => {
     errorState.error = { statusCode: 404 };
 
-    expect((await findTitle()).text()).toBe('errorTitle: 404');
+    expect((await findTitle()).text()).toBe('local errorTitle: 404');
   });
 });
