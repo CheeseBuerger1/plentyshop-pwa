@@ -12,6 +12,8 @@
   --gj-mid-blue: #6e9bbf;
   --gj-soft-green: #ddebc8;
   --gj-tile-blue: #a9c9e3;
+  /* Light blue of the LTS shop's back-to-top bar on phones (measured) */
+  --gj-light-blue: #abcae4;
   --gj-tile-grey-blue: #d6e1ea;
   --gj-tile-lilac: #d4c8e8;
   /* Footer bar of the LTS shop (measured); also the open search bar */

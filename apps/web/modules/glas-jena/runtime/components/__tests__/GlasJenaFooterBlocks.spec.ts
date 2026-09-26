@@ -75,6 +75,15 @@ describe('GlasJenaFooterBlocks', () => {
     expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
   });
 
+  it('should scroll to the top from the back to top bar at the end of the page (phones)', async () => {
+    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    const wrapper = await mountFooter();
+
+    await wrapper.get('[data-testid="gj-back-to-top-bar"]').trigger('click');
+
+    expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+  });
+
   describe('with the editor UI, where a page area scrolls instead of the window', () => {
     const mountInScrollArea = async () => {
       const scrollArea = document.createElement('div');

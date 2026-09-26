@@ -179,8 +179,8 @@ Umgesetzt in `GlasJenaFooterBlocks.vue` (Links in `utils/footer.ts`); im Shop-Ed
 - **Eine dunkle Leiste** wie im LTS-Shop (`#263238`, 80 px hoch, über die ganze Fensterbreite; Links und Copyright stehen in der Breite der Header-Box): links AGB, Widerruf, Datenschutz, Versand, Kontakt, Impressum (weiß, Light); **rechts das Copyright** „© [aktuelles Jahr] GLAS IN JENA“ (Jahr automatisch) statt der Versand- und Zahlungssymbole des LTS. Keine helle Zeile darunter, kein „webdesign by“.
 - **Links wie im LTS:** jeder Link eine Fläche über die volle Leistenhöhe (28 px oben/unten, 18 px seitlich, 992–1199 px: 10 px); beim Hover wird die Fläche dunkler (`#1f282d`), keine Unterstreichung.
 - Handy (unter 768 px): Links untereinander als zentrierte Zeilen über die volle Breite (25 px oben/unten), Copyright zentriert darunter.
-- Die festen Knöpfe unten (Cookie-Symbol links, „Nach oben“ rechts, in der Vorschau zusätzlich der Vorschau-Knopf) verdecken am Seitenende nichts: Die Leiste hält ihre Breite frei, auf dem Handy der Platz unter dem Copyright.
-- Button „Nach oben“ unten rechts (hellblau, eckig).
+- Die festen Knöpfe unten (Cookie-Symbol links, „Nach oben“ rechts, in der Vorschau zusätzlich der Vorschau-Knopf) verdecken am Seitenende nichts: Die Leiste hält ihre Breite frei.
+- **„Nach oben“:** ab 768 px ein schwebender Knopf unten rechts im Aussehen des Cookie-Knopfs (44 × 44 px, Schieferblau, weißes Symbol, 8 px vom Rand), erscheint nach 300 px Scrollen – auch mit der Editor-Oberfläche, in der nur der Seitenbereich scrollt. Auf dem Handy wie im LTS stattdessen eine hellblaue Leiste (`#abcae4`, 45 px) mit Pfeil über die ganze Breite am Ende der Seite.
 
 ### Tablet-Ansicht (ca. 768–1279 px)
 

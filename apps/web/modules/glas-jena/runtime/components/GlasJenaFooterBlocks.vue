@@ -13,6 +13,7 @@
         <p class="gj-footer__copyright" data-testid="gj-footer-copyright">© {{ currentYear }} GLAS<sup>IN</sup>JENA</p>
       </div>
     </footer>
+    <!-- From 768 px: floating button like the cookie settings button, mirrored to the right -->
     <button
       v-show="showBackToTop"
       type="button"
@@ -23,11 +24,21 @@
     >
       <SfIconExpandLess />
     </button>
+    <!-- Phones: light blue bar across the whole width at the end of the page, like the LTS shop -->
+    <button
+      type="button"
+      class="gj-back-to-top-bar"
+      data-testid="gj-back-to-top-bar"
+      :aria-label="t('backToTop')"
+      @click="scrollToTop"
+    >
+      <SfIconArrowUpward size="lg" />
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { SfIconExpandLess } from '@storefront-ui/vue';
+import { SfIconArrowUpward, SfIconExpandLess } from '@storefront-ui/vue';
 import FooterBlocks from '~/components/ui/FooterBlocks/FooterBlocks.vue';
 import { FOOTER_LINKS } from '../utils/footer';
 
@@ -121,7 +132,7 @@ onBeforeUnmount(() => {
   --gj-footer-box-offset: max(0px, calc((100vw - var(--gj-box-width)) / 2));
   /* Width of the fixed buttons to keep free; larger in preview mode, see glas-jena.css */
   --gj-footer-clearance-left: 3.75rem;
-  --gj-footer-clearance-right: 4.5rem;
+  --gj-footer-clearance-right: 3.75rem;
 
   background-color: var(--gj-footer-bg);
   color: #fff;
@@ -178,22 +189,31 @@ onBeforeUnmount(() => {
   font-size: 0.6em;
 }
 
+/*
+ * Floating back-to-top button (from 768 px): same look as the cookie settings button (GlasJenaCookiebar.vue) –
+ * 44 px square in slate blue with a white icon, 8 px from the window's edges – mirrored to the bottom right.
+ */
 .gj-back-to-top {
   position: fixed;
-  right: 1rem;
-  bottom: calc(1rem + var(--gj-mobile-navbar-height));
+  right: 0.5rem;
+  bottom: 0.5rem;
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  background-color: var(--gj-tile-blue);
+  width: 2.75rem;
+  height: 2.75rem;
+  background-color: var(--gj-slate-blue);
   color: #fff;
 }
 
 .gj-back-to-top:hover {
-  background-color: var(--gj-mid-blue);
+  filter: brightness(0.93);
+}
+
+/* Phones only, see below */
+.gj-back-to-top-bar {
+  display: none;
 }
 
 /* Narrower link boxes between 992 and 1199 px window width, like the LTS shop */
@@ -206,13 +226,29 @@ onBeforeUnmount(() => {
 
 /*
  * Phones, like the LTS shop: the links one below the other as centred boxes across the full width (25 px above and
- * below), the copyright centred below them; the fixed buttons are kept clear below the copyright.
+ * below), the copyright centred below them. Instead of the floating button, a light blue bar across the whole width
+ * (45 px) with an arrow ends the page; it stays above the original NavbarBottom where that is shown.
  */
 @media (max-width: 767.98px) {
   .gj-footer__inner {
     flex-direction: column;
     align-items: stretch;
-    padding: 0 0 calc(4rem + var(--gj-mobile-navbar-height));
+    padding: 0;
+  }
+
+  .gj-back-to-top {
+    display: none;
+  }
+
+  .gj-back-to-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 2.8125rem;
+    margin-bottom: var(--gj-mobile-navbar-height);
+    background-color: var(--gj-light-blue);
+    color: #fff;
   }
 
   .gj-footer__links {
@@ -226,12 +262,6 @@ onBeforeUnmount(() => {
 
   .gj-footer__copyright {
     text-align: center;
-  }
-}
-
-@container (min-width: 768px) {
-  .gj-back-to-top {
-    bottom: 1rem;
   }
 }
 </style>
