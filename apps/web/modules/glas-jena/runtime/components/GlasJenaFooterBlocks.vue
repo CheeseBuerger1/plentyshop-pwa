@@ -115,37 +115,44 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem 2rem;
+  column-gap: 2rem;
   max-width: var(--gj-box-width);
   min-height: 5rem;
   margin: 0 auto;
-  padding: 1.25rem max(1rem, calc(var(--gj-footer-clearance-right) - var(--gj-footer-box-offset)))
-    calc(1.25rem + var(--gj-mobile-navbar-height))
-    max(1rem, calc(var(--gj-footer-clearance-left) - var(--gj-footer-box-offset)));
+  padding: 0 max(1rem, calc(var(--gj-footer-clearance-right) - var(--gj-footer-box-offset)))
+    var(--gj-mobile-navbar-height) max(1rem, calc(var(--gj-footer-clearance-left) - var(--gj-footer-box-offset)));
 }
 
 .gj-footer__links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/*
+ * Like the LTS shop: each link is a box as high as the bar (28 px above and below, 18 px at the sides); on hover
+ * the box turns darker instead of the text being underlined.
+ */
 .gj-footer__link {
+  display: block;
+  padding: 1.75rem 1.125rem;
   color: #fff;
   font-size: 1rem;
+  line-height: 1.5rem;
   text-decoration: none;
 }
 
 .gj-footer__link:hover,
-.gj-footer__link:focus-visible {
-  text-decoration: underline;
+.gj-footer__link:focus-visible,
+.gj-footer__link:active {
+  background-color: var(--gj-footer-hover-bg);
 }
 
 .gj-footer__copyright {
   margin: 0;
+  padding: 0.75rem 0;
   font-size: 0.9375rem;
 }
 
@@ -171,16 +178,36 @@ onBeforeUnmount(() => {
   background-color: var(--gj-mid-blue);
 }
 
-/* Phones: links one below the other; the fixed buttons are kept clear below the copyright instead of at the sides */
+/* Narrower link boxes between 992 and 1199 px window width, like the LTS shop */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .gj-footer__link {
+    padding-right: 0.625rem;
+    padding-left: 0.625rem;
+  }
+}
+
+/*
+ * Phones, like the LTS shop: the links one below the other as centred boxes across the full width (25 px above and
+ * below), the copyright centred below them; the fixed buttons are kept clear below the copyright.
+ */
 @media (max-width: 767.98px) {
   .gj-footer__inner {
     flex-direction: column;
-    align-items: flex-start;
-    padding: 1.25rem 1rem calc(4rem + var(--gj-mobile-navbar-height));
+    align-items: stretch;
+    padding: 0 0 calc(4rem + var(--gj-mobile-navbar-height));
   }
 
   .gj-footer__links {
     flex-direction: column;
+  }
+
+  .gj-footer__link {
+    padding: 1.5625rem 1.125rem;
+    text-align: center;
+  }
+
+  .gj-footer__copyright {
+    text-align: center;
   }
 }
 
