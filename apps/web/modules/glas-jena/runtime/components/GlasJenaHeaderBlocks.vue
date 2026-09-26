@@ -75,7 +75,7 @@
     </header>
 
     <div v-if="isSearchOpen" class="gj-header__search" data-testid="gj-header-search-panel">
-      <UiSearch class="w-full" :close="closeSearch" />
+      <UiSearch class="w-full !py-0" :close="closeSearch" />
     </div>
 
     <!--
@@ -279,11 +279,22 @@ const closeSearch = () => {
   color: #fff;
 }
 
+/*
+ * Search bar like the LTS shop: exactly as high as the logo overhangs the header (47 px), so both end at the same
+ * line; the input is 34 px high and centred.
+ */
 .gj-header__search {
+  display: flex;
+  align-items: center;
   max-width: var(--gj-box-width);
+  height: var(--gj-logo-overhang);
   margin: 0 auto;
-  padding: 0.75rem 1rem 0.75rem calc(var(--gj-logo-width) + 1rem);
+  padding: 0 1rem 0 calc(var(--gj-logo-width) + 1rem);
   background-color: var(--gj-footer-bg);
+}
+
+.gj-header__search :deep(form[role='search'] > span) {
+  height: 2.125rem;
 }
 
 /* Tablet: smaller tiles */
@@ -327,8 +338,9 @@ const closeSearch = () => {
     right: calc(50% - 1.5rem);
   }
 
+  /* Starts next to the logo field (same share of the width), so the input never covers the overhanging logo */
   .gj-header__search {
-    padding-left: 1rem;
+    padding-left: calc(15% + 1rem);
   }
 }
 
@@ -336,6 +348,13 @@ const closeSearch = () => {
 @media (max-width: 575.98px) {
   .gj-header__logo {
     width: 18%;
+  }
+}
+
+/* Phones: the search input takes the full width */
+@media (max-width: 619.98px) {
+  .gj-header__search {
+    padding-left: 1rem;
   }
 }
 </style>
