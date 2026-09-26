@@ -17,6 +17,7 @@ import {
   SEARCH_ROUTE,
   TAG_ROUTE,
 } from '../utils/pageBanner';
+import { LTS_REDIRECTS } from '../utils/ltsRedirect';
 
 /* Vitest runs in apps/web (the Nuxt test environment gives no file URL for this module) */
 const WEB_DIR = process.cwd();
@@ -92,6 +93,17 @@ describe('upstream contract of the glas-jena module', () => {
     };
 
     const missing = Object.keys(COMPONENT_OVERRIDES).filter((name) => !componentFile(name));
+
+    expect(missing).toEqual([]);
+  });
+
+  it('should find a page for every target of the LTS redirects', () => {
+    /* `paths` value → route name, e.g. '/my-account/personal-data' → 'my-account-personal-data', '/' → 'index' */
+    const toRouteName = (path: string) => path.replace(/^\//, '').replace(/\//g, '-') || 'index';
+
+    const missing = [...new Set(Object.values(LTS_REDIRECTS))]
+      .map((pathKey) => paths[pathKey])
+      .filter((path) => !routeNames.includes(toRouteName(path)));
 
     expect(missing).toEqual([]);
   });
