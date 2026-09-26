@@ -6,7 +6,7 @@ import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './r
 export const COMPONENT_OVERRIDES: Record<string, string> = {
   UiFooterBlocks: './runtime/components/GlasJenaFooterBlocks.vue',
   UiHeaderBlocks: './runtime/components/GlasJenaHeaderBlocks.vue',
-  /* Checkout: the original simplified header plus the page banner */
+  /* Checkout: the GLAS IN JENA header with the page banner, like the LTS shop */
   UiSimplifiedHeader: './runtime/components/GlasJenaSimplifiedHeader.vue',
   /* No bottom navbar on phones, like the LTS shop (the auth layout still renders it) */
   UiNavbarBottom: './runtime/components/GlasJenaNavbarBottom.vue',

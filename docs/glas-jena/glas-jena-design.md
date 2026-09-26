@@ -74,11 +74,12 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 - Der Sprachwechsel wechselt bei nur einer weiteren Sprache per Klick direkt, ohne das Sprachwahl-Feld aufzuklappen (ebenso im mobilen Menü). Nur bei mehreren weiteren Sprachen öffnet er die Auswahl.
 - **SEO:** Der Sprachwechsel ist ein echter Link auf die andere Sprachversion (`<a href="/en" hreflang="en" lang="en">`, im mobilen Menü ebenso), damit Crawler ihm folgen können; ein normaler Klick wechselt weiterhin über `switchLocale`, Strg-/Mittelklick öffnet die Sprachversion in einem neuen Tab. Der Alt-Text des Logos kommt aus der Umgebungsvariable `NAME` (`NAME="GLAS IN JENA"`, auch im Live-Shop setzen), sonst steht dort „PlentyONE GmbH logo“.
 - Handy: Burger-Menü, Logo kompakt, Warenkorb bleibt sichtbar.
+- **Checkout:** wie im LTS-Shop derselbe Header wie auf allen anderen Seiten (Kategorien, Konto, Sprache, Suche, Warenkorb), darunter der Banner „Kasse“ – kein reduzierter Checkout-Header. `GlasJenaSimplifiedHeader.vue` ersetzt dafür den vereinfachten Header des Checkout-Layouts (auch Angebotsseiten); im Shop-Editor bleibt der Original-Header.
 - Der Glas-Jena-Header (`GlasJenaHeaderBlocks.vue`) läuft auf allen Geräten. Nur im Shop-Editor wird der Original-Header angezeigt, damit er dort konfigurierbar bleibt. Auf dem Handy entfällt damit auch die untere Navigationsleiste des Original-Headers (wie im LTS-Shop), auch auf den Login-/Registrierungsseiten (`GlasJenaNavbarBottom.vue`). Cookie- und Vorschau-Button rücken auf dem Handy entsprechend nach unten (`glas-jena.css`).
 
 ### Seitenbanner (wie im LTS-Shop)
 
-Umgesetzt in `GlasJenaPageBanner.vue` (Titel: `usePageBanner`, Zuordnung in `utils/pageBanner.ts`); wird direkt unter dem Header ausgegeben – von `GlasJenaHeaderBlocks.vue` und im Checkout von `GlasJenaSimplifiedHeader.vue` (vereinfachter Original-Header plus Banner); nicht im Shop-Editor.
+Umgesetzt in `GlasJenaPageBanner.vue` (Titel: `usePageBanner`, Zuordnung in `utils/pageBanner.ts`); wird direkt unter dem Header ausgegeben – von `GlasJenaHeaderBlocks.vue` auch im Checkout (siehe Header); nicht im Shop-Editor.
 
 - Alle Seiten außer **Startseite und Artikelseiten** haben unter dem Header einen Banner mit unscharfem Hintergrundbild (`runtime/assets/page-banner.jpg`, aus dem LTS-Shop) und dem Titel mittig: Höhe 12 % der Fensterbreite (70–120 px), so breit wie die Header-Box, 28 px Abstand nach unten; das Logo ragt links hinein, der Titel hält dessen Breite auf beiden Seiten frei.
 - Titel als **`<h1>`**, Light, `#555`, 40 px (unter 992 px 36, unter 768 px 32, unter 576 px 30, unter 480 px 24 px wie im LTS). Lange Titel brechen um, der Banner wächst mit.

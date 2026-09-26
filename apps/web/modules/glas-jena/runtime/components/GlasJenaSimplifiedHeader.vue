@@ -1,16 +1,17 @@
 <template>
-  <SimplifiedHeader />
-  <!-- Next to the header, not inside it, so the layout's `main` follows it (see the banner rules in glas-jena.css) -->
-  <GlasJenaPageBanner v-if="!isEditing" />
+  <SimplifiedHeader v-if="isEditing" />
+  <!-- Header and page banner ("Kasse") as siblings, so the layout's `main` follows the banner (see glas-jena.css) -->
+  <GlasJenaHeaderBlocks v-else />
 </template>
 
 <script setup lang="ts">
 import SimplifiedHeader from '~/components/ui/SimplifiedHeader.vue';
-import GlasJenaPageBanner from './GlasJenaPageBanner.vue';
+import GlasJenaHeaderBlocks from './GlasJenaHeaderBlocks.vue';
 
 /**
- * The simplified header of the checkout (and offer) layout with the page banner below it, like the LTS shop.
- * In the block editor it stays the original header only, like the full header.
+ * Header of the checkout (and offer) layout. The LTS shop has no reduced checkout header: the checkout shows the
+ * same header as all other pages, with the banner "Kasse" below it. The block editor keeps the original simplified
+ * header, like it keeps the original full header.
  */
 const { isEditing } = useEditor();
 </script>
