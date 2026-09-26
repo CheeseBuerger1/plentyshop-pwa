@@ -1,6 +1,7 @@
 import { categoryGetters } from '@plentymarkets/shop-api';
 import {
   CATEGORY_ROUTE,
+  DEFAULT_ERROR_STATUS_CODE,
   SEARCH_RESULTS_TITLE_KEY,
   SEARCH_ROUTE,
   TAG_ROUTE,
@@ -29,12 +30,13 @@ export const usePageBanner = (getErrorTitle: (statusCode: number) => string) => 
   const { data: productsCatalog } = useProducts();
   const error = useError();
 
-  const routeBaseName = computed(() => getRouteBaseName(route) ?? '');
+  /* Named routes only have string names here; `String()` also covers the symbol type of route names */
+  const routeBaseName = computed(() => String(getRouteBaseName(route) ?? ''));
   const isCategoryPage = computed(() => !error.value && routeBaseName.value === CATEGORY_ROUTE);
 
   const title = computed(() => {
     if (error.value) {
-      return getErrorTitle(error.value.statusCode);
+      return getErrorTitle(error.value.statusCode ?? DEFAULT_ERROR_STATUS_CODE);
     }
 
     if (isCategoryPage.value) {

@@ -6,6 +6,8 @@ export const TAG_ROUTE = 'tag-slug';
 export const ACCOUNT_ROUTE_PREFIX = 'my-account';
 export const ACCOUNT_TITLE_KEY = 'account.heading';
 export const SEARCH_RESULTS_TITLE_KEY = 'search.searchResults';
+/** Status code shown in the banner of an error without one (Nuxt's default for errors). */
+export const DEFAULT_ERROR_STATUS_CODE = 500;
 
 /**
  * Banner title (translation key) of the pages with a fixed title. Mostly the name the page itself registers via
