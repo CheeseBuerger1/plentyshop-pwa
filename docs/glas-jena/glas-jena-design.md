@@ -176,7 +176,7 @@ Umgesetzt in `GlasJenaCookiebar.vue` (ersetzt die Original-Komponente `Cookiebar
 
 Umgesetzt in `GlasJenaFooterBlocks.vue` (Links in `utils/footer.ts`); im Shop-Editor bleibt der Original-Footer.
 
-- **Eine dunkle Leiste** wie im LTS-Shop (`#263238`, 80 px hoch, so breit wie die Header-Box): links AGB, Widerruf, Datenschutz, Versand, Kontakt, Impressum (weiß, Light); **rechts das Copyright** „© [aktuelles Jahr] GLAS IN JENA“ (Jahr automatisch) statt der Versand- und Zahlungssymbole des LTS. Keine helle Zeile darunter, kein „webdesign by“.
+- **Eine dunkle Leiste** wie im LTS-Shop (`#263238`, 80 px hoch, über die ganze Fensterbreite; Links und Copyright stehen in der Breite der Header-Box): links AGB, Widerruf, Datenschutz, Versand, Kontakt, Impressum (weiß, Light); **rechts das Copyright** „© [aktuelles Jahr] GLAS IN JENA“ (Jahr automatisch) statt der Versand- und Zahlungssymbole des LTS. Keine helle Zeile darunter, kein „webdesign by“.
 - Handy (unter 768 px): Links untereinander, Copyright darunter.
 - Die festen Knöpfe unten (Cookie-Symbol links, „Nach oben“ rechts, in der Vorschau zusätzlich der Vorschau-Knopf) verdecken am Seitenende nichts: Die Leiste hält ihre Breite frei, auf dem Handy der Platz unter dem Copyright.
 - Button „Nach oben“ unten rechts (hellblau, eckig).

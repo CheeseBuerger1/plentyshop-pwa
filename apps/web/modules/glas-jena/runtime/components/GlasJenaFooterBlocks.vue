@@ -2,14 +2,16 @@
   <div>
     <FooterBlocks v-if="isEditing" />
     <footer v-else class="gj-footer" data-testid="gj-footer">
-      <nav class="gj-footer__nav" :aria-label="t('legalLinks')">
-        <ul class="gj-footer__links">
-          <li v-for="link in FOOTER_LINKS" :key="link.pathKey">
-            <NuxtLink :to="localePath(paths[link.pathKey])" class="gj-footer__link">{{ t(link.labelKey) }}</NuxtLink>
-          </li>
-        </ul>
-      </nav>
-      <p class="gj-footer__copyright" data-testid="gj-footer-copyright">© {{ currentYear }} GLAS<sup>IN</sup>JENA</p>
+      <div class="gj-footer__inner">
+        <nav class="gj-footer__nav" :aria-label="t('legalLinks')">
+          <ul class="gj-footer__links">
+            <li v-for="link in FOOTER_LINKS" :key="link.pathKey">
+              <NuxtLink :to="localePath(paths[link.pathKey])" class="gj-footer__link">{{ t(link.labelKey) }}</NuxtLink>
+            </li>
+          </ul>
+        </nav>
+        <p class="gj-footer__copyright" data-testid="gj-footer-copyright">© {{ currentYear }} GLAS<sup>IN</sup>JENA</p>
+      </div>
     </footer>
     <button
       v-show="showBackToTop"
@@ -87,9 +89,10 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /*
- * Dark bar like the LTS shop (80 px high, #263238), as wide as the header box: links in white Light on the left,
- * copyright on the right. On phones (below 768 px window width) the links stand one below the other and the
- * copyright follows them. The bottom padding keeps clear of the original mobile NavbarBottom where it is shown.
+ * Dark bar like the LTS shop (80 px high, #263238) across the whole window; links and copyright stay in the header
+ * box (`__inner`): links in white Light on the left, copyright on the right. On phones (below 768 px window width)
+ * the links stand one below the other and the copyright follows them. The bottom padding keeps clear of the
+ * original mobile NavbarBottom where it is shown.
  *
  * The fixed buttons at the window's bottom corners (cookie settings on the left, back to top on the right) would
  * cover the links and the copyright at the end of the page. The side padding keeps their width free, minus the
@@ -102,6 +105,12 @@ onBeforeUnmount(() => {
   --gj-footer-clearance-left: 3.75rem;
   --gj-footer-clearance-right: 4.5rem;
 
+  background-color: var(--gj-footer-bg);
+  color: #fff;
+  font-weight: 300;
+}
+
+.gj-footer__inner {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -113,9 +122,6 @@ onBeforeUnmount(() => {
   padding: 1.25rem max(1rem, calc(var(--gj-footer-clearance-right) - var(--gj-footer-box-offset)))
     calc(1.25rem + var(--gj-mobile-navbar-height))
     max(1rem, calc(var(--gj-footer-clearance-left) - var(--gj-footer-box-offset)));
-  background-color: var(--gj-footer-bg);
-  color: #fff;
-  font-weight: 300;
 }
 
 .gj-footer__links {
@@ -167,7 +173,7 @@ onBeforeUnmount(() => {
 
 /* Phones: links one below the other; the fixed buttons are kept clear below the copyright instead of at the sides */
 @media (max-width: 767.98px) {
-  .gj-footer {
+  .gj-footer__inner {
     flex-direction: column;
     align-items: flex-start;
     padding: 1.25rem 1rem calc(4rem + var(--gj-mobile-navbar-height));
