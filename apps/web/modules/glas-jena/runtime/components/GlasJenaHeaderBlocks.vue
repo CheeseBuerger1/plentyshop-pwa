@@ -281,7 +281,8 @@ const closeSearch = () => {
 
 /*
  * Search bar like the LTS shop: exactly as high as the logo overhangs the header (47 px), so both end at the same
- * line; the input is 34 px high and centred.
+ * line; the input is 34 px high and centred. It starts next to the logo field (`--gj-logo-width`), so it never
+ * covers the overhanging logo.
  */
 .gj-header__search {
   display: flex;
@@ -305,23 +306,19 @@ const closeSearch = () => {
 }
 
 /*
- * Like the LTS shop: below a window width of 992 px the logo field takes 15 % of the header's width. The image
- * stays at most 136 px wide; where the field is wider, the logo blue fills the sides.
- * A media query on purpose: like on the LTS shop, the window width including the scrollbar counts (the shop's
- * container is narrower by the scrollbar and would switch about 15 px later).
+ * Below the desktop navigation (window width under 992 px, same breakpoint as `DESKTOP_NAVIGATION_MIN_WIDTH`),
+ * like the LTS shop. Media queries on purpose: like on the LTS shop, the window width including the scrollbar
+ * counts (the shop's container is narrower by the scrollbar and would switch about 15 px later).
+ * - The logo field takes 15 % of the header's width. The image stays at most 136 px wide; where the field is
+ *   wider, the logo blue fills the sides. Set on the wrapper, so the search bar indents by the same width.
+ * - Burger layout: logo field, then menu, search and cart as three equally wide tiles across the full width.
+ *   Account and language move into the menu, so no empty navigation area is left next to the logo.
  */
 @media (max-width: 991.98px) {
-  .gj-header__logo {
-    width: 15%;
+  .gj-header-wrapper {
+    --gj-logo-width: 15%;
   }
-}
 
-/*
- * Burger layout (below the desktop navigation, window width under 992 px), like the LTS shop: logo field, then
- * menu, search and cart as three equally wide tiles across the full width. Account and language move into the
- * menu. Same breakpoint as `DESKTOP_NAVIGATION_MIN_WIDTH`, so no empty navigation area is left next to the logo.
- */
-@media (max-width: 991.98px) {
   .gj-header__nav,
   .gj-header__tile--account,
   .gj-header__tile--language {
@@ -337,24 +334,19 @@ const closeSearch = () => {
   .gj-header__badge {
     right: calc(50% - 1.5rem);
   }
-
-  /* Starts next to the logo field (same share of the width), so the input never covers the overhanging logo */
-  .gj-header__search {
-    padding-left: calc(15% + 1rem);
-  }
-}
-
-/* Small phones, like the LTS shop (window width below 576 px): a slightly larger share of the width for the logo field */
-@media (max-width: 575.98px) {
-  .gj-header__logo {
-    width: 18%;
-  }
 }
 
 /* Phones: the search input takes the full width */
 @media (max-width: 619.98px) {
   .gj-header__search {
     padding-left: 1rem;
+  }
+}
+
+/* Small phones, like the LTS shop (window width below 576 px): a slightly larger share of the width for the logo field */
+@media (max-width: 575.98px) {
+  .gj-header-wrapper {
+    --gj-logo-width: 18%;
   }
 }
 </style>
