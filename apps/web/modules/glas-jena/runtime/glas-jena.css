@@ -103,9 +103,9 @@ html:has(.gj-header-wrapper--sticky) {
 }
 
 /*
- * The cookie settings button and the preview-mode button sit 4.3rem above the bottom on phones to clear the
- * NavbarBottom. Without it they move down to the same 0.5rem as on larger screens; with it (auth pages) the
- * result stays at about 4.3rem (0.5rem + 62px).
+ * The preview-mode button sits 4.3rem above the bottom on phones to clear the NavbarBottom. Without it, it moves
+ * down to the same 0.5rem as on larger screens; with it (auth pages) the result stays at about 4.3rem
+ * (0.5rem + 62px). The cookie settings button (GlasJenaCookiebar.vue) uses the same offset.
  */
 @container (max-width: 767px) {
   .font-body .bottom-\[4\.3rem\] {

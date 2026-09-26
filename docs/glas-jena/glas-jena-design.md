@@ -14,7 +14,7 @@ Screenshots der Desktop-Ansicht liegen im selben Ordner (`docs/glas-jena/`).
 4. **Keine Zugangsdaten committen:** `apps/web/.env` (API-Endpunkt, Security-Token) und GitHub-Tokens dürfen nie ins Repository. Der Fork ist öffentlich.
 5. **Nicht live schalten:** In PlentyONE nur den Vorschau-Modus nutzen. „Live-Modus aktivieren“ erst nach ausdrücklicher Freigabe durch den Shopbetreiber. Der LTS-Shop läuft bis dahin weiter.
 6. Commits nach Conventional Commits (wird vom Projekt per commitlint erzwungen).
-   **Updates prüfen:** Der Test `apps/web/modules/glas-jena/runtime/__tests__/upstreamContract.spec.ts` prüft, worauf sich das Modul in den Originaldateien verlässt (Test-IDs aus `glas-jena.css`, ersetzte Komponenten, Routen und Übersetzungen des Seitenbanners, Aufbau der Layouts). Er läuft in der CI bei jedem Pull Request und jedem Push auf `main`, also auch nach „Sync fork“. Schlägt er nach einem Update fehl, nennt er die Stelle, die im Modul anzupassen ist. Neue Abhängigkeiten von Originaldateien dort ergänzen.
+   **Updates prüfen:** Der Test `apps/web/modules/glas-jena/runtime/__tests__/upstreamContract.spec.ts` prüft, worauf sich das Modul in den Originaldateien verlässt (Test-IDs aus `glas-jena.css`, ersetzte Komponenten wie Header, Footer und Cookie-Banner, Routen und Übersetzungen des Seitenbanners, Aufbau der Layouts). Er läuft in der CI bei jedem Pull Request und jedem Push auf `main`, also auch nach „Sync fork“. Schlägt er nach einem Update fehl, nennt er die Stelle, die im Modul anzupassen ist. Neue Abhängigkeiten von Originaldateien dort ergänzen.
 7. Jede Anpassung muss auf Desktop **und** Handy funktionieren.
 
 ---
@@ -154,6 +154,17 @@ Außerdem im Header, Block **Utility Bar**, Aktionen: „Wishlist“ aus (wirkt 
 - Die Seiten `/wishlist` und `/my-account/wishlist` sind entfernt (`pages:extend` in `modules/glas-jena/index.ts`); alte Links landen auf der 404-Seite.
 - Abschnitt „Wunschliste“ im Menü von „Mein Konto“ und der Vorteil „Wunschliste“ im Registrierungsformular sind per CSS ausgeblendet (`glas-jena.css`).
 - Die untere Navigationsleiste (mit Wunschliste) ist auch auf den Login-/Registrierungsseiten ersetzt (`GlasJenaNavbarBottom.vue`, rendert nichts) – das Handy sieht dort aus wie im restlichen Shop.
+
+### Cookie-Banner
+
+Umgesetzt in `GlasJenaCookiebar.vue` (ersetzt die Original-Komponente `Cookiebar`). Neu ist nur die Oberfläche; Einwilligung, Cookie-Gruppen und Speicherung kommen unverändert aus `useCookieBar` von plentymarkets. Die Gruppen und Cookies selbst werden in PlentyONE bzw. in der Cookie-Konfiguration des Shops gepflegt.
+
+- **Flache Leiste unten:** weiß über die ganze Fensterbreite, oben eine 3-px-Linie in Schieferblau von ganz links bis ganz rechts, kein Schatten, eckig. Der Inhalt steht in der Breite der Header-Box (1200 px).
+- **Erste Ebene:** Überschrift „Ihre Privatsphäre“ (Light), kurzer Text, Links zu Datenschutzerklärung und Impressum; drei Buttons: „Alle akzeptieren“ und „Ablehnen“ gleich groß in Schieferblau, „Einstellungen“ hellgrau. Ab 768 px Text links, Buttons rechts in einer Reihe; darunter Akzeptieren und Ablehnen nebeneinander, Einstellungen darunter (auf dem Handy ca. 37 % der Bildschirmhöhe).
+- **Einstellungen:** „Cookie-Einstellungen“ mit den Gruppen; optionale Gruppen mit Schalter (ein Schalter schaltet alle Cookies der Gruppe), notwendige mit „Immer aktiv“. „Mehr Informationen“ zeigt Anbieter, Zweck, Laufzeit und Datenschutz-Link je Cookie (externe Links in neuem Tab). Buttons: „Auswahl speichern“, „Alle akzeptieren“, „Zurück“.
+- **Cookie-Symbol** unten links (Schieferblau, 44 × 44 px) öffnet den Banner jederzeit wieder, damit die Einwilligung geändert oder widerrufen werden kann.
+- **Texte:** Die Kurztexte (Deutsch/Englisch) stehen in der Komponente (`<i18n>`), Gruppennamen und Cookie-Details aus den Shop-Übersetzungen. **Kurztext vor dem Livegang von der Datenschutzberatung freigeben lassen.**
+- **Rechtlich:** „Ablehnen“ auf der ersten Ebene gleichwertig zu „Akzeptieren“; optionale Gruppen nicht vorab einschalten.
 
 ### Footer
 

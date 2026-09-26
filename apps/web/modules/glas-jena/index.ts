@@ -10,6 +10,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   UiSimplifiedHeader: './runtime/components/GlasJenaSimplifiedHeader.vue',
   /* No bottom navbar on phones, like the LTS shop (the auth layout still renders it) */
   UiNavbarBottom: './runtime/components/GlasJenaNavbarBottom.vue',
+  /* Cookie banner in the GLAS IN JENA style; consent logic unchanged (useCookieBar) */
+  Cookiebar: './runtime/components/GlasJenaCookiebar.vue',
 };
 
 /** Alias under which nuxt-viewport provides its generated options to its runtime plugins. */
