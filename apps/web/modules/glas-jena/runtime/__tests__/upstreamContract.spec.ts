@@ -121,6 +121,10 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('layouts/simplifiedHeaderAndFooter.vue')).toMatch(/<UiSimplifiedHeader \/>\s*<main>/);
   });
 
+  it('should find the class of rendered rich text that the check mark lists rely on', () => {
+    expect(readApp('components/TextContent/TextContent.vue')).toContain('class="rte-prose rte-prose--render"');
+  });
+
   it('should find the page headings that the banner replaces', () => {
     expect(readApp('layouts/checkout.vue')).toMatch(
       /data-testid="checkout-layout">\s*<NarrowContainer[^>]*>\s*<div[^>]*>\s*<h1/,
