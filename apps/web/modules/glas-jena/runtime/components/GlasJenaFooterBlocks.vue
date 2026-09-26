@@ -143,7 +143,11 @@ onBeforeUnmount(() => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  /*
+   * Links on the left, copyright on the right (the links' auto margin takes the free space). Where the copyright
+   * does not fit next to the links, it moves to a line of its own and is centred there.
+   */
+  justify-content: center;
   column-gap: 2rem;
   max-width: var(--gj-box-width);
   min-height: 5rem;
@@ -152,9 +156,14 @@ onBeforeUnmount(() => {
     var(--gj-mobile-navbar-height) max(1rem, calc(var(--gj-footer-clearance-left) - var(--gj-footer-box-offset)));
 }
 
+.gj-footer__nav {
+  margin-right: auto;
+}
+
+/* The links always stay in one line (no "Impressum" on a line of its own) */
 .gj-footer__links {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -216,8 +225,11 @@ onBeforeUnmount(() => {
   display: none;
 }
 
-/* Narrower link boxes between 992 and 1199 px window width, like the LTS shop */
-@media (min-width: 992px) and (max-width: 1199.98px) {
+/*
+ * Narrower link boxes below 1200 px window width (the LTS shop does so from 992 px), so the links fit in one line
+ * down to 768 px – also in preview mode, where the bar keeps more room free for the preview button.
+ */
+@media (min-width: 768px) and (max-width: 1199.98px) {
   .gj-footer__link {
     padding-right: 0.625rem;
     padding-left: 0.625rem;
@@ -249,6 +261,11 @@ onBeforeUnmount(() => {
     margin-bottom: var(--gj-mobile-navbar-height);
     background-color: var(--gj-light-blue);
     color: #fff;
+  }
+
+  /* Full width for the centred link boxes (the auto margin would shrink the list to its content) */
+  .gj-footer__nav {
+    margin-right: 0;
   }
 
   .gj-footer__links {
