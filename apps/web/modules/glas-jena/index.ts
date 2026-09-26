@@ -1,4 +1,4 @@
-import { addTemplate, createResolver, defineNuxtModule } from 'nuxt/kit';
+import { addRouteMiddleware, addTemplate, createResolver, defineNuxtModule } from 'nuxt/kit';
 import type { NuxtPage } from 'nuxt/schema';
 import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './runtime/utils/navigation';
 
@@ -86,5 +86,12 @@ export default defineNuxtModule({
     });
 
     nuxt.hook('pages:extend', removePages);
+
+    /* '/my-account' (the LTS account URL) and account pages without trailing slash, see utils/accountRedirect.ts */
+    addRouteMiddleware({
+      name: 'glas-jena-account-redirect',
+      path: resolve('./runtime/middleware/accountRedirect'),
+      global: true,
+    });
   },
 });
