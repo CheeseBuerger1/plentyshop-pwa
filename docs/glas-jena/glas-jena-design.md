@@ -14,6 +14,7 @@ Screenshots der Desktop-Ansicht liegen im selben Ordner (`docs/glas-jena/`).
 4. **Keine Zugangsdaten committen:** `apps/web/.env` (API-Endpunkt, Security-Token) und GitHub-Tokens dürfen nie ins Repository. Der Fork ist öffentlich.
 5. **Nicht live schalten:** In PlentyONE nur den Vorschau-Modus nutzen. „Live-Modus aktivieren“ erst nach ausdrücklicher Freigabe durch den Shopbetreiber. Der LTS-Shop läuft bis dahin weiter.
 6. Commits nach Conventional Commits (wird vom Projekt per commitlint erzwungen).
+   **Updates prüfen:** Der Test `apps/web/modules/glas-jena/runtime/__tests__/upstreamContract.spec.ts` prüft, worauf sich das Modul in den Originaldateien verlässt (Test-IDs aus `glas-jena.css`, ersetzte Komponenten, Routen und Übersetzungen des Seitenbanners, Aufbau der Layouts). Er läuft in der CI bei jedem Pull Request und jedem Push auf `main`, also auch nach „Sync fork“. Schlägt er nach einem Update fehl, nennt er die Stelle, die im Modul anzupassen ist. Neue Abhängigkeiten von Originaldateien dort ergänzen.
 7. Jede Anpassung muss auf Desktop **und** Handy funktionieren.
 
 ---
@@ -73,7 +74,18 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 - Der Sprachwechsel wechselt bei nur einer weiteren Sprache per Klick direkt, ohne das Sprachwahl-Feld aufzuklappen (ebenso im mobilen Menü). Nur bei mehreren weiteren Sprachen öffnet er die Auswahl.
 - **SEO:** Der Sprachwechsel ist ein echter Link auf die andere Sprachversion (`<a href="/en" hreflang="en" lang="en">`, im mobilen Menü ebenso), damit Crawler ihm folgen können; ein normaler Klick wechselt weiterhin über `switchLocale`, Strg-/Mittelklick öffnet die Sprachversion in einem neuen Tab. Der Alt-Text des Logos kommt aus der Umgebungsvariable `NAME` (`NAME="GLAS IN JENA"`, auch im Live-Shop setzen), sonst steht dort „PlentyONE GmbH logo“.
 - Handy: Burger-Menü, Logo kompakt, Warenkorb bleibt sichtbar.
+- **Checkout:** wie im LTS-Shop derselbe Header wie auf allen anderen Seiten (Kategorien, Konto, Sprache, Suche, Warenkorb), darunter der Banner „Kasse“ – kein reduzierter Checkout-Header. `GlasJenaSimplifiedHeader.vue` ersetzt dafür den vereinfachten Header des Checkout-Layouts (auch Angebotsseiten); im Shop-Editor bleibt der Original-Header.
 - Der Glas-Jena-Header (`GlasJenaHeaderBlocks.vue`) läuft auf allen Geräten. Nur im Shop-Editor wird der Original-Header angezeigt, damit er dort konfigurierbar bleibt. Auf dem Handy entfällt damit auch die untere Navigationsleiste des Original-Headers (wie im LTS-Shop), auch auf den Login-/Registrierungsseiten (`GlasJenaNavbarBottom.vue`). Cookie- und Vorschau-Button rücken auf dem Handy entsprechend nach unten (`glas-jena.css`).
+
+### Seitenbanner (wie im LTS-Shop)
+
+Umgesetzt in `GlasJenaPageBanner.vue` (Titel: `usePageBanner`, Zuordnung in `utils/pageBanner.ts`); wird direkt unter dem Header ausgegeben – von `GlasJenaHeaderBlocks.vue` auch im Checkout (siehe Header); nicht im Shop-Editor.
+
+- Alle Seiten außer **Startseite und Artikelseiten** haben unter dem Header einen Banner mit unscharfem Hintergrundbild (`runtime/assets/page-banner.jpg`, aus dem LTS-Shop) und dem Titel mittig: Höhe 12 % der Fensterbreite (70–120 px), so breit wie die Header-Box, 28 px Abstand nach unten; das Logo ragt links hinein, der Titel hält dessen Breite auf beiden Seiten frei.
+- Titel als **`<h1>`**, Light, `#555`, 40 px (unter 992 px 36, unter 768 px 32, unter 576 px 30, unter 480 px 24 px wie im LTS). Lange Titel brechen um, der Banner wächst mit.
+- Titel: Kategorieseiten der Kategoriename, Suche und Tags „Suchergebnisse für …“, alle Kontoseiten „Mein Konto“, Checkout „Kasse“, Fehlerseiten wie im LTS „Fehler 404“ bzw. „Fehler 500“ (eigener Text im Banner, „Error …“ auf Englisch), sonst der feste Seitenname (Warenkorb, Kontakt, AGB, Impressum, Anmelden …). Neue Seiten mit festem Titel in `PAGE_BANNER_TITLE_KEYS` eintragen.
+- Die Überschriften der Original-Seiten, die den Titel wiederholen (Kategoriename im Block „Category Data“, Suchergebnisse, Warenkorb/Kasse, Kontakt, „Mein Konto“, Passwort-Seiten), sind bei sichtbarem Banner per CSS ausgeblendet (`glas-jena.css`). Die Rechtstexte behalten ihre eigenen Überschriften.
+- **Brotkrumen-Leiste:** auf Artikelseiten immer sichtbar, auf Kategorieseiten nur unter 992 px Fensterbreite (dort ist die Kategorienavigation im Burger-Menü), auf allen anderen Seiten (z. B. Mein Konto) ausgeblendet (`glas-jena.css`, erkennt Kategorieseiten an der Klasse `gj-page-banner--category` des Banners).
 
 ### Hauptnavigation (wie im LTS-Shop)
 

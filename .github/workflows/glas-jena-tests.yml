@@ -1,4 +1,6 @@
-# GLAS IN JENA: runs the web app's unit tests on design branches and on every pull request to main.
+# GLAS IN JENA: runs the web app's unit tests on design branches, on every pull request to main and on every push
+# to main – including GitHub's "Sync fork", which merges plentyshop-pwa updates into main without a pull request.
+# The upstream contract test (modules/glas-jena/runtime/__tests__) then shows which customisation an update breaks.
 # `web-unit-tests` is a required check for main, so it must run for PRs from any branch name.
 # Own workflow instead of changing coverage.yml: its turbo run aborts in @plentymarkets/shop-cli
 # (missing @vitest/coverage-v8) before the web tests start.
@@ -6,6 +8,7 @@ name: glas-jena tests
 on:
   push:
     branches:
+      - main
       - 'design/**'
   pull_request:
     branches:
