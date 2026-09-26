@@ -173,6 +173,7 @@ onBeforeUnmount(() => {
   --gj-footer-clearance-left: 3.75rem;
   --gj-footer-clearance-right: 3.75rem;
 
+  overflow-x: clip;
   background-color: var(--gj-footer-bg);
   color: #fff;
   /* Regular instead of the LTS shop's Light: better legible on the dark background */
@@ -207,12 +208,25 @@ onBeforeUnmount(() => {
   margin-right: 0;
 }
 
-/* Copyright on a line of its own (from 768 px; phones see below): centred, separated by the same thin line */
+/*
+ * Copyright on a line of its own (from 768 px; phones see below): centred, separated by the same thin line, drawn
+ * across the whole window like the bar itself (the bar clips it at the window's edges).
+ */
 @media (min-width: 768px) {
   .gj-footer--stacked .gj-footer__copyright {
+    position: relative;
     flex-basis: 100%;
-    border-top: 1px solid rgb(255 255 255 / 0.12);
     text-align: center;
+  }
+
+  .gj-footer--stacked .gj-footer__copyright::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    transform: translateX(-50%);
   }
 }
 
