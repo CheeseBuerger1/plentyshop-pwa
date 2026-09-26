@@ -119,8 +119,12 @@ html:has(.gj-header-wrapper--sticky) {
  * the "Wishlist" section of the my-account menu and the wishlist benefit on the registration form.
  * The heart icon is only used for the wishlist; that rule is not limited to `.font-body` because the
  * registration form also appears in dialogs that may be rendered outside the shop area.
+ * The menu link ends with a slash when the PlentyONE setting "trailing slash" is on (as in this shop), so both
+ * forms are matched.
  */
-.font-body [data-testid='account-page-sidebar'] ul:has(a[href$='/my-account/wishlist']),
+.font-body
+  [data-testid='account-page-sidebar']
+  ul:has(a[href$='/my-account/wishlist'], a[href$='/my-account/wishlist/']),
 div:has(> svg[data-testid='favorite']) {
   display: none;
 }

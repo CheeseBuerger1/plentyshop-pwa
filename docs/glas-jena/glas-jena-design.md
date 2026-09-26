@@ -77,6 +77,12 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 - **Checkout:** wie im LTS-Shop derselbe Header wie auf allen anderen Seiten (Kategorien, Konto, Sprache, Suche, Warenkorb), darunter der Banner „Kasse“ – kein reduzierter Checkout-Header. `GlasJenaSimplifiedHeader.vue` ersetzt dafür den vereinfachten Header des Checkout-Layouts (auch Angebotsseiten); im Shop-Editor bleibt der Original-Header.
 - Der Glas-Jena-Header (`GlasJenaHeaderBlocks.vue`) läuft auf allen Geräten. Nur im Shop-Editor wird der Original-Header angezeigt, damit er dort konfigurierbar bleibt. Auf dem Handy entfällt damit auch die untere Navigationsleiste des Original-Headers (wie im LTS-Shop), auch auf den Login-/Registrierungsseiten (`GlasJenaNavbarBottom.vue`). Cookie- und Vorschau-Button rücken auf dem Handy entsprechend nach unten (`glas-jena.css`).
 
+### Mein Konto
+
+- Startseite von „Mein Konto“ ist in der PWA `/my-account/personal-data/` (`paths.account`); alle Konto-Links im Shop führen dorthin.
+- **Weiterleitung** (`runtime/middleware/accountRedirect.ts`, global): `/my-account` – die Konto-Adresse des LTS-Shops aus alten Lesezeichen und E-Mails – leitet in jeder Sprache auf die Startseite weiter (301). Kontoseiten ohne Schrägstrich am Ende bekommen ihn wie alle Shop-Links (PlentyONE-Einstellung „Trailing slash“). Ohne das zeigt das Original-Layout auf dem Handy nur eine leere Überschrift mit „Zurück“ statt des Menüs.
+- Ausgeloggt führt der Login danach direkt auf die korrigierte Adresse.
+
 ### Seitenbanner (wie im LTS-Shop)
 
 Umgesetzt in `GlasJenaPageBanner.vue` (Titel: `usePageBanner`, Zuordnung in `utils/pageBanner.ts`); wird direkt unter dem Header ausgegeben – von `GlasJenaHeaderBlocks.vue` auch im Checkout (siehe Header); nicht im Shop-Editor.
@@ -152,7 +158,7 @@ Außerdem im Header, Block **Utility Bar**, Aktionen: „Wishlist“ aus (wirkt 
 **Im Modul erledigt** (Stellen ohne Editor-Einstellung, in Originaldateien):
 
 - Die Seiten `/wishlist` und `/my-account/wishlist` sind entfernt (`pages:extend` in `modules/glas-jena/index.ts`); alte Links landen auf der 404-Seite.
-- Abschnitt „Wunschliste“ im Menü von „Mein Konto“ und der Vorteil „Wunschliste“ im Registrierungsformular sind per CSS ausgeblendet (`glas-jena.css`).
+- Abschnitt „Wunschliste“ im Menü von „Mein Konto“ und der Vorteil „Wunschliste“ im Registrierungsformular sind per CSS ausgeblendet (`glas-jena.css`; der Menü-Link wird mit und ohne Schrägstrich am Ende erkannt). Dafür gibt es keine Editor-Einstellung: Das Kontomenü ist im Original-Layout `layouts/account.vue` fest programmiert.
 - Die untere Navigationsleiste (mit Wunschliste) ist auch auf den Login-/Registrierungsseiten ersetzt (`GlasJenaNavbarBottom.vue`, rendert nichts) – das Handy sieht dort aus wie im restlichen Shop.
 
 ### Cookie-Banner
