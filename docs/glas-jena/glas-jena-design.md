@@ -178,7 +178,7 @@ Umgesetzt in `GlasJenaFooterBlocks.vue` (Links in `utils/footer.ts`); im Shop-Ed
 
 - **Eine dunkle Leiste** wie im LTS-Shop (`#263238`, 80 px hoch, über die ganze Fensterbreite; Links und Copyright stehen in der Breite der Header-Box): links AGB, Widerruf, Datenschutz, Versand, Kontakt, Impressum (weiß, Regular statt Light des LTS – auf dunklem Grund besser lesbar); **rechts das Copyright** „© [aktuelles Jahr] GLAS IN JENA“ (Jahr automatisch) statt der Versand- und Zahlungssymbole des LTS. Keine helle Zeile darunter, kein „webdesign by“.
 - **Links wie im LTS:** jeder Link eine Fläche über die volle Leistenhöhe (28 px oben/unten, 18 px seitlich, 992–1199 px: 10 px); beim Hover wird die Fläche heller (`#37474f`, deutlich sichtbar; das dunklere `#1f282d` des LTS war kaum zu erkennen), keine Unterstreichung. Ein Link bricht nie um, die Links stehen ab 768 px in einer Zeile (Deutsch und Englisch). Passt das Copyright nicht mehr daneben, rutscht es in eine eigene Zeile, dann stehen Links und Copyright mittig (die Komponente misst das, weil die Texte je Sprache verschieden lang sind). Englische Linktexte: T&Cs, Cancellation, Privacy policy, Shipping, Contact, Legal disclosure.
-- Handy (unter 768 px): Links untereinander als zentrierte Zeilen über die volle Breite (25 px oben/unten), Copyright zentriert darunter.
+- Handy (unter 768 px): Links als zentrierte Flächen in **zwei Spalten** über die volle Breite (25 px oben/unten, feine Trennlinien, etwa halb so hoch wie die eine Spalte des LTS), Copyright zentriert darunter.
 - Die festen Knöpfe unten (Cookie-Symbol links, „Nach oben“ rechts) verdecken am Seitenende nichts: Die Leiste hält ihre Breite frei. Vorschau- und Editor-Knöpfe sehen Kunden nicht; auf sie nimmt das Design keine Rücksicht.
 - **„Nach oben“:** ab 768 px ein schwebender Knopf unten rechts im Aussehen des Cookie-Knopfs (44 × 44 px, Schieferblau, weißes Symbol, 8 px vom Rand), erscheint nach 300 px Scrollen – auch mit der Editor-Oberfläche, in der nur der Seitenbereich scrollt. Auf dem Handy wie im LTS stattdessen eine hellblaue Leiste (`#abcae4`, 45 px) mit Pfeil über die ganze Breite am Ende der Seite.
 
@@ -199,7 +199,7 @@ Umgesetzt in `GlasJenaFooterBlocks.vue` (Links in `utils/footer.ts`); im Shop-Ed
 - Kacheln stapeln sich untereinander (volle Breite).
 - Hero: Bild oben, „Wussten Sie schon“-Box darunter.
 - Topseller-Karussell mit 1–2 Artikeln pro Ansicht, wischbar.
-- Footer: Links zentriert untereinander, Copyright zentriert darunter.
+- Footer: Links in zwei Spalten, Copyright zentriert darunter.
 
 ### Test
 

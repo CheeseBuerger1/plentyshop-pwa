@@ -268,9 +268,10 @@ onBeforeUnmount(() => {
 }
 
 /*
- * Phones, like the LTS shop: the links one below the other as centred boxes across the full width (25 px above and
- * below), the copyright centred below them. Instead of the floating button, a light blue bar across the whole width
- * (45 px) with an arrow ends the page; it stays above the original NavbarBottom where that is shown.
+ * Phones: the links as centred boxes in two columns across the full width (25 px above and below, thin separating
+ * lines) – half the height of the LTS shop's single column –, the copyright centred below them. Instead of the
+ * floating button, a light blue bar across the whole width (45 px) with an arrow ends the page, like the LTS shop;
+ * it stays above the original NavbarBottom where that is shown.
  */
 @media (max-width: 767.98px) {
   .gj-footer__inner {
@@ -300,12 +301,23 @@ onBeforeUnmount(() => {
   }
 
   .gj-footer__links {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    white-space: normal;
   }
 
   .gj-footer__link {
-    padding: 1.5625rem 1.125rem;
+    padding: 1.5625rem 0.5rem;
     text-align: center;
+  }
+
+  /* Thin lines between the columns and the rows */
+  .gj-footer__links li:nth-child(odd) .gj-footer__link {
+    border-right: 1px solid rgb(255 255 255 / 0.12);
+  }
+
+  .gj-footer__links li:nth-child(n + 3) .gj-footer__link {
+    border-top: 1px solid rgb(255 255 255 / 0.12);
   }
 
   .gj-footer__copyright {
