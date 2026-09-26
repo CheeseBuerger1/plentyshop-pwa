@@ -88,19 +88,37 @@ const innerRef = ref<HTMLElement | null>(null);
 const navRef = ref<HTMLElement | null>(null);
 const copyrightRef = ref<HTMLElement | null>(null);
 /**
- * Whether the copyright has moved below the links because it does not fit next to them. Then links and copyright
- * are centred. Measured instead of a fixed breakpoint, as the link texts differ in length between the languages.
+ * Whether the copyright does not fit next to the links. Then it gets a line of its own (with a separating line)
+ * and links and copyright are centred. Measured instead of a fixed breakpoint, as the link texts differ in length
+ * between the languages. Computed from the natural widths (links, gap, copyright text) rather than from where the
+ * copyright ended up, because in the stacked state it takes the whole width and would otherwise never move back.
  */
 const isStacked = ref(false);
 
-const checkStacked = () => {
-  if (!navRef.value || !copyrightRef.value) {
-    return;
-  }
-  isStacked.value = copyrightRef.value.offsetTop >= navRef.value.offsetTop + navRef.value.offsetHeight;
+const getTextWidth = (element: HTMLElement) => {
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  return range.getBoundingClientRect().width;
 };
 
+const checkStacked = () => {
+  if (!innerRef.value || !navRef.value || !copyrightRef.value) {
+    return;
+  }
+  const innerStyle = getComputedStyle(innerRef.value);
+  const available =
+    innerRef.value.clientWidth - parseFloat(innerStyle.paddingLeft) - parseFloat(innerStyle.paddingRight);
+  const linksWidth = [...navRef.value.querySelectorAll('li')].reduce(
+    (sum, item) => sum + item.getBoundingClientRect().width,
+    0,
+  );
+  const gap = parseFloat(innerStyle.columnGap) || 0;
+  isStacked.value = linksWidth + gap + getTextWidth(copyrightRef.value) > available;
+};
+
+/* The bar (window width) and the links (texts change with the language) */
 useResizeObserver(innerRef, checkStacked);
+useResizeObserver(navRef, checkStacked);
 
 onMounted(() => {
   document.addEventListener('scroll', onScroll, { capture: true, passive: true });
@@ -187,6 +205,15 @@ onBeforeUnmount(() => {
 
 .gj-footer--stacked .gj-footer__nav {
   margin-right: 0;
+}
+
+/* Copyright on a line of its own (from 768 px; phones see below): centred, separated by the same thin line */
+@media (min-width: 768px) {
+  .gj-footer--stacked .gj-footer__copyright {
+    flex-basis: 100%;
+    border-top: 1px solid rgb(255 255 255 / 0.12);
+    text-align: center;
+  }
 }
 
 /*
