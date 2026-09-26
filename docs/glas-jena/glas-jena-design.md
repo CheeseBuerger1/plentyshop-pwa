@@ -32,8 +32,7 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 | Kachel Küche & Helfer                                                              | `#D6E1EA`                                            |
 | Kachel Gesundheitshelfer                                                           | `#D4C8E8` (Überschrift darin violett, ca. `#9B6FB5`) |
 | Header-Iconfelder (Konto, Sprache, Suche)                                          | Hellgrau, ca. `#F0F0F0` / `#E6E6E6`                  |
-| Footer oben                                                                        | Fast schwarz-blau, ca. `#253038`                     |
-| Footer unten (Copyright-Zeile)                                                     | Sehr helles Grau, ca. `#F7F7F7`                      |
+| Footer                                                                             | Fast schwarz-blau `#263238` (gemessen)               |
 | Fließtext                                                                          | Dunkelgrau, ca. `#444444`                            |
 | Links (z. B. „Versandkosten“)                                                      | Mittelblau `#6E9BBF`                                 |
 
@@ -175,9 +174,13 @@ Umgesetzt in `GlasJenaCookiebar.vue` (ersetzt die Original-Komponente `Cookiebar
 
 ### Footer
 
-- Obere Zeile dunkel (`#253038`): Links AGB, Widerruf, Datenschutz, Versand, Kontakt, Impressum; rechts Versandlogos (DHL, DPD) und Zahlungsarten (Sofort, Kreditkarte, Vorkasse) als helle Rahmen-Icons.
-- Untere Zeile hell: „© [aktuelles Jahr] GLAS IN JENA“ (Jahr automatisch), rechts „webdesign by 3W FUTURE“.
-- Button „Nach oben“ unten rechts (hellblau, eckig).
+Umgesetzt in `GlasJenaFooterBlocks.vue` (Links in `utils/footer.ts`); im Shop-Editor bleibt der Original-Footer.
+
+- **Eine dunkle Leiste** wie im LTS-Shop (`#263238`, 80 px hoch, über die ganze Fensterbreite; Links und Copyright stehen in der Breite der Header-Box): links AGB, Widerruf, Datenschutz, Versand, Kontakt, Impressum (weiß, Regular statt Light des LTS – auf dunklem Grund besser lesbar); **rechts das Copyright** „© [aktuelles Jahr] GLAS IN JENA“ (Jahr automatisch) statt der Versand- und Zahlungssymbole des LTS. Keine helle Zeile darunter, kein „webdesign by“.
+- **Links wie im LTS:** jeder Link eine Fläche über die volle Leistenhöhe (28 px oben/unten, 18 px seitlich, 992–1199 px: 10 px); beim Hover wird die Fläche heller (`#37474f`, deutlich sichtbar; das dunklere `#1f282d` des LTS war kaum zu erkennen), keine Unterstreichung. Ein Link bricht nie um, die Links stehen ab 768 px in einer Zeile (Deutsch und Englisch). Passt das Copyright nicht mehr daneben, rutscht es in eine eigene Zeile, dann stehen Links und Copyright mittig, getrennt durch eine feine Linie über die ganze Fensterbreite wie auf dem Handy (die Komponente misst das, weil die Texte je Sprache verschieden lang sind). Englische Linktexte: T&Cs, Cancellation, Privacy policy, Shipping, Contact, Legal disclosure.
+- Handy (unter 768 px): Links als zentrierte Flächen in **zwei Spalten** über die volle Breite (25 px oben/unten, feine Trennlinien, etwa halb so hoch wie die eine Spalte des LTS), Copyright zentriert darunter.
+- Die festen Knöpfe unten (Cookie-Symbol links, „Nach oben“ rechts) verdecken am Seitenende nichts: Die Leiste hält ihre Breite frei. Vorschau- und Editor-Knöpfe sehen Kunden nicht; auf sie nimmt das Design keine Rücksicht.
+- **„Nach oben“:** ab 768 px ein schwebender Knopf unten rechts im Aussehen des Cookie-Knopfs (44 × 44 px, Schieferblau, weißes Symbol, 8 px vom Rand), erscheint nach 300 px Scrollen – auch mit der Editor-Oberfläche, in der nur der Seitenbereich scrollt. Auf dem Handy wie im LTS stattdessen eine hellblaue Leiste (`#abcae4`, 45 px) mit Pfeil über die ganze Breite am Ende der Seite.
 
 ### Tablet-Ansicht (ca. 768–1279 px)
 
@@ -187,7 +190,7 @@ Umgesetzt in `GlasJenaCookiebar.vue` (ersetzt die Original-Komponente `Cookiebar
 - Kategorie-Kacheln: zu dritt nebeneinander (im Hochformat notfalls 2 + 1).
 - Topseller-Karussell: 3 Artikel pro Ansicht, wischbar und mit Pfeilen.
 - Textblock „trendglas® in Jena“: Bild neben dem Text im Querformat, darunter im Hochformat.
-- Footer: Links in einer Zeile, Versand- und Zahlungslogos darunter.
+- Footer: Links in einer Zeile, Copyright rechts.
 - Alle Schaltflächen und Iconfelder groß genug für Finger (mindestens 44 × 44 px).
 
 ### Handy-Ansicht (unter 768 px)
@@ -196,7 +199,7 @@ Umgesetzt in `GlasJenaCookiebar.vue` (ersetzt die Original-Komponente `Cookiebar
 - Kacheln stapeln sich untereinander (volle Breite).
 - Hero: Bild oben, „Wussten Sie schon“-Box darunter.
 - Topseller-Karussell mit 1–2 Artikeln pro Ansicht, wischbar.
-- Footer: Links untereinander, Logos in einer umbrechenden Reihe.
+- Footer: Links in zwei Spalten, Copyright zentriert darunter.
 
 ### Test
 
@@ -208,7 +211,7 @@ Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet ho
 
 - [ ] Exakte Farbwerte und Schrift aus dem LTS-CSS übernehmen.
 - [ ] Artikeldaten prüfen: Viele Artikel zeigen „1 Milliliter“ als Einheit – vermutlich falsche Inhalts-/Grundpreis-Einheit in PlentyONE (betrifft PWA und LTS gleichermaßen).
-- [ ] Copyright-Jahr im Footer automatisch setzen.
+- [x] Copyright-Jahr im Footer automatisch setzen.
 - [ ] Alle „Wussten Sie schon“-Fakten aus dem LTS-Shop sammeln.
 - [ ] Englische Texte für den Sprachwechsel prüfen.
 - [x] SEO mobil: Das Server-HTML für Handys enthält jetzt alle Kategorie-Links (mobiles Menü, siehe oben).
