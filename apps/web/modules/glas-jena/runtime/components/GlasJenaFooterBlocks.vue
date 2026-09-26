@@ -1,16 +1,18 @@
 <template>
   <div ref="rootRef">
     <FooterBlocks v-if="isEditing" />
-    <footer v-else class="gj-footer" data-testid="gj-footer">
-      <div class="gj-footer__inner">
-        <nav class="gj-footer__nav" :aria-label="t('legalLinks')">
+    <footer v-else class="gj-footer" :class="{ 'gj-footer--stacked': isStacked }" data-testid="gj-footer">
+      <div ref="innerRef" class="gj-footer__inner">
+        <nav ref="navRef" class="gj-footer__nav" :aria-label="t('legalLinks')">
           <ul class="gj-footer__links">
             <li v-for="link in FOOTER_LINKS" :key="link.pathKey">
               <NuxtLink :to="localePath(paths[link.pathKey])" class="gj-footer__link">{{ t(link.labelKey) }}</NuxtLink>
             </li>
           </ul>
         </nav>
-        <p class="gj-footer__copyright" data-testid="gj-footer-copyright">© {{ currentYear }} GLAS<sup>IN</sup>JENA</p>
+        <p ref="copyrightRef" class="gj-footer__copyright" data-testid="gj-footer-copyright">
+          © {{ currentYear }} GLAS<sup>IN</sup>JENA
+        </p>
       </div>
     </footer>
     <!-- From 768 px: floating button like the cookie settings button, mirrored to the right -->
@@ -39,6 +41,7 @@
 
 <script setup lang="ts">
 import { SfIconArrowUpward, SfIconExpandLess } from '@storefront-ui/vue';
+import { useResizeObserver } from '@vueuse/core';
 import FooterBlocks from '~/components/ui/FooterBlocks/FooterBlocks.vue';
 import { FOOTER_LINKS } from '../utils/footer';
 
@@ -81,6 +84,24 @@ const scrollToTop = () => {
   (scrollContainer ?? window).scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+const innerRef = ref<HTMLElement | null>(null);
+const navRef = ref<HTMLElement | null>(null);
+const copyrightRef = ref<HTMLElement | null>(null);
+/**
+ * Whether the copyright has moved below the links because it does not fit next to them. Then links and copyright
+ * are centred. Measured instead of a fixed breakpoint, as the link texts differ in length between the languages.
+ */
+const isStacked = ref(false);
+
+const checkStacked = () => {
+  if (!navRef.value || !copyrightRef.value) {
+    return;
+  }
+  isStacked.value = copyrightRef.value.offsetTop >= navRef.value.offsetTop + navRef.value.offsetHeight;
+};
+
+useResizeObserver(innerRef, checkStacked);
+
 onMounted(() => {
   document.addEventListener('scroll', onScroll, { capture: true, passive: true });
   onScroll();
@@ -106,7 +127,7 @@ onBeforeUnmount(() => {
   "en": {
     "backToTop": "Back to top",
     "legalLinks": "Legal",
-    "termsAndConditions": "Terms and conditions",
+    "termsAndConditions": "T&Cs",
     "cancellationRights": "Cancellation",
     "privacyPolicy": "Privacy policy",
     "shipping": "Shipping",
@@ -145,7 +166,8 @@ onBeforeUnmount(() => {
   align-items: center;
   /*
    * Links on the left, copyright on the right (the links' auto margin takes the free space). Where the copyright
-   * does not fit next to the links, it moves to a line of its own and is centred there.
+   * does not fit next to the links, it moves to a line of its own; then links and copyright are centred
+   * (`gj-footer--stacked`, set by the component).
    */
   justify-content: center;
   column-gap: 2rem;
@@ -156,17 +178,28 @@ onBeforeUnmount(() => {
     var(--gj-mobile-navbar-height) max(1rem, calc(var(--gj-footer-clearance-left) - var(--gj-footer-box-offset)));
 }
 
+/* At most as wide as the bar: the copyright moves to the next line before the links would wrap */
 .gj-footer__nav {
+  max-width: 100%;
   margin-right: auto;
 }
 
-/* The links always stay in one line (no "Impressum" on a line of its own) */
+.gj-footer--stacked .gj-footer__nav {
+  margin-right: 0;
+}
+
+/*
+ * The links stay in one line wherever they fit (German always from 768 px); only where even that is too narrow
+ * (long English texts just above 768 px) they wrap, centred. A single link never wraps.
+ */
 .gj-footer__links {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  justify-content: center;
   margin: 0;
   padding: 0;
   list-style: none;
+  white-space: nowrap;
 }
 
 /*
