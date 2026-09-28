@@ -1,0 +1,6 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kreditkarte"><title>Kreditkarte</title>
+  <path fill="currentColor" fill-rule="evenodd" d="M1 6.5A2.5 2.5 0 0 1 3.5 4h17A2.5 2.5 0 0 1 23 6.5v11A2.5 2.5 0 0 1 20.5 20h-17A2.5 2.5 0 0 1 1 17.5Zm2.5-1a1 1 0 0 0-1 1V8h19V6.5a1 1 0 0 0-1-1Zm18 5.4h-19v6.6a1 1 0 0 0 1 1h17a1 1 0 0 0 1-1Z"/>
+  <circle cx="5.3" cy="15.5" r="1.05" fill="currentColor"/>
+  <circle cx="8.3" cy="15.5" r="1.05" fill="currentColor"/>
+  <circle cx="11.3" cy="15.5" r="1.05" fill="currentColor"/>
+</svg>

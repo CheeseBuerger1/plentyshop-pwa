@@ -1,7 +1,7 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import type { VueWrapper } from '@vue/test-utils';
 import GlasJenaFooterBlocks from '../GlasJenaFooterBlocks.vue';
-import { FOOTER_LINKS } from '../../utils/footer';
+import { FOOTER_LINKS, PAYMENT_METHODS } from '../../utils/footer';
 
 const { editorState } = vi.hoisted(() => ({ editorState: { isEditing: false } }));
 
@@ -41,6 +41,18 @@ describe('GlasJenaFooterBlocks', () => {
     expect(wrapper.get('[data-testid="gj-footer-copyright"]').element.textContent?.replace(/\s+/g, ' ').trim()).toBe(
       `© ${new Date().getFullYear()} GLAS IN JENA`,
     );
+  });
+
+  it('should show a named icon for each payment method in the footer bar', async () => {
+    const wrapper = await mountFooter();
+
+    const icons = wrapper.findAll('[data-testid="gj-footer-payment"]');
+
+    expect(icons).toHaveLength(PAYMENT_METHODS.length);
+    icons.forEach((icon) => {
+      expect(icon.attributes('role')).toBe('img');
+      expect(icon.attributes('aria-label')).toBeTruthy();
+    });
   });
 
   it('should keep the original footer in the block editor', async () => {
