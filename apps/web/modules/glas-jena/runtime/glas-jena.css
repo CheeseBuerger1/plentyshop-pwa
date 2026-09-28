@@ -219,6 +219,29 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
+ * Lists with dots instead of check marks, like the LTS legal pages: `<ul class="gj-list-dots">` in the editor's
+ * HTML mode (e.g. the shipping conditions, where check marks would read like advantages). Nested lists get
+ * circles.
+ */
+.font-body .rte-prose--render ul.gj-list-dots,
+.font-body .rte-prose--render ul.gj-list-dots ul {
+  padding-left: 1.5rem;
+  list-style: disc;
+}
+
+.font-body .rte-prose--render ul.gj-list-dots ul {
+  list-style-type: circle;
+}
+
+.font-body .rte-prose--render ul.gj-list-dots li {
+  padding-left: 0;
+}
+
+.font-body .rte-prose--render ul.gj-list-dots li::before {
+  content: none;
+}
+
+/*
  * Tables in text blocks (entered in the editor's HTML mode, e.g. the bank details on "Vorkasse / Überweisung"),
  * like the LTS shop: full width, compact rows separated by fine lines. Row labels (`<th scope="row">`) stay
  * regular like the LTS labels; as headers, screen readers read them with their value ("IBAN: DE57 …").
@@ -244,6 +267,25 @@ div:has(> svg[data-testid='favorite']) {
   width: 1%;
   font-weight: 400;
   white-space: nowrap;
+}
+
+/*
+ * Tables with column headers (e.g. the DHL rates on the shipping page: weight / price) only as wide as their
+ * content; the headers semibold, so the header row stands apart from the values.
+ */
+.font-body .rte-prose--render table:has(> thead) {
+  width: auto;
+}
+
+.font-body .rte-prose--render thead th {
+  width: auto;
+  font-weight: 600;
+}
+
+.font-body .rte-prose--render caption {
+  padding: 0.3rem 0.5rem;
+  font-weight: 600;
+  text-align: left;
 }
 
 /*

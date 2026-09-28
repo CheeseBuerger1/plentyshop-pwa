@@ -55,7 +55,9 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 - **Flat und eckig:** keine abgerundeten Ecken, keine Schatten.
 - **Geboxtes Layout:** Inhalt auf feste Maximalbreite zentriert, mit Rand links und rechts (Desktop).
 - **Farbflächen als Gestaltungsmittel:** Inhalte stehen in vollflächig gefärbten Kacheln.
-- **Listen mit Haken:** Aufzählungen in Textblöcken (Rich Text, Bild mit Text) stehen wie im LTS-Shop mit mittelblauen Haken ✓ statt Punkten, 40 px eingerückt (`glas-jena.css`, gilt für den angezeigten Text, nicht für das Eingabefeld im Editor). Nummerierte Listen bleiben nummeriert. Im Editor einfach eine normale Aufzählung anlegen.
+- **Listen mit Haken:** Aufzählungen in Textblöcken (Rich Text, Bild mit Text) stehen wie im LTS-Shop mit mittelblauen Haken ✓ statt Punkten, 40 px eingerückt (`glas-jena.css`, gilt für den angezeigten Text, nicht für das Eingabefeld im Editor). Nummerierte Listen bleiben nummeriert. Im Editor einfach eine normale Aufzählung anlegen. Für Bedingungen statt Vorteile (z. B. Versandseite) Punkte wie im LTS: im HTML-Modus `<ul class="gj-list-dots">`.
+- **Tabellen in Textblöcken** (nur im HTML-Modus, der normale Texteditor kennt keine Tabellen und würde sie beim Bearbeiten entfernen): volle Breite, feine Trennlinien wie im LTS. Zeilenbeschriftungen als `<th scope="row">` (Bankdaten auf „Vorkasse / Überweisung“), Spaltenköpfe als `<thead>` mit `<th scope="col">` und ggf. `<caption>` – solche Tabellen sind nur so breit wie ihr Inhalt (DHL-Preise auf der Versandseite). Ausrichtung im HTML-Modus je Element per `style="text-align: left;"`, da neue Textblöcke zentriert sind.
+- **Versandseite** `/shipping/`: Inhalt direkt als Editor-Blöcke auf der Seite (keine Kategorie-Verknüpfung nötig).
 - **„Mehr“-Buttons:** halbtransparente helle Fläche unten rechts in der jeweiligen Kachel, Schrift Light.
 
 ---
