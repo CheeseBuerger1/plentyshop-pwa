@@ -289,6 +289,16 @@ onBeforeUnmount(() => {
   mask-image: url('../assets/payment/vorkasse.svg');
 }
 
+/*
+ * The wide logos fill only a flat strip of their square SVG; a wider area with a larger mask scales them up (the
+ * empty top and bottom of the square are cut off, Apple Pay's card then is as high as the row).
+ */
+.gj-footer__payment--apple-pay,
+.gj-footer__payment--google-pay {
+  width: 2.5rem;
+  mask-size: 2.5rem;
+}
+
 .gj-footer__payment--apple-pay {
   mask-image: url('../assets/payment/apple-pay.svg');
 }
