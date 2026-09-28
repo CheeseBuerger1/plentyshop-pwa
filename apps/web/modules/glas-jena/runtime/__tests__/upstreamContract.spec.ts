@@ -132,6 +132,20 @@ describe('upstream contract of the glas-jena module', () => {
     );
   });
 
+  it('should render the legal texts in a no-preflight box directly in main', () => {
+    /* glas-jena.css styles the legal texts via `main > .no-preflight` */
+    expect(readApp('layouts/default.vue')).toMatch(/<main>\s*<slot \/>\s*<\/main>/);
+    for (const page of [
+      'legal-disclosure',
+      'terms-and-conditions',
+      'privacy-policy',
+      'cancellation-rights',
+      'declaration-of-accessibility',
+    ]) {
+      expect(readApp(`pages/${page}.vue`)).toMatch(/<template>\s*<div class="[^"]*\bno-preflight\b[^"]*" v-html=/);
+    }
+  });
+
   it('should find the class of rendered rich text that the check mark lists rely on', () => {
     expect(readApp('components/TextContent/TextContent.vue')).toContain('class="rte-prose rte-prose--render"');
   });

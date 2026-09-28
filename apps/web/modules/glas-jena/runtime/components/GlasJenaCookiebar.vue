@@ -255,8 +255,13 @@ const getCookieDetailText = (cookie: Cookie, key: string) => {
 
 .gj-cookiebar a,
 .gj-cookiebar__more {
-  color: var(--gj-mid-blue);
+  color: var(--gj-link);
   text-decoration: underline;
+}
+
+.gj-cookiebar a:is(:hover, :focus),
+.gj-cookiebar__more:is(:hover, :focus) {
+  color: var(--gj-link-hover);
 }
 
 .gj-cookiebar__actions {

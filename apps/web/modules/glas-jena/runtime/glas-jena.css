@@ -10,6 +10,12 @@
   /* Background of the logo image; fills the logo field where it is larger than the image */
   --gj-logo-blue: #4a677c;
   --gj-mid-blue: #6e9bbf;
+  /*
+   * Text links: darker than the LTS mid blue (2.96:1 on white, below WCAG AA). At least 4.5:1 on white and on
+   * every tile colour (lowest: 4.59:1 on the tile blue). Close to the text colour, so links stay underlined.
+   */
+  --gj-link: #2c5572;
+  --gj-link-hover: #1d3a50;
   --gj-soft-green: #ddebc8;
   --gj-tile-blue: #a9c9e3;
   /* Light blue of the LTS shop's back-to-top bar on phones (measured) */
@@ -170,7 +176,13 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 .font-body .rte-prose a {
-  color: var(--gj-mid-blue);
+  color: var(--gj-link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.font-body .rte-prose a:is(:hover, :focus) {
+  color: var(--gj-link-hover);
 }
 
 /*
@@ -204,6 +216,113 @@ div:has(> svg[data-testid='favorite']) {
   height: 16px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='16' viewBox='0 0 21 16'%3E%3Cpath d='M1.5 8.5l6 6L19.5 1.5' fill='none' stroke='%236e9bbf' stroke-width='2'/%3E%3C/svg%3E")
     no-repeat;
+}
+
+/*
+ * Tables in text blocks (entered in the editor's HTML mode, e.g. the bank details on "Vorkasse / Überweisung"),
+ * like the LTS shop: full width, compact rows separated by fine lines. Row labels (`<th scope="row">`) stay
+ * regular like the LTS labels; as headers, screen readers read them with their value ("IBAN: DE57 …").
+ */
+.font-body .rte-prose--render table {
+  width: 100%;
+  margin: 0 0 1rem;
+  border-collapse: collapse;
+}
+
+.font-body .rte-prose--render :is(th, td) {
+  padding: 0.3rem 0.5rem;
+  border-top: 1px solid #dee2e6;
+  text-align: left;
+  vertical-align: top;
+}
+
+.font-body .rte-prose--render tr:last-child > :is(th, td) {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.font-body .rte-prose--render th {
+  width: 1%;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+/*
+ * Legal texts from the plentymarkets system (Impressum, AGB, Datenschutz, Widerruf, Barrierefreiheit): the page
+ * wraps them in `no-preflight`, which reverts all shop styles to the browser defaults. Styled like the LTS shop
+ * (`.my-legal`), with its sizes relative to the text size, so they scale from the LTS 14 px to the shop's 16 px:
+ * headings regular (the LTS asks for 500 but has no such font file, so the browser shows 400), paragraphs and
+ * h4 indented by 0.8em. The texts also contain two LTS classes: `my-agb` (table of contents of the AGB) and
+ * `#infoo` (the raised "IN" of GLAS IN JENA). Less space below the banner, like the content pages.
+ *
+ * Deviations from the LTS for accessibility (WCAG 2.1 AA): links in the shop's link colour (`--gj-link`) and
+ * underlined, as the colour alone does not set them apart from the text; paragraphs with line height 1.5 instead
+ * of the browser's ~1.25.
+ */
+.font-body main > .no-preflight {
+  padding-top: 0.25rem;
+}
+
+.font-body main > .no-preflight :is(h1, h2, h3) {
+  margin: 0 0 0.5em;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.font-body main > .no-preflight h1 {
+  margin-bottom: 0.82em;
+  font-size: 1.7em;
+}
+
+.font-body main > .no-preflight h2 {
+  font-size: 1.5em;
+}
+
+.font-body main > .no-preflight h3 {
+  font-size: 1.3em;
+}
+
+.font-body main > .no-preflight h4 {
+  margin: 0 0 0.15em 0.8em;
+  font-size: 1em;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.font-body main > .no-preflight p {
+  margin: 0 0 1em 0.8em;
+  line-height: 1.5;
+}
+
+.font-body main > .no-preflight ul {
+  margin: 0 0 1em;
+  padding-left: 2.5rem;
+  line-height: 1.5;
+}
+
+.font-body main > .no-preflight ul ul {
+  margin-bottom: 0;
+}
+
+.font-body main > .no-preflight a {
+  color: var(--gj-link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.font-body main > .no-preflight a:is(:hover, :focus) {
+  color: var(--gj-link-hover);
+}
+
+.font-body main > .no-preflight .my-agb {
+  margin-bottom: 2em;
+  font-size: 1.2em;
+}
+
+.font-body main > .no-preflight #infoo {
+  margin-left: 2px;
+  font-size: 0.65em;
+  line-height: 0;
+  text-transform: uppercase;
 }
 
 /*
