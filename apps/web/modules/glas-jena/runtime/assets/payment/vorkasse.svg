@@ -1,0 +1,9 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vorkasse (Überweisung)"><title>Vorkasse</title>
+  <path fill="currentColor" d="M12 1.5 22.5 7.8v1.3h-21V7.8Z"/>
+  <rect x="2" y="9.9" width="20" height="1.5" fill="currentColor"/>
+  <rect x="3.6" y="12" width="2.1" height="6.6" fill="currentColor"/>
+  <rect x="8.55" y="12" width="2.1" height="6.6" fill="currentColor"/>
+  <rect x="13.35" y="12" width="2.1" height="6.6" fill="currentColor"/>
+  <rect x="18.3" y="12" width="2.1" height="6.6" fill="currentColor"/>
+  <rect x="1" y="19.4" width="22" height="2.1" rx="0.4" fill="currentColor"/>
+</svg>

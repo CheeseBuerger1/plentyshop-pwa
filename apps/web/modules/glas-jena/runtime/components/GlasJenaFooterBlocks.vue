@@ -10,15 +10,28 @@
             </li>
           </ul>
         </nav>
-        <!--
-          Invisible spaces: search engines and screen readers read "GLAS IN JENA", the look stays the same.
-          The comment stays outside the paragraph: inside it, the server renders it but the client does not (hydration mismatch).
-        -->
-        <p ref="copyrightRef" class="gj-footer__copyright" data-testid="gj-footer-copyright">
-          © {{ currentYear }} GLAS<span class="gj-footer__brand-space">{{ ' ' }}</span
-          ><sup>IN</sup><span class="gj-footer__brand-space">{{ ' ' }}</span
-          >JENA
-        </p>
+        <div class="gj-footer__aside">
+          <ul ref="paymentsRef" class="gj-footer__payments" :aria-label="t('paymentMethods')">
+            <li v-for="method in PAYMENT_METHODS" :key="method.id">
+              <span
+                class="gj-footer__payment"
+                :class="`gj-footer__payment--${method.id}`"
+                role="img"
+                :aria-label="t(method.labelKey)"
+                data-testid="gj-footer-payment"
+              />
+            </li>
+          </ul>
+          <!--
+            Invisible spaces: search engines and screen readers read "GLAS IN JENA", the look stays the same.
+            The comment stays outside the paragraph: inside it, the server renders it but the client does not (hydration mismatch).
+          -->
+          <p ref="copyrightRef" class="gj-footer__copyright" data-testid="gj-footer-copyright">
+            © {{ currentYear }} GLAS<span class="gj-footer__brand-space">{{ ' ' }}</span
+            ><sup>IN</sup><span class="gj-footer__brand-space">{{ ' ' }}</span
+            >JENA
+          </p>
+        </div>
       </div>
     </footer>
     <!-- From 768 px: floating button like the cookie settings button, mirrored to the right -->
@@ -49,13 +62,13 @@
 import { SfIconArrowUpward, SfIconExpandLess } from '@storefront-ui/vue';
 import { useResizeObserver } from '@vueuse/core';
 import FooterBlocks from '~/components/ui/FooterBlocks/FooterBlocks.vue';
-import { FOOTER_LINKS } from '../utils/footer';
+import { FOOTER_LINKS, PAYMENT_METHODS } from '../utils/footer';
 
 const SCROLL_THRESHOLD = 300;
 
 /**
- * Footer like the LTS shop: a dark bar with the legal links on the left and the copyright on the right (where the
- * LTS shop shows shipping and payment icons). The block editor keeps the original, editor-configurable footer.
+ * Footer like the LTS shop: a dark bar with the legal links on the left and, on the right, the payment icons (like
+ * the LTS shop) followed by the copyright. The block editor keeps the original, editor-configurable footer.
  */
 const { t } = useI18n({ useScope: 'local' });
 const { isEditing } = useEditor();
@@ -92,12 +105,14 @@ const scrollToTop = () => {
 
 const innerRef = ref<HTMLElement | null>(null);
 const navRef = ref<HTMLElement | null>(null);
+const paymentsRef = ref<HTMLElement | null>(null);
 const copyrightRef = ref<HTMLElement | null>(null);
 /**
- * Whether the copyright does not fit next to the links. Then it gets a line of its own (with a separating line)
- * and links and copyright are centred. Measured instead of a fixed breakpoint, as the link texts differ in length
- * between the languages. Computed from the natural widths (links, gap, copyright text) rather than from where the
- * copyright ended up, because in the stacked state it takes the whole width and would otherwise never move back.
+ * Whether payment icons and copyright do not fit next to the links. Then they get a line of their own (with a
+ * separating line) and everything is centred. Measured instead of a fixed breakpoint, as the link texts differ in
+ * length between the languages. Computed from the natural widths (links, gaps, icons, copyright text) rather than
+ * from where the copyright ended up, because in the stacked state it takes the whole width and would otherwise never
+ * move back.
  */
 const isStacked = ref(false);
 
@@ -108,7 +123,7 @@ const getTextWidth = (element: HTMLElement) => {
 };
 
 const checkStacked = () => {
-  if (!innerRef.value || !navRef.value || !copyrightRef.value) {
+  if (!innerRef.value || !navRef.value || !paymentsRef.value || !copyrightRef.value) {
     return;
   }
   const innerStyle = getComputedStyle(innerRef.value);
@@ -119,7 +134,9 @@ const checkStacked = () => {
     0,
   );
   const gap = parseFloat(innerStyle.columnGap) || 0;
-  isStacked.value = linksWidth + gap + getTextWidth(copyrightRef.value) > available;
+  /* Icons and copyright are as far apart as links and copyright */
+  const asideWidth = paymentsRef.value.getBoundingClientRect().width + gap + getTextWidth(copyrightRef.value);
+  isStacked.value = linksWidth + gap + asideWidth > available;
 };
 
 /* The bar (window width) and the links (texts change with the language) */
@@ -146,7 +163,13 @@ onBeforeUnmount(() => {
     "privacyPolicy": "Datenschutz",
     "shipping": "Versand",
     "contact": "Kontakt",
-    "legalDisclosure": "Impressum"
+    "legalDisclosure": "Impressum",
+    "paymentMethods": "Zahlungsarten",
+    "paymentPaypal": "PayPal",
+    "paymentCreditCard": "Kreditkarte",
+    "paymentPrepayment": "Vorkasse (Überweisung)",
+    "paymentApplePay": "Apple Pay",
+    "paymentGooglePay": "Google Pay"
   },
   "en": {
     "backToTop": "Back to top",
@@ -156,7 +179,13 @@ onBeforeUnmount(() => {
     "privacyPolicy": "Privacy policy",
     "shipping": "Shipping",
     "contact": "Contact",
-    "legalDisclosure": "Legal disclosure"
+    "legalDisclosure": "Legal disclosure",
+    "paymentMethods": "Payment methods",
+    "paymentPaypal": "PayPal",
+    "paymentCreditCard": "Credit card",
+    "paymentPrepayment": "Prepayment (bank transfer)",
+    "paymentApplePay": "Apple Pay",
+    "paymentGooglePay": "Google Pay"
   }
 }
 </i18n>
@@ -214,18 +243,81 @@ onBeforeUnmount(() => {
   margin-right: 0;
 }
 
+/* Payment icons and copyright side by side, as far apart as links and copyright */
+.gj-footer__aside {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 2rem;
+}
+
 /*
- * Copyright on a line of its own (from 768 px; phones see below): centred, separated by the same thin line, drawn
- * across the whole window like the bar itself (the bar clips it at the window's edges).
+ * Payment icons like the LTS shop: pictograms in the text colour, slightly toned down so they do not compete with
+ * the links. Drawn as CSS masks, so the SVG files need no colour of their own.
+ */
+.gj-footer__payments {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 1.125rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gj-footer__payments li {
+  display: flex;
+}
+
+.gj-footer__payment {
+  display: block;
+  width: 1.625rem;
+  height: 1.625rem;
+  background-color: rgb(255 255 255 / 0.85);
+  mask: center / contain no-repeat;
+}
+
+.gj-footer__payment--paypal {
+  mask-image: url('../assets/payment/paypal.svg');
+}
+
+.gj-footer__payment--kreditkarte {
+  mask-image: url('../assets/payment/kreditkarte.svg');
+}
+
+.gj-footer__payment--vorkasse {
+  mask-image: url('../assets/payment/vorkasse.svg');
+}
+
+/*
+ * The wide logos fill only a flat strip of their square SVG; a wider area with a larger mask scales them up (the
+ * empty top and bottom of the square are cut off, Apple Pay's card then is as high as the row).
+ */
+.gj-footer__payment--apple-pay,
+.gj-footer__payment--google-pay {
+  width: 2.5rem;
+  mask-size: 2.5rem;
+}
+
+.gj-footer__payment--apple-pay {
+  mask-image: url('../assets/payment/apple-pay.svg');
+}
+
+.gj-footer__payment--google-pay {
+  mask-image: url('../assets/payment/google-pay.svg');
+}
+
+/*
+ * Icons and copyright on a line of their own (from 768 px; phones see below): centred, separated by the same thin
+ * line, drawn across the whole window like the bar itself (the bar clips it at the window's edges).
  */
 @media (min-width: 768px) {
-  .gj-footer--stacked .gj-footer__copyright {
+  .gj-footer--stacked .gj-footer__aside {
     position: relative;
     flex-basis: 100%;
-    text-align: center;
   }
 
-  .gj-footer--stacked .gj-footer__copyright::before {
+  .gj-footer--stacked .gj-footer__aside::before {
     content: '';
     position: absolute;
     top: 0;
@@ -373,6 +465,12 @@ onBeforeUnmount(() => {
 
   .gj-footer__links li:nth-child(n + 3) .gj-footer__link {
     border-top: 1px solid rgb(255 255 255 / 0.12);
+  }
+
+  /* Icons centred in a row of their own, the copyright below them */
+  .gj-footer__aside {
+    flex-direction: column;
+    padding-top: 1.25rem;
   }
 
   .gj-footer__copyright {
