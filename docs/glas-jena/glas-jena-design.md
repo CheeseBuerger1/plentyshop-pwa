@@ -34,7 +34,9 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 | Header-Iconfelder (Konto, Sprache, Suche)                                          | Hellgrau, ca. `#F0F0F0` / `#E6E6E6`                  |
 | Footer                                                                             | Fast schwarz-blau `#263238` (gemessen)               |
 | Fließtext                                                                          | Dunkelgrau, ca. `#444444`                            |
-| Links (z. B. „Versandkosten“)                                                      | Mittelblau `#6E9BBF`                                 |
+| Textlinks (Textblöcke, Rechtstexte, Cookie-Banner)                                 | Dunkelblau `#2C5572`, unterstrichen (siehe unten)    |
+
+**Barrierefreiheit vor LTS-Treue:** Jede übernommene LTS-Formatierung wird auf WCAG 2.1 AA und gängige Empfehlungen geprüft und bei Bedarf angepasst; die Abweichung steht im CSS-Kommentar. Beispiel Linkfarbe: Das LTS-Mittelblau `#6E9BBF` hat auf Weiß nur 2,96:1 (nötig 4,5:1). Textlinks nutzen deshalb `--gj-link` (`#2C5572`, mindestens 4,59:1 auf Weiß und allen Kachelfarben) und sind immer unterstrichen, weil sich die Farbe allein kaum vom Fließtext abhebt.
 
 ---
 
@@ -44,6 +46,7 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 - Überschriften: groß, **Light** (Schriftstärke 300), viel Luft.
 - Fließtext: Regular, gut lesbar, großzügige Zeilenhöhe.
 - Preise: kräftig (Semibold/Bold), Sternchen-Hinweis klein darunter.
+- Rechtstexte aus dem plentymarkets-System (Impressum, AGB, Datenschutz, Widerruf, Barrierefreiheit): wie im LTS (`.my-legal`) Überschriften normal, Absätze und h4 leicht eingerückt, Größenverhältnisse des LTS auf 16 px Grundschrift; abweichend Zeilenhöhe 1,5 und unterstrichene Links in `--gj-link` (`glas-jena.css`). Das Inhaltsverzeichnis der AGB springt wie im LTS zum Paragraphen (`runtime/utils/legalAnchors.ts`), anders als dort auf allen Bildschirmbreiten, ohne Animation bei „Bewegung reduzieren“ und mit dem Fokus auf dem Ziel.
 
 ---
 

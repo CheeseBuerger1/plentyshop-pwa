@@ -1,4 +1,4 @@
-import { addRouteMiddleware, addTemplate, createResolver, defineNuxtModule } from 'nuxt/kit';
+import { addPlugin, addRouteMiddleware, addTemplate, createResolver, defineNuxtModule } from 'nuxt/kit';
 import type { NuxtPage } from 'nuxt/schema';
 import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './runtime/utils/navigation';
 
@@ -93,5 +93,8 @@ export default defineNuxtModule({
       path: resolve('./runtime/middleware/accountRedirect'),
       global: true,
     });
+
+    /* Jump links in the legal texts (table of contents of the AGB), see utils/legalAnchors.ts */
+    addPlugin({ src: resolve('./runtime/plugins/legalAnchors.client'), mode: 'client' });
   },
 });
