@@ -72,8 +72,8 @@
 
 /*
  * Breadcrumbs (default layout, container right after the banner): always on product pages (they have no banner),
- * on category pages only below the desktop navigation (window width under 992 px, where the category navigation
- * is behind the burger), nowhere else (e.g. my account).
+ * on product categories only below the desktop navigation (window width under 992 px, where the category
+ * navigation is behind the burger), nowhere else (e.g. my account, content pages).
  */
 .gj-page-banner:not(.gj-page-banner--category) ~ [data-testid='narrow-container']:has([data-testid='breadcrumbs']) {
   display: none;
@@ -83,6 +83,31 @@
   .gj-page-banner--category ~ [data-testid='narrow-container']:has([data-testid='breadcrumbs']) {
     display: none;
   }
+}
+
+/*
+ * Content pages (e.g. "Unser hitzebeständiges Glas"): less space below the banner and above the footer. The first
+ * block drops its top padding (the banner already keeps 28 px), the last one the block spacing from the editor
+ * settings (e.g. 40 px) down to 16 px.
+ */
+.gj-page-banner:not(.gj-page-banner--category)
+  ~ main
+  [data-testid='category-page-content']
+  > .content
+  > div:first-child
+  > *
+  > [data-testid='block-wrapper'] {
+  padding-top: 0;
+}
+
+.gj-page-banner:not(.gj-page-banner--category)
+  ~ main
+  [data-testid='category-page-content']
+  > .content
+  > div:last-child
+  > *
+  > [data-testid='block-wrapper'] {
+  margin-bottom: 1rem;
 }
 
 /*
@@ -152,15 +177,33 @@ div:has(> svg[data-testid='favorite']) {
  * Lists in text blocks with blue check marks instead of dots, like the LTS shop (e.g. "Unser hitzebeständiges
  * Glas", the tile of the same name on the home page): check mark 21 × 16 px in the mid blue (#6e9bbf, as the
  * image cannot use the CSS variable), indented by 40 px. Only the rendered text (`rte-prose--render`), so the
- * editor's input field keeps its dots; numbered lists stay numbered.
+ * editor's input field keeps its dots; numbered lists stay numbered. The check mark is a pseudo-element rather
+ * than `list-style-image`, so it can sit a little below the baseline position (centred on the first line); the
+ * items are spaced 8 px apart (`:not(:first-child)` outranks the list's `space-y-1` class).
  */
 .font-body .rte-prose--render ul {
   padding-left: 2.5rem;
-  list-style-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='16' viewBox='0 0 21 16'%3E%3Cpath d='M1.5 8.5l6 6L19.5 1.5' fill='none' stroke='%236e9bbf' stroke-width='2'/%3E%3C/svg%3E");
+  list-style: none;
 }
 
 .font-body .rte-prose--render ul li {
+  position: relative;
   padding-left: 0.25rem;
+}
+
+.font-body .rte-prose--render ul > li:not(:first-child) {
+  margin-top: 0.5rem;
+}
+
+.font-body .rte-prose--render ul li::before {
+  content: '';
+  position: absolute;
+  top: calc(0.5lh - 0.5rem);
+  left: -1.5rem;
+  width: 21px;
+  height: 16px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='16' viewBox='0 0 21 16'%3E%3Cpath d='M1.5 8.5l6 6L19.5 1.5' fill='none' stroke='%236e9bbf' stroke-width='2'/%3E%3C/svg%3E")
+    no-repeat;
 }
 
 /*

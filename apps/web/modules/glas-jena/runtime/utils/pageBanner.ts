@@ -2,6 +2,8 @@
 export const CATEGORY_ROUTE = 'slug';
 export const SEARCH_ROUTE = 'search';
 export const TAG_ROUTE = 'tag-slug';
+/** Category type of product categories; content pages (type `content`) share the category route. */
+export const ITEM_CATEGORY_TYPE = 'item';
 /** All pages of the customer account (`my-account`, `my-account-personal-data`, …) share the title "Mein Konto". */
 export const ACCOUNT_ROUTE_PREFIX = 'my-account';
 export const ACCOUNT_TITLE_KEY = 'account.heading';

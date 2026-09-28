@@ -121,6 +121,17 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('layouts/simplifiedHeaderAndFooter.vue')).toMatch(/<UiSimplifiedHeader \/>\s*<main>/);
   });
 
+  it('should find the block list structure that the content page spacing relies on', () => {
+    /* glas-jena.css: `[data-testid='category-page-content'] > .content > div > * > [data-testid='block-wrapper']` */
+    expect(readApp('pages/[...slug].vue')).toContain('data-testid="category-page-content"');
+    expect(readApp('components/EditableBlocks/EditableBlocks.vue')).toMatch(
+      /<template>\s*<div>[\s\S]*<div v-else class="content">\s*<div v-for="block in data"[^>]*>\s*<BlockItem/,
+    );
+    expect(readApp('components/EditableBlocks/BlockItem.vue')).toMatch(
+      /<template>\s*<component[^>]*>\s*<component[\s\S]*?data-testid="block-wrapper"/,
+    );
+  });
+
   it('should find the class of rendered rich text that the check mark lists rely on', () => {
     expect(readApp('components/TextContent/TextContent.vue')).toContain('class="rte-prose rte-prose--render"');
   });

@@ -2,7 +2,7 @@
   <div
     v-if="title"
     class="gj-page-banner"
-    :class="{ 'gj-page-banner--category': isCategoryPage }"
+    :class="{ 'gj-page-banner--category': isItemCategoryPage }"
     data-testid="gj-page-banner"
   >
     <h1 class="gj-page-banner__title" data-testid="gj-page-banner-title">{{ title }}</h1>
@@ -14,7 +14,7 @@ import { usePageBanner } from '../composables/usePageBanner';
 
 /* Like the LTS shop ("Fehler 404"); the shop's own error texts are too long for the banner */
 const { t } = useI18n({ useScope: 'local' });
-const { title, isCategoryPage } = usePageBanner((statusCode) => t('errorTitle', { statusCode }));
+const { title, isItemCategoryPage } = usePageBanner((statusCode) => t('errorTitle', { statusCode }));
 </script>
 
 <i18n lang="json">
