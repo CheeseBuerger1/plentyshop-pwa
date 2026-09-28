@@ -22,7 +22,8 @@ mockNuxtImport('useI18n', () => () => ({
 }));
 mockNuxtImport('useError', () => () => ref(errorState.error));
 
-const categoryFixture = { details: [{ name: 'Tee & Kaffee' }] };
+const categoryFixture = { type: 'item', details: [{ name: 'Tee & Kaffee' }] };
+const contentPageFixture = { type: 'content', details: [{ name: 'Unser hitzebeständiges Glas' }] };
 
 const findBanner = async () => (await mountSuspended(GlasJenaPageBanner)).find('[data-testid="gj-page-banner"]');
 
@@ -51,13 +52,23 @@ describe('GlasJenaPageBanner', () => {
     expect((await findTitle()).text()).toBe('Tee & Kaffee');
   });
 
-  it('should mark the banner of a category page only', async () => {
+  it('should mark the banner of a product category only', async () => {
     expect((await findBanner()).classes()).not.toContain('gj-page-banner--category');
 
     routeState.baseName = 'slug';
     catalogState.category = categoryFixture;
 
     expect((await findBanner()).classes()).toContain('gj-page-banner--category');
+  });
+
+  it('should show the page name but not mark the banner on a content page', async () => {
+    routeState.baseName = 'slug';
+    catalogState.category = contentPageFixture;
+
+    const banner = await findBanner();
+
+    expect(banner.text()).toBe('Unser hitzebeständiges Glas');
+    expect(banner.classes()).not.toContain('gj-page-banner--category');
   });
 
   it('should show the search phrase on the search page', async () => {
