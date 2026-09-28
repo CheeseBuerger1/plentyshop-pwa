@@ -167,7 +167,9 @@ onBeforeUnmount(() => {
     "paymentMethods": "Zahlungsarten",
     "paymentPaypal": "PayPal",
     "paymentCreditCard": "Kreditkarte",
-    "paymentPrepayment": "Vorkasse (Überweisung)"
+    "paymentPrepayment": "Vorkasse (Überweisung)",
+    "paymentApplePay": "Apple Pay",
+    "paymentGooglePay": "Google Pay"
   },
   "en": {
     "backToTop": "Back to top",
@@ -181,7 +183,9 @@ onBeforeUnmount(() => {
     "paymentMethods": "Payment methods",
     "paymentPaypal": "PayPal",
     "paymentCreditCard": "Credit card",
-    "paymentPrepayment": "Prepayment (bank transfer)"
+    "paymentPrepayment": "Prepayment (bank transfer)",
+    "paymentApplePay": "Apple Pay",
+    "paymentGooglePay": "Google Pay"
   }
 }
 </i18n>
@@ -283,6 +287,14 @@ onBeforeUnmount(() => {
 
 .gj-footer__payment--vorkasse {
   mask-image: url('../assets/payment/vorkasse.svg');
+}
+
+.gj-footer__payment--apple-pay {
+  mask-image: url('../assets/payment/apple-pay.svg');
+}
+
+.gj-footer__payment--google-pay {
+  mask-image: url('../assets/payment/google-pay.svg');
 }
 
 /*

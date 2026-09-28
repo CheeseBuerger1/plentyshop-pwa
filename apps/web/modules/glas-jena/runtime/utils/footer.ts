@@ -20,4 +20,6 @@ export const PAYMENT_METHODS = [
   { id: 'paypal', labelKey: 'paymentPaypal' },
   { id: 'kreditkarte', labelKey: 'paymentCreditCard' },
   { id: 'vorkasse', labelKey: 'paymentPrepayment' },
+  { id: 'apple-pay', labelKey: 'paymentApplePay' },
+  { id: 'google-pay', labelKey: 'paymentGooglePay' },
 ] as const;
