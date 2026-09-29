@@ -47,6 +47,7 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 - Fließtext: Regular, gut lesbar, großzügige Zeilenhöhe.
 - Preise: kräftig (Semibold/Bold), Sternchen-Hinweis klein darunter.
 - Rechtstexte aus dem plentymarkets-System (Impressum, AGB, Datenschutz, Widerruf, Barrierefreiheit): wie im LTS (`.my-legal`) Überschriften normal, Absätze und h4 leicht eingerückt, Größenverhältnisse des LTS auf 16 px Grundschrift; abweichend Zeilenhöhe 1,5 und unterstrichene Links in `--gj-link` (`glas-jena.css`). Das Inhaltsverzeichnis der AGB springt wie im LTS zum Paragraphen (`runtime/utils/legalAnchors.ts`), anders als dort auf allen Bildschirmbreiten, ohne Animation bei „Bewegung reduzieren“ und mit dem Fokus auf dem Ziel.
+- Widerruf `/cancellation-rights/`: wie die LTS-Seite „Widerrufsbelehrung & Widerrufsformular“ unter der Belehrung das Widerrufsformular der PWA (Name, Auftrags-Nr., E-Mail, Grund). Das Modul ersetzt dafür die Seitendatei (`PAGE_OVERRIDES` in `index.ts`, `runtime/pages/GlasJenaCancellationRights.vue`, Formular `GlasJenaCancellationForm.vue` mit der Logik von `useCancellationForm`). Das Formular braucht im Editor die „Cancellation Form Email“ und den Cloudflare-Turnstile-Spamschutz (Doku `docs/guide/themes/bot-protection.md`), sonst erscheint ein Hinweis statt der Felder.
 
 ---
 
