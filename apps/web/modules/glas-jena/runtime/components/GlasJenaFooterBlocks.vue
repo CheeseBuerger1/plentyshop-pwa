@@ -436,7 +436,7 @@ onBeforeUnmount(() => {
     width: 100%;
     height: 2.8125rem;
     margin-bottom: var(--gj-mobile-navbar-height);
-    background-color: var(--gj-light-blue);
+    background-color: var(--gj-mid-blue);
     color: #fff;
   }
 

@@ -47,6 +47,21 @@ describe('GlasJenaCancellationForm', () => {
     ]);
   });
 
+  it('should open the privacy policy in a new tab and say so to screen readers', async () => {
+    settings.turnstileSiteKey = 'site-key';
+    settings.recipient = 'shop@example.com';
+
+    /* The test i18n instance has no messages, so i18n-t would not render its slot: a stub renders it */
+    const wrapper = await mountSuspended(GlasJenaCancellationForm, {
+      global: { stubs: { 'i18n-t': { template: '<span><slot name="privacyPolicy" /></span>' } } },
+    });
+    const link = wrapper.get('[data-testid="gj-cancellation-form-privacy-link"]');
+
+    expect(link.attributes('target')).toBe('_blank');
+    expect(link.attributes('rel')).toContain('noopener');
+    expect(link.find('.sr-only').text()).not.toBe('');
+  });
+
   it('should label the form with its heading', async () => {
     const wrapper = await mountForm();
     const section = wrapper.find('[data-testid="gj-cancellation-form"]');

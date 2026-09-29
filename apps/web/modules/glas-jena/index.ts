@@ -23,9 +23,11 @@ const REMOVED_PAGE_FILES = ['/pages/wishlist.vue', '/pages/my-account/wishlist.v
 /**
  * Original pages (file) replaced by the module's own ones; route name and URL stay the same.
  * Cancellation policy: followed by the cancellation form, like the LTS page "Widerrufsbelehrung & Widerrufsformular".
+ * Contact: introduction, contact data and form side by side, like the LTS contact page.
  */
 export const PAGE_OVERRIDES: Record<string, string> = {
   '/pages/cancellation-rights.vue': './runtime/pages/GlasJenaCancellationRights.vue',
+  '/pages/contact.vue': './runtime/pages/GlasJenaContact.vue',
 };
 
 const getPageFile = (page: NuxtPage) => page.file?.replace(/\\/g, '/') ?? '';
