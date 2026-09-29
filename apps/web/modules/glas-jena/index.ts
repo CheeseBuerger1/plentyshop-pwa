@@ -20,12 +20,28 @@ const VIEWPORT_OPTIONS_ALIAS = '#viewport-options';
 /** The shop has no wishlist: these pages are removed, so old links end on the 404 page. */
 const REMOVED_PAGE_FILES = ['/pages/wishlist.vue', '/pages/my-account/wishlist.vue'];
 
+/**
+ * Original pages (file) replaced by the module's own ones; route name and URL stay the same.
+ * Cancellation policy: followed by the cancellation form, like the LTS page "Widerrufsbelehrung & Widerrufsformular".
+ */
+export const PAGE_OVERRIDES: Record<string, string> = {
+  '/pages/cancellation-rights.vue': './runtime/pages/GlasJenaCancellationRights.vue',
+};
+
+const getPageFile = (page: NuxtPage) => page.file?.replace(/\\/g, '/') ?? '';
+
 const isRemovedPage = (page: NuxtPage) => {
-  const file = page.file?.replace(/\\/g, '/') ?? '';
+  const file = getPageFile(page);
   return REMOVED_PAGE_FILES.some((removed) => file.endsWith(removed));
 };
 
-const removePages = (pages: NuxtPage[]) => {
+const getPageOverride = (page: NuxtPage) => {
+  const file = getPageFile(page);
+  const original = Object.keys(PAGE_OVERRIDES).find((path) => file.endsWith(path));
+  return original ? PAGE_OVERRIDES[original] : undefined;
+};
+
+const extendPages = (pages: NuxtPage[], resolve: (path: string) => string) => {
   for (let index = pages.length - 1; index >= 0; index--) {
     const page = pages[index];
     if (!page) {
@@ -35,8 +51,12 @@ const removePages = (pages: NuxtPage[]) => {
       pages.splice(index, 1);
       continue;
     }
+    const override = getPageOverride(page);
+    if (override) {
+      page.file = resolve(override);
+    }
     if (page.children) {
-      removePages(page.children);
+      extendPages(page.children, resolve);
     }
   }
 };
@@ -85,7 +105,7 @@ export default defineNuxtModule({
       }
     });
 
-    nuxt.hook('pages:extend', removePages);
+    nuxt.hook('pages:extend', (pages) => extendPages(pages, resolve));
 
     /* '/my-account' (the LTS account URL) and account pages without trailing slash, see utils/accountRedirect.ts */
     addRouteMiddleware({

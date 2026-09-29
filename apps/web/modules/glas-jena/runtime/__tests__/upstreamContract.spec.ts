@@ -7,7 +7,7 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { COMPONENT_OVERRIDES } from '../../index';
+import { COMPONENT_OVERRIDES, PAGE_OVERRIDES } from '../../index';
 import {
   ACCOUNT_ROUTE_PREFIX,
   ACCOUNT_TITLE_KEY,
@@ -94,6 +94,29 @@ describe('upstream contract of the glas-jena module', () => {
     const missing = Object.keys(COMPONENT_OVERRIDES).filter((name) => !componentFile(name));
 
     expect(missing).toEqual([]);
+  });
+
+  it('should find every original page the module replaces', () => {
+    const missing = Object.keys(PAGE_OVERRIDES).filter((file) => !existsSync(join(APP_DIR, file)));
+
+    expect(missing).toEqual([]);
+  });
+
+  it('should find the cancellation form logic that GlasJenaCancellationForm reuses', () => {
+    /* The module's form mirrors pages/cancellation-form.vue: same composable, settings, fields and texts */
+    const composable = readApp('composables/useCancellationForm/useCancellationForm.ts');
+    const originalPage = readApp('pages/cancellation-form.vue');
+
+    expect(composable).toMatch(/submitCancellation,\s*validationSchema,\s*turnstileSiteKey,/);
+    for (const field of ['orderId', 'name', 'email', 'reason']) {
+      expect(composable).toContain(`${field}: string()`);
+      expect(originalPage).toContain(`defineField('${field}')`);
+    }
+    expect(originalPage).toContain("useSiteSettings('cancellationFormRecipient')");
+    expect(originalPage).toContain("'cf-turnstile-response': turnstile.value");
+    for (const key of ['orderId', 'name', 'email', 'reason', 'submit', 'misConfigured', 'privacyPolicy', 'success']) {
+      expect(typeof getTranslation('de', `cancellationForm.${key}`)).toBe('string');
+    }
   });
 
   it('should find every page the banner has a title for', () => {
