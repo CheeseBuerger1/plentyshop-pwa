@@ -12,6 +12,7 @@ import {
   ACCOUNT_ROUTE_PREFIX,
   ACCOUNT_TITLE_KEY,
   CATEGORY_ROUTE,
+  OWN_PAGE_BANNER_TITLE_KEYS,
   PAGE_BANNER_TITLE_KEYS,
   SEARCH_RESULTS_TITLE_KEY,
   SEARCH_ROUTE,
@@ -120,7 +121,13 @@ describe('upstream contract of the glas-jena module', () => {
   });
 
   it('should find every page the banner has a title for', () => {
-    const bannerRoutes = [...Object.keys(PAGE_BANNER_TITLE_KEYS), CATEGORY_ROUTE, SEARCH_ROUTE, TAG_ROUTE];
+    const bannerRoutes = [
+      ...Object.keys(PAGE_BANNER_TITLE_KEYS),
+      ...Object.keys(OWN_PAGE_BANNER_TITLE_KEYS),
+      CATEGORY_ROUTE,
+      SEARCH_ROUTE,
+      TAG_ROUTE,
+    ];
 
     expect(bannerRoutes.filter((route) => !routeNames.includes(route))).toEqual([]);
     expect(routeNames).toContain(ACCOUNT_ROUTE_PREFIX);

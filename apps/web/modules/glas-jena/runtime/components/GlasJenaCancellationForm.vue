@@ -189,14 +189,17 @@ if (turnstileSiteKey.length > 0) {
 </script>
 
 <style scoped>
-/* Below the legal text, with its side padding (`p-5`) and a heading like the legal texts' h2 */
+/*
+ * Below the legal text, with its side padding (`p-5`) and a heading like the legal texts' h2. Close to the text:
+ * glas-jena.css drops the legal text box's bottom padding in front of the form, the last paragraph keeps 16 px.
+ */
 .gj-cancellation-form {
   max-width: 56rem;
   padding: 0 1.25rem 2rem;
 }
 
 .gj-cancellation-form__title {
-  margin: 1rem 0;
+  margin: 0.5rem 0 1rem;
   font-size: 1.5rem;
   font-weight: 400;
   line-height: 1.1;

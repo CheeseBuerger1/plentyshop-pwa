@@ -17,7 +17,6 @@ export const DEFAULT_ERROR_STATUS_CODE = 500;
  */
 export const PAGE_BANNER_TITLE_KEYS: Record<string, string> = {
   'cancellation-form': 'legal.cancellationForm',
-  'cancellation-rights': 'legal.cancellationRights',
   cart: 'common.labels.cart',
   checkout: 'common.labels.checkout',
   contact: 'contact.label',
@@ -36,6 +35,17 @@ export const PAGE_BANNER_TITLE_KEYS: Record<string, string> = {
   shipping: 'orderConfirmation.shipping',
   'terms-and-conditions': 'legal.termsAndConditions',
 };
+
+/**
+ * Banner titles with the module's own text (local messages of GlasJenaPageBanner), for pages where the shop has no
+ * fitting translation. Cancellation policy: like the LTS page, which holds the policy and the form.
+ */
+export const OWN_PAGE_BANNER_TITLE_KEYS: Record<string, string> = {
+  'cancellation-rights': 'cancellationRightsTitle',
+};
+
+/** Local message of GlasJenaPageBanner for error pages ("Fehler 404"). */
+export const ERROR_TITLE_KEY = 'errorTitle';
 
 /** Translation key of the banner title for a page with a fixed title; `undefined` for all other pages. */
 export const getFixedPageBannerTitleKey = (routeBaseName: string) => {

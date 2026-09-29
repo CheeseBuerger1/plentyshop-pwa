@@ -12,15 +12,18 @@
 <script setup lang="ts">
 import { usePageBanner } from '../composables/usePageBanner';
 
-/* Like the LTS shop ("Fehler 404"); the shop's own error texts are too long for the banner */
+/*
+ * Own banner texts like the LTS shop: error pages ("Fehler 404"; the shop's own error texts are too long for the
+ * banner) and the cancellation page, which holds the policy and the form ("Widerrufsbelehrung & Widerrufsformular").
+ */
 const { t } = useI18n({ useScope: 'local' });
-const { title, isItemCategoryPage } = usePageBanner((statusCode) => t('errorTitle', { statusCode }));
+const { title, isItemCategoryPage } = usePageBanner((key, params) => (params ? t(key, params) : t(key)));
 </script>
 
 <i18n lang="json">
 {
-  "en": { "errorTitle": "Error {statusCode}" },
-  "de": { "errorTitle": "Fehler {statusCode}" }
+  "en": { "errorTitle": "Error {statusCode}", "cancellationRightsTitle": "Power of revocation, Revocation form" },
+  "de": { "errorTitle": "Fehler {statusCode}", "cancellationRightsTitle": "Widerrufsbelehrung & Widerrufsformular" }
 }
 </i18n>
 

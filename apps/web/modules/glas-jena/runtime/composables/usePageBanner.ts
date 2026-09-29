@@ -2,7 +2,9 @@ import { categoryGetters } from '@plentymarkets/shop-api';
 import {
   CATEGORY_ROUTE,
   DEFAULT_ERROR_STATUS_CODE,
+  ERROR_TITLE_KEY,
   ITEM_CATEGORY_TYPE,
+  OWN_PAGE_BANNER_TITLE_KEYS,
   SEARCH_RESULTS_TITLE_KEY,
   SEARCH_ROUTE,
   TAG_ROUTE,
@@ -14,8 +16,8 @@ import {
  * Page banner below the header, like the LTS shop.
  *
  * `title`: the category name on category pages, the search phrase on search and tag pages, on error pages the
- * status code (e.g. "Fehler 404"), otherwise the page's fixed name. Empty on pages without a banner (home page,
- * product pages).
+ * status code (e.g. "Fehler 404"), otherwise the page's fixed name – the module's own text where the shop has no
+ * fitting one (`OWN_PAGE_BANNER_TITLE_KEYS`). Empty on pages without a banner (home page, product pages).
  *
  * Derived from the route instead of the page's `setPageMeta`, so pages that do not set it never show the title of
  * the previous page.
@@ -26,9 +28,10 @@ import {
  * Translates with the shop's global `t()`: the banner component already calls `useI18n` for its local messages,
  * and a second call in the same component makes vue-i18n warn.
  *
- * @param getErrorTitle Title of an error page for its HTTP status code; the text lives with the banner component.
+ * @param translateOwn Translates the module's own banner texts (error pages, `OWN_PAGE_BANNER_TITLE_KEYS`), which
+ * live with the banner component.
  */
-export const usePageBanner = (getErrorTitle: (statusCode: number) => string) => {
+export const usePageBanner = (translateOwn: (key: string, params?: Record<string, unknown>) => string) => {
   const route = useRoute();
   const getRouteBaseName = useRouteBaseName();
   const { data: productsCatalog } = useProducts();
@@ -43,7 +46,7 @@ export const usePageBanner = (getErrorTitle: (statusCode: number) => string) => 
 
   const title = computed(() => {
     if (error.value) {
-      return getErrorTitle(error.value.statusCode ?? DEFAULT_ERROR_STATUS_CODE);
+      return translateOwn(ERROR_TITLE_KEY, { statusCode: error.value.statusCode ?? DEFAULT_ERROR_STATUS_CODE });
     }
 
     if (isCategoryPage.value) {
@@ -56,6 +59,11 @@ export const usePageBanner = (getErrorTitle: (statusCode: number) => string) => 
     }
     if (routeBaseName.value === TAG_ROUTE) {
       return t(SEARCH_RESULTS_TITLE_KEY, { phrase: getTagName(route.params.slug?.toString() ?? '') });
+    }
+
+    const ownTitleKey = OWN_PAGE_BANNER_TITLE_KEYS[routeBaseName.value];
+    if (ownTitleKey) {
+      return translateOwn(ownTitleKey);
     }
 
     const titleKey = getFixedPageBannerTitleKey(routeBaseName.value);

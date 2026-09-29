@@ -93,6 +93,12 @@ describe('GlasJenaPageBanner', () => {
     expect((await findTitle()).exists()).toBe(false);
   });
 
+  it('should show the own title of the LTS shop on the cancellation page', async () => {
+    routeState.baseName = 'cancellation-rights';
+
+    expect((await findTitle()).text()).toBe('local cancellationRightsTitle');
+  });
+
   it('should show the status code on an error page', async () => {
     errorState.error = { statusCode: 404 };
 

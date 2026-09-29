@@ -304,6 +304,11 @@ div:has(> svg[data-testid='favorite']) {
   padding-top: 0.25rem;
 }
 
+/* Cancellation page: the form follows the legal text closely (see GlasJenaCancellationForm) */
+.font-body main > .no-preflight:has(+ [data-testid='gj-cancellation-form']) {
+  padding-bottom: 0;
+}
+
 .font-body main > .no-preflight :is(h1, h2, h3) {
   margin: 0 0 0.5em;
   font-weight: 400;
