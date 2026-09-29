@@ -5,6 +5,13 @@ export interface GlasJenaNavigationProps {
   categories?: CategoryTreeItem[];
 }
 
+/** Thin line icons of the header, like the LTS shop (see GlasJenaLineIcon.vue). */
+export type GlasJenaLineIconName = 'person' | 'search' | 'close' | 'cart' | 'menu';
+
+export interface GlasJenaLineIconProps {
+  name: GlasJenaLineIconName;
+}
+
 /** Views of the mobile menu (see VIEW_* in utils/navigation.ts). */
 export type GlasJenaMobileNavigationView = 'categories' | 'account' | 'language';
 
@@ -22,4 +29,12 @@ export interface GlasJenaNavigationMenuProps {
   isActive: (category: CategoryTreeItem) => boolean;
   /** Whether this level is currently shown; hidden levels stay in the HTML for search engines. */
   isOpen: boolean;
+}
+
+/** View the header's login dialog opens with (see AUTH_VIEW_* in utils/accountMenu.ts). */
+export type GlasJenaAuthView = 'login' | 'register';
+
+export interface GlasJenaMobileNavigationEmits {
+  /** A guest chose "log in" or "create an account": the header opens its login dialog in that view. */
+  openLogin: [view: GlasJenaAuthView];
 }

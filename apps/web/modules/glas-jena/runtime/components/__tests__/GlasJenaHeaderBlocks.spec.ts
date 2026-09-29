@@ -1,20 +1,30 @@
 import { flushPromises } from '@vue/test-utils';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaHeaderBlocks from '../GlasJenaHeaderBlocks.vue';
+import { AUTH_VIEW_REGISTER } from '../../utils/accountMenu';
 
-const { viewportState, editorState, headerState, localeState, switchLocale, toggleLanguageSelect } = vi.hoisted(() => ({
-  viewportState: { isDesktop: true },
-  editorState: { isEditing: false },
-  headerState: { sticky: false },
-  localeState: { available: ['de', 'en'] },
-  switchLocale: vi.fn(),
-  toggleLanguageSelect: vi.fn(),
-}));
+const { viewportState, editorState, headerState, localeState, customerState, switchLocale, toggleLanguageSelect } =
+  vi.hoisted(() => ({
+    /* current: the header's viewport state, so a test can change the window width after mounting */
+    viewportState: { isDesktop: true, current: undefined as { value: boolean } | undefined },
+    editorState: { isEditing: false },
+    headerState: { sticky: false },
+    localeState: { available: ['de', 'en'] },
+    customerState: { isAuthorized: false },
+    switchLocale: vi.fn(),
+    toggleLanguageSelect: vi.fn(),
+  }));
 
-mockNuxtImport('useViewport', () => () => ({
-  isGreaterOrEquals: () => viewportState.isDesktop,
-  isLessThan: () => !viewportState.isDesktop,
-}));
+mockNuxtImport('useCustomer', () => () => ({ isAuthorized: ref(customerState.isAuthorized), logout: vi.fn() }));
+
+mockNuxtImport('useViewport', () => () => {
+  const isDesktop = ref(viewportState.isDesktop);
+  viewportState.current = isDesktop;
+  return {
+    isGreaterOrEquals: () => isDesktop.value,
+    isLessThan: () => !isDesktop.value,
+  };
+});
 mockNuxtImport('useEditor', () => () => ({ isEditing: ref(editorState.isEditing) }));
 mockNuxtImport('useBlocks', () => () => ({
   headerContainer: computed(() => ({ content: [], configuration: { layout: { sticky: headerState.sticky } } })),
@@ -36,9 +46,16 @@ const mountHeader = () =>
         teleport: true,
         HeaderBlocks: { template: '<div data-testid="original-header" />' },
         GlasJenaNavigation: { template: '<nav data-testid="gj-nav" />' },
-        GlasJenaMobileNavigation: { template: '<div data-testid="gj-mobile-nav" />' },
+        /* Its "create an account" entry, see GlasJenaMobileNavigation.spec.ts */
+        GlasJenaMobileNavigation: {
+          emits: ['openLogin'],
+          template: `<button data-testid="gj-mobile-nav" @click="$emit('openLogin', '${AUTH_VIEW_REGISTER}')" />`,
+        },
         LanguageSelector: true,
         UiSearch: true,
+        UiModal: { template: '<section><slot /></section>' },
+        LoginComponent: { template: '<form data-testid="login-form" />' },
+        Register: { template: '<form data-testid="register-form" />' },
       },
     },
   });
@@ -49,8 +66,65 @@ describe('GlasJenaHeaderBlocks', () => {
     editorState.isEditing = false;
     headerState.sticky = false;
     localeState.available = ['de', 'en'];
+    customerState.isAuthorized = false;
     useMegaMenu().close();
     vi.clearAllMocks();
+  });
+
+  it('should open the login dialog instead of the login page on a plain click on the account tile', async () => {
+    const wrapper = await mountHeader();
+    const tile = wrapper.get('[data-testid="gj-header-account"]');
+
+    await tile.trigger('click', { button: 0 });
+
+    expect(wrapper.find('[data-testid="gj-header-login-dialog"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="login-form"]').exists()).toBe(true);
+  });
+
+  it('should open the dialog with the registration when a guest chooses it in the mobile menu', async () => {
+    viewportState.isDesktop = false;
+    const wrapper = await mountHeader();
+
+    await wrapper.get('[data-testid="gj-mobile-nav"]').trigger('click');
+
+    expect(wrapper.find('[data-testid="gj-header-login-dialog"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="register-form"]').exists()).toBe(true);
+  });
+
+  it('should keep the account tile a normal link for clicks with a modifier key', async () => {
+    const wrapper = await mountHeader();
+
+    await wrapper.get('[data-testid="gj-header-account"]').trigger('click', { button: 0, ctrlKey: true });
+
+    expect(wrapper.find('[data-testid="gj-header-login-dialog"]').exists()).toBe(false);
+  });
+
+  it('should open the account menu with the account pages and log out when signed in', async () => {
+    customerState.isAuthorized = true;
+    const wrapper = await mountHeader();
+    const tile = wrapper.get('[data-testid="gj-header-account"]');
+
+    expect(tile.attributes('aria-expanded')).toBe('false');
+
+    await tile.trigger('click');
+
+    expect(tile.attributes('aria-expanded')).toBe('true');
+    const menu = wrapper.get('[data-testid="gj-header-account-menu"]');
+    /* Account, orders and "log out" – no returns in this shop */
+    expect(menu.findAll('.gj-header__account-item')).toHaveLength(3);
+    expect(menu.find('[data-testid="gj-header-account-logout"]').exists()).toBe(true);
+  });
+
+  it('should close the account menu when the window becomes narrower than the desktop navigation', async () => {
+    customerState.isAuthorized = true;
+    const wrapper = await mountHeader();
+    const tile = wrapper.get('[data-testid="gj-header-account"]');
+    await tile.trigger('click');
+
+    viewportState.current!.value = false;
+    await nextTick();
+
+    expect(tile.attributes('aria-expanded')).toBe('false');
   });
 
   it('should switch to the only other language directly without opening the language selector', async () => {
