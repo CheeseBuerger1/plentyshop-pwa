@@ -1,16 +1,19 @@
 import { flushPromises, type VueWrapper } from '@vue/test-utils';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaMobileNavigation from '../GlasJenaMobileNavigation.vue';
+import { ACCOUNT_MENU_LINKS, AUTH_VIEW_LOGIN, AUTH_VIEW_REGISTER } from '../../utils/accountMenu';
 import { navigationCategoriesFixture } from './navigation.fixture';
 
-const { switchLocale, localeState } = vi.hoisted(() => ({
+const { switchLocale, localeState, customerState } = vi.hoisted(() => ({
   switchLocale: vi.fn(),
   localeState: { available: ['de', 'en'] },
+  customerState: { isAuthorized: false },
 }));
 
 /** vue-i18n's default locale; the test i18n instance in vitest.config.setup.ts sets none. */
 const TEST_LOCALE = 'en-US';
 
+mockNuxtImport('useCustomer', () => () => ({ isAuthorized: ref(customerState.isAuthorized), logout: vi.fn() }));
 mockNuxtImport('useCategoryTree', () => () => ({ data: ref([]), getCategoryTree: vi.fn() }));
 mockNuxtImport('useLocalizedPath', () => () => (path: string) => path);
 mockNuxtImport('useLocalization', () => () => ({
@@ -63,6 +66,7 @@ const clickNext = async (wrapper: VueWrapper, name: string) => {
 describe('GlasJenaMobileNavigation', () => {
   afterEach(() => {
     localeState.available = ['de', 'en'];
+    customerState.isAuthorized = false;
     useMegaMenu().close();
     mounted.splice(0).forEach((wrapper) => wrapper.unmount());
   });
@@ -108,18 +112,43 @@ describe('GlasJenaMobileNavigation', () => {
     expect(isShown(wrapper, 'gj-mobile-nav-level-12')).toBe(false);
   });
 
-  it('should list login and registration below the categories in the account view for guests', async () => {
+  it('should offer login and registration as links to their pages directly below the categories for guests', async () => {
+    const wrapper = await mountMenu();
+
+    const links = wrapper.findAll('[data-testid="gj-mobile-nav-auth"]').map((link) => link.attributes('href'));
+
+    expect(links).toEqual([paths.authLogin, paths.register]);
+    expect(wrapper.find('[data-testid="gj-mobile-nav-account"]').exists()).toBe(false);
+  });
+
+  it.each([
+    [0, AUTH_VIEW_LOGIN],
+    [1, AUTH_VIEW_REGISTER],
+  ])('should close the menu and ask for the login dialog when a guest taps entry %i', async (index, view) => {
+    const wrapper = await mountMenu();
+    const push = vi.spyOn(useRouter(), 'push');
+    window.history.replaceState({}, '');
+
+    await wrapper.findAll('[data-testid="gj-mobile-nav-auth"]')[index]?.trigger('click', { button: 0 });
+    await flushPromises();
+
+    expect(useMegaMenu().isOpen.value).toBe(false);
+    expect(wrapper.emitted('openLogin')).toEqual([[view]]);
+    expect(push).not.toHaveBeenCalled();
+    push.mockRestore();
+  });
+
+  it('should list the same account pages as the account menu of the header and log out when signed in', async () => {
+    customerState.isAuthorized = true;
     const wrapper = await mountMenu();
 
     await wrapper.find('[data-testid="gj-mobile-nav-account"]').trigger('click');
 
-    const entries = wrapper
-      .findAll('[data-testid="gj-mobile-nav-account-list"] .gj-mnav__item')
-      .map((item) => item.text());
-    expect(entries).toHaveLength(3);
+    const links = wrapper.findAll('[data-testid="gj-mobile-nav-account-link"]').map((link) => link.attributes('href'));
+    expect(links).toEqual(ACCOUNT_MENU_LINKS.map(({ pathKey }) => paths[pathKey]));
+    expect(wrapper.findAll('[data-testid="gj-mobile-nav-account-list"] .gj-mnav__item')).toHaveLength(3);
     /* Like the LTS shop: the categories stay visible above the account entries */
     expect(isShown(wrapper, 'gj-mobile-nav-level-root')).toBe(true);
-    expect(wrapper.find('[data-testid="gj-mobile-nav-account"]').exists()).toBe(false);
   });
 
   it('should list every shop language in its own name', async () => {

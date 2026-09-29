@@ -78,7 +78,23 @@
       <hr class="gj-mnav__separator" />
       <template v-if="view === VIEW_CATEGORIES">
         <ul class="gj-mnav__list" :class="slideClass">
-          <li class="gj-mnav__item">
+          <!--
+            Guests: login and registration directly, opening the dialog of the header (see onLinkClick); still real
+            links to the login and registration pages. Signed in: "Account" with the entries of the account menu.
+          -->
+          <template v-if="!isAuthorized">
+            <li v-for="authLink in authLinks" :key="authLink.view" class="gj-mnav__item">
+              <NuxtLink
+                :to="authLink.link"
+                class="gj-mnav__link gj-mnav__link--extra"
+                :data-gj-auth="authLink.view"
+                data-testid="gj-mobile-nav-auth"
+              >
+                {{ authLink.label }}
+              </NuxtLink>
+            </li>
+          </template>
+          <li v-else class="gj-mnav__item">
             <button
               type="button"
               class="gj-mnav__link gj-mnav__link--extra"
@@ -133,33 +149,15 @@
             <SfIconChevronLeft size="lg" aria-hidden="true" />
           </button>
         </li>
-        <template v-if="isAuthorized">
-          <li class="gj-mnav__item">
-            <NuxtLink :to="localePath(paths.account)" class="gj-mnav__link">
-              {{ t('account.heading') }}
-            </NuxtLink>
-          </li>
-          <li class="gj-mnav__item">
-            <button type="button" class="gj-mnav__link" @click="onLogout">{{ t('account.logout') }}</button>
-          </li>
-        </template>
-        <template v-else>
-          <li class="gj-mnav__item">
-            <NuxtLink :to="localePath(paths.authLogin)" class="gj-mnav__link">
-              {{ t('authentication.login.submitLabel') }}
-            </NuxtLink>
-          </li>
-          <li class="gj-mnav__item">
-            <NuxtLink :to="localePath(paths.register)" class="gj-mnav__link">
-              {{ t('authentication.signup.heading') }}
-            </NuxtLink>
-          </li>
-          <li class="gj-mnav__item">
-            <NuxtLink :to="localePath(paths.account)" class="gj-mnav__link">
-              {{ t('account.heading') }}
-            </NuxtLink>
-          </li>
-        </template>
+        <!-- Signed in only (guests log in directly, see above): the same entries as the account menu of the header -->
+        <li v-for="{ pathKey, labelKey } in ACCOUNT_MENU_LINKS" :key="pathKey" class="gj-mnav__item">
+          <NuxtLink :to="localePath(paths[pathKey])" class="gj-mnav__link" data-testid="gj-mobile-nav-account-link">
+            {{ t(labelKey) }}
+          </NuxtLink>
+        </li>
+        <li class="gj-mnav__item gj-mnav__item--logout">
+          <button type="button" class="gj-mnav__link" @click="onLogout">{{ t('account.logout') }}</button>
+        </li>
       </ul>
 
       <ul
@@ -214,6 +212,7 @@ import {
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
 import { useGlasJenaCategoryTree } from '../composables/useGlasJenaCategoryTree';
 import { useMenuHistoryEntry } from '../composables/useMenuHistoryEntry';
+import { ACCOUNT_MENU_LINKS, AUTH_VIEW_LOGIN, AUTH_VIEW_REGISTER } from '../utils/accountMenu';
 import { getNativeLanguageName } from '../utils/locale';
 import {
   LANGUAGE_MENU_LABEL,
@@ -225,7 +224,12 @@ import {
   VIEW_LANGUAGE,
   isPlainLeftClick,
 } from '../utils/navigation';
-import type { GlasJenaMobileNavigationView, GlasJenaNavigationProps, GlasJenaSlideDirection } from './types';
+import type {
+  GlasJenaMobileNavigationEmits,
+  GlasJenaMobileNavigationView,
+  GlasJenaNavigationProps,
+  GlasJenaSlideDirection,
+} from './types';
 
 /**
  * Mobile menu in the style of the LTS shop www.glas-jena.de: a full-screen dark panel that opens at
@@ -236,6 +240,7 @@ import type { GlasJenaMobileNavigationView, GlasJenaNavigationProps, GlasJenaSli
 const props = withDefaults(defineProps<GlasJenaNavigationProps>(), {
   categories: () => [],
 });
+const emit = defineEmits<GlasJenaMobileNavigationEmits>();
 
 const { locale: currentLocale } = useI18n();
 const localePath = useLocalizedPath();
@@ -345,15 +350,27 @@ const { exitHistoryEntry } = useMenuHistoryEntry(isOpen, close);
  * then returns to the previous page. Listens in the capture phase so it runs before the link's own
  * navigation, which then skips the prevented click. Modifier clicks (new tab/window) keep the default.
  */
+/** Login and registration for guests; they open the header's dialog, see onLinkClick. */
+const authLinks = computed(() => [
+  { view: AUTH_VIEW_LOGIN, label: t('authentication.login.submitLabel'), link: localePath(paths.authLogin) },
+  { view: AUTH_VIEW_REGISTER, label: t('authentication.signup.heading'), link: localePath(paths.register) },
+]);
+
 const onLinkClick = async (event: MouseEvent) => {
   /* Language links (with hreflang) switch via switchLocale in onLocaleClick instead */
-  const href = (event.target as HTMLElement | null)?.closest('a[href]:not([hreflang])')?.getAttribute('href');
+  const link = (event.target as HTMLElement | null)?.closest<HTMLElement>('a[href]:not([hreflang])');
+  const href = link?.getAttribute('href');
   if (!href || !isPlainLeftClick(event)) {
     return;
   }
   event.preventDefault();
   close();
   await exitHistoryEntry();
+  const authView = link?.dataset.gjAuth;
+  if (authView === AUTH_VIEW_LOGIN || authView === AUTH_VIEW_REGISTER) {
+    emit('openLogin', authView);
+    return;
+  }
   await router.push(href);
 };
 
@@ -556,6 +573,11 @@ useTrapFocus(panelRef, { activeState: isOpen, arrowKeysUpDown: false, initialFoc
 
 .gj-mnav__up {
   justify-content: flex-start;
+}
+
+/* "Log out" set apart by a thin line, like in the account menu of the header (subtle on the dark background) */
+.gj-mnav__item--logout {
+  border-top: 1px solid rgb(255 255 255 / 25%);
 }
 
 .gj-mnav__separator {

@@ -7,7 +7,7 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { COMPONENT_OVERRIDES, PAGE_OVERRIDES } from '../../index';
+import { COMPONENT_OVERRIDES, PAGE_OVERRIDES, REMOVED_PAGE_FILES } from '../../index';
 import {
   ACCOUNT_ROUTE_PREFIX,
   ACCOUNT_TITLE_KEY,
@@ -97,6 +97,15 @@ describe('upstream contract of the glas-jena module', () => {
     expect(missing).toEqual([]);
   });
 
+  it('should find every original page the module removes (wishlist, returns)', () => {
+    const missing = REMOVED_PAGE_FILES.filter((file) => !existsSync(join(APP_DIR, file)));
+
+    expect(missing).toEqual([]);
+    /* glas-jena.css hides the links to the return pages by their address */
+    expect(readApp('utils/paths.ts')).toMatch(/accountReturns: '\/my-account\/returns'/);
+    expect(readApp('pages/my-account/my-orders.vue')).toContain('paths.accountNewReturn}/${orderGetters.getId(order)}');
+  });
+
   it('should find every original page the module replaces', () => {
     const missing = Object.keys(PAGE_OVERRIDES).filter((file) => !existsSync(join(APP_DIR, file)));
 
@@ -117,6 +126,26 @@ describe('upstream contract of the glas-jena module', () => {
     expect(originalPage).toContain("'cf-turnstile-response': turnstile.value");
     for (const key of ['orderId', 'name', 'email', 'reason', 'submit', 'misConfigured', 'privacyPolicy', 'success']) {
       expect(typeof getTranslation('de', `cancellationForm.${key}`)).toBe('string');
+    }
+  });
+
+  it('should find the login dialog parts of the original header that GlasJenaHeaderBlocks reuses', () => {
+    /* Account tile: LoginComponent / Register in UiModal like components/blocks/Header/Header.vue, logout via utils */
+    const login = readApp('components/LoginComponent/LoginComponent.vue');
+    const register = readApp('components/Register/Register.vue');
+    const originalHeader = readApp('components/blocks/Header/Header.vue');
+
+    expect(login).toMatch(/isModal = false/);
+    expect(login).toMatch(/defineEmits\(\[[^\]]*'loggedIn'[^\]]*'change-view'/);
+    expect(register).toMatch(/isModal = false/);
+    expect(register).toMatch(/defineEmits\(\['registered', 'change-view'\]\)/);
+    expect(originalHeader).toContain('<LoginComponent');
+    expect(originalHeader).toContain('handleLogout({ logout, toggle: accountDropdownToggle })');
+    expect(readApp('utils/logout/index.ts')).toContain('export const handleLogout');
+    const paths = readApp('utils/paths.ts');
+    /* The mobile menu links guests to the login and registration pages (opening the dialog on a plain click) */
+    for (const path of ['account:', 'accountMyOrders:', 'accountReturns:', 'authLogin:', 'register:']) {
+      expect(paths).toContain(path);
     }
   });
 

@@ -12,13 +12,23 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   UiNavbarBottom: './runtime/components/GlasJenaNavbarBottom.vue',
   /* Cookie banner in the GLAS IN JENA style; consent logic unchanged (useCookieBar) */
   Cookiebar: './runtime/components/GlasJenaCookiebar.vue',
+  /* No returns through the web shop: the "return items" button on the order confirmation renders nothing */
+  OrderReturnItems: './runtime/components/GlasJenaNoReturns.vue',
 };
 
 /** Alias under which nuxt-viewport provides its generated options to its runtime plugins. */
 const VIEWPORT_OPTIONS_ALIAS = '#viewport-options';
 
-/** The shop has no wishlist: these pages are removed, so old links end on the 404 page. */
-const REMOVED_PAGE_FILES = ['/pages/wishlist.vue', '/pages/my-account/wishlist.vue'];
+/**
+ * The shop has no wishlist and no returns through the web shop: these pages are removed, so old links end on the
+ * 404 page (the links to them are hidden in glas-jena.css and the account menu of the header).
+ */
+export const REMOVED_PAGE_FILES = [
+  '/pages/wishlist.vue',
+  '/pages/my-account/wishlist.vue',
+  '/pages/my-account/returns.vue',
+  '/pages/my-account/new-return/[id]/[accessKey].vue',
+];
 
 /**
  * Original pages (file) replaced by the module's own ones; route name and URL stay the same.

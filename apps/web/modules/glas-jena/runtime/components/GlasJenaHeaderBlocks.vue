@@ -31,16 +31,61 @@
           :aria-label="t('common.navigation.openMenu')"
           @click="openMegaMenu"
         >
-          <SfIconMenu />
+          <GlasJenaLineIcon name="menu" />
         </button>
 
+        <!-- Account, like the original header: signed in a menu, otherwise the login dialog (see script) -->
+        <SfDropdown
+          v-if="isAuthorized"
+          v-model="isAccountMenuOpen"
+          placement="bottom-start"
+          class="gj-header__account z-dropdown"
+        >
+          <template #trigger>
+            <button
+              type="button"
+              class="gj-header__tile gj-header__tile--light gj-header__tile--account"
+              data-testid="gj-header-account"
+              :aria-label="t('account.heading')"
+              aria-haspopup="true"
+              :aria-expanded="isAccountMenuOpen"
+              @click="toggleAccountMenu()"
+            >
+              <GlasJenaLineIcon name="person" />
+            </button>
+          </template>
+          <ul class="gj-header__account-menu" data-testid="gj-header-account-menu">
+            <li v-for="{ label, link } in accountMenuLinks" :key="link">
+              <NuxtLink
+                :to="link"
+                class="gj-header__account-item"
+                :aria-current="route.path === link ? 'page' : undefined"
+                @click="closeAccountMenu()"
+              >
+                {{ label }}
+              </NuxtLink>
+            </li>
+            <li class="gj-header__account-separator">
+              <button
+                type="button"
+                class="gj-header__account-item"
+                data-testid="gj-header-account-logout"
+                @click="logOut()"
+              >
+                {{ t('account.logout') }}
+              </button>
+            </li>
+          </ul>
+        </SfDropdown>
         <NuxtLink
-          :to="localePath(isAuthorized ? paths.account : paths.authLogin)"
+          v-else
+          :to="localePath(paths.authLogin)"
           class="gj-header__tile gj-header__tile--light gj-header__tile--account"
           data-testid="gj-header-account"
-          :aria-label="isAuthorized ? t('account.heading') : t('authentication.login.openLoginForm')"
+          :aria-label="t('authentication.login.openLoginForm')"
+          @click.capture="onLoginLinkClick"
         >
-          <SfIconPerson />
+          <GlasJenaLineIcon name="person" />
         </NuxtLink>
 
         <!-- A real link (with hreflang) to the other language version, so crawlers can follow it -->
@@ -74,8 +119,8 @@
           :aria-expanded="isSearchOpen"
           @click="toggleSearch"
         >
-          <SfIconClose v-if="isSearchOpen" />
-          <SfIconSearch v-else />
+          <GlasJenaLineIcon v-if="isSearchOpen" name="close" />
+          <GlasJenaLineIcon v-else name="search" />
         </button>
 
         <NuxtLink
@@ -84,7 +129,7 @@
           data-testid="gj-header-cart"
           :aria-label="t('cart.numberInCart', { count: cartItemsCount })"
         >
-          <SfIconShoppingCart />
+          <GlasJenaLineIcon name="cart" />
           <span v-if="cartItemsCount > 0" class="gj-header__badge" data-testid="gj-header-cart-badge">
             {{ cartItemsCount }}
           </span>
@@ -100,10 +145,43 @@
       Teleported out of the header's stacking context so it covers the whole page like in the LTS shop.
     -->
       <Teleport v-if="viewport.isLessThan(DESKTOP_NAVIGATION_BREAKPOINT)" to="body">
-        <GlasJenaMobileNavigation :categories="navigationBlock?.categories" />
+        <GlasJenaMobileNavigation :categories="navigationBlock?.categories" @open-login="openLoginDialog" />
       </Teleport>
 
       <LanguageSelector />
+
+      <!--
+        Login and registration dialog of the original header, opened by the account tile (from 992 px) and by
+        "log in" / "create an account" in the mobile menu; on phones it fills the screen.
+      -->
+      <UiModal
+        v-if="isLoginOpen"
+        v-model="isLoginOpen"
+        tag="section"
+        class="h-full @md:w-full @md:max-w-lg @md:h-fit m-0 p-0 overflow-y-auto"
+        role="dialog"
+        :aria-label="isLoginView ? t('authentication.login.submitLabel') : t('authentication.signup.heading')"
+        data-testid="gj-header-login-dialog"
+      >
+        <header>
+          <UiButton
+            :aria-label="t('common.navigation.closeDialog')"
+            square
+            variant="tertiary"
+            class="absolute right-2 top-2"
+            @click="closeLogin"
+          >
+            <SfIconClose />
+          </UiButton>
+        </header>
+        <LoginComponent
+          v-if="isLoginView"
+          :is-modal="true"
+          @change-view="isLoginView = false"
+          @logged-in="reloadAfterLogin"
+        />
+        <Register v-else :is-modal="true" @change-view="isLoginView = true" @registered="closeLogin" />
+      </UiModal>
     </div>
 
     <!-- Next to the header, not inside it: the sticky header must not take the banner along -->
@@ -112,24 +190,27 @@
 </template>
 
 <script setup lang="ts">
-import { SfIconClose, SfIconMenu, SfIconPerson, SfIconSearch, SfIconShoppingCart } from '@storefront-ui/vue';
+import { SfDropdown, SfIconClose, useDisclosure } from '@storefront-ui/vue';
 import HeaderBlocks from '~/components/ui/HeaderBlocks/HeaderBlocks.vue';
 import LanguageSelector from '~/components/LanguageSelector/LanguageSelector.vue';
+import { ACCOUNT_MENU_LINKS, AUTH_VIEW_LOGIN } from '../utils/accountMenu';
 import { getNativeLanguageName } from '../utils/locale';
 import { DESKTOP_NAVIGATION_BREAKPOINT, isPlainLeftClick } from '../utils/navigation';
+import GlasJenaLineIcon from './GlasJenaLineIcon.vue';
 import GlasJenaMobileNavigation from './GlasJenaMobileNavigation.vue';
 import GlasJenaNavigation from './GlasJenaNavigation.vue';
 import GlasJenaPageBanner from './GlasJenaPageBanner.vue';
 import { NAVIGATION_BLOCK_NAME } from '~/utils/blocks/block-names';
 import type { HeaderContainerBlock } from '~/components/blocks/structure/HeaderContainer/types';
 import type { NavigationBlockProps } from '~/components/blocks/Navigation/types';
+import type { GlasJenaAuthView } from './types';
 
 const viewport = useViewport();
 const localePath = useLocalizedPath();
 const { isEditing } = useEditor();
 const { headerContainer } = useBlocks();
 const { data: cart } = useCart();
-const { isAuthorized } = useCustomer();
+const { isAuthorized, logout } = useCustomer();
 const { open: openMegaMenu } = useMegaMenu();
 const { getAvailableLocales, switchLocale, toggle: toggleLanguageSelect } = useLocalization();
 const { locale: currentLocale } = useI18n();
@@ -204,6 +285,76 @@ const closeSearch = () => {
 /* Moving to another page (e.g. via a category in the navigation) closes the search bar; filters on the same page do not */
 const route = useRoute();
 watch(() => route.path, closeSearch);
+
+/*
+ * Account like the original header (components/blocks/Header/Header.vue): signed in, a menu with the account pages
+ * and "log out"; otherwise the login dialog with a switch to the registration. The tile stays a real link to the
+ * login page (opening it in a new tab keeps working); a plain click opens the dialog instead – handled in the
+ * capture phase, so NuxtLink sees the prevented click and does not navigate. After logging in the page reloads,
+ * like in the original.
+ */
+const { isOpen: isAccountMenuOpen, toggle: toggleAccountMenu, close: closeAccountMenu } = useDisclosure();
+const { isOpen: isLoginOpen, open: openLogin, close: closeLogin } = useDisclosure();
+const isLoginView = ref(true);
+
+const accountMenuLinks = computed(() =>
+  ACCOUNT_MENU_LINKS.map(({ pathKey, labelKey }) => ({ label: t(labelKey), link: localePath(paths[pathKey]) })),
+);
+
+const logOut = () => handleLogout({ logout, toggle: toggleAccountMenu });
+
+/* Below 992 px the account tile moves into the burger menu: a still open account menu closes (see also the CSS) */
+watch(
+  () => viewport.isLessThan(DESKTOP_NAVIGATION_BREAKPOINT),
+  (isBelowDesktop) => {
+    if (isBelowDesktop) {
+      closeAccountMenu();
+    }
+  },
+);
+
+const onLoginLinkClick = (event: MouseEvent) => {
+  if (!isPlainLeftClick(event)) {
+    return;
+  }
+  event.preventDefault();
+  openLoginDialog(AUTH_VIEW_LOGIN);
+};
+
+/** The view the dialog starts with: the login, or the registration ("create an account" in the mobile menu). */
+const startView = ref<GlasJenaAuthView>(AUTH_VIEW_LOGIN);
+/** The element that had the focus when the dialog opened (account tile or menu button); it gets it back on close. */
+let loginOpener: HTMLElement | null = null;
+
+const openLoginDialog = (view: GlasJenaAuthView) => {
+  startView.value = view;
+  loginOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  openLogin();
+};
+
+const reloadAfterLogin = () => {
+  window.location.reload();
+};
+
+/*
+ * Each time the dialog opens, it starts with the login like the original, or with the registration when chosen in
+ * the mobile menu. Beyond the original, for keyboard and screen reader users: the focus moves into the dialog (its
+ * first field), so the dialog's focus trap and Esc work, and returns to the element that opened it when it closes.
+ */
+const LOGIN_DIALOG_SELECTOR = '[data-testid="gj-header-login-dialog"]';
+
+watch(isLoginOpen, async (open) => {
+  isLoginView.value = !open || startView.value === AUTH_VIEW_LOGIN;
+  await nextTick();
+  if (open) {
+    document.querySelector<HTMLElement>(`${LOGIN_DIALOG_SELECTOR} input:not([type='hidden'])`)?.focus();
+    return;
+  }
+  if (loginOpener?.isConnected) {
+    loginOpener.focus();
+  }
+  loginOpener = null;
+});
 </script>
 
 <style scoped>
@@ -299,9 +450,11 @@ watch(() => route.path, closeSearch);
   background-color: #e6e6e6;
 }
 
+/* Language tile: the text like the navigation links (GlasJenaNavigation.vue), not light grey */
 .gj-header__tile--text {
-  font-size: 0.95rem;
-  font-weight: 300;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #263238;
 }
 
 .gj-header__tile--cart {
@@ -380,6 +533,7 @@ watch(() => route.path, closeSearch);
 @media (max-width: 991.98px) {
   .gj-header__nav,
   .gj-header__tile--account,
+  .gj-header__account-menu,
   .gj-header__tile--language {
     display: none;
   }
@@ -400,5 +554,54 @@ watch(() => route.path, closeSearch);
   .gj-header__search {
     padding-left: 1rem;
   }
+}
+
+/*
+ * Account menu (signed in): the dropdown wraps the tile, which keeps the full header height (stretched as a flex
+ * item). The tile's own `display` stays untouched, so it is hidden below 992 px like when signed out.
+ */
+.gj-header__account {
+  display: flex;
+  align-self: stretch;
+}
+
+/*
+ * Directly below the tile: Storefront UI places dropdowns 8 px below their trigger (`offset(8)` in useDropdown),
+ * the negative margin takes that back.
+ */
+.gj-header__account-menu {
+  min-width: 11.25rem;
+  margin: -0.5rem 0 0;
+  padding: 0;
+  border: 1px solid var(--gj-tile-grey-blue);
+  background-color: #fff;
+  list-style: none;
+}
+
+/* Like the submenus of the navigation: 36 px high entries (above the 24 px minimum target size), current page highlighted */
+.gj-header__account-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  white-space: nowrap;
+  text-align: left;
+  color: #263238;
+  text-decoration: none;
+}
+
+.gj-header__account-item:hover,
+.gj-header__account-item:focus-visible {
+  background-color: #f8f9fa;
+}
+
+.gj-header__account-item[aria-current='page'] {
+  background-color: var(--gj-tile-grey-blue);
+}
+
+.gj-header__account-separator {
+  border-top: 1px solid var(--gj-tile-grey-blue);
 }
 </style>

@@ -16,7 +16,7 @@
    */
   --gj-link: #2c5572;
   --gj-link-hover: #1d3a50;
-  /* Forms (.gj-form): field border 3.69:1 on white (WCAG: at least 3:1), error red 6.47:1 */
+  /* Forms: field border 3.69:1 on white (WCAG: at least 3:1), error red 6.47:1 */
   --gj-field-border: #858585;
   --gj-error: #b91c1c;
   /* Submit buttons: slate blue like the cookie banner, white text 5.70:1 (hover 7.68:1) */
@@ -166,6 +166,17 @@ html:has(.gj-header-wrapper--sticky) {
   [data-testid='account-page-sidebar']
   ul:has(a[href$='/my-account/wishlist'], a[href$='/my-account/wishlist/']),
 div:has(> svg[data-testid='favorite']) {
+  display: none;
+}
+
+/*
+ * No returns through the web shop either (pages removed in index.ts, button on the order confirmation replaced):
+ * the "Returns" entry of the my-account menu and the "Return" entry in the menu of each order.
+ */
+.font-body
+  [data-testid='account-page-sidebar']
+  li:has(> a[href$='/my-account/returns'], > a[href$='/my-account/returns/']),
+.font-body li:has(> a[href*='/my-account/new-return/']) {
   display: none;
 }
 
@@ -418,74 +429,97 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
- * Forms: one look for every form of the shop, switched on with the class `gj-form` on the form (for now the
- * cancellation form; meant for contact, login, registration, checkout and newsletter later). The flat look above
- * removes all box-shadows, which also removes the frames of the Storefront UI fields (their `ring-*` classes are
- * box-shadows) – here they get real borders again. Accessibility: labels above the fields (never only a
- * placeholder), 16 px field text (no zoom on phones), 44 px high fields and buttons (touch targets), borders and
- * focus with enough contrast, errors marked by colour and text. At most 36rem wide: short lines to scan, fields
- * about as long as their input (on phones the full width).
+ * Forms: one look for every form of the shop (login, registration, guest login, password pages, account, addresses
+ * in the checkout, newsletter, "notify me", contact, cancellation). The flat look above removes all box-shadows,
+ * which also removes the frames of the Storefront UI fields (their `ring-*` classes are box-shadows) – here they
+ * get real borders again. Accessibility: labels above the fields (never only a placeholder), 16 px field text (no
+ * zoom on phones), 44 px high fields and buttons (touch targets), borders and focus with enough contrast, errors
+ * marked by colour and text.
+ *
+ * Not included: the search in the header (own design) and the purchase card on product pages (quantity and cart
+ * button, own layout). The price filter keeps its own button. The module's own form pages (`gj-form`) are also at
+ * most 36rem wide (short lines to scan, fields about as long as their input); the shop's forms keep their layout.
  */
 .font-body .gj-form {
   max-width: 36rem;
 }
 
-.font-body .gj-form [data-testid='form-label'] {
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) [data-testid='form-label'] {
   padding-bottom: 0.25rem;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--gj-text);
 }
 
-/* Text fields: SfInput draws its frame on the span around the input, SfTextarea on the textarea itself */
-.font-body .gj-form span:has(> input),
-.font-body .gj-form textarea {
+/* Text fields and selects: SfInput draws its frame on the span around the input, SfTextarea and SfSelect on the
+ * field itself */
+.font-body
+  :is(.gj-form, form:not([role='search'], [data-testid='purchase-card']))
+  span:has(> input:not([type='checkbox'], [type='radio'], [type='hidden'])),
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) textarea,
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) select {
   border: 1px solid var(--gj-field-border);
   background-color: #fff;
   font-size: 1rem;
   color: var(--gj-text);
 }
 
-.font-body .gj-form span:has(> input) {
+.font-body
+  :is(.gj-form, form:not([role='search'], [data-testid='purchase-card']))
+  span:has(> input:not([type='checkbox'], [type='radio'], [type='hidden'])) {
   min-height: 2.75rem;
   padding: 0 0.75rem;
 }
 
-.font-body .gj-form textarea {
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) select {
+  min-height: 2.75rem;
+}
+
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) textarea {
   min-height: 8rem;
   padding: 0.625rem 0.75rem;
 }
 
-.font-body .gj-form span:has(> input):hover,
-.font-body .gj-form textarea:hover {
+.font-body
+  :is(.gj-form, form:not([role='search'], [data-testid='purchase-card']))
+  span:has(> input:not([type='checkbox'], [type='radio'], [type='hidden'])):hover,
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) textarea:hover,
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) select:hover {
   border-color: var(--gj-text);
 }
 
 /* Focus on the frame, not on the input inside it (which keeps no outline of its own) */
-.font-body .gj-form span:has(> input) > input:focus-visible {
+.font-body
+  :is(.gj-form, form:not([role='search'], [data-testid='purchase-card']))
+  span:has(> input:not([type='checkbox'], [type='radio'], [type='hidden']))
+  > input:focus-visible {
   outline: none;
 }
 
-.font-body .gj-form span:has(> input:focus-visible),
-.font-body .gj-form textarea:focus-visible {
+.font-body
+  :is(.gj-form, form:not([role='search'], [data-testid='purchase-card']))
+  span:has(> input:focus-visible):not(:has(> input[type='checkbox'], > input[type='radio'])),
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) textarea:focus-visible,
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) select:focus-visible {
   border-color: var(--gj-link);
   outline: 2px solid var(--gj-link);
   outline-offset: 0;
 }
 
 /* Invalid fields (Storefront UI marks them with ring-negative-700): red frame, the message below says why */
-.font-body .gj-form span.ring-negative-700:has(> input),
-.font-body .gj-form textarea.ring-negative-700 {
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) span.ring-negative-700:has(> input),
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) textarea.ring-negative-700,
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) select.ring-negative-700 {
   border-color: var(--gj-error);
   outline: 1px solid var(--gj-error);
   outline-offset: 0;
 }
 
-.font-body .gj-form .text-negative-700 {
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) .text-negative-700 {
   color: var(--gj-error);
 }
 
-.font-body .gj-form button[type='submit'] {
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'], :has(#min))) button[type='submit'] {
   min-height: 2.75rem;
   padding: 0 1.5rem;
   background-color: var(--gj-button-bg);
@@ -494,7 +528,9 @@ div:has(> svg[data-testid='favorite']) {
   color: #fff;
 }
 
-.font-body .gj-form button[type='submit']:hover:not(:disabled) {
+.font-body
+  :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'], :has(#min)))
+  button[type='submit']:hover:not(:disabled) {
   background-color: var(--gj-button-hover-bg);
 }
 
