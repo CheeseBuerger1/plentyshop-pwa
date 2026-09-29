@@ -22,6 +22,9 @@ import {
  * Derived from the route instead of the page's `setPageMeta`, so pages that do not set it never show the title of
  * the previous page.
  *
+ * `routeBaseName`: the page's route without locale (e.g. `shipping`), set on the banner as `data-gj-route`, so
+ * glas-jena.css can style single pages (the banner is a sibling right before main).
+ *
  * `isItemCategoryPage`: the page is a product category (its breadcrumbs stay visible on narrow screens, see
  * glas-jena.css). Content pages share the category route, but their breadcrumbs only hold "Startseite".
  *
@@ -70,5 +73,5 @@ export const usePageBanner = (translateOwn: (key: string, params?: Record<string
     return titleKey ? t(titleKey) : '';
   });
 
-  return { title, isItemCategoryPage };
+  return { title, isItemCategoryPage, routeBaseName };
 };

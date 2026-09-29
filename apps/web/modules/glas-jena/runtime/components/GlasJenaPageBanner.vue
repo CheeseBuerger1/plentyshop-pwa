@@ -3,6 +3,7 @@
     v-if="title"
     class="gj-page-banner"
     :class="{ 'gj-page-banner--category': isItemCategoryPage }"
+    :data-gj-route="routeBaseName"
     data-testid="gj-page-banner"
   >
     <h1 class="gj-page-banner__title" data-testid="gj-page-banner-title">{{ title }}</h1>
@@ -17,7 +18,7 @@ import { usePageBanner } from '../composables/usePageBanner';
  * banner) and the cancellation page, which holds the policy and the form ("Widerrufsbelehrung & Widerrufsformular").
  */
 const { t } = useI18n({ useScope: 'local' });
-const { title, isItemCategoryPage } = usePageBanner((key, params) => (params ? t(key, params) : t(key)));
+const { title, isItemCategoryPage, routeBaseName } = usePageBanner((key, params) => (params ? t(key, params) : t(key)));
 </script>
 
 <i18n lang="json">

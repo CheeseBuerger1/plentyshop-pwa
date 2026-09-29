@@ -93,6 +93,12 @@ describe('GlasJenaPageBanner', () => {
     expect((await findTitle()).exists()).toBe(false);
   });
 
+  it('should name the page route on the banner, so glas-jena.css can style single pages', async () => {
+    routeState.baseName = 'shipping';
+
+    expect((await findBanner()).attributes('data-gj-route')).toBe('shipping');
+  });
+
   it('should show the own title of the LTS shop on the cancellation page', async () => {
     routeState.baseName = 'cancellation-rights';
 

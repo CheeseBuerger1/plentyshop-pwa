@@ -120,6 +120,35 @@ describe('upstream contract of the glas-jena module', () => {
     }
   });
 
+  it('should find the contact form logic that GlasJenaContactForm mirrors', () => {
+    /* The module's form and utils/contactForm.ts mirror pages/contact.vue: same fields, rules, settings and texts */
+    const originalPage = readApp('pages/contact.vue');
+
+    for (const field of ['name', 'email', 'subject', 'orderId', 'message', 'privacyPolicy', 'turnstile']) {
+      expect(originalPage).toContain(`defineField('${field}')`);
+    }
+    for (const rule of ['min-clean-length', 'min-if-not-empty', 'min-length', 'digits-if-not-empty']) {
+      expect(originalPage).toContain(`'${rule}'`);
+    }
+    expect(originalPage).toContain('doCustomerContactMail(params)');
+    expect(originalPage).toContain("useSiteSettings('contactShopEmail')");
+    expect(originalPage).toContain("setRobotForStaticPage('ContactPage')");
+    for (const key of [
+      'contact.misConfigured',
+      'contact.form.nameLabel',
+      'contact.form.emailLabel',
+      'contact.form.subjectLabel',
+      'contact.form.order-id',
+      'contact.form.message',
+      'contact.form.asterixHint',
+      'contact.privacyPolicy',
+      'contact.contactSend',
+      'contact.success',
+    ]) {
+      expect(typeof getTranslation('de', key)).toBe('string');
+    }
+  });
+
   it('should find every page the banner has a title for', () => {
     const bannerRoutes = [
       ...Object.keys(PAGE_BANNER_TITLE_KEYS),

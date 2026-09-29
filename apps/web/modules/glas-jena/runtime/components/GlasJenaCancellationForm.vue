@@ -11,7 +11,13 @@
       <div class="py-2">{{ t('cancellationForm.misConfigured') }}</div>
     </div>
 
-    <form v-else data-testid="cancellation-form" class="flex flex-col gap-4" novalidate @submit.prevent="onSubmit">
+    <form
+      v-else
+      data-testid="cancellation-form"
+      class="gj-form flex flex-col gap-4"
+      novalidate
+      @submit.prevent="onSubmit"
+    >
       <label for="cancellation-name">
         <UiFormLabel class="mb-1">{{ t('cancellationForm.name') }} {{ t('form.required') }}</UiFormLabel>
         <SfInput
@@ -95,8 +101,14 @@
       <p>
         <i18n-t keypath="cancellationForm.privacyPolicy" scope="global">
           <template #privacyPolicy>
-            <NuxtLink :to="localePath(paths.privacyPolicy)" class="gj-cancellation-form__link">
-              {{ t('legal.privacyPolicy') }}
+            <NuxtLink
+              :to="localePath(paths.privacyPolicy)"
+              target="_blank"
+              rel="noopener"
+              class="gj-cancellation-form__link"
+              data-testid="gj-cancellation-form-privacy-link"
+            >
+              {{ t('legal.privacyPolicy') }}<span class="sr-only"> {{ tLocal('opensInNewTab') }}</span>
             </NuxtLink>
           </template>
         </i18n-t>
@@ -139,6 +151,8 @@ const turnstileElement = ref();
 const turnstileLoad = ref(false);
 const { send } = useNotification();
 const localePath = useLocalizedPath();
+/* Own texts; the shop's texts come from the global `t()` */
+const { t: tLocal } = useI18n({ useScope: 'local' });
 
 const { errors, meta, defineField, handleSubmit, resetForm } = useForm({ validationSchema });
 
@@ -187,6 +201,13 @@ if (turnstileSiteKey.length > 0) {
   });
 }
 </script>
+
+<i18n lang="json">
+{
+  "en": { "opensInNewTab": "(opens in a new tab)" },
+  "de": { "opensInNewTab": "(öffnet in neuem Tab)" }
+}
+</i18n>
 
 <style scoped>
 /*
