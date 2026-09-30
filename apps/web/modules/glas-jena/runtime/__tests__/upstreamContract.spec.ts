@@ -234,6 +234,27 @@ describe('upstream contract of the glas-jena module', () => {
     }
   });
 
+  it('should load editor blocks from the module (hero image, tile)', () => {
+    const blocksImports = readApp('utils/blocks/blocks-imports.ts');
+
+    expect(blocksImports).toContain("'~~/modules/*/runtime/components/blocks/**/*.vue'");
+    expect(blocksImports).toContain("'~~/modules/*/runtime/components/blocks/**/defaults.ts'");
+    expect(readApp('utils/blocks/block-icons.ts')).toContain("'~~/modules/*/runtime/components/blocks/**/icon.svg'");
+  });
+
+  it('should find the grid structure that the equal heights of hero image and tiles rely on', () => {
+    /* glas-jena.css: `[data-testid='multi-grid-column'] > div:only-child:has(> * > * > [data-testid='gj-tile'])` */
+    expect(readApp('components/blocks/structure/MultiGrid/MultiGrid.vue')).toMatch(
+      /data-testid="multi-grid-column"\s*>\s*<div\s+v-for="row in columns\[cell\.colIndex\]"[^>]*>\s*<slot/,
+    );
+    for (const block of ['PageBlock/PageBlock.vue', 'EditorPageBlock/EditorPageBlock.vue']) {
+      expect(readApp(`components/${block}`)).toMatch(/<template>\s*<div[^>]*class="h-full"[\s\S]*?<PageBlockContent/);
+    }
+    expect(readApp('components/PageBlock/PageBlockContent.vue')).toMatch(
+      /<template>\s*<div[^>]*:class="wrapperClass">/,
+    );
+  });
+
   it('should find the class of rendered rich text that the check mark lists rely on', () => {
     expect(readApp('components/TextContent/TextContent.vue')).toContain('class="rte-prose rte-prose--render"');
   });

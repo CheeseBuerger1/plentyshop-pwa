@@ -136,6 +136,13 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 
 ### Startseite (Reihenfolge)
 
+**Umsetzung (bis „Unser hitzebeständiges Glas“):** Editor-Blöcke auf der Startseite, jeweils in einem Raster (MultiGrid) mit Abstand „None“, Rand unten 0 und „Full width“ (Box-Breite 1200 px); Tablet-Spaltenbreiten 12/12, also unter 1024 px untereinander (LTS: unter 992 px).
+
+- Raster 8/4: links Block **„Hero image (GLAS IN JENA)“** (`GlasJenaHeroImage`, Modul), rechts **„Did you know“** (Fakten aus dem LTS, Autoplay 6 s, Hintergrund `#4a677c`, Innenabstand 30 px). Das Titelbild füllt seine Spalte und wird von oben beschnitten: neben der Box mindestens 391 px bzw. so hoch wie die Box, untereinander 47 % der Fensterbreite (höchstens 440 px). Bilder je Bildschirmgröße wie im Bild-Block (LTS-Bilder vom PlentyONE-CDN, auf dem Handy die 500-px-Fassung). Eigener Block, damit daraus später eine automatisch wechselnde Bildfolge werden kann, ohne den Seitenaufbau zu ändern.
+- Raster 12: Textblock im **HTML-Modus** mit `<h1 class="gj-home-headline">GLAS <span class="gj-home-headline__in">in</span> JENA - Der Spezialist für Hitzebeständiges Glas</h1>` (einzige h1 der Seite; Größen in `glas-jena.css`). Im Raster, weil nur dort der automatische Blockabstand entfällt (LTS: 20 px über und unter der Überschrift).
+- Raster 6/6: zweimal Block **„Tile (GLAS IN JENA)“** (`GlasJenaTile`, Modul) mit den Vorlagen „Werksverkauf“ und „Unser hitzebeständiges Glas“: Titel (h2), Text (Rich Text), Bild am rechten Rand (Karaffe), „Mehr“-Link unten rechts (leer = kein Knopf; Werksverkauf auf www.glas-in-jena.de in neuem Tab). Nebeneinander mindestens 388 px und gleich hoch; unter 992 px Fensterbreite zugeklappt wie im LTS, der Titel ist dann ein Knopf mit Pfeil (`aria-expanded`), der Text bleibt im HTML.
+- **Abweichungen für Barrierefreiheit:** Text 16 statt 14 px (Kacheln und Box werden dadurch etwas höher als im LTS); blaue Kachel `#4b7aa0` statt `#6e9abb` (weiße Schrift 4,57:1 statt 3,00:1); „Mehr“ mit dunkler Schrift `#263238` auf 60 % Weiß (12:1 bzw. 7,8:1 statt 1,0:1 und 2,0:1); Pfeil zum Aufklappen in der Textfarbe statt Hellblau (1,38:1); Links in den Kacheln unterstrichen in der Textfarbe; Alternativtext des Titelbilds beschreibend statt „banner-startseite“.
+
 1. **Hero:** links großes Stimmungsbild (Teekanne mit Gläsern), rechts Box „Wussten Sie schon, dass…“ in Schieferblau mit Fragezeichen-Symbol und Pfeilen zum Durchblättern mehrerer Fakten. Beispiel: „… alle unsere hitzebeständigen Artikel vor dem Verpacken auf ca. 600 °C aufgeheizt und langsam abgekühlt werden. Damit werden Spannungen im Glas vermieden.“
 2. **Überschrift:** „GLAS IN JENA – Der Spezialist für Hitzebeständiges Glas“ (groß, Light, zentriert; „IN“ hochgestellt).
 3. **Zwei Kacheln nebeneinander:**
@@ -223,6 +230,6 @@ Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet ho
 - [ ] Exakte Farbwerte und Schrift aus dem LTS-CSS übernehmen.
 - [ ] Artikeldaten prüfen: Viele Artikel zeigen „1 Milliliter“ als Einheit – vermutlich falsche Inhalts-/Grundpreis-Einheit in PlentyONE (betrifft PWA und LTS gleichermaßen).
 - [x] Copyright-Jahr im Footer automatisch setzen.
-- [ ] Alle „Wussten Sie schon“-Fakten aus dem LTS-Shop sammeln.
+- [x] Alle „Wussten Sie schon“-Fakten aus dem LTS-Shop sammeln (14 deutsche und 14 englische; gehören in den Block „Did you know“ der Startseite).
 - [ ] Englische Texte für den Sprachwechsel prüfen.
 - [x] SEO mobil: Das Server-HTML für Handys enthält jetzt alle Kategorie-Links (mobiles Menü, siehe oben).
