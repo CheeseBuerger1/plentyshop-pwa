@@ -325,18 +325,65 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
- * Grids with a hero image or tiles stack their columns below 992 px window width, like the LTS shop (the grid
- * block itself switches at its breakpoints 768 and 1024 px; in the editor it follows the device switch instead).
- * Their tablet column widths are set like on desktop, so they stay side by side from 992 px.
+ * Grids with a hero image, tiles or the "trendglas" text stack their columns below 992 px window width, like the
+ * LTS shop (the grid block itself switches at its breakpoints 768 and 1024 px; in the editor it follows the device
+ * switch instead). Their tablet column widths are set like on desktop, so they stay side by side from 992 px.
  */
 @media (max-width: 991.98px) {
   .font-body
     [data-testid='multi-grid-structure']:has(
       > [data-testid='multi-grid-column'] > div > * > * > :is([data-testid='gj-hero-image'], [data-testid='gj-tile'])
     )
-    > [data-testid='multi-grid-column'] {
+    > [data-testid='multi-grid-column'],
+  .font-body [data-testid='multi-grid-structure']:has(.gj-home-seo) > [data-testid='multi-grid-column'] {
     grid-column: span 12 / span 12;
   }
+}
+
+/*
+ * SEO text "trendglas® in Jena" at the end of the home page, like the LTS shop: a grid block (3/4 and 1/4, green
+ * background set on the grid) with a text block in the editor's HTML mode
+ * `<div class="gj-home-seo"><h2>…</h2><p>…</p></div>` and a text block with
+ * `<p class="gj-home-seo-image"><img …></p>`. Heading like the tiles (Light, 1.8rem), text left-aligned with the
+ * LTS line height 1.75 (16 px instead of 14 px); links keep the shop's link colour (6.41:1 on the green).
+ * The picture (the green is part of it) at the LTS size of 230 × 266 px, centred.
+ */
+.font-body .rte-prose .gj-home-seo {
+  line-height: 1.75;
+  text-align: left;
+}
+
+.font-body .rte-prose .gj-home-seo h2 {
+  margin: 0 0 1.5rem;
+  font-size: 1.8rem;
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+.font-body .rte-prose .gj-home-seo p {
+  margin: 0 0 1rem;
+}
+
+.font-body .rte-prose .gj-home-seo-image {
+  margin: 0;
+  text-align: center;
+}
+
+.font-body .rte-prose .gj-home-seo-image img {
+  display: inline-block;
+  width: 14.375rem;
+  max-width: 100%;
+  height: auto;
+}
+
+/* The picture centred on the height of the text next to it (the grid stretches the column, the block fills it) */
+.font-body [data-testid='multi-grid-column'] > div:only-child:has(.gj-home-seo-image) {
+  height: 100%;
+}
+
+.font-body [data-testid='text-card']:has(.gj-home-seo-image) {
+  height: 100%;
+  justify-content: center;
 }
 
 /*
