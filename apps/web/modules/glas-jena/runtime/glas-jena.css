@@ -325,6 +325,25 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
+ * "Did you know" box (DidYouKnow block): larger title (26 px instead of 20 px) and much larger arrows (56 px
+ * instead of 32 px, click area 64 px), as requested by the shop owner.
+ */
+.font-body [data-testid='did-you-know-title'] {
+  font-size: 1.625rem;
+  line-height: 1.2;
+}
+
+.font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next']) {
+  width: 4rem;
+  height: 4rem;
+}
+
+.font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next']) svg {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+/*
  * Heading of the home page, like the LTS shop ("GLAS IN JENA - Der Spezialist für Hitzebeständiges Glas"): a text
  * block in the editor's HTML mode with `<h1 class="gj-home-headline">GLAS <span class="gj-home-headline__in">in
  * </span> JENA - …</h1>`. Light, centred, black, 20 px above and below; sizes of the LTS in rem, so they scale
