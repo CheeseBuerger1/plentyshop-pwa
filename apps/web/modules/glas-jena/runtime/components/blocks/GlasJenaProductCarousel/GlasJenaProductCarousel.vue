@@ -95,6 +95,14 @@ const products = computed(() => data.value ?? []);
   height: auto;
 }
 
+/*
+ * No rating stars on the cards (the shop shows no reviews; as requested by the shop owner). The editor's "Item card"
+ * setting only reaches the item grid of category pages, the slider always shows them.
+ */
+.gj-product-carousel :deep([data-testid='product-card'] div:has(> [data-testid='rating'])) {
+  display: none;
+}
+
 .gj-product-carousel__slider :deep(div:has(> [data-testid='product-slider']) > button) {
   color: #fff;
   background-color: #6a94b4;

@@ -264,6 +264,11 @@ describe('upstream contract of the glas-jena module', () => {
     const card = readApp('components/ui/ProductCard/ProductCard.vue');
     expect(card).toContain('data-testid="product-card"');
     expect(card).toContain("{ 'size-48': isFromSlider }");
+    /* The carousel hides the rating row: a div around SfRating, whose root has the test id "rating" */
+    expect(card).toMatch(/<div[^>]*>\s*<SfRating/);
+    expect(readFileSync(join(STOREFRONT_ICONS_DIR, '../SfRating/SfRating.vue.mjs'), 'utf8')).toContain(
+      '"data-testid": "rating"',
+    );
   });
 
   it('should find the class of rendered rich text that the check mark lists rely on', () => {
