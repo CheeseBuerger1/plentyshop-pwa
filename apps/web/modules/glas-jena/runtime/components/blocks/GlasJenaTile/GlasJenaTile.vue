@@ -248,10 +248,9 @@ const tileStyle = computed(() => {
 }
 
 /*
- * Picture centred below the title (category tiles), at most 228 px high like the LTS pictures. Product photos on
- * white take on the tile colour (multiplied: white becomes the tile colour, the glass stays see-through), like the
- * LTS pictures that had the colour baked in. With the whole tile as link it grows slightly on hover (LTS: 6 %, from
- * 576 px window width).
+ * Picture centred below the title (category tiles, the LTS pictures with the tile colour as background), at its own
+ * size and at most 228 px high. With the whole tile as link it grows slightly on hover (LTS: 6 %, from 576 px
+ * window width).
  */
 .gj-tile__image {
   display: block;
@@ -260,7 +259,6 @@ const tileStyle = computed(() => {
   max-height: 14.25rem;
   margin: 1.25rem auto 0;
   transition: transform 0.4s cubic-bezier(0, 0, 0.26, 1);
-  mix-blend-mode: multiply;
 }
 
 @media (min-width: 576px) {
