@@ -199,6 +199,11 @@ const tileStyle = computed(() => {
     no-repeat;
 }
 
+/* List items in Light, as requested by the shop owner (the shop font has no weight between 300 and 400) */
+.gj-tile__text :deep(li) {
+  font-weight: 300;
+}
+
 /*
  * "Mehr" in the lower right corner, a light translucent area like the LTS shop. Unlike there with dark text
  * (#263238: 12:1 on the green, 7.8:1 on the blue tile; the LTS #eee reached only 1.0:1 and 2.0:1); on hover the
