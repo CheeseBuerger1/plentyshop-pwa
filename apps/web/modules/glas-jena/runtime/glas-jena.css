@@ -406,13 +406,18 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
- * Heading of the home page, like the LTS shop ("GLAS IN JENA - Der Spezialist für Hitzebeständiges Glas"): a text
- * block in the editor's HTML mode with `<h1 class="gj-home-headline">GLAS <span class="gj-home-headline__in">in
- * </span> JENA - …</h1>`. Light, centred, black, 20 px above and below; sizes of the LTS in rem, so they scale
- * from its 14 px to the shop's 16 px. The raised "IN" stands between spaces so screen readers read three words;
- * the negative margin takes the spaces back to the LTS spacing.
+ * Heading of the home page, like the LTS shop ("GLAS IN JENA - Der Spezialist für hitzebeständiges Glas"): a text
+ * block in the editor's HTML mode with
+ * `<h1 class="gj-home-headline"><span class="gj-home-headline__name">GLAS <span class="gj-home-headline__in">in</span>
+ * JENA</span><span class="gj-home-headline__dash"> - </span><span class="gj-home-headline__claim">Der Spezialist …
+ * </span></h1>`. Light, centred, black, 20 px above and below; sizes of the LTS in rem, so they scale from its 14 px
+ * to the shop's 16 px. The raised "IN" stands between spaces so screen readers read three words; the negative
+ * margin takes the spaces back to the LTS spacing.
+ * One line where it fits; otherwise (as requested by the shop owner) it breaks between the name and the claim and
+ * the dash disappears. The heading is its own container: the whole line needs about 21.2 times its font size.
  */
 .font-body .rte-prose .gj-home-headline {
+  container: gj-home-headline / inline-size;
   margin: 1.25rem 0;
   font-size: 2.85rem;
   font-weight: 300;
@@ -427,6 +432,16 @@ div:has(> svg[data-testid='favorite']) {
   font-weight: 400;
   vertical-align: top;
   text-transform: uppercase;
+}
+
+@container gj-home-headline (max-width: 21.5em) {
+  .font-body .rte-prose .gj-home-headline__dash {
+    display: none;
+  }
+
+  .font-body .rte-prose :is(.gj-home-headline__name, .gj-home-headline__claim) {
+    display: block;
+  }
 }
 
 @media (max-width: 1199.98px) {
