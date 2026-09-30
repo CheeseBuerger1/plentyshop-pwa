@@ -349,6 +349,37 @@ div:has(> svg[data-testid='favorite']) {
   line-height: 1.2;
 }
 
+/*
+ * Next to the hero image (from 992 px) the box is 391 px high like in the LTS shop, so the image is only scaled to
+ * its column's width and cropped from the top, never enlarged (a taller box made the image zoom in and lose its
+ * sides). To fit the longest fact, the spacing is tighter and title and facts shrink with narrower windows: title
+ * 22–26 px, facts 14–16 px (14 px like the LTS shop at 992 px, 16 px from 1200 px), line height 1.35 instead of 1.5
+ * (the LTS shop uses 1.3–1.4 here). If a fact is still too long, the box grows rather than cutting it off.
+ */
+@media (min-width: 992px) {
+  .font-body [data-testid='did-you-know'] {
+    min-height: 24.4375rem;
+  }
+
+  .font-body [data-testid='did-you-know-title'] {
+    margin-top: 0.75rem;
+    font-size: clamp(1.375rem, calc(1.375rem + (100vw - 992px) * 0.0192), 1.625rem);
+  }
+
+  .font-body [data-testid='did-you-know-facts'] {
+    margin-top: 0.75rem;
+  }
+
+  .font-body [data-testid='did-you-know-fact'] {
+    font-size: clamp(0.875rem, calc(0.875rem + (100vw - 992px) * 0.0096), 1rem);
+    line-height: 1.35;
+  }
+
+  .font-body [data-testid='did-you-know-facts'] + div {
+    margin-top: 1rem;
+  }
+}
+
 .font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next']) {
   width: 2.75rem;
   height: 2.75rem;
