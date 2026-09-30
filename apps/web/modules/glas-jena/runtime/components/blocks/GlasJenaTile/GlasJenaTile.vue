@@ -25,14 +25,9 @@
     </h2>
 
     <div v-show="!isCollapsed" :id="bodyId" class="gj-tile__body" data-testid="gj-tile-body">
-      <img
-        v-if="image.url"
-        :src="image.url"
-        :alt="image.alt"
-        class="gj-tile__image"
-        loading="lazy"
-        data-testid="gj-tile-image"
-      />
+      <div v-if="image.url" class="gj-tile__image-box">
+        <img :src="image.url" :alt="image.alt" class="gj-tile__image" loading="lazy" data-testid="gj-tile-image" />
+      </div>
 
       <TextContent v-if="htmlDescription" :text="textContent" class="gj-tile__text" />
 
@@ -249,15 +244,23 @@ const tileStyle = computed(() => {
 
 /*
  * Picture centred below the title (category tiles, the LTS pictures with the tile colour as background), at its own
- * size and at most 228 px high. With the whole tile as link it grows slightly on hover (LTS: 6 %, from 576 px
- * window width).
+ * size and at most 228 px high, standing on the bottom of an equally high area, so the pictures of tiles side by
+ * side (207 and 228 px) stand on one line. With the whole tile as link it grows slightly on hover (LTS: 6 %, from
+ * 576 px window width).
  */
+.gj-tile__image-box {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 14.25rem;
+  margin-top: 1.25rem;
+}
+
 .gj-tile__image {
   display: block;
   width: auto;
   max-width: 100%;
-  max-height: 14.25rem;
-  margin: 1.25rem auto 0;
+  max-height: 100%;
   transition: transform 0.4s cubic-bezier(0, 0, 0.26, 1);
 }
 
