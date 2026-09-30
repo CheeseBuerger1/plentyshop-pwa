@@ -510,12 +510,13 @@ watch(isLoginOpen, async (open) => {
 }
 
 /*
- * With the desktop navigation (window width from 992 px) the four tiles (account, language, search, cart) are
- * together exactly as wide as the "Did you know" box below them on the home page, a third of the header, as
- * requested by the shop owner: each a twelfth of the header's width (100 px at the full 1200 px). Unlike the LTS
- * shop the language tile is no narrower than the others.
+ * From a window width of 1200 px the four tiles (account, language, search, cart) are together exactly as wide as
+ * the "Did you know" box below them on the home page, a third of the header, as requested by the shop owner: each a
+ * twelfth of the header's width (100 px at the full 1200 px). Between 992 and 1199 px they keep the tablet width of
+ * 68 px, so the main categories have room (there they are narrower than the box). Unlike the LTS shop the language
+ * tile is no narrower than the others.
  */
-@media (min-width: 992px) {
+@media (min-width: 1200px) {
   .gj-header__tile {
     width: calc(100% / 12);
   }
