@@ -376,6 +376,16 @@ div:has(> svg[data-testid='favorite']) {
   height: auto;
 }
 
+/* The picture centred on the height of the text next to it (the grid stretches the column, the block fills it) */
+.font-body [data-testid='multi-grid-column'] > div:only-child:has(.gj-home-seo-image) {
+  height: 100%;
+}
+
+.font-body [data-testid='text-card']:has(.gj-home-seo-image) {
+  height: 100%;
+  justify-content: center;
+}
+
 /*
  * "Did you know" box (DidYouKnow block), as requested by the shop owner: larger title (26 px instead of 20 px) and
  * thin arrows (44 px, lines 1.4 px like the thin header icons) instead of the filled 32 px icons of the block. The
