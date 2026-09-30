@@ -510,13 +510,15 @@ watch(isLoginOpen, async (open) => {
 }
 
 /*
- * Like the LTS shop: with the desktop navigation on narrow screens (window width 992–1199 px), the language tile is
- * only as wide as its text plus 7 px on each side, so the main categories keep enough room and stay equally wide.
+ * From a window width of 1200 px the four tiles (account, language, search, cart) are together exactly as wide as
+ * the "Did you know" box below them on the home page, a third of the header, as requested by the shop owner: each a
+ * twelfth of the header's width (100 px at the full 1200 px). Between 992 and 1199 px they keep the tablet width of
+ * 68 px, so the main categories have room (there they are narrower than the box). Unlike the LTS shop the language
+ * tile is no narrower than the others.
  */
-@media (min-width: 992px) and (max-width: 1199.98px) {
-  .gj-header__tile--language {
-    width: auto;
-    padding: 0 7px;
+@media (min-width: 1200px) {
+  .gj-header__tile {
+    width: calc(100% / 12);
   }
 }
 
