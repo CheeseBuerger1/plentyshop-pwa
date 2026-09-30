@@ -226,9 +226,9 @@ const tileStyle = computed(() => {
 }
 
 /*
- * "Mehr" in the lower right corner, a light translucent area like the LTS shop. Unlike there with dark text
- * (#263238: 12:1 on the green, 7.8:1 on the blue tile; the LTS #eee reached only 1.0:1 and 2.0:1); on hover the
- * area turns white like in the LTS shop.
+ * "Mehr" in the lower right corner, a light translucent area (45 % white, as requested by the shop owner) like the
+ * LTS shop. Unlike there with dark text (#263238: 11.7:1 on the green, 6.3:1 on the blue tile; the LTS #eee reached
+ * only 1.0:1 and 2.0:1); on hover the area turns white like in the LTS shop.
  */
 .gj-tile__more {
   position: absolute;
@@ -239,7 +239,7 @@ const tileStyle = computed(() => {
   font-weight: 300;
   color: #263238;
   text-decoration: none;
-  background-color: rgb(255 255 255 / 60%);
+  background-color: rgb(255 255 255 / 45%);
   transition: background-color 0.3s ease-in-out;
 }
 
@@ -292,7 +292,7 @@ const tileStyle = computed(() => {
   right: 0;
   bottom: 0;
   padding: 0.625rem 1.875rem;
-  background-color: rgb(255 255 255 / 60%);
+  background-color: rgb(255 255 255 / 45%);
   transition: background-color 0.3s ease-in-out;
 }
 
