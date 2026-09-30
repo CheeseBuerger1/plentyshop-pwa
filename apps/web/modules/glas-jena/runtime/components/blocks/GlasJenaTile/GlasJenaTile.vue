@@ -271,6 +271,27 @@ const tileStyle = computed(() => {
 }
 
 /*
+ * Phones (below 768 px, tiles stacked): tiles with a picture are much lower than the LTS 388 px, as requested by the
+ * shop owner: less space around the title, picture at most 152 px high, and no extra room below it for "Mehr",
+ * which fits next to the narrower picture.
+ */
+@media (max-width: 767.98px) {
+  .gj-tile:has(.gj-tile__image-box) {
+    padding-bottom: 1.5rem;
+  }
+
+  .gj-tile:has(.gj-tile__image-box) .gj-tile__title {
+    padding-top: 1.25rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .gj-tile__image-box {
+    height: 9.5rem;
+    margin-top: 0.5rem;
+  }
+}
+
+/*
  * Whole tile as link: the "Mehr" link's area covers the tile, so there is one link (named "Mehr", described by the
  * title) instead of two with the same target like in the LTS shop. The focus frame then marks the whole tile.
  */
