@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import type { Block } from '@plentymarkets/shop-api';
 import type { GlasJenaTileContent, GlasJenaTileTexts } from './types';
 import {
+  CATEGORY_TILES,
   LTS_FACTORY_OUTLET_IMAGE_URL,
   TILE_BLUE,
   TILE_BLUE_TEXT_COLOR,
@@ -98,6 +99,26 @@ const OUR_GLASS_EN = {
   ]),
 };
 
+/* Category tiles like the LTS shop: title, picture, whole tile links to the category; not collapsible */
+const categoryTile = (
+  tile: (typeof CATEGORY_TILES)[keyof typeof CATEGORY_TILES],
+  title: string,
+  link: string,
+  more: string,
+) =>
+  createTile({
+    text: { title, htmlDescription: '' },
+    button: { label: more, link, openInNewTab: false, linkWholeTile: true },
+    image: { url: tile.image, alt: '' },
+    layout: {
+      backgroundColor: tile.background,
+      textColor: TILE_DEFAULT_TEXT_COLOR,
+      titleColor: tile.title,
+      backgroundImage: '',
+    },
+    collapsibleOnMobile: false,
+  });
+
 /* Own category key, so the block keeps its own access control (see DidYouKnow/defaults.ts) */
 export const getBlocksList = (): BlocksList => ({
   glasJenaTile: {
@@ -113,6 +134,27 @@ export const getBlocksList = (): BlocksList => ({
       {
         title: 'Unser hitzebeständiges Glas',
         template: { en: ourGlass(OUR_GLASS_EN), de: ourGlass(OUR_GLASS_DE) },
+      },
+      {
+        title: 'Tee & Kaffee',
+        template: {
+          en: categoryTile(CATEGORY_TILES.tea, 'Tea & Coffee', '/tea-coffee/', 'More'),
+          de: categoryTile(CATEGORY_TILES.tea, 'Tee & Kaffee', '/tee-kaffee/', 'Mehr'),
+        },
+      },
+      {
+        title: 'Küche & Helfer',
+        template: {
+          en: categoryTile(CATEGORY_TILES.kitchen, 'Kitchen & Co.', '/kitchen-helpers/', 'More'),
+          de: categoryTile(CATEGORY_TILES.kitchen, 'Küche & Helfer', '/kueche-helfer/', 'Mehr'),
+        },
+      },
+      {
+        title: 'Gesundheitshelfer',
+        template: {
+          en: categoryTile(CATEGORY_TILES.health, 'Promoters of health', '/promoters-of-health/', 'More'),
+          de: categoryTile(CATEGORY_TILES.health, 'Gesundheitshelfer', '/gesundheitshelfer/', 'Mehr'),
+        },
       },
     ],
   },

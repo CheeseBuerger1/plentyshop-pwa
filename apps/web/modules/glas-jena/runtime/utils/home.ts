@@ -25,6 +25,16 @@ export const TILE_BLUE = '#4b7aa0';
 export const TILE_BLUE_TEXT_COLOR = '#ffffff';
 
 /**
+ * Category tiles of the LTS shop: background colours as measured (the LTS pictures have them as background), titles
+ * in the LTS hues darkened to at least 3:1 for large text (LTS: 2.24:1, 2.30:1 and 2.64:1).
+ */
+export const CATEGORY_TILES = {
+  tea: { background: '#abcae4', title: '#4d6f89', image: `${LTS_LAYOUT_URL}/highlight-tee.jpg` },
+  kitchen: { background: '#d6e3ed', title: '#5681ab', image: `${LTS_LAYOUT_URL}/highlight-kueche.jpg` },
+  health: { background: '#d1c4e9', title: '#8a5c99', image: `${LTS_LAYOUT_URL}/highlight-gesundheit.jpg` },
+};
+
+/**
  * Upper window widths of the image sizes, like the shop's breakpoints: phones below 768 px, tablets below 1024 px,
  * desktops below 1440 px; the wide screen image is the picture's fallback.
  */
