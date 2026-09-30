@@ -326,7 +326,7 @@ div:has(> svg[data-testid='favorite']) {
 
 /*
  * "Did you know" box (DidYouKnow block), as requested by the shop owner: larger title (26 px instead of 20 px) and
- * large thin arrows (72 px, lines about 2 px like the thin header icons) instead of the filled 32 px icons of the
+ * large thin arrows (64 px, lines 2 px like the thin header icons) instead of the filled 32 px icons of the
  * block. The icons cannot be drawn thinner, so they are hidden and replaced by a line chevron in the text colour.
  */
 .font-body [data-testid='did-you-know-title'] {
@@ -335,8 +335,8 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 .font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next']) {
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 4rem;
+  height: 4rem;
 }
 
 .font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next']) svg {
@@ -345,8 +345,8 @@ div:has(> svg[data-testid='favorite']) {
 
 .font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next'])::before {
   content: '';
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 4rem;
+  height: 4rem;
   background: currentColor;
   mask: var(--gj-chevron) center / contain no-repeat;
 }
