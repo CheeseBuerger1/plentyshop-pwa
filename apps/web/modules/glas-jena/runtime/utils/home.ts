@@ -25,6 +25,22 @@ export const TILE_BLUE = '#4b7aa0';
 export const TILE_BLUE_TEXT_COLOR = '#ffffff';
 
 /**
+ * Category tiles of the LTS shop: background colours as measured, titles in the LTS hues darkened to at least 3:1
+ * for large text (LTS: 2.24:1, 2.30:1 and 2.64:1). Pictures: product photos on white from the item images, which
+ * take on the tile colour (see GlasJenaTile.vue).
+ */
+const ITEM_IMAGES_URL = 'https://trend.glas-jena.de/item/images';
+export const CATEGORY_TILES = {
+  tea: { background: '#abcae4', title: '#4d6f89', image: `${ITEM_IMAGES_URL}/110000/full/110000-110000.jpg` },
+  kitchen: {
+    background: '#d6e3ed',
+    title: '#5681ab',
+    image: `${ITEM_IMAGES_URL}/111052/full/Wasserkocher-1-75l-G-111052.jpg`,
+  },
+  health: { background: '#d1c4e9', title: '#8a5c99', image: `${ITEM_IMAGES_URL}/300807/full/300807-hotpot.jpg` },
+};
+
+/**
  * Upper window widths of the image sizes, like the shop's breakpoints: phones below 768 px, tablets below 1024 px,
  * desktops below 1440 px; the wide screen image is the picture's fallback.
  */

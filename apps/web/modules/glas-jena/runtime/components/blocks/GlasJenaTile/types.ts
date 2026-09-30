@@ -8,10 +8,19 @@ export type GlasJenaTileContent = {
     label?: string;
     link?: string;
     openInNewTab?: boolean;
+    /** The whole tile opens the link (category tiles). */
+    linkWholeTile?: boolean;
+  };
+  /** Picture centred below the title (category tiles). */
+  image?: {
+    url?: string;
+    alt?: string;
   };
   layout: {
     backgroundColor?: string;
     textColor?: string;
+    /** Colour of the title; empty: the text colour. */
+    titleColor?: string;
     /** Picture on the right edge of the tile (e.g. the carafe of "Werksverkauf"). */
     backgroundImage?: string;
   };
@@ -39,8 +48,9 @@ export type GlasJenaTileFormProps = {
 /** Content as the editor form works with it: every optional setting filled in. */
 export type NormalizedGlasJenaTileContent = {
   text: { title: string; htmlDescription: string };
-  button: { label: string; link: string; openInNewTab: boolean };
-  layout: { backgroundColor: string; textColor: string; backgroundImage: string };
+  button: { label: string; link: string; openInNewTab: boolean; linkWholeTile: boolean };
+  image: { url: string; alt: string };
+  layout: { backgroundColor: string; textColor: string; titleColor: string; backgroundImage: string };
   collapsibleOnMobile: boolean;
 };
 

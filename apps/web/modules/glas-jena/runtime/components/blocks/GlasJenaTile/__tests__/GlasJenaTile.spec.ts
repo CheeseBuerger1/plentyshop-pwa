@@ -79,4 +79,28 @@ describe('GlasJenaTile', () => {
     expect(wrapper.find('[data-testid="gj-tile-toggle"]').exists()).toBe(false);
     expect(wrapper.find('[data-testid="gj-tile-body"]').isVisible()).toBe(true);
   });
+
+  it('should show a picture below the title and link the whole tile', async () => {
+    const wrapper = await mountTile(
+      createContent({
+        text: { title: 'Tee & Kaffee', htmlDescription: '' },
+        button: { label: 'Mehr', link: 'https://example.com/tee', linkWholeTile: true },
+        image: { url: 'teapot.jpg', alt: '' },
+        layout: { backgroundColor: '#abcae4', titleColor: '#4d6f89' },
+        collapsibleOnMobile: false,
+      }),
+    );
+
+    expect(wrapper.find('[data-testid="gj-tile"]').classes()).toContain('gj-tile--linked');
+    expect(wrapper.find('[data-testid="gj-tile-image"]').attributes('src')).toBe('teapot.jpg');
+    expect(wrapper.find('[data-testid="gj-tile-image"]').attributes('alt')).toBe('');
+    expect(wrapper.find('[data-testid="gj-tile-title"]').attributes('style')).toContain('color: #4d6f89');
+    expect(wrapper.findAll('a')).toHaveLength(1);
+  });
+
+  it('should not link the whole tile without a link', async () => {
+    const wrapper = await mountTile(createContent({ button: { label: 'Mehr', link: '', linkWholeTile: true } }));
+
+    expect(wrapper.find('[data-testid="gj-tile"]').classes()).not.toContain('gj-tile--linked');
+  });
 });

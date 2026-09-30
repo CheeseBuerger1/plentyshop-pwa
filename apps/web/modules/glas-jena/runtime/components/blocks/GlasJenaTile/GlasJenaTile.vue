@@ -1,12 +1,12 @@
 <template>
   <section
     class="gj-tile"
-    :class="{ 'gj-tile--collapsed': isCollapsed }"
+    :class="{ 'gj-tile--collapsed': isCollapsed, 'gj-tile--linked': isLinkedTile }"
     :style="tileStyle"
     :aria-labelledby="title ? titleId : undefined"
     data-testid="gj-tile"
   >
-    <h2 v-if="title" :id="titleId" class="gj-tile__title" data-testid="gj-tile-title">
+    <h2 v-if="title" :id="titleId" class="gj-tile__title" :style="titleStyle" data-testid="gj-tile-title">
       <button
         v-if="isCollapsible"
         type="button"
@@ -25,6 +25,15 @@
     </h2>
 
     <div v-show="!isCollapsed" :id="bodyId" class="gj-tile__body" data-testid="gj-tile-body">
+      <img
+        v-if="image.url"
+        :src="image.url"
+        :alt="image.alt"
+        class="gj-tile__image"
+        loading="lazy"
+        data-testid="gj-tile-image"
+      />
+
       <TextContent v-if="htmlDescription" :text="textContent" class="gj-tile__text" />
 
       <NuxtLink
@@ -35,7 +44,7 @@
         v-bind="openInNewTab ? { target: '_blank', rel: 'noopener' } : {}"
         data-testid="gj-tile-more"
       >
-        {{ moreLabel }}
+        <span>{{ moreLabel }}</span>
       </NuxtLink>
     </div>
   </section>
@@ -47,8 +56,9 @@ import { DESKTOP_NAVIGATION_BREAKPOINT } from '../../../utils/navigation';
 import { TILE_DEFAULT_TEXT_COLOR } from '../../../utils/home';
 
 /*
- * Coloured tile of the home page like the LTS shop ("Werksverkauf", "Unser hitzebeständiges Glas"): title, text,
- * optional picture on the right edge and a "Mehr" link in the lower right corner. Below the desktop navigation
+ * Coloured tile of the home page like the LTS shop ("Werksverkauf", "Unser hitzebeständiges Glas", category tiles):
+ * title (optionally in its own colour), text, optional picture on the right edge or centred below the title and a
+ * "Mehr" link in the lower right corner, which can cover the whole tile. Below the desktop navigation
  * (992 px window width) it can be collapsed to its title like in the LTS shop; unlike there the title is a real
  * button (keyboard, screen readers), and the text stays in the HTML for search engines.
  */
@@ -80,6 +90,17 @@ const moreLink = computed(() => {
 });
 const moreLabel = computed(() => props.content?.button?.label?.trim() || t('more'));
 const openInNewTab = computed(() => props.content?.button?.openInNewTab === true);
+/* The whole tile opens the "Mehr" link (category tiles); the link stays the only one, its area covers the tile */
+const isLinkedTile = computed(() => props.content?.button?.linkWholeTile === true && Boolean(moreLink.value));
+
+const image = computed(() => ({
+  url: props.content?.image?.url?.trim() ?? '',
+  alt: props.content?.image?.alt?.trim() ?? '',
+}));
+const titleStyle = computed(() => {
+  const color = props.content?.layout?.titleColor?.trim();
+  return color ? { color } : undefined;
+});
 
 const isCollapsible = computed(
   () =>
@@ -226,8 +247,74 @@ const tileStyle = computed(() => {
   background-color: #fff;
 }
 
+/*
+ * Picture centred below the title (category tiles), at most 228 px high like the LTS pictures. Product photos on
+ * white take on the tile colour (multiplied: white becomes the tile colour, the glass stays see-through), like the
+ * LTS pictures that had the colour baked in. With the whole tile as link it grows slightly on hover (LTS: 6 %, from
+ * 576 px window width).
+ */
+.gj-tile__image {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 14.25rem;
+  margin: 1.25rem auto 0;
+  transition: transform 0.4s cubic-bezier(0, 0, 0.26, 1);
+  mix-blend-mode: multiply;
+}
+
+@media (min-width: 576px) {
+  .gj-tile--linked:hover .gj-tile__image {
+    transform: scale(1.06);
+  }
+}
+
+/*
+ * Whole tile as link: the "Mehr" link's area covers the tile, so there is one link (named "Mehr", described by the
+ * title) instead of two with the same target like in the LTS shop. The focus frame then marks the whole tile.
+ */
+.gj-tile--linked {
+  cursor: pointer;
+}
+
+.gj-tile--linked .gj-tile__more::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.gj-tile--linked .gj-tile__more {
+  position: static;
+  padding: 0;
+  background: none;
+}
+
+.gj-tile--linked .gj-tile__more > span {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 0.625rem 1.875rem;
+  background-color: rgb(255 255 255 / 60%);
+  transition: background-color 0.3s ease-in-out;
+}
+
+.gj-tile--linked:hover .gj-tile__more > span {
+  background-color: #fff;
+}
+
+.gj-tile--linked:has(.gj-tile__more:focus-visible) {
+  outline: 2px solid #263238;
+  outline-offset: -2px;
+}
+
+.gj-tile--linked .gj-tile__more:focus-visible {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .gj-tile__more {
+  .gj-tile__more,
+  .gj-tile--linked .gj-tile__more > span,
+  .gj-tile__image {
     transition: none;
   }
 }

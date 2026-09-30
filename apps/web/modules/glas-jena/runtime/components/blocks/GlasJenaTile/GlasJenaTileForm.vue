@@ -38,6 +38,36 @@
           data-testid="gj-tile-button-new-tab"
         />
       </div>
+
+      <div class="py-2 flex items-center justify-between gap-3">
+        <UiFormLabel for="gj-tile-button-whole-tile" class="m-0">{{
+          getEditorTranslation('whole-tile-label')
+        }}</UiFormLabel>
+        <SfSwitch
+          id="gj-tile-button-whole-tile"
+          v-model="block.button.linkWholeTile"
+          data-testid="gj-tile-button-whole-tile"
+        />
+      </div>
+    </EditorFormPanel>
+
+    <EditorFormPanel v-model="imageSettingsOpen" :title="getEditorTranslation('image-group-label')">
+      <div class="py-2" data-testid="gj-tile-image-picker">
+        <UiImagePicker
+          :label="getEditorTranslation('image-label')"
+          :image="block.image.url || undefined"
+          :placeholder="placeholderImg"
+          :dimensions="getEditorTranslation('image-hint')"
+          selected-image-type="wideScreen"
+          @add="setImage"
+          @delete="removeImage"
+        />
+      </div>
+
+      <div class="py-2">
+        <UiFormLabel for="gj-tile-image-alt">{{ getEditorTranslation('image-alt-label') }}</UiFormLabel>
+        <SfInput id="gj-tile-image-alt" v-model="block.image.alt" type="text" data-testid="gj-tile-image-alt" />
+      </div>
     </EditorFormPanel>
 
     <EditorFormPanel v-model="layoutSettingsOpen" :title="getEditorTranslation('layout-group-label')">
@@ -104,12 +134,20 @@ const block = computed<NormalizedGlasJenaTileContent>(() => {
   content.button.label = content.button.label ?? '';
   content.button.link = content.button.link ?? '';
   content.button.openInNewTab = content.button.openInNewTab ?? false;
+  content.button.linkWholeTile = content.button.linkWholeTile ?? false;
+
+  if (!content.image) {
+    content.image = {};
+  }
+  content.image.url = content.image.url ?? '';
+  content.image.alt = content.image.alt ?? '';
 
   if (!content.layout) {
     content.layout = {};
   }
   content.layout.backgroundColor = content.layout.backgroundColor || TILE_GREEN;
   content.layout.textColor = content.layout.textColor || TILE_DEFAULT_TEXT_COLOR;
+  content.layout.titleColor = content.layout.titleColor ?? '';
   content.layout.backgroundImage = content.layout.backgroundImage ?? '';
 
   content.collapsibleOnMobile = content.collapsibleOnMobile ?? true;
@@ -127,13 +165,23 @@ const removeBackgroundImage = () => {
   block.value.layout.backgroundImage = '';
 };
 
+const setImage = ({ image }: { image: string }) => {
+  block.value.image.url = image;
+};
+
+const removeImage = () => {
+  block.value.image.url = '';
+};
+
 const colorFields = [
   { key: 'backgroundColor', label: 'background-color-label' },
   { key: 'textColor', label: 'text-color-label' },
+  { key: 'titleColor', label: 'title-color-label' },
 ] as const;
 
 const textSettingsOpen = ref(true);
 const buttonSettingsOpen = ref(true);
+const imageSettingsOpen = ref(true);
 const layoutSettingsOpen = ref(true);
 </script>
 
@@ -147,6 +195,12 @@ const layoutSettingsOpen = ref(true);
     "button-label-label": "Label (empty: \"Mehr\" / \"More\")",
     "button-link-label": "Link (empty: no button)",
     "new-tab-label": "Open in a new tab",
+    "whole-tile-label": "Whole tile opens the link",
+    "image-group-label": "Picture below the title",
+    "image-label": "Picture",
+    "image-hint": "Centred below the title at its own size (e.g. category tiles)",
+    "image-alt-label": "Alternative text (empty if the title says it all)",
+    "title-color-label": "Title colour (empty: text colour)",
     "layout-group-label": "Layout",
     "background-color-label": "Background colour",
     "text-color-label": "Text colour",
@@ -162,6 +216,12 @@ const layoutSettingsOpen = ref(true);
     "button-label-label": "Label (empty: \"Mehr\" / \"More\")",
     "button-link-label": "Link (empty: no button)",
     "new-tab-label": "Open in a new tab",
+    "whole-tile-label": "Whole tile opens the link",
+    "image-group-label": "Picture below the title",
+    "image-label": "Picture",
+    "image-hint": "Centred below the title at its own size (e.g. category tiles)",
+    "image-alt-label": "Alternative text (empty if the title says it all)",
+    "title-color-label": "Title colour (empty: text colour)",
     "layout-group-label": "Layout",
     "background-color-label": "Background colour",
     "text-color-label": "Text colour",
