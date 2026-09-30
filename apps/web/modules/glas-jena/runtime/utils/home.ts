@@ -3,6 +3,7 @@ import type { GlasJenaHeroImageSource, GlasJenaHeroImageSources } from '../compo
 /** Editor blocks of the module for the home page (the name is also the component's file name). */
 export const HERO_IMAGE_BLOCK_NAME = 'GlasJenaHeroImage';
 export const TILE_BLOCK_NAME = 'GlasJenaTile';
+export const PRODUCT_CAROUSEL_BLOCK_NAME = 'GlasJenaProductCarousel';
 
 /**
  * Images of the LTS shop's home page, from the shop's webspace on the PlentyONE CDN (independent of the shop
@@ -72,4 +73,31 @@ export const getHeroImageSources = (images: GlasJenaHeroImageSources): GlasJenaH
     const nextUrl = next ? resolveHeroImageUrl(images, next.size) : fallback;
     return url && url !== nextUrl ? { maxWidth, url } : undefined;
   }).filter((source): source is GlasJenaHeroImageSource => source !== undefined);
+};
+
+/**
+ * Item carousel of the home page ("Unsere Topseller"): sort keys of the shop's item search. Random like the LTS
+ * shop, whose top seller list comes in a different order on every page load. The labels are translation keys of the
+ * editor form.
+ */
+export const PRODUCT_CAROUSEL_SORT_RANDOM = 'item.random';
+export const PRODUCT_CAROUSEL_SORT_OPTIONS = [
+  { value: PRODUCT_CAROUSEL_SORT_RANDOM, label: 'sort-random' },
+  { value: 'default.recommended_sorting', label: 'sort-recommended' },
+  { value: 'texts.name1_asc', label: 'sort-name' },
+  { value: 'sorting.price.avg_asc', label: 'sort-price-asc' },
+  { value: 'sorting.price.avg_desc', label: 'sort-price-desc' },
+  { value: 'variation.createdAt_desc', label: 'sort-newest' },
+];
+export const PRODUCT_CAROUSEL_MAX_ITEMS = 50;
+/** The hidden PlentyONE category "Topseller" / "Top sellers" (created for the home page). */
+export const TOP_SELLER_CATEGORY_ID = '385';
+
+/** Number of items to fetch: a whole number from 1 to the maximum, the maximum if unset or invalid. */
+export const clampCarouselItems = (value: unknown) => {
+  const number = Math.floor(Number(value));
+  if (!Number.isFinite(number) || number < 1) {
+    return PRODUCT_CAROUSEL_MAX_ITEMS;
+  }
+  return Math.min(number, PRODUCT_CAROUSEL_MAX_ITEMS);
 };

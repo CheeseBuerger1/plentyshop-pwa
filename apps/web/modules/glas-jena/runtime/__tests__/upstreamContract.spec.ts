@@ -255,6 +255,17 @@ describe('upstream contract of the glas-jena module', () => {
     );
   });
 
+  it('should find the slider that the item carousel block reuses and restyles', () => {
+    /* GlasJenaProductCarousel: ProductSlider with its test ids, card image size and the scrollable's side buttons */
+    const slider = readApp('components/ProductSlider/ProductSlider.vue');
+    expect(slider).toContain('data-testid="product-slider"');
+    expect(slider).toContain('buttons-placement="floating"');
+    expect(slider).toMatch(/<UiProductCard[\s\S]*?class="w-48 max-w-48 shrink-0"/);
+    const card = readApp('components/ui/ProductCard/ProductCard.vue');
+    expect(card).toContain('data-testid="product-card"');
+    expect(card).toContain("{ 'size-48': isFromSlider }");
+  });
+
   it('should find the class of rendered rich text that the check mark lists rely on', () => {
     expect(readApp('components/TextContent/TextContent.vue')).toContain('class="rte-prose rte-prose--render"');
   });
