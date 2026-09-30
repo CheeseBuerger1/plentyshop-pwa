@@ -78,6 +78,7 @@ const OUR_GLASS_DE = {
   html: list([
     'eignet sich zur gesunden und sicheren Lebensmittelzubereitung',
     'ist leicht zu reinigen und hygienisch im Gebrauch durch die porenfreie Oberfläche',
+    'gibt keine Inhaltsstoffe ab und ist dadurch sehr gut für Allergiker geeignet',
     'bietet eine Vielzahl an Verwendungsmöglichkeiten: Backen, Garen, Zubereiten, Servieren, Kühlen und Einfrieren (bis -35°C)',
     'ist hitzebeständig (bis 450°C), mikrowellen- und mikrowellengrillgeeignet, spülmaschinengeeignet, ofentauglich',
     'ist gegen schnellen Temperaturwechsel mit Temperaturunterschieden von bis zu 150°C resistent',
@@ -90,6 +91,7 @@ const OUR_GLASS_EN = {
   html: list([
     'is suitable for healthy and safe food preparation',
     'is easy to clean and hygienic in use through the pore-free surface',
+    'does not release any substances and is therefore very well suited for people with allergies',
     'offers a variety of application possibilities: baking and cooking, preparing and serving, cooling and freezing (down to -35 ° C)',
     'is heat resistant (up to 450 ° C), microwave, microwave grill suitable, dishwasher and stove fit',
     'shows a high resistance to sudden temperature changes with a temperature difference of up to 150 ° C',

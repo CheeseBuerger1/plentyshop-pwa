@@ -147,7 +147,7 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 2. **Überschrift:** „GLAS IN JENA – Der Spezialist für Hitzebeständiges Glas“ (groß, Light, zentriert; „IN“ hochgestellt).
 3. **Zwei Kacheln nebeneinander:**
    - _Werksverkauf_ (Zartgrün): „Deutschlands größte Auswahl an hitzebeständigem Glas“, „Kristallglas – **Made in Germany**“, Adresse GLAS IN JENA, Westbahnhofstraße 8, 07745 Jena, Deutschland; Öffnungszeiten Mo–Fr 10:00–18:00 Uhr, Sa 10:00–13:00 Uhr; Link „» Zur Kartenansicht“; Produktbild Karaffe; „Mehr“-Button.
-   - _Unser hitzebeständiges Glas_ (Mittelblau, weiße Schrift): Häkchen-Liste mit den Vorteilen (Lebensmittelzubereitung, porenfrei und hygienisch, Backen/Garen/Servieren/Kühlen/Einfrieren bis -35 °C, hitzebeständig bis 450 °C, mikrowellen- und spülmaschinengeeignet, ofentauglich, resistent gegen Temperaturwechsel bis 150 °C); „Mehr“-Button.
+   - _Unser hitzebeständiges Glas_ (Mittelblau, weiße Schrift): Häkchen-Liste mit den Vorteilen (Lebensmittelzubereitung, porenfrei und hygienisch, gibt keine Inhaltsstoffe ab – für Allergiker (zusätzlich zum LTS, Wunsch des Shopbetreibers), Backen/Garen/Servieren/Kühlen/Einfrieren bis -35 °C, hitzebeständig bis 450 °C, mikrowellen- und spülmaschinengeeignet, ofentauglich, resistent gegen Temperaturwechsel bis 150 °C); „Mehr“-Button.
 4. **Drei Kategorie-Kacheln:** Tee & Kaffee (Hellblau), Küche & Helfer (Blaugrau), Gesundheitshelfer (Flieder); je Überschrift, Produktbild, „Mehr“-Button.
 5. **Topseller:** Balken „Unsere Topseller“ in Mittelblau, darunter Karussell mit Pfeilen links/rechts, 4 Artikel auf Desktop.
 6. **Textblock „trendglas® in Jena“** (Zartgrün): SEO-Text links, Bild mit gestapelten Glasdosen rechts. Text aus dem LTS-Shop übernehmen.
