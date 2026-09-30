@@ -325,8 +325,9 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
- * "Did you know" box (DidYouKnow block): larger title (26 px instead of 20 px) and much larger arrows (56 px
- * instead of 32 px, click area 64 px), as requested by the shop owner.
+ * "Did you know" box (DidYouKnow block), as requested by the shop owner: larger title (26 px instead of 20 px) and
+ * large thin arrows (72 px, lines about 2 px like the thin header icons) instead of the filled 32 px icons of the
+ * block. The icons cannot be drawn thinner, so they are hidden and replaced by a line chevron in the text colour.
  */
 .font-body [data-testid='did-you-know-title'] {
   font-size: 1.625rem;
@@ -334,13 +335,28 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 .font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next']) {
-  width: 4rem;
-  height: 4rem;
+  width: 4.5rem;
+  height: 4.5rem;
 }
 
 .font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next']) svg {
-  width: 3.5rem;
-  height: 3.5rem;
+  display: none;
+}
+
+.font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next'])::before {
+  content: '';
+  width: 4.5rem;
+  height: 4.5rem;
+  background: currentColor;
+  mask: var(--gj-chevron) center / contain no-repeat;
+}
+
+.font-body [data-testid='did-you-know-previous'] {
+  --gj-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15 3L6 12L15 21' fill='none' stroke='black' stroke-width='0.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.font-body [data-testid='did-you-know-next'] {
+  --gj-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 3L18 12L9 21' fill='none' stroke='black' stroke-width='0.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
 /*
