@@ -238,10 +238,10 @@ const tileStyle = computed(() => {
 }
 
 /*
- * The minimum height only side by side: the shop's grid block stacks its columns below 1024 px (its tablet
- * breakpoint; the LTS shop below 992 px), stacked tiles only need the height of their content.
+ * The minimum height only side by side: grids with tiles stack below 992 px like the LTS shop (glas-jena.css),
+ * stacked tiles only need the height of their content.
  */
-@media (min-width: 1024px) {
+@media (min-width: 992px) {
   .gj-tile {
     min-height: 24.25rem;
   }
