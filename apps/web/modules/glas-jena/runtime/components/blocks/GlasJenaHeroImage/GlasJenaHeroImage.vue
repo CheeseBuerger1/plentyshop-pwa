@@ -41,8 +41,8 @@ const alt = computed(() => images.value.alt?.trim() ?? '');
 <style scoped>
 /*
  * Height like the LTS shop: 391 px next to the "Did you know" box (the image column stretches to the box's height
- * if that is taller), stacked below it 47 % of the window width, at most 440 px. The LTS shop stacks below 992 px,
- * the shop's grid block below 1024 px (its tablet breakpoint), so the switch follows the grid.
+ * if that is taller), stacked below it 47 % of the window width, at most 440 px. Stacked below 992 px like the LTS
+ * shop (glas-jena.css).
  */
 .gj-hero-image {
   position: relative;
@@ -51,7 +51,7 @@ const alt = computed(() => images.value.alt?.trim() ?? '');
   overflow: hidden;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 992px) {
   .gj-hero-image {
     min-height: 24.4375rem;
   }

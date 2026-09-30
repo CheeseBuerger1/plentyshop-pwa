@@ -325,13 +325,99 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
- * Heading of the home page, like the LTS shop ("GLAS IN JENA - Der Spezialist für Hitzebeständiges Glas"): a text
- * block in the editor's HTML mode with `<h1 class="gj-home-headline">GLAS <span class="gj-home-headline__in">in
- * </span> JENA - …</h1>`. Light, centred, black, 20 px above and below; sizes of the LTS in rem, so they scale
- * from its 14 px to the shop's 16 px. The raised "IN" stands between spaces so screen readers read three words;
- * the negative margin takes the spaces back to the LTS spacing.
+ * Grids with a hero image or tiles stack their columns below 992 px window width, like the LTS shop (the grid
+ * block itself switches at its breakpoints 768 and 1024 px; in the editor it follows the device switch instead).
+ * Their tablet column widths are set like on desktop, so they stay side by side from 992 px.
+ */
+@media (max-width: 991.98px) {
+  .font-body
+    [data-testid='multi-grid-structure']:has(
+      > [data-testid='multi-grid-column'] > div > * > * > :is([data-testid='gj-hero-image'], [data-testid='gj-tile'])
+    )
+    > [data-testid='multi-grid-column'] {
+    grid-column: span 12 / span 12;
+  }
+}
+
+/*
+ * "Did you know" box (DidYouKnow block), as requested by the shop owner: larger title (26 px instead of 20 px) and
+ * thin arrows (44 px, lines 1.4 px like the thin header icons) instead of the filled 32 px icons of the block. The
+ * icons cannot be drawn thinner, so they are hidden and replaced by a line chevron in the text colour.
+ */
+.font-body [data-testid='did-you-know-title'] {
+  font-size: 1.625rem;
+  line-height: 1.2;
+}
+
+/*
+ * Next to the hero image (from 992 px) the box is 391 px high like in the LTS shop, so the image is only scaled to
+ * its column's width and cropped from the top, never enlarged (a taller box made the image zoom in and lose its
+ * sides). To fit the longest fact, the spacing is tighter and title and facts shrink with narrower windows: title
+ * 22–26 px, facts 14–16 px (14 px like the LTS shop at 992 px, 16 px from 1200 px), line height 1.35 instead of 1.5
+ * (the LTS shop uses 1.3–1.4 here). If a fact is still too long, the box grows rather than cutting it off.
+ */
+@media (min-width: 992px) {
+  .font-body [data-testid='did-you-know'] {
+    min-height: 24.4375rem;
+  }
+
+  .font-body [data-testid='did-you-know-title'] {
+    margin-top: 0.75rem;
+    font-size: clamp(1.375rem, calc(1.375rem + (100vw - 992px) * 0.0192), 1.625rem);
+  }
+
+  .font-body [data-testid='did-you-know-facts'] {
+    margin-top: 0.75rem;
+  }
+
+  .font-body [data-testid='did-you-know-fact'] {
+    font-size: clamp(0.875rem, calc(0.875rem + (100vw - 992px) * 0.0096), 1rem);
+    line-height: 1.35;
+  }
+
+  .font-body [data-testid='did-you-know-facts'] + div {
+    margin-top: 1rem;
+  }
+}
+
+.font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next']) {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next']) svg {
+  display: none;
+}
+
+.font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next'])::before {
+  content: '';
+  width: 2.75rem;
+  height: 2.75rem;
+  background: currentColor;
+  mask: var(--gj-chevron) center / contain no-repeat;
+}
+
+.font-body [data-testid='did-you-know-previous'] {
+  --gj-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15 3L6 12L15 21' fill='none' stroke='black' stroke-width='0.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.font-body [data-testid='did-you-know-next'] {
+  --gj-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 3L18 12L9 21' fill='none' stroke='black' stroke-width='0.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/*
+ * Heading of the home page, like the LTS shop ("GLAS IN JENA - Der Spezialist für hitzebeständiges Glas"): a text
+ * block in the editor's HTML mode with
+ * `<h1 class="gj-home-headline"><span class="gj-home-headline__name">GLAS <span class="gj-home-headline__in">in</span>
+ * JENA</span><span class="gj-home-headline__dash"> - </span><span class="gj-home-headline__claim">Der Spezialist …
+ * </span></h1>`. Light, centred, black, 20 px above and below; sizes of the LTS in rem, so they scale from its 14 px
+ * to the shop's 16 px. The raised "IN" stands between spaces so screen readers read three words; the negative
+ * margin takes the spaces back to the LTS spacing.
+ * One line where it fits; otherwise (as requested by the shop owner) it breaks between the name and the claim and
+ * the dash disappears. The heading is its own container: the whole line needs about 21.2 times its font size.
  */
 .font-body .rte-prose .gj-home-headline {
+  container: gj-home-headline / inline-size;
   margin: 1.25rem 0;
   font-size: 2.85rem;
   font-weight: 300;
@@ -346,6 +432,16 @@ div:has(> svg[data-testid='favorite']) {
   font-weight: 400;
   vertical-align: top;
   text-transform: uppercase;
+}
+
+@container gj-home-headline (max-width: 21.5em) {
+  .font-body .rte-prose .gj-home-headline__dash {
+    display: none;
+  }
+
+  .font-body .rte-prose :is(.gj-home-headline__name, .gj-home-headline__claim) {
+    display: block;
+  }
 }
 
 @media (max-width: 1199.98px) {

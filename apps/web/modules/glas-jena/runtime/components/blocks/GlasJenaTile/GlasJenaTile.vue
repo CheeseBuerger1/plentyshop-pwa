@@ -199,6 +199,11 @@ const tileStyle = computed(() => {
     no-repeat;
 }
 
+/* List items in Light, as requested by the shop owner (the shop font has no weight between 300 and 400) */
+.gj-tile__text :deep(li) {
+  font-weight: 300;
+}
+
 /*
  * "Mehr" in the lower right corner, a light translucent area like the LTS shop. Unlike there with dark text
  * (#263238: 12:1 on the green, 7.8:1 on the blue tile; the LTS #eee reached only 1.0:1 and 2.0:1); on hover the
@@ -233,10 +238,10 @@ const tileStyle = computed(() => {
 }
 
 /*
- * The minimum height only side by side: the shop's grid block stacks its columns below 1024 px (its tablet
- * breakpoint; the LTS shop below 992 px), stacked tiles only need the height of their content.
+ * The minimum height only side by side: grids with tiles stack below 992 px like the LTS shop (glas-jena.css),
+ * stacked tiles only need the height of their content.
  */
-@media (min-width: 1024px) {
+@media (min-width: 992px) {
   .gj-tile {
     min-height: 24.25rem;
   }
