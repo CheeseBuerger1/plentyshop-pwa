@@ -314,6 +314,63 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
+ * Home page blocks side by side in a grid block share the height of the row, like the LTS shop (the hero image
+ * as high as the "Did you know" box, both tiles equally high). The grid stretches its columns, but the row
+ * wrapper around a block does not pass the height on; only for columns holding just a hero image or a tile.
+ */
+.font-body
+  [data-testid='multi-grid-column']
+  > div:only-child:has(> * > * > :is([data-testid='gj-hero-image'], [data-testid='gj-tile'])) {
+  height: 100%;
+}
+
+/*
+ * Heading of the home page, like the LTS shop ("GLAS IN JENA - Der Spezialist für Hitzebeständiges Glas"): a text
+ * block in the editor's HTML mode with `<h1 class="gj-home-headline">GLAS <span class="gj-home-headline__in">in
+ * </span> JENA - …</h1>`. Light, centred, black, 20 px above and below; sizes of the LTS in rem, so they scale
+ * from its 14 px to the shop's 16 px. The raised "IN" stands between spaces so screen readers read three words;
+ * the negative margin takes the spaces back to the LTS spacing.
+ */
+.font-body .rte-prose .gj-home-headline {
+  margin: 1.25rem 0;
+  font-size: 2.85rem;
+  font-weight: 300;
+  line-height: 1.1;
+  text-align: center;
+  color: #000;
+}
+
+.font-body .rte-prose .gj-home-headline__in {
+  margin: 0 -0.45em 0 -0.25em;
+  font-size: 0.56em;
+  font-weight: 400;
+  vertical-align: top;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1199.98px) {
+  .font-body .rte-prose .gj-home-headline {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .font-body .rte-prose .gj-home-headline {
+    font-size: 2.3rem;
+  }
+
+  .font-body .rte-prose .gj-home-headline__in {
+    font-size: 0.52em;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .font-body .rte-prose .gj-home-headline {
+    font-size: 1.5rem;
+  }
+}
+
+/*
  * Legal texts from the plentymarkets system (Impressum, AGB, Datenschutz, Widerruf, Barrierefreiheit): the page
  * wraps them in `no-preflight`, which reverts all shop styles to the browser defaults. Styled like the LTS shop
  * (`.my-legal`), with its sizes relative to the text size, so they scale from the LTS 14 px to the shop's 16 px:
