@@ -385,6 +385,11 @@ div:has(> svg[data-testid='favorite']) {
   height: 2.75rem;
 }
 
+/* The two arrows 96 px apart instead of the block's 64 px, as requested by the shop owner */
+.font-body [data-testid='did-you-know-previous']:has(+ [data-testid='did-you-know-next']) {
+  margin-right: 2rem;
+}
+
 .font-body :is([data-testid='did-you-know-previous'], [data-testid='did-you-know-next']) svg {
   display: none;
 }
