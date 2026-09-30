@@ -52,7 +52,7 @@ const FACTORY_OUTLET_DE = {
   title: 'Werksverkauf',
   more: 'Mehr',
   html: [
-    '<p>Deutschlands größte Auswahl an Hitzebeständigem Glas<br>Kristallglas - <strong>Made in Germany</strong></p>',
+    '<p>Deutschlands größte Auswahl an hitzebeständigem Glas<br>Kristallglas - <strong>Made in Germany</strong></p>',
     '<p><strong>GLAS<sup>in</sup>JENA</strong><br>Westbahnhofstraße 8<br>07745 Jena<br>Deutschland</p>',
     '<p><strong>Öffnungszeiten</strong><br>Mo - Fr: 10:00 - 18:00 Uhr<br>Sa: 10:00 - 13:00 Uhr</p>',
     mapLink('Zur Kartenansicht'),
