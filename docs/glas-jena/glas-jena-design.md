@@ -23,18 +23,19 @@ Screenshots der Desktop-Ansicht liegen im selben Ordner (`docs/glas-jena/`).
 
 Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des LTS-Shops abgleichen** und hier korrigieren.
 
-| Verwendung                                                                         | Farbe                                                |
-| ---------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Schieferblau – Logo-Feld, Box „Wussten Sie schon“                                  | `#4B6A82`                                            |
-| Mittelblau – Warenkorb-Button, Topseller-Balken, Box „Unser hitzebeständiges Glas“ | `#6E9BBF`                                            |
-| Zartgrün – Werksverkauf, Textblock „trendglas® in Jena“                            | `#DDEBC8`                                            |
-| Kachel Tee & Kaffee                                                                | `#A9C9E3`                                            |
-| Kachel Küche & Helfer                                                              | `#D6E1EA`                                            |
-| Kachel Gesundheitshelfer                                                           | `#D4C8E8` (Überschrift darin violett, ca. `#9B6FB5`) |
-| Header-Iconfelder (Konto, Sprache, Suche)                                          | Hellgrau, ca. `#F0F0F0` / `#E6E6E6`                  |
-| Footer                                                                             | Fast schwarz-blau `#263238` (gemessen)               |
-| Fließtext                                                                          | Dunkelgrau, ca. `#444444`                            |
-| Textlinks (Textblöcke, Rechtstexte, Cookie-Banner)                                 | Dunkelblau `#2C5572`, unterstrichen (siehe unten)    |
+| Verwendung                                                                      | Farbe                                                |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Schieferblau – Logo-Feld, Box „Wussten Sie schon“                               | `#4B6A82`                                            |
+| Mittelblau – Warenkorb-Button, Box „Unser hitzebeständiges Glas“                | `#6E9BBF`                                            |
+| Leistenblau – Balken „Unsere Topseller“, „Ersatzteile“, „Zubehör“ (Weiß 3,23:1) | `#6A94B4` (`--gj-bar-blue`)                          |
+| Zartgrün – Werksverkauf, Textblock „trendglas® in Jena“                         | `#DDEBC8`                                            |
+| Kachel Tee & Kaffee                                                             | `#A9C9E3`                                            |
+| Kachel Küche & Helfer                                                           | `#D6E1EA`                                            |
+| Kachel Gesundheitshelfer                                                        | `#D4C8E8` (Überschrift darin violett, ca. `#9B6FB5`) |
+| Header-Iconfelder (Konto, Sprache, Suche)                                       | Hellgrau, ca. `#F0F0F0` / `#E6E6E6`                  |
+| Footer                                                                          | Fast schwarz-blau `#263238` (gemessen)               |
+| Fließtext                                                                       | Dunkelgrau, ca. `#444444`                            |
+| Textlinks (Textblöcke, Rechtstexte, Cookie-Banner)                              | Dunkelblau `#2C5572`, unterstrichen (siehe unten)    |
 
 **Barrierefreiheit vor LTS-Treue:** Jede übernommene LTS-Formatierung wird auf WCAG 2.1 AA und gängige Empfehlungen geprüft und bei Bedarf angepasst; die Abweichung steht im CSS-Kommentar. Beispiel Linkfarbe: Das LTS-Mittelblau `#6E9BBF` hat auf Weiß nur 2,96:1 (nötig 4,5:1). Textlinks nutzen deshalb `--gj-link` (`#2C5572`, mindestens 4,59:1 auf Weiß und allen Kachelfarben) und sind immer unterstrichen, weil sich die Farbe allein kaum vom Fließtext abhebt.
 
@@ -159,7 +160,7 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 
 - Weißer Hintergrund, Produktbild freigestellt.
 - Oben rechts eine **Dreieck-Ecke** in Blaugrau mit Warenkorb-Symbol (In-den-Warenkorb); das Symbol sitzt 7,2 px von oberer und rechter Kante, gut im Dreieck (Wunsch des Shopbetreibers, `glas-jena.css`).
-- Darunter Artikelname (16 px), Preis groß (20 px; beides Wunsch des Shopbetreibers, `glas-jena.css`) mit „\*“, Hinweis „\* inkl. ges. MwSt. zzgl. Versandkosten“ (Versandkosten als Link).
+- Darunter Artikelname (16 px), Preis groß (20 px, darunter 4 statt 8 px Abstand; Wünsche des Shopbetreibers, `glas-jena.css`) mit „\*“, Hinweis „\* inkl. ges. MwSt. zzgl. Versandkosten“ (Versandkosten als Link).
 - **Kein Herz / keine Wunschliste** (siehe unten).
 
 ### Keine Wunschliste

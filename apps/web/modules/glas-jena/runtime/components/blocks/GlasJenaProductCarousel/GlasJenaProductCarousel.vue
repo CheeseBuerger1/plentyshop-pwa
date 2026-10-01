@@ -119,7 +119,7 @@ const showPrevious = () => page(-1);
   font-weight: 300;
   line-height: 1.4;
   color: #fff;
-  background-color: #6a94b4;
+  background-color: var(--gj-bar-blue);
 }
 
 /*
@@ -180,7 +180,7 @@ const showPrevious = () => page(-1);
   width: 2.75rem;
   height: 2.75rem;
   margin: auto 0;
-  color: #6a94b4;
+  color: var(--gj-bar-blue);
 }
 
 .gj-product-carousel__arrow::before {

@@ -11,6 +11,11 @@
   --gj-logo-blue: #4a677c;
   --gj-mid-blue: #6e9bbf;
   /*
+   * Blue bars with white headings ("Unsere Topseller", "Ersatzteile", "Zubehör"): the LTS mid blue darkened a little,
+   * white 3.23:1 (the mid blue reaches only 2.96:1, needed 3:1 for large text)
+   */
+  --gj-bar-blue: #6a94b4;
+  /*
    * Text links: darker than the LTS mid blue (2.96:1 on white, below WCAG AA). At least 4.5:1 on white and on
    * every tile colour (lowest: 4.59:1 on the tile blue). Close to the text colour, so links stay underlined.
    */
@@ -819,13 +824,13 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
- * Product slider title as mid blue bar ("Unsere Topseller", "Ersatzteile", "Zubehör") like the LTS shop.
- * Only when the ProductRecommendedProducts block has a title text; an empty title renders no bar.
+ * Product slider title as blue bar ("Ersatzteile", "Zubehör") like the LTS shop, in the bar blue like the home page's
+ * "Unsere Topseller". Only when the ProductRecommendedProducts block has a title text; an empty title renders no bar.
  */
 .font-body [data-testid='recommended-block']:has([data-testid='text-html']) {
   margin-bottom: 1rem;
   padding: 0.5rem 1.25rem;
-  background-color: var(--gj-mid-blue);
+  background-color: var(--gj-bar-blue);
   color: #fff;
 }
 
@@ -868,12 +873,16 @@ div:has(> svg[data-testid='favorite']) {
   background-color: var(--gj-tile-blue);
 }
 
-/* Product card text larger, as requested by the shop owner: name 16 px instead of 14 px, price 20 px instead of 14 px */
+/*
+ * Product card text larger, as requested by the shop owner: name 16 px instead of 14 px, price 20 px instead of 14 px
+ * with less space below it (4 px instead of 8 px).
+ */
 .font-body [data-testid='product-card'] [data-testid='productcard-name'] {
   font-size: 1rem;
   line-height: 1.4;
 }
 
 .font-body [data-testid='product-card'] [data-testid='product-card-vertical-price'] {
+  padding-bottom: 0.25rem;
   font-size: 1.25rem;
 }
