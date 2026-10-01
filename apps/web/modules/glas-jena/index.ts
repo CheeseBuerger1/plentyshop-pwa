@@ -14,6 +14,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   Cookiebar: './runtime/components/GlasJenaCookiebar.vue',
   /* No returns through the web shop: the "return items" button on the order confirmation renders nothing */
   OrderReturnItems: './runtime/components/GlasJenaNoReturns.vue',
+  /* No "buy again" (as requested by the shop owner): on the order confirmation a link back to "My orders" instead */
+  OrderAgainButton: './runtime/components/GlasJenaOrderBackLink.vue',
 };
 
 /** Alias under which nuxt-viewport provides its generated options to its runtime plugins. */
@@ -131,5 +133,8 @@ export default defineNuxtModule({
 
     /* English title and description of the home page for search engines, see HOME_SEO_TEXTS in utils/home.ts */
     addPlugin(resolve('./runtime/plugins/homeSeo'), { append: true });
+
+    /* Order dates without the time of day, see utils/orderDate.ts */
+    addPlugin(resolve('./runtime/plugins/orderDate'));
   },
 });

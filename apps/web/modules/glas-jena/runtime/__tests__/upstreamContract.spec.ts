@@ -7,6 +7,7 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { orderGetters } from '@plentymarkets/shop-api';
 import { COMPONENT_OVERRIDES, PAGE_OVERRIDES, REMOVED_PAGE_FILES } from '../../index';
 import {
   ACCOUNT_ROUTE_PREFIX,
@@ -285,6 +286,45 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('pages/contact.vue')).toMatch(
       /<NuxtLayout name="default">\s*<div[^>]*>\s*<h1 class="[^"]*typography-headline-3/,
     );
+  });
+
+  it('should find the three-dot menu of the orders that glas-jena.css hides (buy again, return)', () => {
+    const myOrders = readApp('pages/my-account/my-orders.vue');
+    expect(
+      myOrders.match(/<UiDropdown[^>]*>\s*<template #trigger>\s*<UiButton[^>]*>\s*<SfIconMoreHoriz/g),
+    ).toHaveLength(2);
+    expect(myOrders).toContain('data-testid="account-orders-content"');
+    expect(myOrders).toContain('localePath(`${paths.confirmation}/${orderGetters.getId(order)}');
+    expect(readApp('utils/paths.ts')).toContain("confirmation: '/confirmation'");
+    expect(readApp('components/ui/Dropdown/Dropdown.vue')).toContain('<SfDropdown');
+    expect(
+      readFileSync(
+        join(WEB_DIR, '../../node_modules/@storefront-ui/vue/dist/components/SfDropdown/SfDropdown.vue.mjs'),
+        'utf8',
+      ),
+    ).toContain('class: "w-max"');
+  });
+
+  it('should find the "continue shopping" button as the only link directly in the order confirmation', () => {
+    const confirmation = readApp('components/ConfirmationPageContent/ConfirmationPageContent.vue');
+    const root = confirmation.slice(confirmation.indexOf('data-testid="order-success-page"'));
+    expect(root).toMatch(
+      /<\/div>\s*<UiButton :tag="NuxtLink" :href="localePath\(paths\.home\)"[^>]*>\s*\{\{ t\('common\.actions\.continueShopping'\) \}\}/,
+    );
+    expect(confirmation).toContain('<OrderAgainButton v-if="isAuthorized"');
+    expect(readApp('utils/paths.ts')).toContain("accountMyOrders: '/my-account/my-orders'");
+  });
+
+  it('should find order ID and amount as first and third column of the order table (no wrapping)', () => {
+    const header = readApp('pages/my-account/my-orders.vue').match(/<thead[\s\S]*?<\/thead>/)?.[0] ?? '';
+    const columns = [...header.matchAll(/t\('account\.ordersAndReturns\.(\w+)'\)/g)].map(([, key]) => key);
+    expect(columns.slice(0, 3)).toEqual(['orderId', 'orderDate', 'amount']);
+  });
+
+  it('should find the order date getter that the module replaces (date without time)', () => {
+    expect(readApp('pages/my-account/my-orders.vue')).toContain('orderGetters.getDate(order, locale)');
+    expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain('orderGetters.getDate(order, locale)');
+    expect(Object.getOwnPropertyDescriptor(orderGetters, 'getDate')?.writable).toBe(true);
   });
 
   it('should find the home page identifier and the SEO defaults that the English home page texts replace', () => {
