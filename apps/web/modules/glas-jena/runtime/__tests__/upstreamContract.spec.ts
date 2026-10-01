@@ -286,4 +286,15 @@ describe('upstream contract of the glas-jena module', () => {
       /<NuxtLayout name="default">\s*<div[^>]*>\s*<h1 class="[^"]*typography-headline-3/,
     );
   });
+
+  it('should find the home page identifier and the SEO defaults that the English home page texts replace', () => {
+    expect(readApp('pages/index.vue')).toContain('identifier: HOMEPAGE_IDENTIFIER');
+    expect(readApp('utils/blocks/immutable-page-identifiers.ts')).toContain(
+      "export const HOMEPAGE_IDENTIFIER = 'index'",
+    );
+    const appVue = readApp('app.vue');
+    expect(appVue).toContain("useSiteSettings('metaTitle')");
+    expect(appVue).toContain("useSiteSettings('metaDescription')");
+    expect(appVue).toMatch(/useSeoMeta\(\{\s*title: \(\) => title\.value,/);
+  });
 });

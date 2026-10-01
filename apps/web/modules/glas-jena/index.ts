@@ -128,5 +128,8 @@ export default defineNuxtModule({
 
     /* Jump links in the legal texts (table of contents of the AGB), see utils/legalAnchors.ts */
     addPlugin({ src: resolve('./runtime/plugins/legalAnchors.client'), mode: 'client' });
+
+    /* English title and description of the home page for search engines, see HOME_SEO_TEXTS in utils/home.ts */
+    addPlugin(resolve('./runtime/plugins/homeSeo'), { append: true });
   },
 });

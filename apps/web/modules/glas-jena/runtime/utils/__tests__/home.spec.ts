@@ -1,4 +1,4 @@
-import { clampCarouselItems, getHeroImageSources, resolveHeroImageUrl } from '../home';
+import { clampCarouselItems, getHeroImageSources, getHomeSeoTexts, resolveHeroImageUrl } from '../home';
 
 describe('home utils', () => {
   describe('resolveHeroImageUrl', () => {
@@ -57,6 +57,20 @@ describe('home utils', () => {
       expect(clampCarouselItems(undefined)).toBe(50);
       expect(clampCarouselItems(0)).toBe(50);
       expect(clampCarouselItems('abc')).toBe(50);
+    });
+  });
+
+  describe('getHomeSeoTexts', () => {
+    it('should return the English title and description', () => {
+      expect(getHomeSeoTexts('en')).toEqual({
+        title: 'Heat resistant glass from Jena',
+        description: expect.stringContaining('Heat resistant borosilicate glass made in Germany'),
+      });
+    });
+
+    it('should return nothing for languages that keep the editor defaults', () => {
+      expect(getHomeSeoTexts('de')).toBeUndefined();
+      expect(getHomeSeoTexts('toString')).toBeUndefined();
     });
   });
 });

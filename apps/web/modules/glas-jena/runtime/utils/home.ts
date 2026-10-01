@@ -101,3 +101,21 @@ export const clampCarouselItems = (value: unknown) => {
   }
   return Math.min(number, PRODUCT_CAROUSEL_MAX_ITEMS);
 };
+
+/*
+ * Search engine title and description of the home page per language. The editor's SEO defaults (title, meta
+ * description) apply to all languages alike, so the home page would show the German texts in English as well. These
+ * texts replace them on the home page only; languages without an entry (German) keep the editor's defaults. The
+ * title is shown with the shop name behind it ("… | OnlineMarket -GLAS in JENA-").
+ */
+export const HOME_SEO_TEXTS = {
+  en: {
+    title: 'Heat resistant glass from Jena',
+    description:
+      'Heat resistant borosilicate glass made in Germany: teapots, cups, storage jars and kitchen helpers from the manufacturer in Jena – with factory outlet.',
+  },
+} as const;
+
+/** Home page title and description for a language, `undefined` if the editor's SEO defaults apply. */
+export const getHomeSeoTexts = (locale: string) =>
+  Object.hasOwn(HOME_SEO_TEXTS, locale) ? HOME_SEO_TEXTS[locale as keyof typeof HOME_SEO_TEXTS] : undefined;
