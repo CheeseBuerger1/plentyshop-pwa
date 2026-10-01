@@ -110,15 +110,6 @@ const products = computed(() => data.value ?? []);
   display: none;
 }
 
-/*
- * Cart icon further into the triangle corner, as requested by the shop owner: 5.6 px from the top and right edge
- * (glas-jena.css: 9.6 px, plus the gap before the hidden label "Hinzufügen" on the right).
- */
-.gj-product-carousel :deep([data-testid='product-card'] [data-testid='add-to-basket-short']) {
-  gap: 0;
-  padding: 0.35rem 0.35rem 0 0;
-}
-
 .gj-product-carousel__slider :deep(div:has(> [data-testid='product-slider']) > button) {
   color: #fff;
   background-color: #6a94b4;
