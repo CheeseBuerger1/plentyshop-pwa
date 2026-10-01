@@ -7,6 +7,7 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { orderGetters } from '@plentymarkets/shop-api';
 import { COMPONENT_OVERRIDES, PAGE_OVERRIDES, REMOVED_PAGE_FILES } from '../../index';
 import {
   ACCOUNT_ROUTE_PREFIX,
@@ -310,7 +311,14 @@ describe('upstream contract of the glas-jena module', () => {
     expect(root).toMatch(
       /<\/div>\s*<UiButton :tag="NuxtLink" :href="localePath\(paths\.home\)"[^>]*>\s*\{\{ t\('common\.actions\.continueShopping'\) \}\}/,
     );
-    expect(confirmation).toContain('<OrderAgainButton');
+    expect(confirmation).toContain('<OrderAgainButton v-if="isAuthorized"');
+    expect(readApp('utils/paths.ts')).toContain("accountMyOrders: '/my-account/my-orders'");
+  });
+
+  it('should find the order date getter that the module replaces (date without time)', () => {
+    expect(readApp('pages/my-account/my-orders.vue')).toContain('orderGetters.getDate(order, locale)');
+    expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain('orderGetters.getDate(order, locale)');
+    expect(Object.getOwnPropertyDescriptor(orderGetters, 'getDate')?.writable).toBe(true);
   });
 
   it('should find the home page identifier and the SEO defaults that the English home page texts replace', () => {
