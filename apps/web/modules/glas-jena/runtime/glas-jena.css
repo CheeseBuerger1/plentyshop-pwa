@@ -207,6 +207,11 @@ div:has(> svg[data-testid='favorite']) {
   color: var(--gj-link-hover);
 }
 
+/* Order table: order ID ("Auftrags-ID" broke at the hyphen) and amount never wrap (as requested by the shop owner) */
+[data-testid='account-orders-content'] table :is(th, td):is(:nth-child(1), :nth-child(3)) {
+  white-space: nowrap;
+}
+
 /* Order confirmation: no "continue shopping" button below the order (as requested by the shop owner) */
 [data-testid='order-success-page'] > a {
   display: none;

@@ -315,6 +315,12 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('utils/paths.ts')).toContain("accountMyOrders: '/my-account/my-orders'");
   });
 
+  it('should find order ID and amount as first and third column of the order table (no wrapping)', () => {
+    const header = readApp('pages/my-account/my-orders.vue').match(/<thead[\s\S]*?<\/thead>/)?.[0] ?? '';
+    const columns = [...header.matchAll(/t\('account\.ordersAndReturns\.(\w+)'\)/g)].map(([, key]) => key);
+    expect(columns.slice(0, 3)).toEqual(['orderId', 'orderDate', 'amount']);
+  });
+
   it('should find the order date getter that the module replaces (date without time)', () => {
     expect(readApp('pages/my-account/my-orders.vue')).toContain('orderGetters.getDate(order, locale)');
     expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain('orderGetters.getDate(order, locale)');
