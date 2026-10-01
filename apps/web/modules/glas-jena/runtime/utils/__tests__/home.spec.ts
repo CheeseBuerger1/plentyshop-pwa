@@ -1,4 +1,4 @@
-import { getHeroImageSources, resolveHeroImageUrl } from '../home';
+import { clampCarouselItems, getHeroImageSources, resolveHeroImageUrl } from '../home';
 
 describe('home utils', () => {
   describe('resolveHeroImageUrl', () => {
@@ -43,6 +43,20 @@ describe('home utils', () => {
 
     it('should return no sources for a single image', () => {
       expect(getHeroImageSources({ wideScreen: 'w.jpg' })).toEqual([]);
+    });
+  });
+
+  describe('clampCarouselItems', () => {
+    it('should keep whole numbers from 1 to 50', () => {
+      expect(clampCarouselItems(12)).toBe(12);
+      expect(clampCarouselItems('7.8')).toBe(7);
+    });
+
+    it('should limit larger numbers to 50 and use 50 for missing or invalid values', () => {
+      expect(clampCarouselItems(80)).toBe(50);
+      expect(clampCarouselItems(undefined)).toBe(50);
+      expect(clampCarouselItems(0)).toBe(50);
+      expect(clampCarouselItems('abc')).toBe(50);
     });
   });
 });
