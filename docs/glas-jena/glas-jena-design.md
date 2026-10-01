@@ -182,6 +182,7 @@ Außerdem im Header, Block **Utility Bar**, Aktionen: „Wishlist“ aus (wirkt 
 - Die Seiten `/wishlist` und `/my-account/wishlist` sind entfernt (`pages:extend` in `modules/glas-jena/index.ts`); alte Links landen auf der 404-Seite.
 - Abschnitt „Wunschliste“ im Menü von „Mein Konto“ und der Vorteil „Wunschliste“ im Registrierungsformular sind per CSS ausgeblendet (`glas-jena.css`; der Menü-Link wird mit und ohne Schrägstrich am Ende erkannt). Dafür gibt es keine Editor-Einstellung: Das Kontomenü ist im Original-Layout `layouts/account.vue` fest programmiert.
 - **Keine Retouren über den Shop:** Die Seiten `/my-account/returns/` und `/my-account/new-return/…` sind entfernt (404, `REMOVED_PAGE_FILES` in `index.ts`), „Retouren“ im Kontomenü und „Zurücksenden“ bei den Bestellungen per CSS ausgeblendet, der Knopf „Artikel zurücksenden“ auf der Bestellbestätigung ersetzt (`GlasJenaNoReturns.vue`). Ob eine Bestellung retournierbar ist, liefert PlentyONE; dort lassen sich Retouren zusätzlich abschalten.
+- **Kein „Erneut kaufen“ bei „Meine Bestellungen“** (Wunsch des Shopbetreibers): Das Drei-Punkte-Menü jeder Bestellung enthält nur „Erneut kaufen“ und „Zurücksenden“ und ist deshalb ganz per CSS ausgeblendet; „Details“ bleibt.
 - Die untere Navigationsleiste (mit Wunschliste) ist auch auf den Login-/Registrierungsseiten ersetzt (`GlasJenaNavbarBottom.vue`, rendert nichts) – das Handy sieht dort aus wie im restlichen Shop.
 
 ### Cookie-Banner

@@ -287,6 +287,21 @@ describe('upstream contract of the glas-jena module', () => {
     );
   });
 
+  it('should find the three-dot menu of the orders that glas-jena.css hides (buy again, return)', () => {
+    const myOrders = readApp('pages/my-account/my-orders.vue');
+    expect(
+      myOrders.match(/<UiDropdown[^>]*>\s*<template #trigger>\s*<UiButton[^>]*>\s*<SfIconMoreHoriz/g),
+    ).toHaveLength(2);
+    expect(myOrders).toContain('data-testid="account-orders-content"');
+    expect(readApp('components/ui/Dropdown/Dropdown.vue')).toContain('<SfDropdown');
+    expect(
+      readFileSync(
+        join(WEB_DIR, '../../node_modules/@storefront-ui/vue/dist/components/SfDropdown/SfDropdown.vue.mjs'),
+        'utf8',
+      ),
+    ).toContain('class: "w-max"');
+  });
+
   it('should find the home page identifier and the SEO defaults that the English home page texts replace', () => {
     expect(readApp('pages/index.vue')).toContain('identifier: HOMEPAGE_IDENTIFIER');
     expect(readApp('utils/blocks/immutable-page-identifiers.ts')).toContain(

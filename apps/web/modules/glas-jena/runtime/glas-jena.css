@@ -185,6 +185,14 @@ div:has(> svg[data-testid='favorite']) {
   display: none;
 }
 
+/*
+ * "My orders": no "buy again" (as requested by the shop owner). The three-dot menu of each order holds only "buy
+ * again" and "return", so the whole menu (SfDropdown, root `w-max`) is hidden; "Details" stays.
+ */
+[data-testid='account-orders-content'] .w-max:has([data-testid='more-horiz']) {
+  display: none;
+}
+
 /* Typography */
 .font-body {
   font-family: 'Source Sans 3', sans-serif;
