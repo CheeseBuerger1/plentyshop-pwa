@@ -19,6 +19,8 @@ export const PAGE_BANNER_TITLE_KEYS: Record<string, string> = {
   'cancellation-form': 'legal.cancellationForm',
   cart: 'common.labels.cart',
   checkout: 'common.labels.checkout',
+  /* Order confirmation, also the order details page of "My orders" */
+  'confirmation-orderId-accessKey': 'account.ordersAndReturns.orderDetails.heading',
   contact: 'contact.label',
   'declaration-of-accessibility': 'legal.declarationOfAccessibility',
   'guest-login': 'common.labels.checkout',
