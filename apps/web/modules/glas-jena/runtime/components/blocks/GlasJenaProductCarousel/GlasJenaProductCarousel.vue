@@ -81,7 +81,14 @@ const products = computed(() => data.value ?? []);
 /* Paging with the arrows and swiping end on a card's edge */
 .gj-product-carousel :deep([data-testid='product-slider']) {
   gap: 1rem;
+  padding-bottom: 0;
   scroll-snap-type: x mandatory;
+}
+
+/* Less space below the items (as requested by the shop owner): the price note 8 px below the cards and above the
+   next block instead of 32 px below the cards */
+.gj-product-carousel__slider > :deep(div:last-child) {
+  margin: 0.5rem 0;
 }
 
 .gj-product-carousel :deep([data-testid='product-card']) {
