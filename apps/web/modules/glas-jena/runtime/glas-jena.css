@@ -887,7 +887,7 @@ div:has(> svg[data-testid='favorite']) {
   font-size: 1.25rem;
 }
 
-/* Price on the right and a little higher: its row aligned right, 4 px instead of 8 px below an empty placeholder */
+/* Price on the right and higher: its row aligned right, directly below the name (no space below an empty placeholder) */
 .font-body [data-testid='product-card'] div:has(> [data-testid='product-card-vertical-price']) {
   align-self: stretch;
   align-items: flex-end;
@@ -895,5 +895,5 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 .font-body [data-testid='product-card'] [data-testid='productcard-name'] ~ div:empty {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0;
 }

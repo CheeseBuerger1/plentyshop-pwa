@@ -160,7 +160,7 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 
 - Weißer Hintergrund, Produktbild freigestellt.
 - Oben rechts eine **Dreieck-Ecke** in Blaugrau mit Warenkorb-Symbol (In-den-Warenkorb); das Symbol sitzt 7,2 px von oberer und rechter Kante, gut im Dreieck (Wunsch des Shopbetreibers, `glas-jena.css`).
-- Darunter Artikelname (16 px), Preis groß und rechtsbündig (20 px, 4 px unter dem Namen, darunter 4 px Abstand; Wünsche des Shopbetreibers, `glas-jena.css`) mit „\*“, Hinweis „\* inkl. ges. MwSt. zzgl. Versandkosten“ (Versandkosten als Link).
+- Darunter Artikelname (16 px), Preis groß und rechtsbündig (20 px, direkt unter dem Namen, darunter 4 px Abstand; Wünsche des Shopbetreibers, `glas-jena.css`) mit „\*“, Hinweis „\* inkl. ges. MwSt. zzgl. Versandkosten“ (Versandkosten als Link).
 - **Kein Herz / keine Wunschliste** (siehe unten).
 
 ### Keine Wunschliste
