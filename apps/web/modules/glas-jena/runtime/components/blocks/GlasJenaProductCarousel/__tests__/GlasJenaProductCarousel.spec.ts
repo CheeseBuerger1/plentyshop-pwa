@@ -12,7 +12,10 @@ const mountCarousel = async (content: GlasJenaProductCarouselContent, uuid: stri
     props: { name: 'GlasJenaProductCarousel', type: 'content', meta: { uuid }, content },
     global: {
       stubs: {
-        ProductSlider: { props: ['items'], template: '<div data-testid="slider-stub">{{ items.length }}</div>' },
+        ProductSlider: {
+          props: ['items'],
+          template: '<div data-testid="slider-stub"><div data-testid="product-slider">{{ items.length }}</div></div>',
+        },
       },
     },
   });
@@ -65,5 +68,25 @@ describe('GlasJenaProductCarousel', () => {
     getFacet.mockResolvedValue({ data: { products: [] } });
     const empty = await mountCarousel({ text: { title: 'Topseller' }, source: { categoryId: '7' } }, 'e');
     expect(empty.find('[data-testid="slider-stub"]').exists()).toBe(false);
+  });
+
+  it('should page round in a loop with its own arrows', async () => {
+    const wrapper = await mountCarousel({ text: { title: 'Topseller' }, source: { categoryId: '385' } }, 'f');
+    const area = wrapper.find('[data-testid="product-slider"]').element as HTMLElement;
+    Object.defineProperty(area, 'scrollWidth', { configurable: true, value: 1000 });
+    Object.defineProperty(area, 'clientWidth', { configurable: true, value: 250 });
+    area.scrollTo = vi.fn();
+    area.scrollBy = vi.fn();
+
+    area.scrollLeft = 0;
+    await wrapper.find('[data-testid="gj-product-carousel-previous"]').trigger('click');
+    expect(area.scrollTo).toHaveBeenCalledWith({ left: 750 });
+
+    await wrapper.find('[data-testid="gj-product-carousel-next"]').trigger('click');
+    expect(area.scrollBy).toHaveBeenCalledWith({ left: 250 });
+
+    area.scrollLeft = 750;
+    await wrapper.find('[data-testid="gj-product-carousel-next"]').trigger('click');
+    expect(area.scrollTo).toHaveBeenLastCalledWith({ left: 0 });
   });
 });

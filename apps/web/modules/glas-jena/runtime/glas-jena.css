@@ -867,3 +867,13 @@ div:has(> svg[data-testid='favorite']) {
 .font-body [data-testid='product-card'] [data-testid='add-to-basket-short']:hover {
   background-color: var(--gj-tile-blue);
 }
+
+/* Product card text larger, as requested by the shop owner: name 16 px instead of 14 px, price 20 px instead of 14 px */
+.font-body [data-testid='product-card'] [data-testid='productcard-name'] {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.font-body [data-testid='product-card'] [data-testid='product-card-vertical-price'] {
+  font-size: 1.25rem;
+}
