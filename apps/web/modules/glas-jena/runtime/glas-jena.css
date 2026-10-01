@@ -886,3 +886,14 @@ div:has(> svg[data-testid='favorite']) {
   padding-bottom: 0.25rem;
   font-size: 1.25rem;
 }
+
+/* Price on the right and a little higher: its row aligned right, 4 px instead of 8 px below an empty placeholder */
+.font-body [data-testid='product-card'] div:has(> [data-testid='product-card-vertical-price']) {
+  align-self: stretch;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.font-body [data-testid='product-card'] [data-testid='productcard-name'] ~ div:empty {
+  margin-bottom: 0.25rem;
+}
