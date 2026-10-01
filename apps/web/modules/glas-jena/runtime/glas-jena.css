@@ -193,6 +193,25 @@ div:has(> svg[data-testid='favorite']) {
   display: none;
 }
 
+/*
+ * "Details" of each order: the shop shows it as a text button that looks like plain text; as requested by the shop
+ * owner it looks like a link (link colour, underlined; #2c5572 on white 7.9:1), as it opens the order's page.
+ */
+[data-testid='account-orders-content'] a[href*='/confirmation/'] {
+  color: var(--gj-link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+[data-testid='account-orders-content'] a[href*='/confirmation/']:is(:hover, :focus-visible) {
+  color: var(--gj-link-hover);
+}
+
+/* Order confirmation: no "continue shopping" button below the order (as requested by the shop owner) */
+[data-testid='order-success-page'] > a {
+  display: none;
+}
+
 /* Typography */
 .font-body {
   font-family: 'Source Sans 3', sans-serif;

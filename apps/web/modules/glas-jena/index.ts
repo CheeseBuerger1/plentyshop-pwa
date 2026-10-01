@@ -14,6 +14,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   Cookiebar: './runtime/components/GlasJenaCookiebar.vue',
   /* No returns through the web shop: the "return items" button on the order confirmation renders nothing */
   OrderReturnItems: './runtime/components/GlasJenaNoReturns.vue',
+  /* No "buy again" (as requested by the shop owner): the button on the order confirmation renders nothing */
+  OrderAgainButton: './runtime/components/GlasJenaNoOrderAgain.vue',
 };
 
 /** Alias under which nuxt-viewport provides its generated options to its runtime plugins. */

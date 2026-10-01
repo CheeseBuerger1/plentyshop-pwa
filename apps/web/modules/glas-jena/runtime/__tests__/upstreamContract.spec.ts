@@ -293,6 +293,8 @@ describe('upstream contract of the glas-jena module', () => {
       myOrders.match(/<UiDropdown[^>]*>\s*<template #trigger>\s*<UiButton[^>]*>\s*<SfIconMoreHoriz/g),
     ).toHaveLength(2);
     expect(myOrders).toContain('data-testid="account-orders-content"');
+    expect(myOrders).toContain('localePath(`${paths.confirmation}/${orderGetters.getId(order)}');
+    expect(readApp('utils/paths.ts')).toContain("confirmation: '/confirmation'");
     expect(readApp('components/ui/Dropdown/Dropdown.vue')).toContain('<SfDropdown');
     expect(
       readFileSync(
@@ -300,6 +302,15 @@ describe('upstream contract of the glas-jena module', () => {
         'utf8',
       ),
     ).toContain('class: "w-max"');
+  });
+
+  it('should find the "continue shopping" button as the only link directly in the order confirmation', () => {
+    const confirmation = readApp('components/ConfirmationPageContent/ConfirmationPageContent.vue');
+    const root = confirmation.slice(confirmation.indexOf('data-testid="order-success-page"'));
+    expect(root).toMatch(
+      /<\/div>\s*<UiButton :tag="NuxtLink" :href="localePath\(paths\.home\)"[^>]*>\s*\{\{ t\('common\.actions\.continueShopping'\) \}\}/,
+    );
+    expect(confirmation).toContain('<OrderAgainButton');
   });
 
   it('should find the home page identifier and the SEO defaults that the English home page texts replace', () => {
