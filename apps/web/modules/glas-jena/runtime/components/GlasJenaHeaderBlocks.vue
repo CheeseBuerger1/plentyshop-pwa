@@ -517,8 +517,17 @@ watch(isLoginOpen, async (open) => {
  * tile is no narrower than the others.
  */
 @media (min-width: 1200px) {
-  .gj-header__tile {
+  .gj-header__tile,
+  .gj-header__account {
     width: calc(100% / 12);
+  }
+
+  /*
+   * Signed in, the account tile sits in the dropdown (as wide as its content), so a twelfth of it would shrink the tile
+   * to a few pixels: the dropdown takes the twelfth of the header instead and the tile fills it.
+   */
+  .gj-header__account .gj-header__tile {
+    width: 100%;
   }
 }
 
@@ -564,6 +573,7 @@ watch(isLoginOpen, async (open) => {
  */
 .gj-header__account {
   display: flex;
+  flex-shrink: 0;
   align-self: stretch;
 }
 
