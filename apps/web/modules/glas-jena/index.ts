@@ -40,6 +40,8 @@ export const REMOVED_PAGE_FILES = [
 export const PAGE_OVERRIDES: Record<string, string> = {
   '/pages/cancellation-rights.vue': './runtime/pages/GlasJenaCancellationRights.vue',
   '/pages/contact.vue': './runtime/pages/GlasJenaContact.vue',
+  /* My orders: one layout for all widths, without the "buy again" menu */
+  '/pages/my-account/my-orders.vue': './runtime/pages/GlasJenaMyOrders.vue',
 };
 
 const getPageFile = (page: NuxtPage) => page.file?.replace(/\\/g, '/') ?? '';
