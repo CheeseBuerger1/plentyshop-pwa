@@ -118,6 +118,8 @@ watch([images, intervalMs], () => {
   height: 100%;
   min-height: min(47vw, 27.5rem);
   overflow: hidden;
+  /* The stacked images stay inside the block, never above the header's menus */
+  isolation: isolate;
 }
 
 @media (min-width: 992px) {
