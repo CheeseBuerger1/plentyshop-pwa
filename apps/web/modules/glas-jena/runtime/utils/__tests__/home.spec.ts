@@ -1,48 +1,70 @@
-import { clampCarouselItems, getHeroImageSources, getHomeSeoTexts, resolveHeroImageUrl } from '../home';
+import {
+  clampCarouselItems,
+  clampHeroSliderInterval,
+  getHeroSlideImage,
+  getHeroSlides,
+  getHeroSliderImageUrls,
+  getHomeSeoTexts,
+} from '../home';
 
 describe('home utils', () => {
-  describe('resolveHeroImageUrl', () => {
-    it('should return the image set for the size', () => {
-      expect(resolveHeroImageUrl({ mobile: 'm.jpg', desktop: 'd.jpg' }, 'mobile')).toBe('m.jpg');
+  describe('getHeroSlides', () => {
+    it('should return the image sequence', () => {
+      const slides = [{ large: 'a.jpg' }, { large: 'b.jpg' }];
+
+      expect(getHeroSlides({ slides, image: { wideScreen: 'old.jpg' } })).toBe(slides);
     });
 
-    it('should fall back to the next larger size', () => {
-      expect(resolveHeroImageUrl({ desktop: 'd.jpg', wideScreen: 'w.jpg' }, 'mobile')).toBe('d.jpg');
+    it('should read the single image of the first block version as one slide', () => {
+      const image = { wideScreen: 'w.jpg', desktop: 'w.jpg', tablet: 'w.jpg', mobile: 'm.jpg', alt: 'Tea pot' };
+
+      expect(getHeroSlides({ image })).toEqual([{ large: 'w.jpg', medium: '', small: 'm.jpg', alt: 'Tea pot' }]);
     });
 
-    it('should fall back to a smaller size when no larger one is set', () => {
-      expect(resolveHeroImageUrl({ tablet: 't.jpg' }, 'wideScreen')).toBe('t.jpg');
-    });
-
-    it('should ignore empty entries and return an empty string without any image', () => {
-      expect(resolveHeroImageUrl({ wideScreen: ' ', desktop: '' }, 'desktop')).toBe('');
+    it('should return no slides without images', () => {
+      expect(getHeroSlides({})).toEqual([]);
+      expect(getHeroSlides(undefined)).toEqual([]);
     });
   });
 
-  describe('getHeroImageSources', () => {
-    it('should list one source per differing size, smallest window first', () => {
-      const sources = getHeroImageSources({ mobile: 'm.jpg', tablet: 't.jpg', desktop: 'd.jpg', wideScreen: 'w.jpg' });
-
-      expect(sources).toEqual([
-        { maxWidth: 767, url: 'm.jpg' },
-        { maxWidth: 1023, url: 't.jpg' },
-        { maxWidth: 1439, url: 'd.jpg' },
-      ]);
-    });
-
-    it('should leave out sizes that repeat the image of the next larger size', () => {
-      const sources = getHeroImageSources({
-        mobile: 'small.jpg',
-        tablet: 'large.jpg',
-        desktop: 'large.jpg',
-        wideScreen: 'large.jpg',
+  describe('getHeroSlideImage', () => {
+    it('should list every size with its width and use the largest as fallback', () => {
+      expect(getHeroSlideImage({ large: 'l.jpg', medium: 'm.jpg', small: 's.jpg', alt: ' Tea ' })).toEqual({
+        src: 'l.jpg',
+        srcset: 's.jpg 500w, m.jpg 800w, l.jpg 1000w',
+        alt: 'Tea',
       });
-
-      expect(sources).toEqual([{ maxWidth: 767, url: 'small.jpg' }]);
     });
 
-    it('should return no sources for a single image', () => {
-      expect(getHeroImageSources({ wideScreen: 'w.jpg' })).toEqual([]);
+    it('should leave out empty and repeated sizes and need no srcset for a single image', () => {
+      expect(getHeroSlideImage({ large: 'l.jpg', medium: ' ', small: 's.jpg' })?.srcset).toBe(
+        's.jpg 500w, l.jpg 1000w',
+      );
+      expect(getHeroSlideImage({ large: 'l.jpg', medium: 'l.jpg' })).toEqual({ src: 'l.jpg', srcset: '', alt: '' });
+    });
+
+    it('should return nothing without any image', () => {
+      expect(getHeroSlideImage({ large: '', alt: 'Tea' })).toBeUndefined();
+    });
+  });
+
+  describe('getHeroSliderImageUrls', () => {
+    it('should build the three sizes of a picture in the slider folder', () => {
+      const urls = getHeroSliderImageUrls(3);
+
+      expect(urls.small).toMatch(/\/Grafiken\/slider\/slider-03-501\.jpg$/);
+      expect(urls.medium).toMatch(/slider-03-801\.jpg$/);
+      expect(urls.large).toMatch(/slider-03-1001\.jpg$/);
+    });
+  });
+
+  describe('clampHeroSliderInterval', () => {
+    it('should keep whole seconds of at least 3 and use 30 when unset or invalid', () => {
+      expect(clampHeroSliderInterval(12.4)).toBe(12);
+      expect(clampHeroSliderInterval(1)).toBe(3);
+      expect(clampHeroSliderInterval(undefined)).toBe(30);
+      expect(clampHeroSliderInterval('x')).toBe(30);
+      expect(clampHeroSliderInterval(0)).toBe(30);
     });
   });
 
