@@ -1,7 +1,13 @@
 import { flushPromises, type VueWrapper } from '@vue/test-utils';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaMobileNavigation from '../GlasJenaMobileNavigation.vue';
-import { ACCOUNT_MENU_LINKS, AUTH_VIEW_LOGIN, AUTH_VIEW_REGISTER } from '../../utils/accountMenu';
+import {
+  ACCOUNT_MENU_LINKS,
+  ACCOUNT_MENU_PAGE_PATH,
+  AUTH_VIEW_LOGIN,
+  AUTH_VIEW_REGISTER,
+  getAccountLoginPath,
+} from '../../utils/accountMenu';
 import { navigationCategoriesFixture } from './navigation.fixture';
 
 const { switchLocale, localeState, customerState } = vi.hoisted(() => ({
@@ -63,6 +69,12 @@ const clickNext = async (wrapper: VueWrapper, name: string) => {
   await button?.trigger('click');
 };
 
+/** The entries below the separator, in their order: test ids of language, login/registration or account entries */
+const extraEntryIds = (wrapper: VueWrapper) =>
+  wrapper
+    .findAll('hr.gj-mnav__separator + ul > li')
+    .map((item) => item.find('[data-testid]').attributes('data-testid'));
+
 describe('GlasJenaMobileNavigation', () => {
   afterEach(() => {
     localeState.available = ['de', 'en'];
@@ -112,13 +124,14 @@ describe('GlasJenaMobileNavigation', () => {
     expect(isShown(wrapper, 'gj-mobile-nav-level-12')).toBe(false);
   });
 
-  it('should offer login and registration as links to their pages directly below the categories for guests', async () => {
+  it('should offer the languages first and then login and registration as links to their pages for guests', async () => {
     const wrapper = await mountMenu();
 
     const links = wrapper.findAll('[data-testid="gj-mobile-nav-auth"]').map((link) => link.attributes('href'));
 
-    expect(links).toEqual([paths.authLogin, paths.register]);
-    expect(wrapper.find('[data-testid="gj-mobile-nav-account"]').exists()).toBe(false);
+    expect(extraEntryIds(wrapper)).toEqual(['gj-mobile-nav-language', 'gj-mobile-nav-auth', 'gj-mobile-nav-auth']);
+    /* The login page leads into the account afterwards */
+    expect(links).toEqual([getAccountLoginPath(paths.authLogin), paths.register]);
   });
 
   it.each([
@@ -138,17 +151,20 @@ describe('GlasJenaMobileNavigation', () => {
     push.mockRestore();
   });
 
-  it('should list the same account pages as the account menu of the header and log out when signed in', async () => {
+  it('should offer the account entries of the header menu and "log out" directly, without a submenu, when signed in', async () => {
     customerState.isAuthorized = true;
     const wrapper = await mountMenu();
 
-    await wrapper.find('[data-testid="gj-mobile-nav-account"]').trigger('click');
+    const links = wrapper.findAll('[data-testid="gj-mobile-nav-account"]').map((link) => link.attributes('href'));
 
-    const links = wrapper.findAll('[data-testid="gj-mobile-nav-account-link"]').map((link) => link.attributes('href'));
-    expect(links).toEqual(ACCOUNT_MENU_LINKS.map(({ pathKey }) => paths[pathKey]));
-    expect(wrapper.findAll('[data-testid="gj-mobile-nav-account-list"] .gj-mnav__item')).toHaveLength(3);
-    /* Like the LTS shop: the categories stay visible above the account entries */
-    expect(isShown(wrapper, 'gj-mobile-nav-level-root')).toBe(true);
+    expect(extraEntryIds(wrapper)).toEqual([
+      'gj-mobile-nav-language',
+      ...ACCOUNT_MENU_LINKS.map(() => 'gj-mobile-nav-account'),
+      'gj-mobile-nav-logout',
+    ]);
+    /* "Mein Konto" leads to the page of the account menu, "Meine Bestellungen" to the orders as in the header */
+    expect(links).toEqual([ACCOUNT_MENU_PAGE_PATH, paths.accountMyOrders]);
+    expect(wrapper.find('[data-testid="gj-mobile-nav-auth"]').exists()).toBe(false);
   });
 
   it('should list every shop language in its own name', async () => {

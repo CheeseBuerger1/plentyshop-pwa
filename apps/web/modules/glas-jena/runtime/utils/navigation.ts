@@ -12,9 +12,8 @@ export const NAVIGATION_HOVER_DELAY_MS = 200;
 export const DESKTOP_NAVIGATION_BREAKPOINT = 'gjDesktopNavigation';
 export const DESKTOP_NAVIGATION_MIN_WIDTH = 992;
 
-/** Views of the mobile menu: the category levels, the account entries and the language list. */
+/** Views of the mobile menu: the category levels and the language list. */
 export const VIEW_CATEGORIES = 'categories';
-export const VIEW_ACCOUNT = 'account';
 export const VIEW_LANGUAGE = 'language';
 
 /** Slide-in direction of a mobile menu level: deeper levels come from the right, going back from the left. */

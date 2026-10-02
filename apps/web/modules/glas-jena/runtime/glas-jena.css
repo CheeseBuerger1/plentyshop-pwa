@@ -160,27 +160,19 @@ html:has(.gj-header-wrapper--sticky) {
 
 /*
  * No wishlist in the GLAS IN JENA shop. The wishlist pages are removed in index.ts and the heart buttons are
- * switched off in the shop editor; these two spots have no setting and live in original files:
- * the "Wishlist" section of the my-account menu and the wishlist benefit on the registration form.
- * The heart icon is only used for the wishlist; that rule is not limited to `.font-body` because the
- * registration form also appears in dialogs that may be rendered outside the shop area.
- * The menu link ends with a slash when the PlentyONE setting "trailing slash" is on (as in this shop), so both
- * forms are matched.
+ * switched off in the shop editor; the account menu has no wishlist (GlasJenaAccountLayout.vue). Left is the
+ * wishlist benefit on the registration form, which has no setting. The heart icon is only used for the wishlist;
+ * the rule is not limited to `.font-body` because the registration form also appears in dialogs that may be
+ * rendered outside the shop area.
  */
-.font-body
-  [data-testid='account-page-sidebar']
-  ul:has(a[href$='/my-account/wishlist'], a[href$='/my-account/wishlist/']),
 div:has(> svg[data-testid='favorite']) {
   display: none;
 }
 
 /*
- * No returns through the web shop either (pages removed in index.ts, button on the order confirmation replaced):
- * the "Returns" entry of the my-account menu and the "Return" entry in the menu of each order.
+ * No returns through the web shop either (pages removed in index.ts, button on the order confirmation replaced,
+ * no entry in the account menu of GlasJenaAccountLayout.vue): the "Return" entry in the menu of each order.
  */
-.font-body
-  [data-testid='account-page-sidebar']
-  li:has(> a[href$='/my-account/returns'], > a[href$='/my-account/returns/']),
 .font-body li:has(> a[href*='/my-account/new-return/']) {
   display: none;
 }
@@ -196,7 +188,12 @@ div:has(> svg[data-testid='favorite']) {
   color: var(--gj-text);
 }
 
-.font-body :is(h1, h2, h3, h4, h5, h6) {
+/*
+ * Light headings like the LTS shop (banner, home page, content pages). Not in the customer account (account layout
+ * including its address dialogs): its headings stay bold or semi-bold as in the original, at 18–24 px weight 300
+ * looks too thin there and hardly stands out from the text (wish of the shop owner).
+ */
+.font-body :is(h1, h2, h3, h4, h5, h6):not([data-testid='account-layout'] *) {
   font-weight: 300;
 }
 
@@ -901,4 +898,113 @@ div:has(> svg[data-testid='favorite']) {
 
 .font-body [data-testid='product-card'] [data-testid='productcard-name'] ~ div:empty {
   margin-bottom: 0;
+}
+
+/*
+ * Login dialog of the header (GlasJenaHeaderBlocks.vue): the original indents the heading of the login and the
+ * introduction of the registration by 32 px, the fields not – on phones, where the dialog fills the screen, they
+ * no longer line up. Here they start with the fields (the forms have 8 px side padding) and keep clear of the close
+ * button on the right.
+ */
+[data-testid='gj-header-login-dialog'] .ml-8 {
+  margin-left: 0.5rem;
+  padding-right: 2.5rem;
+}
+
+/*
+ * The cookie button (layer `z-cookiebar`) would lie on top of any open dialog (login, addresses, password …, all
+ * on the backdrop UiOverlay) and cover its last lines on phones; it is not needed while a dialog is open.
+ */
+body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
+  display: none;
+}
+
+/*
+ * Dialogs of the customer account (name, password, addresses: UiModal with `h-full w-full @md:w-[600px] @md:h-fit`)
+ * like the login dialog of the header: they fill the screen only below 640 px instead of below 768 px, above that
+ * they stand in the middle. Same container width as the original's `@md` (the shop area of app.vue).
+ */
+@container (min-width: 640px) {
+  .font-body [data-testid='account-layout'] [data-testid='overlay'] > [data-testid='modal'] {
+    width: 600px;
+    max-width: 100%;
+    height: fit-content;
+    max-height: 100%;
+  }
+}
+
+/*
+ * Titles of the account pages next to the menu (`account-orders-heading`, shown by the original from 768 px width of
+ * the shop area, `hidden @md:block`): by the window width like the rest of GlasJenaAccountLayout.vue, so they do
+ * not depend on the scrollbar – at 768–783 px the short pages showed their title and the long ones did not. On
+ * phones the layout names the page above the content instead.
+ */
+.font-body [data-testid='account-layout'].gj-account-layout--wide [data-testid='account-orders-heading'] {
+  display: block;
+}
+
+.font-body [data-testid='account-layout']:not(.gj-account-layout--wide) [data-testid='account-orders-heading'] {
+  display: none;
+}
+
+/*
+ * "Ändern" in the personal data (e.g. the password) and "Bearbeiten", "Löschen", "Als Standard festlegen" of the
+ * addresses (small tertiary buttons in the original, 14 px without underline): they look like the other links of the
+ * shop – link colour, underlined, 16 px – so they are recognisable as leading on, and keep a 44 px target for
+ * fingers. "Ändern" is matched as the button right after the heading of AccountData, whose own test id the pages
+ * replace (e.g. `account-password`).
+ */
+.font-body
+  [data-testid='account-layout']
+  :is(h2.typography-headline-4 + button, [data-testid='address-data'] .actions > button) {
+  min-height: 2.75rem;
+  font-size: 1rem;
+  color: var(--gj-link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/*
+ * "Neue Rechnungsadresse" / "Neue Lieferadresse" and "Ausloggen" (GlasJenaAccountLayout.vue) as outline buttons: white
+ * with a slate blue border and text (5.70:1), 44 px high – clearly buttons, but quieter than the filled submit buttons
+ * of the forms (wish of the shop owner). The original's secondary button draws its border as a shadow (`ring`),
+ * which the flat look removes, so it looked like plain text.
+ */
+.font-body
+  [data-testid='account-layout']
+  :is(.addresses-list > .text-center > button, [data-testid='account-logout-button']) {
+  padding: 0.5625rem 1.5rem;
+  border: 1px solid var(--gj-button-bg);
+  background-color: #fff;
+  color: var(--gj-button-bg);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+  text-decoration: none;
+}
+
+.font-body
+  [data-testid='account-layout']
+  :is(.addresses-list > .text-center > button, [data-testid='account-logout-button']):hover {
+  background-color: #eef2f5;
+}
+
+/*
+ * Less space between the addresses: about 24 px from the divider (or the border of the default address) to the next
+ * address instead of 49 px.
+ */
+.font-body [data-testid='account-layout'] [data-testid='address-data'] {
+  margin-bottom: 0.5rem;
+}
+
+.font-body [data-testid='account-layout'] [data-testid='address-data'] > [data-testid='divider'] {
+  margin-bottom: 0;
+}
+
+/*
+ * The address links sit about 12 px below the last line of the address instead of 20 px: their 44 px target has 11 px
+ * of empty space above the text, which now reaches into the gap instead of adding to it (wish of the shop owner).
+ */
+.font-body [data-testid='account-layout'] [data-testid='address-data'] .actions {
+  margin-top: -0.5rem;
 }

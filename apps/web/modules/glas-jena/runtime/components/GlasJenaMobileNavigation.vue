@@ -72,46 +72,11 @@
       </ul>
 
       <!--
-        Like the LTS shop: the categories stay; only the part below the separator switches to the account
-        entries or the language list.
+        Like the LTS shop: the categories stay; only the part below the separator switches to the language list.
       -->
       <hr class="gj-mnav__separator" />
       <template v-if="view === VIEW_CATEGORIES">
         <ul class="gj-mnav__list" :class="slideClass">
-          <!--
-            Guests: login and registration directly, opening the dialog of the header (see onLinkClick); still real
-            links to the login and registration pages. Signed in: "Account" with the entries of the account menu.
-          -->
-          <template v-if="!isAuthorized">
-            <li v-for="authLink in authLinks" :key="authLink.view" class="gj-mnav__item">
-              <NuxtLink
-                :to="authLink.link"
-                class="gj-mnav__link gj-mnav__link--extra"
-                :data-gj-auth="authLink.view"
-                data-testid="gj-mobile-nav-auth"
-              >
-                {{ authLink.label }}
-              </NuxtLink>
-            </li>
-          </template>
-          <li v-else class="gj-mnav__item">
-            <button
-              type="button"
-              class="gj-mnav__link gj-mnav__link--extra"
-              @click="showView(VIEW_ACCOUNT, SLIDE_FORWARD)"
-            >
-              {{ t('account.navBottomHeadingAccount') }}
-            </button>
-            <button
-              type="button"
-              class="gj-mnav__next gj-mnav__link--extra"
-              :aria-label="t('account.navBottomHeadingAccount')"
-              data-testid="gj-mobile-nav-account"
-              @click="showView(VIEW_ACCOUNT, SLIDE_FORWARD)"
-            >
-              <SfIconChevronRight aria-hidden="true" />
-            </button>
-          </li>
           <li v-if="locales.length > 1" class="gj-mnav__item">
             <button
               type="button"
@@ -130,35 +95,42 @@
               <SfIconChevronRight aria-hidden="true" />
             </button>
           </li>
+          <!--
+            Guests: login and registration, opening the dialog of the header (see onLinkClick); still real links to
+            the login and registration pages. Signed in: the entries of the header's account menu directly, without a
+            submenu – "Mein Konto" leads to the account menu (see ACCOUNT_MENU_LINKS), then "log out".
+          -->
+          <template v-if="!isAuthorized">
+            <li v-for="authLink in authLinks" :key="authLink.view" class="gj-mnav__item">
+              <NuxtLink
+                :to="authLink.link"
+                class="gj-mnav__link gj-mnav__link--extra"
+                :data-gj-auth="authLink.view"
+                data-testid="gj-mobile-nav-auth"
+              >
+                {{ authLink.label }}
+              </NuxtLink>
+            </li>
+          </template>
+          <template v-else>
+            <li v-for="{ link, label } in accountLinks" :key="link" class="gj-mnav__item">
+              <NuxtLink :to="link" class="gj-mnav__link gj-mnav__link--extra" data-testid="gj-mobile-nav-account">
+                {{ label }}
+              </NuxtLink>
+            </li>
+            <li class="gj-mnav__item">
+              <button
+                type="button"
+                class="gj-mnav__link gj-mnav__link--extra"
+                data-testid="gj-mobile-nav-logout"
+                @click="onLogout"
+              >
+                {{ t('account.logout') }}
+              </button>
+            </li>
+          </template>
         </ul>
       </template>
-
-      <ul
-        v-else-if="view === VIEW_ACCOUNT"
-        class="gj-mnav__list gj-mnav__list--extra"
-        :class="slideClass"
-        data-testid="gj-mobile-nav-account-list"
-      >
-        <li>
-          <button
-            type="button"
-            class="gj-mnav__up"
-            :aria-label="t('common.actions.back')"
-            @click="showView(VIEW_CATEGORIES, SLIDE_BACK)"
-          >
-            <SfIconChevronLeft size="lg" aria-hidden="true" />
-          </button>
-        </li>
-        <!-- Signed in only (guests log in directly, see above): the same entries as the account menu of the header -->
-        <li v-for="{ pathKey, labelKey } in ACCOUNT_MENU_LINKS" :key="pathKey" class="gj-mnav__item">
-          <NuxtLink :to="localePath(paths[pathKey])" class="gj-mnav__link" data-testid="gj-mobile-nav-account-link">
-            {{ t(labelKey) }}
-          </NuxtLink>
-        </li>
-        <li class="gj-mnav__item gj-mnav__item--logout">
-          <button type="button" class="gj-mnav__link" @click="onLogout">{{ t('account.logout') }}</button>
-        </li>
-      </ul>
 
       <ul
         v-else
@@ -212,14 +184,19 @@ import {
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
 import { useGlasJenaCategoryTree } from '../composables/useGlasJenaCategoryTree';
 import { useMenuHistoryEntry } from '../composables/useMenuHistoryEntry';
-import { ACCOUNT_MENU_LINKS, AUTH_VIEW_LOGIN, AUTH_VIEW_REGISTER } from '../utils/accountMenu';
+import {
+  ACCOUNT_MENU_LINKS,
+  AUTH_VIEW_LOGIN,
+  AUTH_VIEW_REGISTER,
+  getAccountLoginPath,
+  logOutToHomePage,
+} from '../utils/accountMenu';
 import { getNativeLanguageName } from '../utils/locale';
 import {
   LANGUAGE_MENU_LABEL,
   SLIDE_BACK,
   SLIDE_FORWARD,
   SLIDE_NONE,
-  VIEW_ACCOUNT,
   VIEW_CATEGORIES,
   VIEW_LANGUAGE,
   isPlainLeftClick,
@@ -234,7 +211,7 @@ import type {
 /**
  * Mobile menu in the style of the LTS shop www.glas-jena.de: a full-screen dark panel that opens at
  * the level of the current category, a breadcrumb bar to jump back, one level at a time with a
- * "level up" row, and "Account" and "Language / Sprache" below the categories.
+ * "level up" row, and "Language / Sprache" and the account entries below the categories.
  * Opened through useMegaMenu(), so every existing menu button (burger, bottom navbar) works.
  */
 const props = withDefaults(defineProps<GlasJenaNavigationProps>(), {
@@ -314,8 +291,8 @@ const findStartLevel = () => {
 
 /** Direction of the last level change; a level that becomes visible slides in from that side (like the LTS shop). */
 /*
- * Slide-in directions: the category levels and the part below the separator (account, language) move
- * independently, so switching to the account entries leaves the categories in place.
+ * Slide-in directions: the category levels and the part below the separator (language, account) move
+ * independently, so switching to the language list leaves the categories in place.
  */
 const categorySlideDirection = ref<GlasJenaSlideDirection>(SLIDE_NONE);
 const categorySlideClass = computed(() => `gj-mnav__list--${categorySlideDirection.value}`);
@@ -327,7 +304,7 @@ const showView = (next: GlasJenaMobileNavigationView, direction: GlasJenaSlideDi
   view.value = next;
 };
 
-/** Moving between category levels also shows the account and language entries below them again. */
+/** Moving between category levels also shows the language and account entries below them again. */
 const slideTo = (id: number | null, direction: GlasJenaSlideDirection) => {
   categorySlideDirection.value = direction;
   showView(VIEW_CATEGORIES, SLIDE_NONE);
@@ -350,9 +327,21 @@ const { exitHistoryEntry } = useMenuHistoryEntry(isOpen, close);
  * then returns to the previous page. Listens in the capture phase so it runs before the link's own
  * navigation, which then skips the prevented click. Modifier clicks (new tab/window) keep the default.
  */
+/** The account pages of the header's account menu; "Mein Konto" leads to the account menu, see ACCOUNT_MENU_LINKS. */
+const accountLinks = computed(() =>
+  ACCOUNT_MENU_LINKS.map(({ pathKey, labelKey, mobilePath }) => ({
+    label: t(labelKey),
+    link: localePath(mobilePath ?? paths[pathKey]),
+  })),
+);
+
 /** Login and registration for guests; they open the header's dialog, see onLinkClick. */
 const authLinks = computed(() => [
-  { view: AUTH_VIEW_LOGIN, label: t('authentication.login.submitLabel'), link: localePath(paths.authLogin) },
+  {
+    view: AUTH_VIEW_LOGIN,
+    label: t('authentication.login.submitLabel'),
+    link: getAccountLoginPath(localePath(paths.authLogin)),
+  },
   { view: AUTH_VIEW_REGISTER, label: t('authentication.signup.heading'), link: localePath(paths.register) },
 ]);
 
@@ -386,7 +375,7 @@ const onLocaleClick = async (event: MouseEvent, locale: (typeof locales.value)[n
   }
 };
 
-const onLogout = () => handleLogout({ logout, toggle: close });
+const onLogout = () => logOutToHomePage(logout, close, localePath(paths.home));
 
 const closeRef = ref<HTMLElement>();
 /** The element that opened the menu (usually the burger); it gets the focus back on close. */
@@ -573,11 +562,6 @@ useTrapFocus(panelRef, { activeState: isOpen, arrowKeysUpDown: false, initialFoc
 
 .gj-mnav__up {
   justify-content: flex-start;
-}
-
-/* "Log out" set apart by a thin line, like in the account menu of the header (subtle on the dark background) */
-.gj-mnav__item--logout {
-  border-top: 1px solid rgb(255 255 255 / 25%);
 }
 
 .gj-mnav__separator {

@@ -54,7 +54,10 @@ const mountHeader = () =>
         LanguageSelector: true,
         UiSearch: true,
         UiModal: { template: '<section><slot /></section>' },
-        LoginComponent: { template: '<form data-testid="login-form" />' },
+        LoginComponent: {
+          emits: ['loggedIn'],
+          template: `<form data-testid="login-form" @submit.prevent="$emit('loggedIn')" />`,
+        },
         Register: { template: '<form data-testid="register-form" />' },
       },
     },
@@ -79,6 +82,18 @@ describe('GlasJenaHeaderBlocks', () => {
 
     expect(wrapper.find('[data-testid="gj-header-login-dialog"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="login-form"]').exists()).toBe(true);
+  });
+
+  it('should open the account after logging in through the dialog', async () => {
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    const wrapper = await mountHeader();
+    await wrapper.get('[data-testid="gj-header-account"]').trigger('click', { button: 0 });
+
+    await wrapper.get('[data-testid="login-form"]').trigger('submit');
+
+    expect(assign).toHaveBeenCalledWith(expect.stringMatching(/\/my-account\/?$/));
+    vi.unstubAllGlobals();
   });
 
   it('should open the dialog with the registration when a guest chooses it in the mobile menu', async () => {
