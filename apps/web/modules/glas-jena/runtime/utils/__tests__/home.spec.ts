@@ -59,12 +59,12 @@ describe('home utils', () => {
   });
 
   describe('clampHeroSliderInterval', () => {
-    it('should keep whole seconds of at least 3 and use 30 when unset or invalid', () => {
+    it('should keep whole seconds of at least 3 and use 20 when unset or invalid', () => {
       expect(clampHeroSliderInterval(12.4)).toBe(12);
       expect(clampHeroSliderInterval(1)).toBe(3);
-      expect(clampHeroSliderInterval(undefined)).toBe(30);
-      expect(clampHeroSliderInterval('x')).toBe(30);
-      expect(clampHeroSliderInterval(0)).toBe(30);
+      expect(clampHeroSliderInterval(undefined)).toBe(20);
+      expect(clampHeroSliderInterval('x')).toBe(20);
+      expect(clampHeroSliderInterval(0)).toBe(20);
     });
   });
 

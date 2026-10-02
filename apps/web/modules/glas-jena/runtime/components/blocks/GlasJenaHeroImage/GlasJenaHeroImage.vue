@@ -30,7 +30,7 @@ import { HERO_SLIDE_SIZES, clampHeroSliderInterval, getHeroSlideImage, getHeroSl
 /*
  * Large image at the top of the home page, like the LTS shop: fills its column and is cropped from the top, so the
  * lower part of the picture always stays visible. With several images (as requested by the shop owner) they change
- * one after the other: every image stays for the set time (30 s), then the next one fades in over it. Only the first
+ * one after the other: every image stays for the set time (20 s), then the next one fades in over it. Only the first
  * image is part of the page; each further one is loaded one step ahead, shortly before it is due. Screen readers get
  * only the visible image's text. With "reduce motion" or a single image nothing changes.
  */

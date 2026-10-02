@@ -47,7 +47,7 @@ export const getHeroSliderImageUrls = (number: number) => {
 };
 
 /** Seconds each image of the sequence stays (as requested by the shop owner), and the shortest time allowed. */
-export const HERO_SLIDER_DEFAULT_INTERVAL = 30;
+export const HERO_SLIDER_DEFAULT_INTERVAL = 20;
 export const HERO_SLIDER_MIN_INTERVAL = 3;
 
 /** Width of each image size in pixels, for the `srcset` (the browser picks by window width and pixel density). */
