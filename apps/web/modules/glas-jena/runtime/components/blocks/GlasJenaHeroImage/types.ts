@@ -1,4 +1,4 @@
-/** Image URLs per screen size (like the shop's Image block); missing sizes fall back to the next larger one. */
+/** Image URLs per screen size of the first version of the block (one image); read as a single slide. */
 export type GlasJenaHeroImageSources = {
   wideScreen?: string;
   desktop?: string;
@@ -6,8 +6,21 @@ export type GlasJenaHeroImageSources = {
   mobile?: string;
 };
 
+/** One image of the sequence: the same picture about 1000, 800 and 500 px wide, and its alternative text. */
+export type GlasJenaHeroSlide = {
+  large?: string;
+  medium?: string;
+  small?: string;
+  alt?: string;
+};
+
 export type GlasJenaHeroImageContent = {
-  image: GlasJenaHeroImageSources & {
+  /** Images shown one after the other, cross-fading */
+  slides?: GlasJenaHeroSlide[];
+  /** Seconds each image stays before the next one fades in */
+  interval?: number;
+  /** First version of the block (one image); used while `slides` is empty */
+  image?: GlasJenaHeroImageSources & {
     alt?: string;
   };
 };
@@ -29,8 +42,9 @@ export type GlasJenaHeroImageFormProps = {
   uuid?: string;
 };
 
-/** One `<source>` of the picture: the image for windows up to `maxWidth` pixels wide. */
-export type GlasJenaHeroImageSource = {
-  maxWidth: number;
-  url: string;
+/** A slide ready to render: the image for `src` (largest), the `srcset` with the widths and the alternative text. */
+export type GlasJenaHeroSlideImage = {
+  src: string;
+  srcset: string;
+  alt: string;
 };

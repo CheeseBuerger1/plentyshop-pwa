@@ -1,4 +1,8 @@
-import type { GlasJenaHeroImageSource, GlasJenaHeroImageSources } from '../components/blocks/GlasJenaHeroImage/types';
+import type {
+  GlasJenaHeroImageContent,
+  GlasJenaHeroSlide,
+  GlasJenaHeroSlideImage,
+} from '../components/blocks/GlasJenaHeroImage/types';
 
 /** Editor blocks of the module for the home page (the name is also the component's file name). */
 export const HERO_IMAGE_BLOCK_NAME = 'GlasJenaHeroImage';
@@ -35,44 +39,75 @@ export const CATEGORY_TILES = {
   health: { background: '#d1c4e9', title: '#8a5c99', image: `${LTS_LAYOUT_URL}/highlight-gesundheit.jpg` },
 };
 
-/**
- * Upper window widths of the image sizes, like the shop's breakpoints: phones below 768 px, tablets below 1024 px,
- * desktops below 1440 px; the wide screen image is the picture's fallback.
- */
-const SOURCE_MAX_WIDTHS: { size: keyof GlasJenaHeroImageSources; maxWidth: number }[] = [
-  { size: 'mobile', maxWidth: 767 },
-  { size: 'tablet', maxWidth: 1023 },
-  { size: 'desktop', maxWidth: 1439 },
+/** Image sequence of the home page: pictures in the webspace folder `Grafiken/slider`, each 500, 800 and 1000 px wide. */
+const HERO_SLIDER_URL = `${LTS_LAYOUT_URL}/Grafiken/slider`;
+export const getHeroSliderImageUrls = (number: number) => {
+  const name = `${HERO_SLIDER_URL}/slider-${String(number).padStart(2, '0')}`;
+  return { small: `${name}-501.jpg`, medium: `${name}-801.jpg`, large: `${name}-1001.jpg` };
+};
+
+/** Seconds each image of the sequence stays (as requested by the shop owner), and the shortest time allowed. */
+export const HERO_SLIDER_DEFAULT_INTERVAL = 20;
+export const HERO_SLIDER_MIN_INTERVAL = 3;
+
+/** Width of each image size in pixels, for the `srcset` (the browser picks by window width and pixel density). */
+const HERO_SLIDE_WIDTHS: { size: keyof Omit<GlasJenaHeroSlide, 'alt'>; width: number }[] = [
+  { size: 'small', width: 500 },
+  { size: 'medium', width: 800 },
+  { size: 'large', width: 1000 },
 ];
 
-const SIZES_LARGEST_FIRST: (keyof GlasJenaHeroImageSources)[] = ['wideScreen', 'desktop', 'tablet', 'mobile'];
+/**
+ * Display width of the image for the browser's choice: the whole window below 992 px (stacked), next to the
+ * "Did you know" box two thirds of the window, at most 800 px (8 of 12 columns of the 1200 px box).
+ */
+export const HERO_SLIDE_SIZES = '(min-width: 992px) min(66.67vw, 800px), 100vw';
 
 const clean = (url: string | undefined) => url?.trim() ?? '';
 
 /**
- * Image for a size: the one set for it, otherwise the next larger size (a larger image still looks sharp),
- * otherwise the next smaller one. Empty if no image is set at all.
+ * The images of the block: the sequence, or the single image of the block's first version (its sizes read as large,
+ * medium and small image).
  */
-export const resolveHeroImageUrl = (images: GlasJenaHeroImageSources, size: keyof GlasJenaHeroImageSources) => {
-  const index = SIZES_LARGEST_FIRST.indexOf(size);
-  const larger = SIZES_LARGEST_FIRST.slice(0, index + 1).reverse();
-  const smaller = SIZES_LARGEST_FIRST.slice(index + 1);
-  const found = [...larger, ...smaller].map((key) => clean(images[key])).find((url) => url.length > 0);
-  return found ?? '';
+export const getHeroSlides = (content: GlasJenaHeroImageContent | undefined): GlasJenaHeroSlide[] => {
+  if (content?.slides?.length) {
+    return content.slides;
+  }
+  const image = content?.image;
+  if (!image) {
+    return [];
+  }
+  const large = clean(image.wideScreen) || clean(image.desktop) || clean(image.tablet) || clean(image.mobile);
+  const medium = clean(image.tablet) !== large ? clean(image.tablet) : '';
+  return [{ large, medium, small: clean(image.mobile), alt: image.alt }];
 };
 
 /**
- * `<source>` entries of the picture (smallest window first, as the browser takes the first match). Sizes that
- * would repeat the image of the next larger size are left out.
+ * A slide ready to render, or `undefined` without any image: the largest image as `src`, all sizes with their widths
+ * as `srcset` (each URL once).
  */
-export const getHeroImageSources = (images: GlasJenaHeroImageSources): GlasJenaHeroImageSource[] => {
-  const fallback = resolveHeroImageUrl(images, 'wideScreen');
-  return SOURCE_MAX_WIDTHS.map(({ size, maxWidth }, index) => {
-    const url = resolveHeroImageUrl(images, size);
-    const next = SOURCE_MAX_WIDTHS[index + 1];
-    const nextUrl = next ? resolveHeroImageUrl(images, next.size) : fallback;
-    return url && url !== nextUrl ? { maxWidth, url } : undefined;
-  }).filter((source): source is GlasJenaHeroImageSource => source !== undefined);
+export const getHeroSlideImage = (slide: GlasJenaHeroSlide): GlasJenaHeroSlideImage | undefined => {
+  const sizes = HERO_SLIDE_WIDTHS.map(({ size, width }) => ({ url: clean(slide[size]), width })).filter(
+    ({ url }, index, all) => url && all.findIndex((other) => other.url === url) === index,
+  );
+  const largest = sizes.at(-1);
+  if (!largest) {
+    return undefined;
+  }
+  return {
+    src: largest.url,
+    srcset: sizes.length > 1 ? sizes.map(({ url, width }) => `${url} ${width}w`).join(', ') : '',
+    alt: slide.alt?.trim() ?? '',
+  };
+};
+
+/** Seconds per image: a whole number of at least the minimum, the default if unset or invalid. */
+export const clampHeroSliderInterval = (value: unknown) => {
+  const seconds = Math.round(Number(value));
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return HERO_SLIDER_DEFAULT_INTERVAL;
+  }
+  return Math.max(seconds, HERO_SLIDER_MIN_INTERVAL);
 };
 
 /**
