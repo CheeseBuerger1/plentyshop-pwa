@@ -18,6 +18,14 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   OrderAgainButton: './runtime/components/GlasJenaOrderBackLink.vue',
 };
 
+/**
+ * Original layouts (name) replaced by the module's own ones. Account: on phones the menu has its own page and every
+ * account page shows "← Zurück" to it (see the layout).
+ */
+export const LAYOUT_OVERRIDES: Record<string, string> = {
+  account: './runtime/layouts/GlasJenaAccountLayout.vue',
+};
+
 /** Alias under which nuxt-viewport provides its generated options to its runtime plugins. */
 const VIEWPORT_OPTIONS_ALIAS = '#viewport-options';
 
@@ -123,7 +131,16 @@ export default defineNuxtModule({
 
     nuxt.hook('pages:extend', (pages) => extendPages(pages, resolve));
 
-    /* '/my-account' (the LTS account URL) and account pages without trailing slash, see utils/accountRedirect.ts */
+    nuxt.hook('app:resolve', (app) => {
+      for (const [name, override] of Object.entries(LAYOUT_OVERRIDES)) {
+        const layout = app.layouts[name];
+        if (layout) {
+          layout.file = resolve(override);
+        }
+      }
+    });
+
+    /* Account pages without the trailing slash of the shop's URL setting, see utils/accountRedirect.ts */
     addRouteMiddleware({
       name: 'glas-jena-account-redirect',
       path: resolve('./runtime/middleware/accountRedirect'),

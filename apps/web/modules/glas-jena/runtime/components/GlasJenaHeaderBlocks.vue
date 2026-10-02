@@ -79,7 +79,7 @@
         </SfDropdown>
         <NuxtLink
           v-else
-          :to="localePath(paths.authLogin)"
+          :to="getAccountLoginPath(localePath(paths.authLogin))"
           class="gj-header__tile gj-header__tile--light gj-header__tile--account"
           data-testid="gj-header-account"
           :aria-label="t('authentication.login.openLoginForm')"
@@ -152,13 +152,13 @@
 
       <!--
         Login and registration dialog of the original header, opened by the account tile (from 992 px) and by
-        "log in" / "create an account" in the mobile menu; on phones it fills the screen.
+        "log in" / "create an account" in the mobile menu; below 640 px it fills the screen.
       -->
       <UiModal
         v-if="isLoginOpen"
         v-model="isLoginOpen"
         tag="section"
-        class="h-full @md:w-full @md:max-w-lg @md:h-fit m-0 p-0 overflow-y-auto"
+        class="w-full h-full @sm:max-w-lg @sm:h-fit @sm:max-h-full m-0 p-0 overflow-y-auto"
         role="dialog"
         :aria-label="isLoginView ? t('authentication.login.submitLabel') : t('authentication.signup.heading')"
         data-testid="gj-header-login-dialog"
@@ -178,7 +178,7 @@
           v-if="isLoginView"
           :is-modal="true"
           @change-view="isLoginView = false"
-          @logged-in="reloadAfterLogin"
+          @logged-in="openAccountAfterLogin"
         />
         <Register v-else :is-modal="true" @change-view="isLoginView = true" @registered="closeLogin" />
       </UiModal>
@@ -193,7 +193,13 @@
 import { SfDropdown, SfIconClose, useDisclosure } from '@storefront-ui/vue';
 import HeaderBlocks from '~/components/ui/HeaderBlocks/HeaderBlocks.vue';
 import LanguageSelector from '~/components/LanguageSelector/LanguageSelector.vue';
-import { ACCOUNT_MENU_LINKS, AUTH_VIEW_LOGIN } from '../utils/accountMenu';
+import {
+  ACCOUNT_MENU_LINKS,
+  ACCOUNT_MENU_PAGE_PATH,
+  AUTH_VIEW_LOGIN,
+  getAccountLoginPath,
+  logOutToHomePage,
+} from '../utils/accountMenu';
 import { getNativeLanguageName } from '../utils/locale';
 import { DESKTOP_NAVIGATION_BREAKPOINT, isPlainLeftClick } from '../utils/navigation';
 import GlasJenaLineIcon from './GlasJenaLineIcon.vue';
@@ -290,8 +296,8 @@ watch(() => route.path, closeSearch);
  * Account like the original header (components/blocks/Header/Header.vue): signed in, a menu with the account pages
  * and "log out"; otherwise the login dialog with a switch to the registration. The tile stays a real link to the
  * login page (opening it in a new tab keeps working); a plain click opens the dialog instead – handled in the
- * capture phase, so NuxtLink sees the prevented click and does not navigate. After logging in the page reloads,
- * like in the original.
+ * capture phase, so NuxtLink sees the prevented click and does not navigate. After logging in the account opens
+ * (the original reloads the page).
  */
 const { isOpen: isAccountMenuOpen, toggle: toggleAccountMenu, close: closeAccountMenu } = useDisclosure();
 const { isOpen: isLoginOpen, open: openLogin, close: closeLogin } = useDisclosure();
@@ -301,7 +307,7 @@ const accountMenuLinks = computed(() =>
   ACCOUNT_MENU_LINKS.map(({ pathKey, labelKey }) => ({ label: t(labelKey), link: localePath(paths[pathKey]) })),
 );
 
-const logOut = () => handleLogout({ logout, toggle: toggleAccountMenu });
+const logOut = () => logOutToHomePage(logout, closeAccountMenu, localePath(paths.home));
 
 /* Below 992 px the account tile moves into the burger menu: a still open account menu closes (see also the CSS) */
 watch(
@@ -332,8 +338,9 @@ const openLoginDialog = (view: GlasJenaAuthView) => {
   openLogin();
 };
 
-const reloadAfterLogin = () => {
-  window.location.reload();
+/* Into the account after logging in (wish of the shop owner); a full page load like the original's reload */
+const openAccountAfterLogin = () => {
+  window.location.assign(localePath(ACCOUNT_MENU_PAGE_PATH));
 };
 
 /*

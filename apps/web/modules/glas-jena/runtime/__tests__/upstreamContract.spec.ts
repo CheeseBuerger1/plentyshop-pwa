@@ -8,7 +8,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { orderGetters } from '@plentymarkets/shop-api';
-import { COMPONENT_OVERRIDES, PAGE_OVERRIDES, REMOVED_PAGE_FILES } from '../../index';
+import { COMPONENT_OVERRIDES, LAYOUT_OVERRIDES, PAGE_OVERRIDES, REMOVED_PAGE_FILES } from '../../index';
 import {
   ACCOUNT_ROUTE_PREFIX,
   ACCOUNT_TITLE_KEY,
@@ -107,6 +107,54 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('pages/my-account/my-orders.vue')).toContain('paths.accountNewReturn}/${orderGetters.getId(order)}');
   });
 
+  it('should find the redirect parameter of the login page that leads into the account after logging in', () => {
+    /* getAccountLoginPath: /login/?redirect=/my-account */
+    expect(readApp('pages/login.vue')).toContain('router.currentRoute.value.query.redirect as string');
+    expect(readApp('pages/login.vue')).toContain(
+      'window.location.href = redirectUrl ? localePath(redirectUrl) : localePath(paths.home);',
+    );
+  });
+
+  it('should find the account parts that glas-jena.css restyles ("Ändern", dialogs, cookie button)', () => {
+    /* "Ändern": the button right after the heading of AccountData */
+    expect(readApp('components/AccountData/AccountData.vue')).toMatch(
+      /<h2 class="typography-headline-4[^"]*">\{\{ header \}\}<\/h2>\s*<UiButton v-if="showEditButton"/,
+    );
+    /* Dialogs: UiModal = SfModal (data-testid="modal") on UiOverlay (data-testid="overlay") */
+    expect(readApp('components/ui/Modal/Modal.vue')).toMatch(/<UiOverlay[^>]*>\s*<SfModal/);
+    expect(readApp('components/ui/Overlay/Overlay.vue')).toContain('data-testid="overlay"');
+    /* Page titles next to the menu, shown by the window width (gj-account-layout--wide) */
+    for (const page of ['personal-data', 'billing-details', 'shipping-details', 'my-orders']) {
+      expect(readApp(`pages/my-account/${page}.vue`)).toContain('data-testid="account-orders-heading"');
+    }
+    expect(readApp('pages/my-account/personal-data.vue')).toContain(
+      'class="h-full w-full overflow-auto @md:w-[600px] @md:h-fit"',
+    );
+  });
+
+  it('should find the original account layout that GlasJenaAccountLayout replaces and mirrors', () => {
+    for (const name of Object.keys(LAYOUT_OVERRIDES)) {
+      expect(existsSync(join(APP_DIR, 'layouts', `${name}.vue`))).toBe(true);
+    }
+    /* Same frame, menu and content area as the original; only the menu page on phones is new */
+    const layout = readApp('layouts/account.vue');
+    for (const part of [
+      '<NuxtLayout name="default" :breadcrumbs="breadcrumbs">',
+      'data-testid="account-layout-heading"',
+      'data-testid="account-page-sidebar"',
+      'data-testid="category-grid"',
+      'const isRoot = computed(() => currentPath.value === localePath(paths.account));',
+      "label: t('account.accountSettings.section.personalData')",
+      "label: t('account.ordersAndReturns.section.myOrders')",
+      'await logout();',
+    ]) {
+      expect(layout).toContain(part);
+    }
+    for (const page of ['index', 'personal-data', 'billing-details', 'shipping-details', 'my-orders']) {
+      expect(readApp(`pages/my-account/${page}.vue`)).toContain("layout: 'account'");
+    }
+  });
+
   it('should find every original page the module replaces', () => {
     const missing = Object.keys(PAGE_OVERRIDES).filter((file) => !existsSync(join(APP_DIR, file)));
 
@@ -141,8 +189,6 @@ describe('upstream contract of the glas-jena module', () => {
     expect(register).toMatch(/isModal = false/);
     expect(register).toMatch(/defineEmits\(\['registered', 'change-view'\]\)/);
     expect(originalHeader).toContain('<LoginComponent');
-    expect(originalHeader).toContain('handleLogout({ logout, toggle: accountDropdownToggle })');
-    expect(readApp('utils/logout/index.ts')).toContain('export const handleLogout');
     const paths = readApp('utils/paths.ts');
     /* The mobile menu links guests to the login and registration pages (opening the dialog on a plain click) */
     for (const path of ['account:', 'accountMyOrders:', 'accountReturns:', 'authLogin:', 'register:']) {
