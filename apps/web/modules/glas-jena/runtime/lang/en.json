@@ -1,0 +1,10 @@
+{
+  "CookieBar": {
+    "glasJenaGoogle": {
+      "name": "Google Tag Manager / Google Ads",
+      "provider": "Google Ireland Limited",
+      "status": "Measures whether an order was placed via a Google ad (conversion tracking). Google may receive the e-mail address given with the order in hashed (pseudonymised) form.",
+      "lifespan": "up to 2 years"
+    }
+  }
+}

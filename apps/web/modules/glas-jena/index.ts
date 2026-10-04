@@ -1,5 +1,6 @@
 import { addPlugin, addRouteMiddleware, addTemplate, createResolver, defineNuxtModule } from 'nuxt/kit';
 import type { NuxtPage } from 'nuxt/schema';
+import { getGtmHeadScript, getGtmNoscript } from './runtime/utils/googleTagManager';
 import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './runtime/utils/navigation';
 
 /** Original components (Nuxt name) replaced by the module's own ones. */
@@ -155,5 +156,43 @@ export default defineNuxtModule({
 
     /* Order dates without the time of day, see utils/orderDate.ts */
     addPlugin(resolve('./runtime/plugins/orderDate'));
+
+    /*
+     * Google Tag Manager with consent default "denied" and the `purchase` event for Google Ads, see
+     * utils/googleTagManager.ts and utils/purchaseTracking.ts.
+     */
+    nuxt.options.app.head.script ??= [];
+    nuxt.options.app.head.script.unshift({ key: 'glas-jena-gtm', innerHTML: getGtmHeadScript() });
+    nuxt.options.app.head.noscript ??= [];
+    nuxt.options.app.head.noscript.push({
+      key: 'glas-jena-gtm',
+      tagPosition: 'bodyOpen',
+      innerHTML: getGtmNoscript(),
+    });
+    addPlugin({ src: resolve('./runtime/plugins/googleTagManager.server'), mode: 'server' });
+    addPlugin({ src: resolve('./runtime/plugins/googleTagManager.client'), mode: 'client' });
+    nuxt.hook('i18n:registerModule', (register) =>
+      register({
+        langDir: resolve('./runtime/lang'),
+        locales: [
+          { code: 'de', file: 'de.json' },
+          { code: 'en', file: 'en.json' },
+        ],
+      }),
+    );
+
+    /*
+     * The gtag module (pwa_module_gtag) would send its own `purchase` through the same data layer, i.e. a second
+     * conversion in GTM. All Google tags come from the GTM container, so the module stays off: without an id its
+     * plugins do nothing, even if it is switched on in the shop settings.
+     */
+    nuxt.hook('modules:done', () => {
+      const gtag = nuxt.options.runtimeConfig.public.pwa_module_gtag as { id?: string; enabled?: boolean } | undefined;
+      if (gtag?.id) {
+        console.warn('[glas-jena] pwa_module_gtag is switched off: Google tags come from the GTM container.');
+        gtag.id = '';
+        gtag.enabled = false;
+      }
+    });
   },
 });

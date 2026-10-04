@@ -19,6 +19,8 @@ import {
   SEARCH_ROUTE,
   TAG_ROUTE,
 } from '../utils/pageBanner';
+import { CONSENT_COOKIE, GTM_COOKIE_GROUP } from '../utils/googleTagManager';
+import { CONFIRMATION_ORDER_STATE, CONFIRMATION_ROUTE } from '../utils/purchaseTracking';
 
 /* Vitest runs in apps/web (the Nuxt test environment gives no file URL for this module) */
 const WEB_DIR = process.cwd();
@@ -377,5 +379,28 @@ describe('upstream contract of the glas-jena module', () => {
     expect(appVue).toContain("useSiteSettings('metaTitle')");
     expect(appVue).toContain("useSiteSettings('metaDescription')");
     expect(appVue).toMatch(/useSeoMeta\(\{\s*title: \(\) => title\.value,/);
+  });
+
+  it('should find the order of the confirmation page that the purchase event of GTM is built from', () => {
+    expect(routeNames).toContain(CONFIRMATION_ROUTE);
+    expect(readApp('pages/confirmation/[orderId]/[accessKey].vue')).toContain(
+      `useCustomerOrder('${CONFIRMATION_ORDER_STATE}')`,
+    );
+    const customerOrder = readApp('composables/useCustomerOrder/useCustomerOrder.ts');
+    expect(customerOrder).toContain("useState<UseCustomerOrderState>('useCustomerOrder-' + id");
+    expect(customerOrder).toContain('state.value.data = orderData?.order ? orderData : null;');
+    for (const getter of ['getId', 'getTotals', 'getTotal', 'getOrderEmail', 'getBillingAddress'] as const) {
+      expect(typeof orderGetters[getter]).toBe('function');
+    }
+  });
+
+  it('should find the cookie group and the consent cookie that the Google consent relies on', () => {
+    expect(readApp('configuration/cookie.config.ts')).toContain(`name: '${GTM_COOKIE_GROUP}'`);
+    const cookieBar = readFileSync(
+      join(WEB_DIR, '../../node_modules/@plentymarkets/shop-core/dist/runtime/composables/useCookieBar.js'),
+      'utf8',
+    );
+    expect(cookieBar).toContain(`useCookie("${CONSENT_COOKIE}"`);
+    expect(cookieBar).toContain('consentCookie.value = { hash: state.value.data.configHash, groups: jsonCookie };');
   });
 });
