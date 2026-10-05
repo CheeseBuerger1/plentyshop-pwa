@@ -56,20 +56,12 @@
                 <GlasJenaLineIcon name="person" />
                 <svg
                   class="gj-header__signed-in"
-                  viewBox="0 0 16 16"
+                  viewBox="0 0 18 14"
                   aria-hidden="true"
                   focusable="false"
                   data-testid="gj-header-signed-in"
                 >
-                  <circle cx="8" cy="8" r="8" />
-                  <path
-                    d="M4.4 8.4 6.9 10.8 11.7 5.4"
-                    fill="none"
-                    stroke="#fff"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
+                  <path d="M2 7.5 6.5 12 16 2" />
                 </svg>
               </span>
             </button>
@@ -498,8 +490,9 @@ watch(isLoginOpen, async (open) => {
 }
 
 /*
- * Green check mark at the person icon while signed in (like the LTS shop): a 16 px circle in a dark green (#2e7d32: 4.5:1
- * on the tile's light grey, white check 5.1:1 on it) at the icon's lower right edge.
+ * Green check mark at the person icon while signed in, shaped like the LTS shop's (a plain bold check at the icon's lower
+ * right edge, about half its size). Its green is darker than the LTS one: #388e3c reaches 3.6:1 on the tile's light grey
+ * (graphics need 3:1), the LTS green about 2.4:1.
  */
 .gj-header__account-icon {
   position: relative;
@@ -508,11 +501,15 @@ watch(isLoginOpen, async (open) => {
 
 .gj-header__signed-in {
   position: absolute;
-  right: -0.5rem;
+  right: -0.625rem;
   bottom: -0.125rem;
-  width: 1rem;
-  height: 1rem;
-  fill: #2e7d32;
+  width: 1.125rem;
+  height: 0.875rem;
+  fill: none;
+  stroke: #388e3c;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .gj-header__tile:hover {
