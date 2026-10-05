@@ -501,7 +501,7 @@ watch(isLoginOpen, async (open) => {
 
 .gj-header__signed-in {
   position: absolute;
-  right: -0.25rem;
+  right: -0.5rem;
   bottom: -0.125rem;
   width: 1.375rem;
   height: 1.0625rem;
