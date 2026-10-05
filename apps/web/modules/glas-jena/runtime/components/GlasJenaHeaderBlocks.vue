@@ -503,8 +503,8 @@ watch(isLoginOpen, async (open) => {
   position: absolute;
   right: -0.25rem;
   bottom: -0.125rem;
-  width: 1.125rem;
-  height: 0.875rem;
+  width: 1.375rem;
+  height: 1.0625rem;
   fill: none;
   stroke: #388e3c;
   stroke-width: 3;
