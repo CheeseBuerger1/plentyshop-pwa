@@ -46,12 +46,32 @@
               type="button"
               class="gj-header__tile gj-header__tile--light gj-header__tile--account"
               data-testid="gj-header-account"
-              :aria-label="t('account.heading')"
+              :aria-label="`${t('account.heading')}, ${tLocal('signedIn')}`"
               aria-haspopup="true"
               :aria-expanded="isAccountMenuOpen"
               @click="toggleAccountMenu()"
             >
-              <GlasJenaLineIcon name="person" />
+              <!-- Green check mark at the person while signed in, like the LTS shop (the name above says it for screen readers) -->
+              <span class="gj-header__account-icon">
+                <GlasJenaLineIcon name="person" />
+                <svg
+                  class="gj-header__signed-in"
+                  viewBox="0 0 16 16"
+                  aria-hidden="true"
+                  focusable="false"
+                  data-testid="gj-header-signed-in"
+                >
+                  <circle cx="8" cy="8" r="8" />
+                  <path
+                    d="M4.4 8.4 6.9 10.8 11.7 5.4"
+                    fill="none"
+                    stroke="#fff"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
             </button>
           </template>
           <ul class="gj-header__account-menu" data-testid="gj-header-account-menu">
@@ -220,6 +240,7 @@ const { isAuthorized, logout } = useCustomer();
 const { open: openMegaMenu } = useMegaMenu();
 const { getAvailableLocales, switchLocale, toggle: toggleLanguageSelect } = useLocalization();
 const { locale: currentLocale } = useI18n();
+const { t: tLocal } = useI18n({ useScope: 'local' });
 const switchLocalePath = useSwitchLocalePath();
 
 /** The block editor keeps the original, editor-configurable header. */
@@ -364,6 +385,13 @@ watch(isLoginOpen, async (open) => {
 });
 </script>
 
+<i18n lang="json">
+{
+  "en": { "signedIn": "signed in" },
+  "de": { "signedIn": "angemeldet" }
+}
+</i18n>
+
 <style scoped>
 /*
  * Layer `z-dropdown` (class in the template) like the original header: the overhanging logo and the open search
@@ -467,6 +495,24 @@ watch(isLoginOpen, async (open) => {
 .gj-header__tile--cart {
   background-color: var(--gj-mid-blue);
   color: #fff;
+}
+
+/*
+ * Green check mark at the person icon while signed in (like the LTS shop): a 16 px circle in a dark green (#2e7d32: 4.5:1
+ * on the tile's light grey, white check 5.1:1 on it) at the icon's lower right edge.
+ */
+.gj-header__account-icon {
+  position: relative;
+  display: inline-flex;
+}
+
+.gj-header__signed-in {
+  position: absolute;
+  right: -0.5rem;
+  bottom: -0.125rem;
+  width: 1rem;
+  height: 1rem;
+  fill: #2e7d32;
 }
 
 .gj-header__tile:hover {
