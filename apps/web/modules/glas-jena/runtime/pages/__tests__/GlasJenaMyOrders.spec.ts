@@ -58,4 +58,21 @@ describe('GlasJenaMyOrders', () => {
     expect(amounts[0]).toContain('119');
     expect(amounts[1]).toContain('100');
   });
+
+  it('should span all columns of the layout grid, which has four columns from 1536 px', async () => {
+    const wrapper = await mountPage([createOrder(101)]);
+
+    expect(wrapper.find('[data-testid="account-orders-content"]').classes()).toContain('col-span-full');
+    expect(wrapper.find('[data-testid="account-orders-heading"]').classes()).toContain('col-span-full');
+  });
+
+  it('should show the texts maintained in the translation editor ("Summe" instead of "Anzahl")', async () => {
+    const i18n = useNuxtApp().$i18n;
+    i18n.mergeLocaleMessage(i18n.locale.value, {
+      translated: { account: { ordersAndReturns: { amount: 'Summe' } } },
+    });
+    const wrapper = await mountPage([createOrder(101)]);
+
+    expect(wrapper.find('.gj-orders__head').text()).toContain('Summe');
+  });
 });
