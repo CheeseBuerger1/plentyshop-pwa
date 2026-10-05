@@ -364,6 +364,15 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('utils/paths.ts')).toContain("accountMyOrders: '/my-account/my-orders'");
   });
 
+  it('should find the global t() that applies the texts of the translation editor (translated. prefix)', () => {
+    const useT = readFileSync(
+      join(WEB_DIR, '../../node_modules/@plentymarkets/shop-core/dist/runtime/composables/useT.js'),
+      'utf8',
+    );
+
+    expect(useT).toContain('translated.');
+  });
+
   it('should find the order date getter that the module replaces (date without time)', () => {
     expect(readApp('pages/my-account/my-orders.vue')).toContain('orderGetters.getDate(order, locale)');
     expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain('orderGetters.getDate(order, locale)');

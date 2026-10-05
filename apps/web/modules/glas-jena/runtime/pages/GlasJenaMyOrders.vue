@@ -1,20 +1,20 @@
 <template>
   <ClientOnly>
-    <UiDivider class="col-span-3 -mx-4 !w-auto @md:mx-0" />
+    <UiDivider class="col-span-full -mx-4 !w-auto @md:mx-0" />
     <h2
-      class="hidden @md:block col-span-3 typography-headline-4 font-bold mx-4 capitalize"
+      class="hidden @md:block col-span-full typography-headline-4 font-bold mx-4 capitalize"
       data-testid="account-orders-heading"
     >
       {{ t('account.ordersAndReturns.myOrders') }}
     </h2>
 
-    <div v-if="loading && !data" class="col-span-3 flex justify-center items-center min-h-[400px]">
+    <div v-if="loading && !data" class="col-span-full flex justify-center items-center min-h-[400px]">
       <SfLoaderCircular size="2xl" />
     </div>
 
     <div
       v-else-if="!data || data.data.entries.length === 0"
-      class="col-span-3 text-center"
+      class="col-span-full text-center"
       data-testid="account-orders-content"
     >
       <h3 class="typography-headline-3 font-bold mt-6 mb-4">{{ t('account.ordersAndReturns.noOrders') }}</h3>
@@ -23,7 +23,7 @@
       </UiButton>
     </div>
 
-    <div v-else class="gj-orders col-span-3" data-testid="account-orders-content">
+    <div v-else class="gj-orders col-span-full" data-testid="account-orders-content">
       <div class="relative" :class="{ 'pointer-events-none opacity-50': loading }">
         <SfLoaderCircular v-if="loading" class="absolute top-0 bottom-0 right-0 left-0 m-auto z-loader" size="2xl" />
 
@@ -118,7 +118,7 @@ const NuxtLink = resolveComponent('NuxtLink');
 const route = useRoute();
 const localePath = useLocalizedPath();
 const { formatWithSymbol } = usePriceFormatter();
-const { t, locale } = useI18n();
+const { locale } = useI18n();
 const { fetchCustomerOrders, data, loading } = useCustomerOrders();
 const viewport = useViewport();
 const isDesktop = computed(() => viewport.isGreaterOrEquals('lg'));
