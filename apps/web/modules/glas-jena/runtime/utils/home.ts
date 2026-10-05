@@ -111,6 +111,15 @@ export const clampHeroSliderInterval = (value: unknown) => {
 };
 
 /**
+ * Index of the image the sequence starts with: a random one of those that have a picture (as requested by the shop
+ * owner), 0 if there is none.
+ */
+export const pickHeroStartIndex = (images: unknown[], random = Math.random) => {
+  const available = images.flatMap((image, index) => (image ? [index] : []));
+  return available[Math.floor(random() * available.length)] ?? 0;
+};
+
+/**
  * Item carousel of the home page ("Unsere Topseller"): sort keys of the shop's item search. Random like the LTS
  * shop, whose top seller list comes in a different order on every page load. The labels are translation keys of the
  * editor form.

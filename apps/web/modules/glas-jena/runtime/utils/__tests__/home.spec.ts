@@ -5,9 +5,29 @@ import {
   getHeroSlides,
   getHeroSliderImageUrls,
   getHomeSeoTexts,
+  pickHeroStartIndex,
 } from '../home';
 
+/* Fixed results of Math.random for the start image */
+const FIRST = () => 0;
+const MIDDLE = () => 0.5;
+const LAST = () => 0.99;
+
 describe('home utils', () => {
+  describe('pickHeroStartIndex', () => {
+    it('should pick one of the images that have a picture', () => {
+      const images = [undefined, 'b', 'c', undefined];
+
+      expect(pickHeroStartIndex(images, FIRST)).toBe(1);
+      expect(pickHeroStartIndex(images, LAST)).toBe(2);
+    });
+
+    it('should return 0 without any picture', () => {
+      expect(pickHeroStartIndex([undefined], MIDDLE)).toBe(0);
+      expect(pickHeroStartIndex([], MIDDLE)).toBe(0);
+    });
+  });
+
   describe('getHeroSlides', () => {
     it('should return the image sequence', () => {
       const slides = [{ large: 'a.jpg' }, { large: 'b.jpg' }];
