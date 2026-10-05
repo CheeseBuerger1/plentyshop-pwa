@@ -15,8 +15,8 @@
         }"
         width="1000"
         height="631"
-        :fetchpriority="index === 0 ? 'high' : undefined"
-        :decoding="index === 0 ? undefined : 'async'"
+        :fetchpriority="index === startIndex ? 'high' : undefined"
+        :decoding="index === startIndex ? undefined : 'async'"
         data-testid="gj-hero-image-img"
       />
     </template>
@@ -25,13 +25,19 @@
 
 <script setup lang="ts">
 import type { GlasJenaHeroImageProps } from './types';
-import { HERO_SLIDE_SIZES, clampHeroSliderInterval, getHeroSlideImage, getHeroSlides } from '../../../utils/home';
+import {
+  HERO_SLIDE_SIZES,
+  clampHeroSliderInterval,
+  getHeroSlideImage,
+  getHeroSlides,
+  pickHeroStartIndex,
+} from '../../../utils/home';
 
 /*
  * Large image at the top of the home page, like the LTS shop: fills its column and is cropped from the top, so the
  * lower part of the picture always stays visible. With several images (as requested by the shop owner) they change
- * one after the other: every image stays for the set time (20 s), then the next one fades in over it. Only the first
- * image is part of the page; each further one is loaded one step ahead, shortly before it is due. Screen readers get
+ * one after the other, starting with a random one: every image stays for the set time (20 s), then the next one fades
+ * in over it. Only the first image is part of the page; each further one is loaded one step ahead, shortly before it is due. Screen readers get
  * only the visible image's text. With "reduce motion" or a single image nothing changes.
  */
 const props = defineProps<GlasJenaHeroImageProps>();
@@ -39,9 +45,16 @@ const props = defineProps<GlasJenaHeroImageProps>();
 const images = computed(() => getHeroSlides(props.content).map(getHeroSlideImage));
 const intervalMs = computed(() => clampHeroSliderInterval(props.content?.interval) * 1000);
 
-const current = ref(0);
+/*
+ * The random first image is chosen on the server and taken over by the browser (`useState`), so both show the same
+ * image and nothing jumps when the page becomes interactive.
+ */
+const startState = useState(`gj-hero-image-start-${props.meta.uuid}`, () => pickHeroStartIndex(images.value));
+const startIndex = computed(() => (images.value[startState.value] ? startState.value : 0));
+
+const current = ref(startIndex.value);
 const previous = ref<number | undefined>(undefined);
-const rendered = ref<number[]>([0]);
+const rendered = ref<number[]>([startIndex.value]);
 
 const isRendered = (index: number) => rendered.value.includes(index);
 
@@ -100,9 +113,9 @@ onBeforeUnmount(stop);
 
 /* Editing in the editor: start again with the first image and the new time */
 watch([images, intervalMs], () => {
-  current.value = 0;
+  current.value = startIndex.value;
   previous.value = undefined;
-  rendered.value = [0];
+  rendered.value = [startIndex.value];
   start();
 });
 </script>

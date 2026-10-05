@@ -2,9 +2,11 @@ import { mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaHeroImage from '../GlasJenaHeroImage.vue';
 import type { GlasJenaHeroImageContent } from '../types';
 
+/* Each mount its own block id: the random start is kept per block in the app state */
+let mountCount = 0;
 const mountHeroImage = (content: GlasJenaHeroImageContent) =>
   mountSuspended(GlasJenaHeroImage, {
-    props: { name: 'GlasJenaHeroImage', type: 'content', meta: { uuid: 'hero' }, content },
+    props: { name: 'GlasJenaHeroImage', type: 'content', meta: { uuid: `hero-${mountCount++}` }, content },
   });
 
 const SEQUENCE: GlasJenaHeroImageContent = {
@@ -28,6 +30,8 @@ describe('GlasJenaHeroImage', () => {
     /* Only the slideshow's timer; Nuxt's own timers keep running for the mount */
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
     setReducedMotion(false);
+    /* Start with the first image unless a test chooses otherwise */
+    vi.spyOn(Math, 'random').mockReturnValue(0);
   });
 
   afterEach(() => {
@@ -57,6 +61,17 @@ describe('GlasJenaHeroImage', () => {
     expect(wrapper.find('.gj-hero-image__img--previous').attributes('src')).toBe('a-1000.jpg');
 
     await vi.advanceTimersByTimeAsync(60_000);
+    expect(getCurrent(wrapper).attributes('alt')).toBe('Tea pot');
+  });
+
+  it('should start with a random image and continue from there', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    const wrapper = await mountHeroImage(SEQUENCE);
+
+    expect(getCurrent(wrapper).attributes('alt')).toBe('Salad');
+    expect(getCurrent(wrapper).attributes('fetchpriority')).toBe('high');
+
+    await vi.advanceTimersByTimeAsync(30_000);
     expect(getCurrent(wrapper).attributes('alt')).toBe('Tea pot');
   });
 

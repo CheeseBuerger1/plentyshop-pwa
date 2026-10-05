@@ -8,27 +8,29 @@ import {
   getHeroSliderImageUrls,
 } from '../../../utils/home';
 
-/** Alternative texts of the eight images in the webspace folder `Grafiken/slider`, in their order. */
+/** Alternative texts of the nine images in the webspace folder `Grafiken/slider`, in their order. */
 const SLIDER_ALTS = {
   de: [
     'Teekanne mit Edelstahlfilter und zwei Teetassen aus Glas auf einer Küchenarbeitsplatte',
-    'Teekanne mit Glasfilter, Teetasse mit Untertasse, Zitronen und Limetten',
-    'Flache Teekanne mit Glasfilter, Teetasse, Zitronen und Limetten',
+    'Teekanne auf einem Stövchen mit Teelicht, daneben eine kleine Teekanne mit Glasfilter, Teetasse, Teedose und Limette',
+    'Teekanne mit Edelstahlfilter auf einem Stövchen, davor Teetassen, Milchkännchen, Zuckerschale und Gebäck',
     'Teetasse mit Edelstahlsieb und Glasdeckel auf einer Untertasse mit Kandiszucker',
-    'Glastasse mit Salat neben einer Teetasse mit Edelstahlsieb',
+    'Teekanne mit Edelstahlfilter und Teebecher aus Glas, beide mit Tee gefüllt',
     'Wasserkessel aus Glas mit kochendem Wasser',
     'Glasschalen mit geschnittenem Gemüse, dahinter Karaffen mit Öl und Essig',
     'Glastasse mit gemischtem Salat auf einer Untertasse',
+    'Doppelwandige Gläser mit blauer, gelber und roter Flüssigkeit, in eines wird eingeschenkt',
   ],
   en: [
     'Glass tea pot with stainless steel filter and two glass tea cups on a kitchen counter',
-    'Glass tea pot with glass filter, tea cup with saucer, lemons and limes',
-    'Flat glass tea pot with glass filter, tea cup, lemons and limes',
+    'Glass tea pot on a warmer with tea light, next to it a small glass tea pot with glass filter, tea cup, tea tin and lime',
+    'Glass tea pot with stainless steel filter on a warmer, tea cups, milk jug, sugar bowl and biscuits in front',
     'Tea cup with stainless steel strainer and glass lid on a saucer with rock sugar',
-    'Glass cup with salad next to a tea cup with stainless steel strainer',
+    'Glass tea pot with stainless steel filter and glass tea mug, both filled with tea',
     'Glass kettle with boiling water',
     'Glass bowls with sliced vegetables, carafes with oil and vinegar behind them',
     'Glass cup with mixed salad on a saucer',
+    'Double-walled glasses with blue, yellow and red liquid, one being filled',
   ],
 };
 
