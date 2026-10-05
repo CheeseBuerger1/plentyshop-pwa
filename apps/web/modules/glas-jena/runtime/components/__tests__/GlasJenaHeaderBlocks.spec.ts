@@ -130,6 +130,19 @@ describe('GlasJenaHeaderBlocks', () => {
     expect(menu.find('[data-testid="gj-header-account-logout"]').exists()).toBe(true);
   });
 
+  it('should show a green check mark at the account tile only while signed in', async () => {
+    customerState.isAuthorized = false;
+    const guest = await mountHeader();
+
+    expect(guest.find('[data-testid="gj-header-signed-in"]').exists()).toBe(false);
+
+    customerState.isAuthorized = true;
+    const customer = await mountHeader();
+
+    expect(customer.find('[data-testid="gj-header-signed-in"]').exists()).toBe(true);
+    expect(customer.get('[data-testid="gj-header-account"]').attributes('aria-label')).toContain('signed in');
+  });
+
   it('should close the account menu when the window becomes narrower than the desktop navigation', async () => {
     customerState.isAuthorized = true;
     const wrapper = await mountHeader();
