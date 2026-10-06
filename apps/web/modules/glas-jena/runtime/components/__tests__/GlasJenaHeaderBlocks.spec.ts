@@ -2,6 +2,7 @@ import { flushPromises } from '@vue/test-utils';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaHeaderBlocks from '../GlasJenaHeaderBlocks.vue';
 import { AUTH_VIEW_REGISTER } from '../../utils/accountMenu';
+import { NAVIGATION_HOVER_DELAY_MS } from '../../utils/navigation';
 
 const { viewportState, editorState, headerState, localeState, customerState, switchLocale, toggleLanguageSelect } =
   vi.hoisted(() => ({
@@ -128,6 +129,50 @@ describe('GlasJenaHeaderBlocks', () => {
     /* Account, orders and "log out" – no returns in this shop */
     expect(menu.findAll('.gj-header__account-item')).toHaveLength(3);
     expect(menu.find('[data-testid="gj-header-account-logout"]').exists()).toBe(true);
+  });
+
+  it('should open the account menu on mouse over and close it shortly after the mouse has left', async () => {
+    vi.useFakeTimers();
+    try {
+      customerState.isAuthorized = true;
+      const wrapper = await mountHeader();
+      const tile = wrapper.get('[data-testid="gj-header-account"]');
+      const dropdown = wrapper.get('[data-testid="gj-header-account-dropdown"]');
+
+      await dropdown.trigger('pointerenter', { pointerType: 'mouse' });
+      expect(tile.attributes('aria-expanded')).toBe('true');
+
+      /* Leaving and coming back within the delay (e.g. over the gap to the menu) keeps it open */
+      await dropdown.trigger('pointerleave', { pointerType: 'mouse' });
+      await vi.advanceTimersByTimeAsync(NAVIGATION_HOVER_DELAY_MS - 50);
+      await dropdown.trigger('pointerenter', { pointerType: 'mouse' });
+      await vi.advanceTimersByTimeAsync(NAVIGATION_HOVER_DELAY_MS * 2);
+      expect(tile.attributes('aria-expanded')).toBe('true');
+
+      await dropdown.trigger('pointerleave', { pointerType: 'mouse' });
+      await vi.advanceTimersByTimeAsync(NAVIGATION_HOVER_DELAY_MS + 10);
+      expect(tile.attributes('aria-expanded')).toBe('false');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('should keep the menu open on a mouse click on the tile, but not open it by touch hover', async () => {
+    customerState.isAuthorized = true;
+    const wrapper = await mountHeader();
+    const tile = wrapper.get('[data-testid="gj-header-account"]');
+    const dropdown = wrapper.get('[data-testid="gj-header-account-dropdown"]');
+
+    await dropdown.trigger('pointerenter', { pointerType: 'touch' });
+    expect(tile.attributes('aria-expanded')).toBe('false');
+
+    await dropdown.trigger('pointerenter', { pointerType: 'mouse' });
+    await tile.trigger('click', { pointerType: 'mouse' });
+    expect(tile.attributes('aria-expanded')).toBe('true');
+
+    /* Keyboard (no pointer type) toggles */
+    await tile.trigger('click');
+    expect(tile.attributes('aria-expanded')).toBe('false');
   });
 
   it('should show a green check mark at the account tile only while signed in', async () => {
