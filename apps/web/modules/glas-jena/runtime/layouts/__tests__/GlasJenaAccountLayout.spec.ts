@@ -1,15 +1,19 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaAccountLayout from '../GlasJenaAccountLayout.vue';
-import { ACCOUNT_MENU_PAGE_PATH } from '../../utils/accountMenu';
+import { ACCOUNT_MENU_BREAKPOINT, ACCOUNT_MENU_MIN_WIDTH, ACCOUNT_MENU_PAGE_PATH } from '../../utils/accountMenu';
 
-const { viewportState, routeState, navigateToMock } = vi.hoisted(() => ({
+const { viewportState, routeState, navigateToMock, isGreaterOrEqualsMock } = vi.hoisted(() => ({
   viewportState: { isWide: false },
+  isGreaterOrEqualsMock: vi.fn(),
   routeState: { name: 'my-account', path: '/my-account' },
   navigateToMock: vi.fn(),
 }));
 
 mockNuxtImport('useViewport', () => () => ({
-  isGreaterOrEquals: () => viewportState.isWide,
+  isGreaterOrEquals: (breakpoint: string) => {
+    isGreaterOrEqualsMock(breakpoint);
+    return viewportState.isWide;
+  },
   isLessThan: () => !viewportState.isWide,
 }));
 mockNuxtImport('useRoute', () => () => ({ path: routeState.path, name: routeState.name, meta: {} }));
@@ -29,7 +33,7 @@ const mountLayout = () =>
     },
   });
 
-/* The menu and the content area are hidden with Tailwind's `hidden` (shown again from 768 px by `@md:block`) */
+/* The menu and the content area are hidden with Tailwind's `hidden` below the account menu breakpoint */
 const isHiddenOnPhones = (classes: string[]) => classes.includes('hidden');
 
 describe('GlasJenaAccountLayout', () => {
@@ -67,13 +71,21 @@ describe('GlasJenaAccountLayout', () => {
     expect(wrapper.get('[data-testid="gj-account-back"]').attributes('href')).toBe(ACCOUNT_MENU_PAGE_PATH);
   });
 
-  it('should keep the menu next to the content from 768 px and open the start page instead of the menu page', async () => {
+  it('should keep the menu next to the content from 825 px and open the start page instead of the menu page', async () => {
     viewportState.isWide = true;
 
     const wrapper = await mountLayout();
 
     expect(wrapper.find('[data-testid="gj-account-back"]').exists()).toBe(false);
     expect(navigateToMock).toHaveBeenCalledWith(paths.account, { replace: true });
+  });
+
+  it('should switch between menu next to the content and own menu page at the account menu breakpoint (825 px)', async () => {
+    await mountLayout();
+
+    expect(ACCOUNT_MENU_MIN_WIDTH).toBe(825);
+    expect(isGreaterOrEqualsMock).toHaveBeenCalledWith(ACCOUNT_MENU_BREAKPOINT);
+    expect(isGreaterOrEqualsMock).not.toHaveBeenCalledWith('md');
   });
 
   it('should size the menu and the gap by the window instead of a fixed 300 px and 40 px', async () => {

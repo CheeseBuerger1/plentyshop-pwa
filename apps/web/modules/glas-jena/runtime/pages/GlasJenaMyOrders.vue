@@ -220,8 +220,8 @@ watch(
  * Wide: one row per order under column headings; the labels of the fields are only for screen readers there.
  * Columns: order ID, date, amount (right-aligned), shipping date, status, "Details". From 33rem (528 px) of content width,
  * with 14 px text like the original table: its columns need about 500 px (order ID, dates and amount never wrap, the
- * status may wrap onto two lines), so the wide layout holds down to a window width of about 810 px (before: 40rem and
- * 16 px text, switching at about 1010 px).
+ * status may wrap onto two lines), so the table holds down to a window width of about 592 px (the account menu is
+ * hidden below 825 px; before: 40rem and 16 px text next to a 300 px menu, switching at about 1010 px).
  */
 @container (min-width: 33rem) {
   .gj-orders__list {

@@ -936,7 +936,7 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
 /*
  * Titles of the account pages next to the menu (`account-orders-heading`, shown by the original from 768 px width of
  * the shop area, `hidden @md:block`): by the window width like the rest of GlasJenaAccountLayout.vue, so they do
- * not depend on the scrollbar – at 768–783 px the short pages showed their title and the long ones did not. On
+ * not depend on the scrollbar – at 768–783 px the short pages showed their title and the long ones did not. Next to the menu from 825 px. On
  * phones the layout names the page above the content instead.
  */
 .font-body [data-testid='account-layout'].gj-account-layout--wide [data-testid='account-orders-heading'] {
