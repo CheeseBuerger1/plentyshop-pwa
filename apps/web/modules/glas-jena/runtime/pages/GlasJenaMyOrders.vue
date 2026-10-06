@@ -166,6 +166,7 @@ watch(
 }
 
 .gj-orders__order {
+  position: relative;
   padding: 1rem 0;
   border-bottom: 1px solid #ddd;
 }
@@ -178,11 +179,14 @@ watch(
   margin: 0;
 }
 
-/* Narrow: two columns, each field with its label above the value; "Details" across the full width, on the right */
+/*
+ * Narrow: every order a compact card of three rows, each field with its label above the value: order ID and status
+ * (right), date and amount (right), shipping date; "Details" at the lower right (wish of the shop owner, variant A).
+ */
 .gj-orders__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem 1rem;
+  gap: 0.5rem 1rem;
 }
 
 /* Column headings only in the wide layout */
@@ -195,12 +199,36 @@ watch(
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
-  row-gap: 0.75rem;
+  row-gap: 0.5rem;
 }
 
+.gj-orders__field:nth-child(1) {
+  grid-area: 1 / 1;
+}
+
+.gj-orders__field:nth-child(5) {
+  grid-area: 1 / 2;
+  text-align: right;
+}
+
+.gj-orders__field:nth-child(2) {
+  grid-area: 2 / 1;
+}
+
+.gj-orders__field:nth-child(3) {
+  grid-area: 2 / 2;
+  text-align: right;
+}
+
+.gj-orders__field:nth-child(4) {
+  grid-area: 3 / 1;
+}
+
+/* Labels smaller and lighter than the values (#595959 on white 7:1), so the values stand out */
 .gj-orders__field dt {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 400;
+  color: #595959;
 }
 
 .gj-orders__nowrap {
@@ -213,8 +241,11 @@ watch(
   color: #263238;
 }
 
+/* In the narrow layout in the lower right corner of the card, level with the shipping date */
 .gj-orders__details {
-  grid-column: 1 / -1;
+  position: absolute;
+  right: 0;
+  bottom: 1rem;
   text-align: right;
 }
 
@@ -270,7 +301,16 @@ watch(
     white-space: nowrap;
   }
 
-  .gj-orders__amount {
+  .gj-orders__field:nth-child(n) {
+    grid-area: auto;
+    text-align: left;
+  }
+
+  .gj-orders__field:nth-child(3) {
+    text-align: right;
+  }
+
+  .gj-orders__head .gj-orders__amount {
     text-align: right;
   }
 
@@ -279,6 +319,7 @@ watch(
   }
 
   .gj-orders__details {
+    position: static;
     grid-column: 6;
   }
 }
