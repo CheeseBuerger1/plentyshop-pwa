@@ -214,13 +214,16 @@ watch(
   padding-bottom: 2.5rem;
 }
 
-/* The grey header band: a grid item in the first row, as wide as the card */
+/*
+ * The header band: a grid item in the first row, as wide as the card. In the tint of the boxes on the order details
+ * (shop colours neutral-100 / neutral-200, fallbacks = the current values), so both pages look alike.
+ */
 .gj-orders__fields::before {
   content: '';
   grid-area: 1 / 1 / 2 / -1;
   margin: 0 -0.875rem;
-  background: #eef2f5;
-  border-bottom: 1px solid #d5dde3;
+  background: rgb(var(--colors-neutral-100, 239 244 241));
+  border-bottom: 1px solid rgb(var(--colors-neutral-200, 217 226 220));
 }
 
 /* Order ID with its label in front on one line ("Auftrags-ID 43942") */
