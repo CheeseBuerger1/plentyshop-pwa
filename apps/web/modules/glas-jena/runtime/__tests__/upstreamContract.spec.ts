@@ -404,6 +404,22 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('components/OrderBankDetails/OrderBankDetails.vue')).toContain('bankDetails');
   });
 
+  it('should find the label, box title and product name classes that glas-jena.css unifies on the order details', () => {
+    /* `[data-testid='order-success-page'] :is(p, h2).text-base`, `.font-bold.text-primary-500`, `#order-items a.no-underline` */
+    expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain('<p class="font-medium text-base">');
+    expect(readApp('components/OrderTotals/OrderTotals.vue')).toContain('<p class="font-medium text-base">');
+    expect(readApp('components/OrderShippingSummary/OrderShippingSummary.vue')).toContain(
+      '<h2 class="font-medium text-base">',
+    );
+    for (const box of ['OrderDetails', 'OrderShippingSummary', 'OrderPaymentSummary']) {
+      expect(readApp(`components/${box}/${box}.vue`)).toContain('class="font-bold text-primary-500 @md:text-lg');
+    }
+    expect(readApp('components/ConfirmationPageContent/ConfirmationPageContent.vue')).toContain('id="order-items"');
+    expect(readApp('components/OrderSummaryProductCard/OrderSummaryProductCard.vue')).toContain(
+      'class="no-underline typography-text-sm @sm:typography-text-lg"',
+    );
+  });
+
   it('should find the home page identifier and the SEO defaults that the English home page texts replace', () => {
     expect(readApp('pages/index.vue')).toContain('identifier: HOMEPAGE_IDENTIFIER');
     expect(readApp('utils/blocks/immutable-page-identifiers.ts')).toContain(
