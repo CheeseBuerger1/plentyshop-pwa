@@ -206,6 +206,28 @@ div:has(> svg[data-testid='favorite']) {
   font-weight: 500;
 }
 
+/*
+ * Same for the sizes: in the original the labels are 16 px (`text-base`), the values 14 px (the boxes are `text-sm`)
+ * and the box titles 14 px that jump to 18 px with the width (`@md:text-lg`). Labels now have the size of the values
+ * (14 px, medium weight keeps them apart) and the box titles are always 18 px. The product name (14 px, 18 px from
+ * a wider box in the original) is always 16 px. Buttons ("Zurück zur Übersicht", documents) are no `p`/`h2` and stay
+ * as they are.
+ */
+[data-testid='order-success-page'] :is(p, h2).text-base {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+[data-testid='order-success-page'] #order-items a.no-underline {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+[data-testid='order-success-page'] .font-bold.text-primary-500 {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
 .font-body .rte-prose a {
   color: var(--gj-link);
   text-decoration: underline;
