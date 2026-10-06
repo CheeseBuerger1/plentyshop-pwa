@@ -40,6 +40,9 @@
           v-model="isAccountMenuOpen"
           placement="bottom-start"
           class="gj-header__account z-dropdown"
+          data-testid="gj-header-account-dropdown"
+          @pointerenter="onAccountPointerEnter"
+          @pointerleave="onAccountPointerLeave"
         >
           <template #trigger>
             <button
@@ -49,7 +52,7 @@
               :aria-label="`${t('account.heading')}, ${tLocal('signedIn')}`"
               aria-haspopup="true"
               :aria-expanded="isAccountMenuOpen"
-              @click="toggleAccountMenu()"
+              @click="onAccountTileClick"
             >
               <!-- Green check mark at the person while signed in, like the LTS shop (the name above says it for screen readers) -->
               <span class="gj-header__account-icon">
@@ -214,6 +217,7 @@ import {
 } from '../utils/accountMenu';
 import { getNativeLanguageName } from '../utils/locale';
 import { DESKTOP_NAVIGATION_BREAKPOINT, isPlainLeftClick } from '../utils/navigation';
+import { useHoverIntent } from '../composables/useHoverIntent';
 import GlasJenaLineIcon from './GlasJenaLineIcon.vue';
 import GlasJenaMobileNavigation from './GlasJenaMobileNavigation.vue';
 import GlasJenaNavigation from './GlasJenaNavigation.vue';
@@ -312,7 +316,12 @@ watch(() => route.path, closeSearch);
  * capture phase, so NuxtLink sees the prevented click and does not navigate. After logging in the account opens
  * (the original reloads the page).
  */
-const { isOpen: isAccountMenuOpen, toggle: toggleAccountMenu, close: closeAccountMenu } = useDisclosure();
+const {
+  isOpen: isAccountMenuOpen,
+  toggle: toggleAccountMenu,
+  open: openAccountMenu,
+  close: closeAccountMenu,
+} = useDisclosure();
 const { isOpen: isLoginOpen, open: openLogin, close: closeLogin } = useDisclosure();
 const isLoginView = ref(true);
 
@@ -321,6 +330,37 @@ const accountMenuLinks = computed(() =>
 );
 
 const logOut = () => logOutToHomePage(logout, closeAccountMenu, localePath(paths.home));
+
+/*
+ * The account menu opens on mouse over, like the category navigation (GlasJenaNavigation.vue); leaving it closes it only
+ * after a short delay, so briefly leaving the tile or the 8 px gap to the menu does not close it. Touch keeps the
+ * click (first tap opens, next tap closes), the keyboard Enter / Space as well.
+ */
+const accountHoverIntent = useHoverIntent();
+
+const onAccountPointerEnter = (event: PointerEvent) => {
+  if (event.pointerType === 'touch') {
+    return;
+  }
+  accountHoverIntent.cancel();
+  openAccountMenu();
+};
+
+const onAccountPointerLeave = (event: PointerEvent) => {
+  if (event.pointerType === 'touch') {
+    return;
+  }
+  accountHoverIntent.schedule(closeAccountMenu);
+};
+
+/** A mouse click on the tile keeps the menu the mouse over has just opened; keyboard (no pointer type) and touch toggle. */
+const onAccountTileClick = (event: MouseEvent) => {
+  if ((event as PointerEvent).pointerType === 'mouse') {
+    openAccountMenu();
+    return;
+  }
+  toggleAccountMenu();
+};
 
 /* Below 992 px the account tile moves into the burger menu: a still open account menu closes (see also the CSS) */
 watch(
