@@ -379,6 +379,31 @@ describe('upstream contract of the glas-jena module', () => {
     expect(Object.getOwnPropertyDescriptor(orderGetters, 'getDate')?.writable).toBe(true);
   });
 
+  it('should find the order status getter that the module replaces (status without the PlentyONE number)', () => {
+    expect(readApp('pages/my-account/my-orders.vue')).toContain('orderGetters.getStatus(order)');
+    expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain('orderGetters.getStatus(order)');
+    expect(Object.getOwnPropertyDescriptor(orderGetters, 'getStatus')?.writable).toBe(true);
+  });
+
+  it('should find the order confirmation parts that the module copy GlasJenaConfirmationPageContent changes', () => {
+    const confirmation = readApp('components/ConfirmationPageContent/ConfirmationPageContent.vue');
+    /* The copy keeps the original and changes these places: update the copy when one of them is gone */
+    for (const part of [
+      'data-testid="order-success-page"',
+      'data-testid="success-header"',
+      "t('order.successHeader') : t('order.successReturnHeader')",
+      "t('order.successMessage')",
+      "t('orderConfirmation.confirmationSendTo', { email: orderGetters.getOrderEmail(order) })",
+      '<OrderBankDetails v-if="bankDetails" :bank-details="bankDetails" />',
+      'const bankDetails = computed(() => orderGetters.getOrderPaymentBankDetails(order));',
+      'await getActiveShippingCountries();',
+    ]) {
+      expect(confirmation).toContain(part);
+    }
+    expect(readApp('components/ConfirmationPageContent/types.ts')).toContain('ConfirmationPageContentProps');
+    expect(readApp('components/OrderBankDetails/OrderBankDetails.vue')).toContain('bankDetails');
+  });
+
   it('should find the home page identifier and the SEO defaults that the English home page texts replace', () => {
     expect(readApp('pages/index.vue')).toContain('identifier: HOMEPAGE_IDENTIFIER');
     expect(readApp('utils/blocks/immutable-page-identifiers.ts')).toContain(

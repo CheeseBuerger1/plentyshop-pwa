@@ -18,6 +18,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   OrderReturnItems: './runtime/components/GlasJenaNoReturns.vue',
   /* No "buy again" (as requested by the shop owner): on the order confirmation a link back to "My orders" instead */
   OrderAgainButton: './runtime/components/GlasJenaOrderBackLink.vue',
+  /* Order confirmation = order details: thank-you text only for recent orders, no bank details when cancelled */
+  ConfirmationPageContent: './runtime/components/GlasJenaConfirmationPageContent.vue',
 };
 
 /**
@@ -165,6 +167,9 @@ export default defineNuxtModule({
 
     /* Order dates without the time of day, see utils/orderDate.ts */
     addPlugin(resolve('./runtime/plugins/orderDate'));
+
+    /* Order status without the PlentyONE number ("[8] Storniert"), see utils/orderStatus.ts */
+    addPlugin(resolve('./runtime/plugins/orderStatus'));
 
     /*
      * Google Tag Manager with consent default "denied" and the `purchase` event for Google Ads, see
