@@ -328,10 +328,12 @@ watch(
     border-radius: 0;
   }
 
+  /* The last column has a fixed width: with `auto` it was as wide as "Details" in the orders but empty (0) in the
+     headings, which shifted the columns of the orders against their headings (up to 30 px at "Lieferdatum") */
   .gj-orders__row {
     grid-template-columns:
       minmax(5em, 1fr) minmax(6.5em, 1fr) minmax(5.75em, 1fr) minmax(5.5em, 1fr) minmax(5.75em, 1.2fr)
-      auto;
+      3.25em;
     column-gap: 1rem;
     align-items: baseline;
   }

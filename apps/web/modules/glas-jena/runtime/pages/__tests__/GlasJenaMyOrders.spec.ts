@@ -1,4 +1,6 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { flushPromises } from '@vue/test-utils';
 import GlasJenaMyOrders from '../GlasJenaMyOrders.vue';
 
@@ -88,5 +90,16 @@ describe('GlasJenaMyOrders', () => {
 
     expect(ids.map((id) => id.text())).toEqual(['101', '102']);
     expect(ids[0]!.classes()).toContain('gj-orders__id');
+  });
+
+  it('should give the table columns a fixed last track so that the orders line up with their headings', () => {
+    /* jsdom has no layout: the style source is checked. With `auto` the "Details" column was 0 wide in the headings
+       but as wide as the link in the orders, which shifted every column of the orders (measured: up to 30 px) */
+    const source = readFileSync(join(process.cwd(), 'modules/glas-jena/runtime/pages/GlasJenaMyOrders.vue'), 'utf8');
+    const columns = source.match(/@container \(min-width: 33rem\)[\s\S]*?grid-template-columns:([^;]*);/)?.[1] ?? '';
+
+    expect(columns).toContain('minmax(5em, 1fr)');
+    expect(columns.trim().endsWith('3.25em')).toBe(true);
+    expect(columns).not.toMatch(/\bauto\b/);
   });
 });
