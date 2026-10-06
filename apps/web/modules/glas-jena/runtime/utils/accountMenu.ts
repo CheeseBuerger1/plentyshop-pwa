@@ -1,8 +1,17 @@
 /**
- * Page of the account menu on phones (GlasJenaAccountLayout.vue); from 768 px it opens the start page of the account
+ * Page of the account menu on phones (GlasJenaAccountLayout.vue); from 825 px it opens the start page of the account
  * (`paths.account`). Also the account URL of the LTS shop.
  */
 export const ACCOUNT_MENU_PAGE_PATH = '/my-account';
+
+/**
+ * nuxt-viewport breakpoint of the account menu (wish of the shop owner): from a window width of 825 px the menu stands
+ * next to the content, below that it has its own page like on phones. Then the orders table keeps its table layout
+ * down to a window width of 560 px (528 px content width + 2 x 16 px page margin of the layout).
+ * Registered by the module (index.ts).
+ */
+export const ACCOUNT_MENU_BREAKPOINT = 'gjAccountMenu';
+export const ACCOUNT_MENU_MIN_WIDTH = 825;
 
 /**
  * Link to the login page that leads into the account afterwards (wish of the shop owner): the login page opens the

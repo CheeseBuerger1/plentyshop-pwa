@@ -1,14 +1,14 @@
 <template>
   <NuxtLayout name="default" :breadcrumbs="breadcrumbs">
-    <!-- `gj-account-layout--wide`: from 768 px window width, also for the page titles of the account pages (glas-jena.css) -->
+    <!-- `gj-account-layout--wide`: from 825 px window width, also for the page titles of the account pages (glas-jena.css) -->
     <NarrowContainer
-      :class="['mb-20 @md:px-0', { 'px-4': !isMenuPage, 'gj-account-layout--wide': isWide }]"
+      :class="['mb-20', { 'px-4': !isMenuPage && !isWide, 'gj-account-layout--wide': isWide }]"
       data-testid="account-layout"
     >
       <!-- Hidden while the page banner shows "Mein Konto" (glas-jena.css) -->
       <h1
         v-if="isWide || isMenuPage"
-        class="mt-4 mb-10 @md:my-10 mx-4 @md:mx-0 font-bold typography-headline-3 @md:typography-headline-2"
+        :class="['font-bold', isWide ? 'my-10 mx-0 typography-headline-2' : 'mt-4 mb-10 mx-4 typography-headline-3']"
         data-testid="account-layout-heading"
       >
         {{ t('account.heading') }}
@@ -38,14 +38,14 @@
       <!--
         Phone or wide layout by window width (`isWide`) for every part, unlike the original, which mixes the window
         width (heading) and the width of the shop area (menu, by `@md`, about 15 px later with a scrollbar): there,
-        windows of 768–783 px showed neither the menu nor the way back.
+        windows of 768–783 px showed neither the menu nor the way back. Here the switch is at 825 px (own breakpoint).
       -->
-      <div :class="['gap-10', { flex: isWide }]" data-testid="account-page-sidebar">
+      <div :class="['gj-account-columns', { flex: isWide }]" data-testid="account-page-sidebar">
         <nav
           :aria-label="t('account.heading')"
           :class="[
-            'border-neutral-200 min-w-[300px]',
-            isWide ? 'border p-4 rounded-md' : 'border-t pt-4 pb-4',
+            'border-neutral-200',
+            isWide ? 'gj-account-menu border rounded-md' : 'border-t pt-4 pb-4',
             { hidden: !isMenuPage && !isWide },
           ]"
           data-testid="gj-account-menu"
@@ -62,7 +62,10 @@
           >
             <h2
               :id="`gj-account-section-${secIndex}`"
-              class="flex items-center gap-2 px-4 pt-4 pb-2 @md:pt-2 font-bold typography-text-lg text-neutral-900"
+              :class="[
+                'flex items-center gap-2 px-4 pb-2 font-bold typography-text-lg text-neutral-900',
+                isWide ? 'pt-2' : 'pt-4',
+              ]"
               data-testid="gj-account-menu-heading"
             >
               <Component :is="icon" aria-hidden="true" />
@@ -76,7 +79,8 @@
                   :to="link"
                   :aria-current="currentPath === link ? 'page' : undefined"
                   :class="[
-                    'first-of-type:py-4 @md:first-of-type:px-4 @md:first-of-type:py-2 !pl-8 rounded-md active:bg-primary-100 !text-neutral-900',
+                    '!pl-8 rounded-md active:bg-primary-100 !text-neutral-900',
+                    isWide ? 'first-of-type:px-4 first-of-type:py-2' : 'first-of-type:py-4',
                     {
                       'font-medium bg-primary-100': currentPath === link,
                     },
@@ -100,7 +104,7 @@
         </nav>
 
         <!-- The menu page on phones shows only the menu -->
-        <div class="flex-1" :class="{ hidden: isMenuPage && !isWide }">
+        <div class="flex-1 min-w-0" :class="{ hidden: isMenuPage && !isWide }">
           <section
             class="grid grid-cols-1 @2xs:grid-cols-2 gap-4 @md:gap-6 @md:grid-cols-2 @lg:grid-cols-3 @3xl:grid-cols-4 mb-10 @md:mb-5"
             data-testid="category-grid"
@@ -122,14 +126,14 @@ import {
   SfIconArrowBack,
   SfIconChevronRight,
 } from '@storefront-ui/vue';
-import { ACCOUNT_MENU_PAGE_PATH, logOutToHomePage } from '../utils/accountMenu';
+import { ACCOUNT_MENU_BREAKPOINT, ACCOUNT_MENU_PAGE_PATH, logOutToHomePage } from '../utils/accountMenu';
 import { ACCOUNT_ROUTE_PREFIX } from '../utils/pageBanner';
 
 /**
- * Account layout like the original (layouts/account.vue), with one change for phones (below 768 px): the menu has
+ * Account layout like the original (layouts/account.vue), with one change for phones (below 825 px): the menu has
  * its own page, `/my-account/`, and every account page – also "Persönliche Daten", the start page of the account –
  * shows only its content with a link "← Mein Konto" back to the menu. In the original, the start page shows the menu above the
- * personal data and has no way back. From 768 px the menu stays next to the content as in the original; the menu
+ * personal data and has no way back. From 825 px the menu stays next to the content as in the original (the original: 768 px); the menu
  * page then opens the start page. Without the wishlist and returns, which the shop does not offer (see index.ts).
  */
 const localePath = useLocalizedPath();
@@ -172,8 +176,8 @@ const sections = computed(() => [
 const currentPath = computed(() => route.path);
 const menuPagePath = computed(() => localePath(ACCOUNT_MENU_PAGE_PATH));
 const isMenuPage = computed(() => getRouteBaseName(route) === ACCOUNT_ROUTE_PREFIX);
-/** From 768 px window width: menu next to the content; below, the menu page and the account pages on their own. */
-const isWide = computed(() => viewport.isGreaterOrEquals('md'));
+/** From 825 px window width: menu next to the content; below, the menu page and the account pages on their own. */
+const isWide = computed(() => viewport.isGreaterOrEquals(ACCOUNT_MENU_BREAKPOINT));
 
 const findCurrentPage = computed(() =>
   sections.value.flatMap(({ subsections }) => subsections).find(({ link }) => currentPath.value.includes(link)),
@@ -187,7 +191,7 @@ const breadcrumbs = computed(() => [
   ...(isMenuPage.value ? [] : [{ name: currentSectionLabel.value, link: currentPath.value }]),
 ]);
 
-/* From 768 px the menu is always next to the content: the menu page opens the start page of the account instead */
+/* From 825 px the menu is always next to the content: the menu page opens the start page of the account instead */
 watch(
   [isMenuPage, isWide],
   ([menuPage, wide]) => {
@@ -202,3 +206,26 @@ const NuxtLink = resolveComponent('NuxtLink');
 
 const logOut = () => logOutToHomePage(logout, () => {}, localePath(paths.home));
 </script>
+
+<style scoped>
+/*
+ * Menu and content next to each other (from 825 px): the original gives the menu at least 300 px and a gap of 40 px
+ * however narrow the window is, which leaves the content little room and a lot of empty space. Here the menu and the gap
+ * shrink with the window: the menu from 300 px (at 1200 px window width and wider) to 240 px, the gap from 40 to 16 px. 240 px is
+ * what the longest entry (heading "Kontoeinstellungen" with icon) needs, with the smaller padding below 1200 px.
+ */
+.gj-account-columns {
+  gap: clamp(1rem, 3vw, 2.5rem);
+}
+
+.gj-account-menu {
+  flex: 0 0 clamp(15rem, 25vw, 18.75rem);
+  padding: 0.5rem;
+}
+
+@media (min-width: 1200px) {
+  .gj-account-menu {
+    padding: 1rem;
+  }
+}
+</style>

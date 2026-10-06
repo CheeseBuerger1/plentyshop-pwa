@@ -2,6 +2,7 @@ import { addPlugin, addRouteMiddleware, addTemplate, createResolver, defineNuxtM
 import type { NuxtPage } from 'nuxt/schema';
 import { getGtmHeadScript, getGtmNoscript } from './runtime/utils/googleTagManager';
 import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './runtime/utils/navigation';
+import { ACCOUNT_MENU_BREAKPOINT, ACCOUNT_MENU_MIN_WIDTH } from './runtime/utils/accountMenu';
 
 /** Original components (Nuxt name) replaced by the module's own ones. */
 export const COMPONENT_OVERRIDES: Record<string, string> = {
@@ -25,6 +26,12 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
  */
 export const LAYOUT_OVERRIDES: Record<string, string> = {
   account: './runtime/layouts/GlasJenaAccountLayout.vue',
+};
+
+/** Own nuxt-viewport breakpoints of the module: desktop navigation (992 px) and account menu (825 px). */
+const EXTRA_VIEWPORT_BREAKPOINTS = {
+  [DESKTOP_NAVIGATION_BREAKPOINT]: DESKTOP_NAVIGATION_MIN_WIDTH,
+  [ACCOUNT_MENU_BREAKPOINT]: ACCOUNT_MENU_MIN_WIDTH,
 };
 
 /** Alias under which nuxt-viewport provides its generated options to its runtime plugins. */
@@ -103,7 +110,7 @@ export default defineNuxtModule({
     nuxt.options.css.push(resolve('./runtime/glas-jena.css'));
 
     /*
-     * Own nuxt-viewport breakpoint for the desktop navigation, so the shop's `lg` (1024 px) and its config stay
+     * Own nuxt-viewport breakpoints (desktop navigation, account menu), so the shop's `lg` (1024 px) and its config stay
      * untouched. nuxt-viewport has already read its options when this local module runs, so its generated options
      * are extended instead: our template re-exports them with the extra breakpoint and takes over the alias.
      */
@@ -114,11 +121,13 @@ export default defineNuxtModule({
         getContents: () =>
           [
             `import options from ${JSON.stringify(viewportOptionsPath)};`,
-            `export default { ...options, breakpoints: { ...options.breakpoints, ${JSON.stringify(DESKTOP_NAVIGATION_BREAKPOINT)}: ${DESKTOP_NAVIGATION_MIN_WIDTH} } };`,
+            `export default { ...options, breakpoints: { ...options.breakpoints, ...${JSON.stringify(EXTRA_VIEWPORT_BREAKPOINTS)} } };`,
           ].join('\n'),
       }).dst;
     } else {
-      console.warn('[glas-jena] nuxt-viewport options not found; the desktop navigation breakpoint is missing.');
+      console.warn(
+        '[glas-jena] nuxt-viewport options not found; the desktop navigation and account menu breakpoints are missing.',
+      );
     }
 
     nuxt.hook('components:extend', (components) => {

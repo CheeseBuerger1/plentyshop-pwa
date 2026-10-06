@@ -18,9 +18,9 @@ const createOrder = (id: number, isNet = false) => ({
   totals: { isNet, totalGross: 119, totalNet: 100, currency: 'EUR' },
 });
 
-const mountPage = async (entries: unknown[]) => {
+const mountPage = async (entries: unknown[], lastPageNumber = 1) => {
   ordersState.data = {
-    data: { entries, page: 1, totalsCount: entries.length, itemsPerPage: 10, lastPageNumber: 1 },
+    data: { entries, page: 1, totalsCount: entries.length, itemsPerPage: 5, lastPageNumber },
   };
   const wrapper = await mountSuspended(GlasJenaMyOrders, {
     global: {
@@ -74,5 +74,11 @@ describe('GlasJenaMyOrders', () => {
     const wrapper = await mountPage([createOrder(101)]);
 
     expect(wrapper.find('.gj-orders__head').text()).toContain('Summe');
+  });
+
+  it('should list all page numbers of a short list instead of only one number', async () => {
+    const wrapper = await mountPage([createOrder(101)], 2);
+
+    expect(wrapper.findComponent({ name: 'UiPagination' }).props('maxVisiblePages')).toBe(5);
   });
 });
