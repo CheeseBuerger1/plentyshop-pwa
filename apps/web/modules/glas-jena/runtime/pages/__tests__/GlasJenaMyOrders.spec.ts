@@ -81,4 +81,12 @@ describe('GlasJenaMyOrders', () => {
 
     expect(wrapper.findComponent({ name: 'UiPagination' }).props('maxVisiblePages')).toBe(5);
   });
+
+  it('should show the order ID of every order in its own highlighted cell', async () => {
+    const wrapper = await mountPage([createOrder(101), createOrder(102)]);
+    const ids = wrapper.findAll('[data-testid="gj-order-id"]');
+
+    expect(ids.map((id) => id.text())).toEqual(['101', '102']);
+    expect(ids[0]!.classes()).toContain('gj-orders__id');
+  });
 });

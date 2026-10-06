@@ -47,7 +47,9 @@
             <dl class="gj-orders__fields">
               <div class="gj-orders__field">
                 <dt>{{ t('account.ordersAndReturns.orderId') }}</dt>
-                <dd class="gj-orders__nowrap">{{ orderGetters.getId(order) }}</dd>
+                <dd class="gj-orders__nowrap gj-orders__id" data-testid="gj-order-id">
+                  {{ orderGetters.getId(order) }}
+                </dd>
               </div>
               <div class="gj-orders__field">
                 <dt>{{ t('account.ordersAndReturns.orderDate') }}</dt>
@@ -203,6 +205,12 @@ watch(
 
 .gj-orders__nowrap {
   white-space: nowrap;
+}
+
+/* The order ID stands out (semi-bold, darker) so that the orders can be told apart at a glance */
+.gj-orders__id {
+  font-weight: 600;
+  color: #263238;
 }
 
 .gj-orders__details {
