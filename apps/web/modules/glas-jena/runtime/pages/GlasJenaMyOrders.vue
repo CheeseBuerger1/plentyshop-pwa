@@ -42,6 +42,7 @@
             v-for="order in data.data.entries"
             :key="orderGetters.getId(order)"
             class="gj-orders__row gj-orders__order"
+            :class="{ 'gj-orders__order--no-ship': !orderGetters.getShippingDate(order, locale) }"
             data-testid="gj-order"
           >
             <dl class="gj-orders__fields">
@@ -178,10 +179,11 @@ watch(
 
 /*
  * Narrow: every order its own card (wish of the shop owner, variant C): a grey header with the order ID and the status,
- * below date and amount (right) with their labels above, the shipping date only if there is one, at the bottom
- * "Details" at the right.
+ * below date and amount (right) with their labels above; at the bottom the shipping date at the left (only if there is
+ * one) and "Details" at the right.
  */
 .gj-orders__order {
+  position: relative;
   margin-bottom: 0.75rem;
   overflow: hidden;
   background: #fff;
@@ -204,7 +206,12 @@ watch(
   grid-column: 1 / -1;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem 1rem;
-  padding: 0 0.875rem 0.5rem;
+  padding: 0 0.875rem 0.625rem;
+}
+
+/* No shipping date: room for the "Details" link in the footer line of the card (with a shipping date it stands next to it) */
+.gj-orders__order--no-ship .gj-orders__fields {
+  padding-bottom: 2.5rem;
 }
 
 /* The grey header band: a grid item in the first row, as wide as the card */
@@ -278,10 +285,11 @@ watch(
   color: #263238;
 }
 
+/* Footer line of the card: "Details" at the right, level with the shipping date at the left (if there is one) */
 .gj-orders__details {
-  grid-column: 1 / -1;
-  padding: 0 0.875rem 0.625rem;
-  text-align: right;
+  position: absolute;
+  right: 0.875rem;
+  bottom: 0.625rem;
 }
 
 /* Link in the shop's link colour, underlined (#2c5572 on white 7.9:1); at least 24 px high as a target */
@@ -348,6 +356,10 @@ watch(
     display: none;
   }
 
+  .gj-orders__order--no-ship .gj-orders__fields {
+    padding-bottom: 0;
+  }
+
   .gj-orders__field dt {
     position: absolute;
     width: 1px;
@@ -374,8 +386,8 @@ watch(
   }
 
   .gj-orders__details {
+    position: static;
     grid-column: 6;
-    padding: 0;
   }
 }
 </style>
