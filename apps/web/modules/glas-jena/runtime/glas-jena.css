@@ -223,6 +223,11 @@ div:has(> svg[data-testid='favorite']) {
   line-height: 1.5rem;
 }
 
+/* "Bestellung nachverfolgen" is `text-gray-900` (nearly black) in the original, the other labels have the text colour */
+[data-testid='order-success-page'] p.text-gray-900 {
+  color: inherit;
+}
+
 [data-testid='order-success-page'] .font-bold.text-primary-500 {
   font-size: 1.125rem;
   line-height: 1.75rem;

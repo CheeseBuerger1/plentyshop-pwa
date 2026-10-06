@@ -404,6 +404,23 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('components/OrderBankDetails/OrderBankDetails.vue')).toContain('bankDetails');
   });
 
+  it('should find the shipping summary parts that the module copy GlasJenaOrderShippingSummary builds on', () => {
+    const summary = readApp('components/OrderShippingSummary/OrderShippingSummary.vue');
+    /* The copy adds the shipping date between the shipping method and `<OrderTracking>` */
+    for (const part of [
+      "{{ t('account.ordersAndReturns.shippingSummary.shippingMethod') }}",
+      '<p>{{ shippingMethod }}</p>',
+      '<OrderTracking :order="order" />',
+      'const shippingMethod = orderGetters.getShippingProvider(props.order);',
+      'const preferredDeliveryServices = orderGetters.getPreferredDeliveryServices(props.order);',
+      'const orderCustomerSign = orderGetters.getOrderCustomerSign(props.order);',
+    ]) {
+      expect(summary).toContain(part);
+    }
+    expect(readApp('components/OrderShippingSummary/types.ts')).toContain('OrderShippingSummaryPropsType');
+    expect(readApp('pages/my-account/my-orders.vue')).toContain("t('account.ordersAndReturns.shippingDate')");
+  });
+
   it('should find the label, box title and product name classes that glas-jena.css unifies on the order details', () => {
     /* `[data-testid='order-success-page'] :is(p, h2).text-base`, `.font-bold.text-primary-500`, `#order-items a.no-underline` */
     expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain('<p class="font-medium text-base">');
