@@ -218,14 +218,21 @@ watch(
 
 /*
  * Wide: one row per order under column headings; the labels of the fields are only for screen readers there.
- * Columns: order ID, date, amount (right-aligned), shipping date, status, "Details".
+ * Columns: order ID, date, amount (right-aligned), shipping date, status, "Details". From 33rem (528 px) of content width,
+ * with 14 px text like the original table: its columns need about 500 px (order ID, dates and amount never wrap, the
+ * status may wrap onto two lines), so the wide layout holds down to a window width of about 810 px (before: 40rem and
+ * 16 px text, switching at about 1010 px).
  */
-@container (min-width: 40rem) {
+@container (min-width: 33rem) {
+  .gj-orders__list {
+    font-size: 0.875rem;
+  }
+
   .gj-orders__row {
     grid-template-columns:
-      minmax(6rem, 1fr) minmax(6.5rem, 1fr) minmax(6.5rem, 1fr) minmax(6.5rem, 1fr) minmax(7rem, 1.5fr)
+      minmax(5em, 1fr) minmax(6.5em, 1fr) minmax(5.75em, 1fr) minmax(5.5em, 1fr) minmax(5.75em, 1.2fr)
       auto;
-    column-gap: 1.5rem;
+    column-gap: 1rem;
     align-items: baseline;
   }
 
@@ -235,6 +242,7 @@ watch(
     font-size: 0.875rem;
     font-weight: 600;
     border-bottom: 2px solid #ddd;
+    white-space: nowrap;
   }
 
   .gj-orders__field dt {

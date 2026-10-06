@@ -40,12 +40,12 @@
         width (heading) and the width of the shop area (menu, by `@md`, about 15 px later with a scrollbar): there,
         windows of 768–783 px showed neither the menu nor the way back.
       -->
-      <div :class="['gap-10', { flex: isWide }]" data-testid="account-page-sidebar">
+      <div :class="['gj-account-columns', { flex: isWide }]" data-testid="account-page-sidebar">
         <nav
           :aria-label="t('account.heading')"
           :class="[
-            'border-neutral-200 min-w-[300px]',
-            isWide ? 'border p-4 rounded-md' : 'border-t pt-4 pb-4',
+            'border-neutral-200',
+            isWide ? 'gj-account-menu border rounded-md' : 'border-t pt-4 pb-4',
             { hidden: !isMenuPage && !isWide },
           ]"
           data-testid="gj-account-menu"
@@ -100,7 +100,7 @@
         </nav>
 
         <!-- The menu page on phones shows only the menu -->
-        <div class="flex-1" :class="{ hidden: isMenuPage && !isWide }">
+        <div class="flex-1 min-w-0" :class="{ hidden: isMenuPage && !isWide }">
           <section
             class="grid grid-cols-1 @2xs:grid-cols-2 gap-4 @md:gap-6 @md:grid-cols-2 @lg:grid-cols-3 @3xl:grid-cols-4 mb-10 @md:mb-5"
             data-testid="category-grid"
@@ -202,3 +202,26 @@ const NuxtLink = resolveComponent('NuxtLink');
 
 const logOut = () => logOutToHomePage(logout, () => {}, localePath(paths.home));
 </script>
+
+<style scoped>
+/*
+ * Menu and content next to each other (from 768 px): the original gives the menu at least 300 px and a gap of 40 px
+ * however narrow the window is, which leaves the content little room and a lot of empty space. Here the menu and the gap
+ * shrink with the window: the menu from 300 px (at 1200 px window width and wider) to 240 px, the gap from 40 to 16 px. 240 px is
+ * what the longest entry (heading "Kontoeinstellungen" with icon) needs, with the smaller padding below 1200 px.
+ */
+.gj-account-columns {
+  gap: clamp(1rem, 3vw, 2.5rem);
+}
+
+.gj-account-menu {
+  flex: 0 0 clamp(15rem, 25vw, 18.75rem);
+  padding: 0.5rem;
+}
+
+@media (min-width: 1200px) {
+  .gj-account-menu {
+    padding: 1rem;
+  }
+}
+</style>

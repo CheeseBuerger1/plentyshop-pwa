@@ -76,6 +76,17 @@ describe('GlasJenaAccountLayout', () => {
     expect(navigateToMock).toHaveBeenCalledWith(paths.account, { replace: true });
   });
 
+  it('should size the menu and the gap by the window instead of a fixed 300 px and 40 px', async () => {
+    viewportState.isWide = true;
+
+    const wrapper = await mountLayout();
+    const menu = wrapper.get('[data-testid="gj-account-menu"]');
+
+    expect(menu.classes()).toContain('gj-account-menu');
+    expect(menu.classes()).not.toContain('min-w-[300px]');
+    expect(wrapper.get('[data-testid="account-page-sidebar"]').classes()).toContain('gj-account-columns');
+  });
+
   it('should give each section of the menu a real heading that names its links', async () => {
     const wrapper = await mountLayout();
 
