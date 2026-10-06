@@ -20,6 +20,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   OrderAgainButton: './runtime/components/GlasJenaOrderBackLink.vue',
   /* Order confirmation = order details: thank-you text only for recent orders, no bank details when cancelled */
   ConfirmationPageContent: './runtime/components/GlasJenaConfirmationPageContent.vue',
+  /* Order details: the shipping date ("Lieferdatum") next to the shipping method and the tracking number */
+  OrderShippingSummary: './runtime/components/GlasJenaOrderShippingSummary.vue',
 };
 
 /**
