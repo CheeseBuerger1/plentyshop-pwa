@@ -59,7 +59,10 @@
                 <dt>{{ t('account.ordersAndReturns.amount') }}</dt>
                 <dd class="gj-orders__nowrap" data-testid="gj-order-amount">{{ getAmount(order) }}</dd>
               </div>
-              <div class="gj-orders__field">
+              <div
+                class="gj-orders__field"
+                :class="{ 'gj-orders__field--empty': !orderGetters.getShippingDate(order, locale) }"
+              >
                 <dt>{{ t('account.ordersAndReturns.shippingDate') }}</dt>
                 <dd>{{ orderGetters.getShippingDate(order, locale) || '–' }}</dd>
               </div>
@@ -165,12 +168,6 @@ watch(
   list-style: none;
 }
 
-.gj-orders__order {
-  position: relative;
-  padding: 1rem 0;
-  border-bottom: 1px solid #ddd;
-}
-
 .gj-orders dl {
   margin: 0;
 }
@@ -180,13 +177,21 @@ watch(
 }
 
 /*
- * Narrow: every order a compact card of three rows, each field with its label above the value: order ID and status
- * (right), date and amount (right), shipping date; "Details" at the lower right (wish of the shop owner, variant A).
+ * Narrow: every order its own card (wish of the shop owner, variant C): a grey header with the order ID and the status,
+ * below date and amount (right) with their labels above, the shipping date only if there is one, at the bottom
+ * "Details" at the right.
  */
+.gj-orders__order {
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #c5ced6;
+  border-radius: 0.5rem;
+}
+
 .gj-orders__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem 1rem;
 }
 
 /* Column headings only in the wide layout */
@@ -194,29 +199,46 @@ watch(
   display: none;
 }
 
-/* The fields take the row's columns (subgrid), so they line up with the headings and between the orders */
 .gj-orders__fields {
   display: grid;
   grid-column: 1 / -1;
-  grid-template-columns: subgrid;
-  row-gap: 0.5rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1rem;
+  padding: 0 0.875rem 0.5rem;
 }
 
+/* The grey header band: a grid item in the first row, as wide as the card */
+.gj-orders__fields::before {
+  content: '';
+  grid-area: 1 / 1 / 2 / -1;
+  margin: 0 -0.875rem;
+  background: #eef2f5;
+  border-bottom: 1px solid #d5dde3;
+}
+
+/* Order ID with its label in front on one line ("Auftrags-ID 43942") */
 .gj-orders__field:nth-child(1) {
+  display: flex;
   grid-area: 1 / 1;
+  gap: 0.5rem;
+  align-items: baseline;
+  padding: 0.625rem 0;
 }
 
 .gj-orders__field:nth-child(5) {
   grid-area: 1 / 2;
+  padding: 0.625rem 0;
   text-align: right;
 }
 
 .gj-orders__field:nth-child(2) {
   grid-area: 2 / 1;
+  margin-top: 0.25rem;
 }
 
 .gj-orders__field:nth-child(3) {
   grid-area: 2 / 2;
+  margin-top: 0.25rem;
   text-align: right;
 }
 
@@ -224,11 +246,26 @@ watch(
   grid-area: 3 / 1;
 }
 
+/* No shipping date yet: no empty field in the card (the table shows a dash) */
+.gj-orders__field--empty:nth-child(n) {
+  display: none;
+}
+
 /* Labels smaller and lighter than the values (#595959 on white 7:1), so the values stand out */
 .gj-orders__field dt {
   font-size: 0.875rem;
   font-weight: 400;
   color: #595959;
+}
+
+/* The status speaks for itself: its label only for screen readers */
+.gj-orders__field:nth-child(5) dt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .gj-orders__nowrap {
@@ -241,11 +278,9 @@ watch(
   color: #263238;
 }
 
-/* In the narrow layout in the lower right corner of the card, level with the shipping date */
 .gj-orders__details {
-  position: absolute;
-  right: 0;
-  bottom: 1rem;
+  grid-column: 1 / -1;
+  padding: 0 0.875rem 0.625rem;
   text-align: right;
 }
 
@@ -264,15 +299,25 @@ watch(
 }
 
 /*
- * Wide: one row per order under column headings; the labels of the fields are only for screen readers there.
- * Columns: order ID, date, amount (right-aligned), shipping date, status, "Details". From 33rem (528 px) of content width,
- * with 14 px text like the original table: its columns need about 500 px (order ID, dates and amount never wrap, the
- * status may wrap onto two lines), so the table holds down to a window width of about 560 px (the account menu is
- * hidden below 825 px; before: 40rem and 16 px text next to a 300 px menu, switching at about 1010 px).
+ * Wide: one row per order under column headings, without the card; the labels of the fields are only for screen readers
+ * there. Columns: order ID, date, amount (right-aligned), shipping date, status, "Details". From 33rem (528 px) of
+ * content width, with 14 px text like the original table: its columns need about 500 px (order ID, dates and amount
+ * never wrap, the status may wrap onto two lines), so the table holds down to a window width of about 560 px (the
+ * account menu is hidden below 825 px; before: 40rem and 16 px text next to a 300 px menu, switching at about 1010 px).
  */
 @container (min-width: 33rem) {
   .gj-orders__list {
     font-size: 0.875rem;
+  }
+
+  .gj-orders__order {
+    margin: 0;
+    padding: 1rem 0;
+    overflow: visible;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid #ddd;
+    border-radius: 0;
   }
 
   .gj-orders__row {
@@ -292,6 +337,17 @@ watch(
     white-space: nowrap;
   }
 
+  /* The fields take the row's columns (subgrid), so they line up with the headings and between the orders */
+  .gj-orders__fields {
+    grid-column: 1 / 6;
+    grid-template-columns: subgrid;
+    padding: 0;
+  }
+
+  .gj-orders__fields::before {
+    display: none;
+  }
+
   .gj-orders__field dt {
     position: absolute;
     width: 1px;
@@ -302,7 +358,10 @@ watch(
   }
 
   .gj-orders__field:nth-child(n) {
+    display: block;
     grid-area: auto;
+    margin: 0;
+    padding: 0;
     text-align: left;
   }
 
@@ -314,13 +373,9 @@ watch(
     text-align: right;
   }
 
-  .gj-orders__fields {
-    grid-column: 1 / 6;
-  }
-
   .gj-orders__details {
-    position: static;
     grid-column: 6;
+    padding: 0;
   }
 }
 </style>
