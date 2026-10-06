@@ -197,6 +197,15 @@ div:has(> svg[data-testid='favorite']) {
   font-weight: 300;
 }
 
+/*
+ * Order confirmation and order details: the labels of the right column ("Versand nach", "Zahlungsart" …) are `h2`, those
+ * of the left column ("Bestellnummer", "Zwischensumme" …) are `p`, both `font-medium` in the original. The light
+ * headings above would make only the `h2` labels thin; the page heading (h1) stays light.
+ */
+.font-body [data-testid='order-success-page'] h2 {
+  font-weight: 500;
+}
+
 .font-body .rte-prose a {
   color: var(--gj-link);
   text-decoration: underline;
