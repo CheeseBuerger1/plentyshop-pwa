@@ -99,6 +99,24 @@ describe('GlasJenaAccountLayout', () => {
     expect(wrapper.get('[data-testid="account-page-sidebar"]').classes()).toContain('gj-account-columns');
   });
 
+  it('should keep a page margin of 16 px for account pages until the menu stands next to the content', async () => {
+    routeState.name = 'my-account-personal-data';
+    routeState.path = '/my-account/personal-data/';
+    viewportState.isWide = false;
+
+    const phone = await mountLayout();
+    const phoneClasses = phone.get('[data-testid="account-layout"]').classes();
+
+    /* Not `@md:px-0`: that switches off at 768 px, while the menu only stands next to the content from 825 px */
+    expect(phoneClasses).toContain('px-4');
+    expect(phoneClasses).not.toContain('@md:px-0');
+
+    viewportState.isWide = true;
+    const wide = await mountLayout();
+
+    expect(wide.get('[data-testid="account-layout"]').classes()).not.toContain('px-4');
+  });
+
   it('should give each section of the menu a real heading that names its links', async () => {
     const wrapper = await mountLayout();
 

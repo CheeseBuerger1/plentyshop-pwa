@@ -2,13 +2,13 @@
   <NuxtLayout name="default" :breadcrumbs="breadcrumbs">
     <!-- `gj-account-layout--wide`: from 825 px window width, also for the page titles of the account pages (glas-jena.css) -->
     <NarrowContainer
-      :class="['mb-20 @md:px-0', { 'px-4': !isMenuPage, 'gj-account-layout--wide': isWide }]"
+      :class="['mb-20', { 'px-4': !isMenuPage && !isWide, 'gj-account-layout--wide': isWide }]"
       data-testid="account-layout"
     >
       <!-- Hidden while the page banner shows "Mein Konto" (glas-jena.css) -->
       <h1
         v-if="isWide || isMenuPage"
-        class="mt-4 mb-10 @md:my-10 mx-4 @md:mx-0 font-bold typography-headline-3 @md:typography-headline-2"
+        :class="['font-bold', isWide ? 'my-10 mx-0 typography-headline-2' : 'mt-4 mb-10 mx-4 typography-headline-3']"
         data-testid="account-layout-heading"
       >
         {{ t('account.heading') }}
@@ -62,7 +62,10 @@
           >
             <h2
               :id="`gj-account-section-${secIndex}`"
-              class="flex items-center gap-2 px-4 pt-4 pb-2 @md:pt-2 font-bold typography-text-lg text-neutral-900"
+              :class="[
+                'flex items-center gap-2 px-4 pb-2 font-bold typography-text-lg text-neutral-900',
+                isWide ? 'pt-2' : 'pt-4',
+              ]"
               data-testid="gj-account-menu-heading"
             >
               <Component :is="icon" aria-hidden="true" />
@@ -76,7 +79,8 @@
                   :to="link"
                   :aria-current="currentPath === link ? 'page' : undefined"
                   :class="[
-                    'first-of-type:py-4 @md:first-of-type:px-4 @md:first-of-type:py-2 !pl-8 rounded-md active:bg-primary-100 !text-neutral-900',
+                    '!pl-8 rounded-md active:bg-primary-100 !text-neutral-900',
+                    isWide ? 'first-of-type:px-4 first-of-type:py-2' : 'first-of-type:py-4',
                     {
                       'font-medium bg-primary-100': currentPath === link,
                     },

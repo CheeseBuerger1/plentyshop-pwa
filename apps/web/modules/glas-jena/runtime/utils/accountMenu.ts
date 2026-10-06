@@ -7,7 +7,7 @@ export const ACCOUNT_MENU_PAGE_PATH = '/my-account';
 /**
  * nuxt-viewport breakpoint of the account menu (wish of the shop owner): from a window width of 825 px the menu stands
  * next to the content, below that it has its own page like on phones. Then the orders table keeps its table layout
- * down to a window width of 592 px (528 px content width + 2 x 16 px page margin + 2 x 16 px margin of the table).
+ * down to a window width of 560 px (528 px content width + 2 x 16 px page margin of the layout).
  * Registered by the module (index.ts).
  */
 export const ACCOUNT_MENU_BREAKPOINT = 'gjAccountMenu';

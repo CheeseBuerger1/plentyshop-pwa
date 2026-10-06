@@ -121,8 +121,16 @@ const { formatWithSymbol } = usePriceFormatter();
 const { locale } = useI18n();
 const { fetchCustomerOrders, data, loading } = useCustomerOrders();
 const viewport = useViewport();
-const isDesktop = computed(() => viewport.isGreaterOrEquals('lg'));
-const maxVisiblePages = computed(() => (isDesktop.value ? 5 : 1));
+/*
+ * Page numbers: up to five from 640 px and for lists of up to five pages. Only longer lists on phones show one number
+ * (the original: below 1024 px always one, where the shop's pagination then lists the second page twice ("1 2 2")).
+ */
+const MAX_VISIBLE_PAGES = 5;
+const maxVisiblePages = computed(() =>
+  viewport.isGreaterOrEquals('sm') || (data.value?.data.lastPageNumber ?? 0) <= MAX_VISIBLE_PAGES
+    ? MAX_VISIBLE_PAGES
+    : 1,
+);
 
 /** Order total like the original table: net for net orders, otherwise gross. */
 const getAmount = (order: Order) => {
@@ -145,7 +153,7 @@ watch(
 /* The layout follows the width of the content area (next to the account menu), not of the window */
 .gj-orders {
   container-type: inline-size;
-  margin: 0 1rem;
+  margin: 0;
   font-size: 1rem;
 }
 
@@ -220,7 +228,7 @@ watch(
  * Wide: one row per order under column headings; the labels of the fields are only for screen readers there.
  * Columns: order ID, date, amount (right-aligned), shipping date, status, "Details". From 33rem (528 px) of content width,
  * with 14 px text like the original table: its columns need about 500 px (order ID, dates and amount never wrap, the
- * status may wrap onto two lines), so the table holds down to a window width of about 592 px (the account menu is
+ * status may wrap onto two lines), so the table holds down to a window width of about 560 px (the account menu is
  * hidden below 825 px; before: 40rem and 16 px text next to a 300 px menu, switching at about 1010 px).
  */
 @container (min-width: 33rem) {
@@ -265,5 +273,16 @@ watch(
   .gj-orders__details {
     grid-column: 6;
   }
+}
+</style>
+
+<style>
+/*
+ * Next to the menu (wide account layout, class set by GlasJenaAccountLayout.vue) the table lines up with the page title
+ * (margin of 16 px); otherwise the page margin of the layout is enough. Not scoped: Vue drops the part after
+ * `:global(...)` of a scoped rule.
+ */
+.gj-account-layout--wide .gj-orders {
+  margin: 0 1rem;
 }
 </style>
