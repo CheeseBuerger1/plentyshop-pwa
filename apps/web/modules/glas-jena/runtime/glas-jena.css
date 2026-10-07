@@ -226,6 +226,18 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
+ * Box "Bestellübersicht" (order ID, date, status): the original puts label and value in two rows below `@md` (768 px in
+ * this shop), although there is room for both side by side (also on phones). Label column of 8.5 rem (fits "Auftragsdatum"),
+ * from 768 px the original's two and three columns apply.
+ */
+@container (max-width: 767.98px) {
+  [data-testid='order-success-page'] .grid.mb-2:has(> p.font-medium.text-base) {
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    column-gap: 1rem;
+  }
+}
+
+/*
  * Same for the sizes: in the original the labels are 16 px (`text-base`), the values 14 px (the boxes are `text-sm`)
  * and the box titles 14 px that jump to 18 px with the width (`@md:text-lg`). Labels now have the size of the values
  * (14 px, medium weight keeps them apart) and the box titles are always 18 px. The product name (14 px, 18 px from

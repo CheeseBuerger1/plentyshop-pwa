@@ -2,11 +2,16 @@
   <div class="px-4 @md:px-0 flex items-center flex-col" data-testid="order-success-page">
     <div class="w-full @md:w-auto @lg:w-3/4 flex flex-col">
       <!-- Signed in: the way back to "My orders", top left like the back link of the account pages (see OrderAgainButton) -->
-      <div v-if="isAuthorized" class="mt-4 self-start">
+      <div v-if="isAuthorized" class="self-start" data-testid="gj-order-back">
         <OrderAgainButton :order="order" />
       </div>
 
-      <div class="px-4 pt-4 pb-4 @md:px-6 @md:pb-6 flex flex-col max-w-2xl mx-auto">
+      <!-- 8 px below the back link like on the account pages, 16 px below the banner without it -->
+      <div
+        class="px-4 pb-4 @md:px-6 @md:pb-6 flex flex-col max-w-2xl mx-auto"
+        :class="isAuthorized ? 'pt-2' : 'pt-4'"
+        data-testid="gj-order-heading-block"
+      >
         <template v-if="showThanks">
           <h1 class="mb-1 text-2xl text-center" data-testid="success-header">
             {{ !orderGetters.isReturn(order) ? t('order.successHeader') : t('order.successReturnHeader') }}

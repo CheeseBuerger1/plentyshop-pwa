@@ -88,6 +88,9 @@ describe('GlasJenaConfirmationPageContent', () => {
     const guest = await mountContent(createOrder(hoursAgo(1)));
 
     expect(guest.find('[data-testid="back-link"]').exists()).toBe(false);
+    /* 16 px below the banner without the back link, 8 px below the back link */
+    expect(guest.get('[data-testid="gj-order-heading-block"]').classes()).toContain('pt-4');
+    expect(signedIn.get('[data-testid="gj-order-heading-block"]').classes()).toContain('pt-2');
     customerState.isAuthorized = true;
   });
 });

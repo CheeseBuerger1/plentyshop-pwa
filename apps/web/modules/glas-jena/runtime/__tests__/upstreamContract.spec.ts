@@ -444,6 +444,10 @@ describe('upstream contract of the glas-jena module', () => {
   it('should find the label, box title and product name classes that glas-jena.css unifies on the order details', () => {
     /* `[data-testid='order-success-page'] :is(p, h2).text-base`, `.font-bold.text-primary-500`, `#order-items a.no-underline` */
     expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain('<p class="font-medium text-base">');
+    /* glas-jena.css: `.grid.mb-2:has(> p.font-medium.text-base)` puts label and value side by side below 768 px */
+    expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain(
+      'class="grid @md:grid-cols-2 @lg:grid-cols-3 mb-2"',
+    );
     expect(readApp('components/OrderTotals/OrderTotals.vue')).toContain('<p class="font-medium text-base">');
     expect(readApp('components/OrderShippingSummary/OrderShippingSummary.vue')).toContain(
       '<h2 class="font-medium text-base">',
