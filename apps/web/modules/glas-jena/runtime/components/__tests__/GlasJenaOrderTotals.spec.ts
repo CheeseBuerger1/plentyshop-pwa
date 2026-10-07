@@ -44,11 +44,26 @@ describe('GlasJenaOrderTotals', () => {
     expect(value).not.toContain('incl.');
   });
 
-  it('should put "excl." (German "exkl.") in front of the VAT label for net orders', async () => {
+  it('should show "VAT (0%)" and a zero amount for a net order instead of "excl." and the VAT amount', async () => {
     const wrapper = await mountTotals(createOrder(true));
+    const labels = wrapper.findAll('[data-testid="gj-order-vat-label"]');
 
-    expect(wrapper.get('[data-testid="gj-order-vat-label"]').text()).toBe('excl. VAT (19%):');
-    expect(wrapper.get('[data-testid="gj-order-vat-value"]').text()).not.toContain('excl.');
+    expect(labels).toHaveLength(1);
+    expect(labels[0]!.text()).toBe('VAT (0%):');
+    expect(wrapper.get('[data-testid="gj-order-vat-value"]').text()).toContain('0.00');
+    expect(wrapper.text()).not.toContain('excl.');
+    expect(wrapper.text()).not.toContain('3.55');
+  });
+
+  it('should show "VAT (0%)" for an order without any VAT entry', async () => {
+    const order = createOrder(false);
+    (order.order as unknown as { amounts: unknown[] }).amounts = [
+      { isSystemCurrency: false, shippingCostsGross: 6.9, vats: [] },
+    ];
+    const wrapper = await mountTotals(order);
+
+    expect(wrapper.get('[data-testid="gj-order-vat-label"]').text()).toBe('VAT (0%):');
+    expect(wrapper.get('[data-testid="gj-order-vat-value"]').text()).toContain('0.00');
   });
 
   it('should keep the other totals of the original: subtotal, shipping and total', async () => {

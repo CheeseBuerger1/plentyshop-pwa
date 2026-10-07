@@ -30,9 +30,9 @@
     <p class="font-medium text-base">{{ t('order.rebate') }}:</p>
     <p class="text-right">{{ format(orderGetters.getRebateValue(order.totals, showNetPrices) * -1) }}</p>
   </div>
-  <div v-for="(vat, index) in orderGetters.getOriginalOrderVats(order)" :key="index" class="grid grid-cols-2 mt-2">
+  <div v-for="(vat, index) in vatRows" :key="index" class="grid grid-cols-2 mt-2">
     <p class="font-medium text-base" data-testid="gj-order-vat-label">
-      {{ showNetPrices ? t('orderProperties.vat.excl') : t('orderProperties.vat.incl') }}
+      {{ getVatPrefix(vat) }}
       {{ t('orderConfirmation.vat') }} ({{ orderGetters.getOrderVatRate(vat) }}%):
     </p>
     <p class="text-right" data-testid="gj-order-vat-value">{{ format(orderGetters.getOrderVatValue(vat)) }}</p>
@@ -63,9 +63,10 @@
 
 <script setup lang="ts">
 /*
- * Copy of OrderTotals (see COMPONENT_OVERRIDES in index.ts): "inkl." / "exkl." stands in front of "MwSt." on the left
- * ("inkl. MwSt. (19%): 3,55 EUR") instead of in front of the amount on the right. The rest is the original; the contract
- * test (upstreamContract.spec.ts) names what to adopt after an update.
+ * Copy of OrderTotals (see COMPONENT_OVERRIDES in index.ts): "inkl." stands in front of "MwSt." on the left
+ * ("inkl. MwSt. (19%): 3,55 EUR") instead of in front of the amount on the right. Orders without VAT (net orders, whose
+ * data still holds a VAT amount that is not charged) show "MwSt. (0%): 0,00 EUR" instead of "exkl. 1,78 EUR". The rest is
+ * the original; the contract test (upstreamContract.spec.ts) names what to adopt after an update.
  */
 import { orderGetters, offerGetters } from '@plentymarkets/shop-api';
 import type { OrderTotalsPropsType } from '~/components/OrderTotals/types';
@@ -75,6 +76,18 @@ const { formatWithSymbol } = usePriceFormatter();
 const originalTotals = orderGetters.getTotals(props.order);
 const currency = orderGetters.getCurrency(props.order);
 const showNetPrices = originalTotals.isNet;
+
+/** No VAT charged (net order, or no VAT in the data): one row "MwSt. (0%): 0,00 EUR" instead of "exkl." and an amount. */
+const NO_VAT = { rate: 0, value: 0 };
+
+const vatRows = computed(() => {
+  const vats = showNetPrices ? [] : (orderGetters.getOriginalOrderVats(props.order) ?? []);
+  return vats.length ? vats : [NO_VAT];
+});
+
+/** "inkl." in front of the label; a row without VAT (0%) has none. */
+const getVatPrefix = (vat: { rate: number; value: number }) =>
+  orderGetters.getOrderVatRate(vat) === 0 ? '' : t('orderProperties.vat.incl');
 
 const format = (value: number) => {
   return formatWithSymbol(value, currency);
