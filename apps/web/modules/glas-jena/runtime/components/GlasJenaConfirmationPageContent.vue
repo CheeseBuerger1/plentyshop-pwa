@@ -1,5 +1,5 @@
 <template>
-  <div class="px-4 @md:px-0 flex items-center flex-col" data-testid="order-success-page">
+  <div class="px-4 pb-8 @md:px-0 flex items-center flex-col" data-testid="order-success-page">
     <div class="w-full @md:w-auto @lg:w-3/4 flex flex-col">
       <!-- Signed in: the way back to "My orders", top left like the back link of the account pages (see OrderAgainButton) -->
       <div v-if="isAuthorized" class="self-start" data-testid="gj-order-back">
