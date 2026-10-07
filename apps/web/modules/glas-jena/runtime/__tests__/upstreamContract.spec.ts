@@ -383,6 +383,8 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('pages/my-account/my-orders.vue')).toContain('orderGetters.getStatus(order)');
     expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain('orderGetters.getStatus(order)');
     expect(Object.getOwnPropertyDescriptor(orderGetters, 'getStatus')?.writable).toBe(true);
+    /* isOpenOrder (bank details): `paymentStatus` is "paid", "unpaid" or "partial" */
+    expect(orderGetters.getPaymentStatus({ paymentStatus: 'paid' } as never)).toBe('paid');
   });
 
   it('should find the order confirmation parts that the module copy GlasJenaConfirmationPageContent changes', () => {

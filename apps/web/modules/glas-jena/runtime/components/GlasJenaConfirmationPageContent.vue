@@ -54,7 +54,7 @@
           <div class="border border-1 border-neutral-200 rounded bg-neutral-100 p-4 w-full my-4 text-sm">
             <OrderShippingSummary :order="order" />
             <OrderPaymentSummary :order="order" />
-            <OrderBankDetails v-if="bankDetails && !isCancelled" :bank-details="bankDetails" />
+            <OrderBankDetails v-if="bankDetails && showBankDetails" :bank-details="bankDetails" />
             <PayPalInvoiceDetails :order="order" />
           </div>
 
@@ -120,13 +120,13 @@
  * "My orders", so it must not greet every old order with "Vielen Dank für Ihre Bestellung!". Changes:
  * - Thank-you text and confirmation hint only for orders of the last 24 hours (utils/orderStatus.ts); older orders
  *   get the heading "Bestellung <id>" with the order date instead.
- * - No bank details for cancelled orders: the transfer is no longer expected.
+ * - Bank details only for open orders (not cancelled, not fully paid): otherwise no transfer is expected any more.
  * Everything else is the original; the contract test (upstreamContract.spec.ts) names what to adopt after an update.
  */
 import { orderGetters } from '@plentymarkets/shop-api';
 import { SfIconClose, useDisclosure } from '@storefront-ui/vue';
 import type { ConfirmationPageContentProps } from '~/components/ConfirmationPageContent/types';
-import { isCancelledOrder, isRecentOrder } from '../utils/orderStatus';
+import { isOpenOrder, isRecentOrder } from '../utils/orderStatus';
 const NuxtLink = resolveComponent('NuxtLink');
 const { order } = defineProps<ConfirmationPageContentProps>();
 const { isOpen: isAuthenticationOpen, toggle: closeAuthentication } = useDisclosure();
@@ -137,7 +137,7 @@ const localePath = useLocalizedPath();
 const { t: tLocal, locale } = useI18n({ useScope: 'local' });
 const bankDetails = computed(() => orderGetters.getOrderPaymentBankDetails(order));
 const showThanks = computed(() => isRecentOrder(order?.order?.createdAt));
-const isCancelled = computed(() => isCancelledOrder(order));
+const showBankDetails = computed(() => isOpenOrder(order));
 useDynamicPaymentButtons().createOrderLoading.value = false;
 
 await getActiveShippingCountries();
