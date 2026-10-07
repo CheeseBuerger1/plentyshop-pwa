@@ -22,6 +22,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   ConfirmationPageContent: './runtime/components/GlasJenaConfirmationPageContent.vue',
   /* Order details: the shipping date ("Lieferdatum") next to the shipping method and the tracking number */
   OrderShippingSummary: './runtime/components/GlasJenaOrderShippingSummary.vue',
+  /* Order details: "inkl. MwSt." in front of the label instead of in front of the amount */
+  OrderTotals: './runtime/components/GlasJenaOrderTotals.vue',
 };
 
 /**

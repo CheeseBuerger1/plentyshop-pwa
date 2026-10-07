@@ -206,6 +206,25 @@ div:has(> svg[data-testid='favorite']) {
   font-weight: 500;
 }
 
+/* The order details' heading "Bestellung 42030" (GlasJenaConfirmationPageContent.vue) is medium, not light (wish of the shop owner) */
+.font-body [data-testid='order-success-page'] h1[data-testid='gj-order-heading'] {
+  font-weight: 500;
+}
+
+/*
+ * Product image of the order details: 125 px wide on narrow windows, 150 px from 40rem (the original: 100 px, from
+ * `@sm` 176 px).
+ */
+[data-testid='order-success-page'] #order-items a.overflow-hidden.rounded-md {
+  width: 7.8125rem;
+}
+
+@container (min-width: 40rem) {
+  [data-testid='order-success-page'] #order-items a.overflow-hidden.rounded-md {
+    width: 9.375rem;
+  }
+}
+
 /*
  * Same for the sizes: in the original the labels are 16 px (`text-base`), the values 14 px (the boxes are `text-sm`)
  * and the box titles 14 px that jump to 18 px with the width (`@md:text-lg`). Labels now have the size of the values

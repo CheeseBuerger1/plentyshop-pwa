@@ -335,7 +335,7 @@ watch(
      headings, which shifted the columns of the orders against their headings (up to 30 px at "Lieferdatum") */
   .gj-orders__row {
     grid-template-columns:
-      minmax(5em, 1fr) minmax(6.5em, 1fr) minmax(5.75em, 1fr) minmax(5.5em, 1fr) minmax(5.75em, 1.2fr)
+      minmax(5em, 0.7fr) minmax(6.5em, 1fr) minmax(5.75em, 1fr) minmax(5.5em, 1fr) minmax(5.75em, 2.2fr)
       3.25em;
     column-gap: 1rem;
     align-items: baseline;
