@@ -1,5 +1,12 @@
 import type { Order } from '@plentymarkets/shop-api';
-import { formatOrderStatus, isCancelledOrder, isRecentOrder, RECENT_ORDER_HOURS } from '../orderStatus';
+import {
+  formatOrderStatus,
+  isCancelledOrder,
+  isOpenOrder,
+  isPaidOrder,
+  isRecentOrder,
+  RECENT_ORDER_HOURS,
+} from '../orderStatus';
 
 const createOrder = (statusName: string, statusId = 0) => ({ order: { statusName, statusId } }) as unknown as Order;
 
@@ -46,5 +53,30 @@ describe('isCancelledOrder', () => {
     expect(isCancelledOrder(createOrder('[7] Warenausgang', 7))).toBe(false);
     expect(isCancelledOrder(createOrder('[18] Anderes', 18))).toBe(false);
     expect(isCancelledOrder({} as Order)).toBe(false);
+  });
+});
+
+const withPayment = (paymentStatus: string | undefined, statusId = 7) =>
+  ({ order: { statusId }, paymentStatus }) as unknown as Order;
+
+describe('isOpenOrder', () => {
+  it('should count unpaid and partly paid orders as open', () => {
+    expect(isOpenOrder(withPayment('unpaid'))).toBe(true);
+    expect(isOpenOrder(withPayment('partial'))).toBe(true);
+  });
+
+  it('should keep the bank details for an order without a payment status', () => {
+    expect(isPaidOrder(withPayment(undefined))).toBe(false);
+    expect(isOpenOrder(withPayment(undefined))).toBe(true);
+  });
+
+  it('should not count a paid or overpaid order as open', () => {
+    expect(isPaidOrder(withPayment('paid'))).toBe(true);
+    expect(isOpenOrder(withPayment('paid'))).toBe(false);
+    expect(isOpenOrder(withPayment('overpaid'))).toBe(false);
+  });
+
+  it('should not count a cancelled order as open, even if unpaid', () => {
+    expect(isOpenOrder(withPayment('unpaid', 8))).toBe(false);
   });
 });

@@ -98,7 +98,9 @@ describe('GlasJenaMyOrders', () => {
     const source = readFileSync(join(process.cwd(), 'modules/glas-jena/runtime/pages/GlasJenaMyOrders.vue'), 'utf8');
     const columns = source.match(/@container \(min-width: 33rem\)[\s\S]*?grid-template-columns:([^;]*);/)?.[1] ?? '';
 
-    expect(columns).toContain('minmax(5em, 1fr)');
+    expect(columns).toContain('minmax(5em, 0.7fr)');
+    /* The status ("Warenausgang gebucht") gets the most room, so it does not wrap early */
+    expect(columns).toContain('minmax(5.75em, 2.2fr)');
     expect(columns.trim().endsWith('3.25em')).toBe(true);
     expect(columns).not.toMatch(/\bauto\b/);
   });

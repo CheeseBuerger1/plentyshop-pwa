@@ -383,6 +383,8 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('pages/my-account/my-orders.vue')).toContain('orderGetters.getStatus(order)');
     expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain('orderGetters.getStatus(order)');
     expect(Object.getOwnPropertyDescriptor(orderGetters, 'getStatus')?.writable).toBe(true);
+    /* isOpenOrder (bank details): `paymentStatus` is "paid", "unpaid" or "partial" */
+    expect(orderGetters.getPaymentStatus({ paymentStatus: 'paid' } as never)).toBe('paid');
   });
 
   it('should find the order confirmation parts that the module copy GlasJenaConfirmationPageContent changes', () => {
@@ -421,9 +423,31 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('pages/my-account/my-orders.vue')).toContain("t('account.ordersAndReturns.shippingDate')");
   });
 
+  it('should find the totals parts that the module copy GlasJenaOrderTotals changes (VAT row) and the image box', () => {
+    const totals = readApp('components/OrderTotals/OrderTotals.vue');
+    for (const part of [
+      "{{ t('orderConfirmation.vat') }} ({{ orderGetters.getOrderVatRate(vat) }}%):",
+      "{{ showNetPrices ? t('orderProperties.vat.excl') : t('orderProperties.vat.incl') }}",
+      '{{ format(orderGetters.getOrderVatValue(vat)) }}',
+      'const additionalCostsWithTax = orderGetters.getAdditionalCostsWithoutTax(props.order);',
+      "t('orderConfirmation.total')",
+    ]) {
+      expect(totals).toContain(part);
+    }
+    expect(readApp('components/OrderTotals/types.ts')).toContain('OrderTotalsPropsType');
+    /* glas-jena.css sets the width of the product image box: `#order-items a.overflow-hidden.rounded-md` */
+    expect(readApp('components/OrderSummaryProductCard/OrderSummaryProductCard.vue')).toContain(
+      'class="relative overflow-hidden rounded-md w-[100px] @sm:w-[176px] mr-4"',
+    );
+  });
+
   it('should find the label, box title and product name classes that glas-jena.css unifies on the order details', () => {
     /* `[data-testid='order-success-page'] :is(p, h2).text-base`, `.font-bold.text-primary-500`, `#order-items a.no-underline` */
     expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain('<p class="font-medium text-base">');
+    /* glas-jena.css: `.grid.mb-2:has(> p.font-medium.text-base)` puts label and value side by side below 768 px */
+    expect(readApp('components/OrderDetails/OrderDetails.vue')).toContain(
+      'class="grid @md:grid-cols-2 @lg:grid-cols-3 mb-2"',
+    );
     expect(readApp('components/OrderTotals/OrderTotals.vue')).toContain('<p class="font-medium text-base">');
     expect(readApp('components/OrderShippingSummary/OrderShippingSummary.vue')).toContain(
       '<h2 class="font-medium text-base">',

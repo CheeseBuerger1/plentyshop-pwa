@@ -10,7 +10,7 @@ describe('GlasJenaOrderBackLink', () => {
     const link = wrapper.find('[data-testid="gj-order-back-link"]');
 
     expect(link.attributes('href')).toBe('/my-account/my-orders');
-    expect(link.text()).toBe('Back to overview');
+    expect(link.text()).toBe('To overview');
     expect(link.attributes('order')).toBeUndefined();
   });
 });
