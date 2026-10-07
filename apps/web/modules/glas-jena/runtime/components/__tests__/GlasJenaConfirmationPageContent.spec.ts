@@ -54,7 +54,15 @@ describe('GlasJenaConfirmationPageContent', () => {
     const wrapper = await mountContent(createOrder(hoursAgo(2)));
 
     expect(wrapper.find('[data-testid="success-header"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="gj-order-thanks-message"]').exists()).toBe(true);
+    expect(wrapper.get('[data-testid="gj-order-thanks-mail"]').text()).toContain('kunde@example.com');
     expect(wrapper.find('[data-testid="gj-order-heading"]').exists()).toBe(false);
+    /* The rest is the same page as the order details: boxes, products, totals */
+    for (const name of ['OrderDetails', 'OrderTotals', 'OrderShippingSummary']) {
+      expect(wrapper.findComponent({ name }).exists()).toBe(true);
+    }
+    /* No document download right after the purchase: the confirmation may not exist yet and comes by e-mail */
+    expect(wrapper.findComponent({ name: 'OrderDocumentsList' }).exists()).toBe(false);
   });
 
   it('should show a neutral heading with the order date for an older order', async () => {

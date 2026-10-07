@@ -16,10 +16,18 @@
           <h1 class="mb-1 text-2xl text-center" data-testid="success-header">
             {{ !orderGetters.isReturn(order) ? t('order.successHeader') : t('order.successReturnHeader') }}
           </h1>
-          <div v-if="!orderGetters.isReturn(order)" class="font-medium text-center">
+          <div
+            v-if="!orderGetters.isReturn(order)"
+            class="font-normal text-center"
+            data-testid="gj-order-thanks-message"
+          >
             {{ t('order.successMessage') }}
           </div>
-          <div v-if="order?.order?.deliveryAddress?.options?.length" class="font-medium text-center">
+          <div
+            v-if="order?.order?.deliveryAddress?.options?.length"
+            class="font-normal text-center"
+            data-testid="gj-order-thanks-mail"
+          >
             {{ t('orderConfirmation.confirmationSendTo', { email: orderGetters.getOrderEmail(order) }) }}
           </div>
         </template>
@@ -76,7 +84,8 @@
             </UiButton>
           </div>
 
-          <OrderDocumentsList :order="order" />
+          <!-- Not right after the purchase: the document may not be generated yet and arrives by e-mail -->
+          <OrderDocumentsList v-if="!showThanks" :order="order" />
 
           <OrderReturnItems
             v-if="orderGetters.isReturnable(order) && orderGetters.hasReturnableItems(order)"
