@@ -206,8 +206,14 @@ div:has(> svg[data-testid='favorite']) {
   font-weight: 500;
 }
 
-/* The order details' heading "Bestellung 42030" (GlasJenaConfirmationPageContent.vue) is medium, not light (wish of the shop owner) */
-.font-body [data-testid='order-success-page'] h1[data-testid='gj-order-heading'] {
+/*
+ * The heading of the order details "Bestellung 42030" and of the order confirmation "Vielen Dank für Ihre Bestellung!"
+ * (GlasJenaConfirmationPageContent.vue) is medium, not light (wish of the shop owner): both pages look the same, the
+ * confirmation only has the thank-you text on top.
+ */
+.font-body
+  [data-testid='order-success-page']
+  :is(h1[data-testid='gj-order-heading'], h1[data-testid='success-header']) {
   font-weight: 500;
 }
 
