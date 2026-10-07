@@ -246,7 +246,7 @@ Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet ho
 ## 6. Offene Punkte
 
 - [ ] Exakte Farbwerte und Schrift aus dem LTS-CSS übernehmen.
-- [ ] Artikeldaten prüfen: Viele Artikel zeigen „1 Milliliter“ als Einheit – vermutlich falsche Inhalts-/Grundpreis-Einheit in PlentyONE (betrifft PWA und LTS gleichermaßen).
+- [x] Artikeldaten prüfen: Viele Artikel zeigten „1 Milliliter“ als Einheit. Am 2026-10-07 sind alle 347 aktiven Variationen in PlentyONE auf „Stück, Inhalt 1“ mit ausgeschaltetem Grundpreis umgestellt (Kannen und Gläser sind 1 Stück; die Kapazität in ml steht im Variantennamen als Hilfsfeld). Die PWA zeigt „Inhalt | Grundpreis“ nur bei eingeschaltetem Grundpreis.
 - [x] Copyright-Jahr im Footer automatisch setzen.
 - [x] Alle „Wussten Sie schon“-Fakten aus dem LTS-Shop sammeln (14 deutsche und 14 englische; gehören in den Block „Did you know“ der Startseite).
 - [ ] Englische Texte für den Sprachwechsel prüfen.
