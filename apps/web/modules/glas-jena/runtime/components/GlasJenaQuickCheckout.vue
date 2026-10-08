@@ -8,6 +8,7 @@
     column starts with the buttons
   - spacing of the right column: narrow view (columns stacked) less space between the summary and the buttons; wide
     view the buttons start where "Warenkorb prüfen" used to be (112 px from the top)
+  - "Anzahl" in the size and colour of the summary; the window is a named dialog and handles the focus (see script)
   Everything else is the original; upstreamContract.spec.ts shows when the original changes.
 -->
 <template>
@@ -17,10 +18,12 @@
     tag="section"
     class="h-full @md:h-fit m-0 p-0 @lg:w-[1000px] overflow-y-auto"
     aria-label="quick-checkout-modal"
+    role="dialog"
+    aria-labelledby="gj-quick-checkout-title"
     @mousemove="endTimer()"
   >
-    <header>
-      <h2 class="font-bold text-lg leading-6 @md:text-2xl">
+    <header ref="headerRef">
+      <h2 id="gj-quick-checkout-title" class="font-bold text-lg leading-6 @md:text-2xl">
         <span>{{ t('quickCheckout.heading') }}</span>
       </h2>
       <div class="absolute right-2 top-2 flex items-center">
@@ -59,7 +62,8 @@
           </h1>
         </div>
         <div class="mb-3">
-          <span class="self-center text-gray-600 @sm:typography-headline-4 typography-headline-3">
+          <!-- Same size and colour as the cart summary below (the original: 18 px, grey) -->
+          <span class="self-center text-base">
             {{ t('account.ordersAndReturns.orderDetails.quantity') }}: {{ quantity }}
           </span>
         </div>
@@ -152,6 +156,7 @@ import type { QuickCheckoutProps } from '~/components/QuickCheckout/types';
 import type { Product } from '@plentymarkets/shop-api';
 import { cartGetters, productGetters, productImageGetters } from '@plentymarkets/shop-api';
 import ProductPrice from '~/components/ProductPrice/ProductPrice.vue';
+import { getLastInteractiveElement } from '../utils/lastInteractiveElement';
 const props = defineProps<QuickCheckoutProps>();
 
 const { format } = usePriceFormatter();
@@ -166,11 +171,30 @@ const { isAuthorized } = useCustomer();
 /* Own short texts (below); shop texts come from the global `t` */
 const { t: tLocal } = useI18n({ useScope: 'local' });
 
-onMounted(() => {
+/*
+ * Keyboard and screen readers: SfModal traps Tab and closes on Escape, but only while the focus is inside the window,
+ * and the original never moves it there (`initialFocus: false`). So the focus goes to the window when it opens and back
+ * to where it was (the "add to cart" button) when it is closed – not when it is left for the cart or the checkout.
+ */
+const headerRef = ref<HTMLElement | null>(null);
+/* The "add to cart" button is disabled while the item is added and has lost the focus by now: the plugin knows it */
+const focusBeforeOpening = import.meta.client
+  ? (getLastInteractiveElement() ?? (document.activeElement as HTMLElement | null))
+  : null;
+let restoreFocus = true;
+
+onMounted(async () => {
   startTimer();
   loadConfig();
+  await nextTick();
+  headerRef.value?.closest<HTMLElement>('[aria-modal="true"]')?.focus();
 });
-onUnmounted(() => endTimer());
+onUnmounted(() => {
+  endTimer();
+  if (restoreFocus && focusBeforeOpening?.isConnected && focusBeforeOpening !== document.body) {
+    focusBeforeOpening.focus();
+  }
+});
 
 const lastUpdatedProduct = computed(() => cartGetters.getVariation(lastUpdatedCartItem.value) || ({} as Product));
 
@@ -191,6 +215,7 @@ const imageAlt = computed(() => {
 const goToCheckout = () => (isAuthorized.value ? goToPage(paths.checkout) : goToPage(paths.guestLogin));
 
 const goToPage = (path: string) => {
+  restoreFocus = false;
   closeQuickCheckout();
   navigateTo(localePath(path));
 };

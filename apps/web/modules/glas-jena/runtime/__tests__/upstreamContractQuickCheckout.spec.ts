@@ -39,6 +39,21 @@ describe('upstream contract of the glas-jena module: cart window', () => {
     expect(readApp('components/QuickCheckout/types.ts')).toContain('QuickCheckoutProps');
   });
 
+  it('should find the dialog parts of UiModal and SfModal that the focus handling of the cart window relies on', () => {
+    /* The copy focuses the element with `aria-modal` (tabindex -1) and gives it `role` and `aria-labelledby` */
+    const uiModal = readApp('components/ui/Modal/Modal.vue');
+    expect(uiModal).toContain('<SfModal');
+    expect(uiModal).toContain('v-bind="{ ...$attrs, ...props }"');
+    /* SfModal then traps Tab inside and closes on Escape (the original never moves the focus there) */
+    const sfModal = readFileSync(
+      join(process.cwd(), '../../node_modules/@storefront-ui/vue/dist/components/SfModal/SfModal.vue.mjs'),
+      'utf8',
+    );
+    for (const part of ['"aria-modal": "true"', 'tabindex: "-1"', 'trapTabs', '["esc"]']) {
+      expect(sfModal).toContain(part);
+    }
+  });
+
   it('should find the name and price that glas-jena.css weights in the cart window', () => {
     /* `[aria-label='quick-checkout-modal'] [data-testid='product-name']` and `... [data-testid='price']` */
     expect(readApp('components/QuickCheckout/QuickCheckout.vue')).toContain('data-testid="product-name"');

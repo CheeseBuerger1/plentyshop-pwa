@@ -1147,9 +1147,15 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
  * "Zum Warenkorb" (secondary button): the light blue of the original's hover state as a permanent field. The original
  * draws the secondary button's border as a shadow (`ring`), which the flat look removes, so without a field it looked
  * like plain text. Dark text (11.05:1) instead of the slate blue, which only reaches 4.31:1 on this field; on hover
- * the field turns one step darker (8.14:1). Both tones come from the palette of the editor's primary colour.
+ * the field turns one step darker (8.14:1). The field alone is hardly visible against white (1.32:1), so a thin border
+ * in the next darker tone (3.71:1, the 3:1 that WCAG 1.4.11 asks for the boundary of a control) keeps it from looking
+ * disabled, and is still clearly lighter than the outline of "Einkauf fortsetzen" (5.70:1). All tones come from the
+ * palette of the editor's primary colour.
  */
 .font-body [aria-label='quick-checkout-modal'] [data-testid='quick-checkout-cart-button'] {
+  /* The border adds 2 px: the padding is 1 px smaller, so all three buttons stay 48 px high */
+  padding-block: calc(0.75rem - 1px);
+  border: 1px solid rgb(var(--colors-2-primary-400));
   background-color: rgb(var(--colors-2-primary-100));
   color: rgb(var(--colors-2-primary-800));
 }
