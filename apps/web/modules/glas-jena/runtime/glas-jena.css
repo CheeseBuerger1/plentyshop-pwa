@@ -1121,3 +1121,62 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
 .font-body [data-testid='account-layout'] [data-testid='address-data'] .actions {
   margin-top: -0.5rem;
 }
+
+/*
+ * Window after "Add to cart" (QuickCheckout.vue): font weights as one clear scale instead of the mix of the original
+ * and the global flat look – 300 (light) only for the window title, 500 for the article name (like the headings of the
+ * order pages: at 300 the name was the thinnest and greyest element although it is the most important one), 600 for
+ * the price (the original's 700 stood out too much from the rest), 400 for running text and labels. The three lines of
+ * the cart summary (GlasJenaQuickCheckout.vue) are all the same weight, 400 (wish of the shop owner; 300 looked greyed
+ * out next to the rest of the column and is hard to read for the amounts).
+ */
+.font-body [aria-label='quick-checkout-modal'] [data-testid='product-name'] {
+  font-weight: 500;
+}
+
+.font-body [aria-label='quick-checkout-modal'] [data-testid='price'] {
+  font-weight: 600;
+}
+
+/* The window title at 400, between the light page headings and the 500 of the article name (wish of the shop owner) */
+.font-body [aria-label='quick-checkout-modal'] header h2 {
+  font-weight: 400;
+}
+
+/*
+ * "Zum Warenkorb" (secondary button): the light blue of the original's hover state as a permanent field. The original
+ * draws the secondary button's border as a shadow (`ring`), which the flat look removes, so without a field it looked
+ * like plain text. Dark text (11.05:1) instead of the slate blue, which only reaches 4.31:1 on this field; on hover
+ * the field turns one step darker (8.14:1). The field alone is hardly visible against white (1.32:1), so a thin border
+ * in the next darker tone (3.71:1, the 3:1 that WCAG 1.4.11 asks for the boundary of a control) keeps it from looking
+ * disabled, and is still clearly lighter than the outline of "Einkauf fortsetzen" (5.70:1). All tones come from the
+ * palette of the editor's primary colour.
+ */
+.font-body [aria-label='quick-checkout-modal'] [data-testid='quick-checkout-cart-button'] {
+  /* The border adds 2 px: the padding is 1 px smaller, so all three buttons stay 48 px high */
+  padding-block: calc(0.75rem - 1px);
+  border: 1px solid rgb(var(--colors-2-primary-400));
+  background-color: rgb(var(--colors-2-primary-100));
+  color: rgb(var(--colors-2-primary-800));
+}
+
+.font-body [aria-label='quick-checkout-modal'] [data-testid='quick-checkout-cart-button']:hover {
+  background-color: rgb(var(--colors-2-primary-200));
+}
+
+/*
+ * "Einkauf fortsetzen" (GlasJenaQuickCheckout.vue): the quietest of the three buttons as an outline button like the
+ * ones of the account (white, slate blue border and text, 5.70:1), above the light "Zum Warenkorb" and the filled
+ * "Zur Kasse". The ring of the original's secondary button is a shadow, which the flat look removes.
+ */
+.font-body [aria-label='quick-checkout-modal'] [data-testid='gj-quick-checkout-continue-button'] {
+  /* The border adds 2 px: the padding is 1 px smaller, so all three buttons stay 48 px high */
+  padding-block: calc(0.75rem - 1px);
+  border: 1px solid var(--gj-button-bg);
+  background-color: #fff;
+  color: var(--gj-button-bg);
+}
+
+.font-body [aria-label='quick-checkout-modal'] [data-testid='gj-quick-checkout-continue-button']:hover {
+  background-color: #eef2f5;
+}

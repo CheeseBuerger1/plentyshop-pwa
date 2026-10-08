@@ -24,6 +24,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   OrderShippingSummary: './runtime/components/GlasJenaOrderShippingSummary.vue',
   /* Order details: "inkl. MwSt." in front of the label instead of in front of the amount */
   OrderTotals: './runtime/components/GlasJenaOrderTotals.vue',
+  /* Window after "Add to cart": new button "Einkauf fortsetzen", cart button "Zum Warenkorb" (wish of the shop owner) */
+  QuickCheckout: './runtime/components/GlasJenaQuickCheckout.vue',
 };
 
 /**
@@ -174,6 +176,9 @@ export default defineNuxtModule({
 
     /* Order status without the PlentyONE number ("[8] Storniert"), see utils/orderStatus.ts */
     addPlugin(resolve('./runtime/plugins/orderStatus'));
+
+    /* Remembers the last control the visitor used, so the cart window can give the focus back, see utils/lastInteractiveElement.ts */
+    addPlugin({ src: resolve('./runtime/plugins/lastInteractiveElement.client'), mode: 'client' });
 
     /*
      * Google Tag Manager with consent default "denied" and the `purchase` event for Google Ads, see
