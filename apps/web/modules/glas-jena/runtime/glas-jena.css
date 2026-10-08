@@ -1121,3 +1121,21 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
 .font-body [data-testid='account-layout'] [data-testid='address-data'] .actions {
   margin-top: -0.5rem;
 }
+
+/*
+ * Window after "Add to cart" (QuickCheckout.vue): font weights as one clear scale instead of the mix of the original
+ * and the global flat look – 300 (light) only for the window title, 500 for the article name (like the headings of the
+ * order pages: at 300 the name was the thinnest and greyest element although it is the most important one), 600 for
+ * the amounts (the original's 700 stood out too much from the rest), 400 for running text and labels.
+ */
+.font-body [aria-label='quick-checkout-modal'] [data-testid='product-name'] {
+  font-weight: 500;
+}
+
+.font-body [aria-label='quick-checkout-modal'] [data-testid='price'] {
+  font-weight: 600;
+}
+
+.font-body [aria-label='quick-checkout-modal'] [data-testid='subtotal'] {
+  font-weight: 600;
+}
