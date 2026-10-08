@@ -24,6 +24,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   OrderShippingSummary: './runtime/components/GlasJenaOrderShippingSummary.vue',
   /* Order details: "inkl. MwSt." in front of the label instead of in front of the amount */
   OrderTotals: './runtime/components/GlasJenaOrderTotals.vue',
+  /* Window after "Add to cart": new button "Einkauf fortsetzen", cart button "Zum Warenkorb" (wish of the shop owner) */
+  QuickCheckout: './runtime/components/GlasJenaQuickCheckout.vue',
 };
 
 /**

@@ -168,6 +168,15 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 - Darunter Artikelname (16 px), Preis groß und rechtsbündig (20 px, direkt unter dem Namen, darunter 4 px Abstand; Wünsche des Shopbetreibers, `glas-jena.css`) mit „\*“, Hinweis „\* inkl. ges. MwSt. zzgl. Versandkosten“ (Versandkosten als Link).
 - **Kein Herz / keine Wunschliste** (siehe unten).
 
+### Warenkorb-Fenster (nach „In den Warenkorb“)
+
+Eigene Kopie `GlasJenaQuickCheckout.vue`, ersetzt `components/QuickCheckout/QuickCheckout.vue` über `COMPONENT_OVERRIDES` in `index.ts` (Wünsche des Shopbetreibers). Der Vertragstest `upstreamContractQuickCheckout.spec.ts` zeigt nach einem Update des Originals, ob die Kopie nachgezogen werden muss.
+
+- **Linke Spalte:** Bild, Artikelname, „Anzahl“, Preis, direkt darunter der Hinweis „\* inkl. ges. MwSt. zzgl. Versandkosten“ (4 px Abstand zum Preis), dann eine schmale Linie (wie über dem PayPal-Button) und die **Zusammenfassung** („Ihr Warenkorb enthält … Artikel“, Zwischensumme). Keine Kurzbeschreibung des Artikels.
+- **Rechte Spalte** beginnt mit den Buttons. Auf breiten Bildschirmen beginnen sie 112 px unter der Oberkante, dort, wo vorher „Warenkorb prüfen“ unter der Zusammenfassung stand; in der schmalen Ansicht (Spalten untereinander) folgen sie nur 24 px unter der Zusammenfassung. Von oben nach unten: **„Einkauf fortsetzen“** (Umrissknopf, schließt nur das Fenster, wie das ✕), **„Zum Warenkorb“** (hellblaue Fläche, statt „Warenkorb prüfen“), **„Zur Kasse“** (gefüllt), „ODER“, PayPal.
+- **Schriftstärken** (`glas-jena.css`): Titel 400, Artikelname 500, Preis 600, alles andere 400; die drei Zeilen der Zusammenfassung haben dieselbe Stärke, 400 (300 wirkte ausgegraut neben dem Rest der Spalte, die Beträge sind darin schlechter lesbar; Entscheidung des Shopbetreibers).
+- **Kontrast:** „Zum Warenkorb“ hat dunkle Schrift auf der hellblauen Fläche (11,05:1; mit der schieferblauen Schrift wären es nur 4,31:1), beim Hover wird die Fläche dunkler (8,14:1). „Einkauf fortsetzen“: Schieferblau auf Weiß 5,70:1.
+
 ### Keine Wunschliste
 
 Der Shop bietet keine Wunschliste (wie der LTS-Shop).
