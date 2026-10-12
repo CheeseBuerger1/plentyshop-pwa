@@ -3,13 +3,15 @@ import GlasJenaPageBanner from '../GlasJenaPageBanner.vue';
 
 const { routeState, catalogState, errorState } = vi.hoisted(() => ({
   routeState: { baseName: 'cart', query: {} as Record<string, string>, params: {} as Record<string, string> },
-  catalogState: { category: undefined as object | undefined },
+  catalogState: { category: undefined as object | undefined, breadcrumbs: [] as { name: string }[] },
   errorState: { error: undefined as object | undefined },
 }));
 
 mockNuxtImport('useRoute', () => () => ({ query: routeState.query, params: routeState.params, meta: {} }));
 mockNuxtImport('useRouteBaseName', () => () => () => routeState.baseName);
-mockNuxtImport('useProducts', () => () => ({ data: ref({ category: catalogState.category }) }));
+mockNuxtImport('useProducts', () => () => ({
+  data: ref({ category: catalogState.category, breadcrumbs: catalogState.breadcrumbs }),
+}));
 /* The test i18n instance has no messages: returns the key and the parameters, so the tests can check both */
 const { translate } = vi.hoisted(() => ({
   translate: (key: string, params?: Record<string, unknown>) =>
@@ -35,6 +37,7 @@ describe('GlasJenaPageBanner', () => {
     routeState.query = {};
     routeState.params = {};
     catalogState.category = undefined;
+    catalogState.breadcrumbs = [];
     errorState.error = undefined;
   });
 
@@ -109,5 +112,33 @@ describe('GlasJenaPageBanner', () => {
     errorState.error = { statusCode: 404 };
 
     expect((await findTitle()).text()).toBe('local errorTitle: 404');
+  });
+
+  it('should show the categories above a deeper category as a line inside the heading', async () => {
+    routeState.baseName = 'slug';
+    catalogState.category = { type: 'item', details: [{ name: 'kleiner 1 L' }] };
+    catalogState.breadcrumbs = ['Tee & Kaffee', 'Teekannen', 'mit Glasfilter', 'kleiner 1 L'].map((name) => ({ name }));
+
+    const title = await findTitle();
+    const kicker = title.find('[data-testid="gj-page-banner-kicker"]');
+
+    expect(kicker.text().replace(/\s+/g, ' ')).toBe('Teekannen › mit Glasfilter:');
+    expect(title.text().replace(/\s+/g, ' ')).toBe('Teekannen › mit Glasfilter: kleiner 1 L');
+  });
+
+  it('should show no line above the title of a main category or its direct subcategories', async () => {
+    routeState.baseName = 'slug';
+    catalogState.category = categoryFixture;
+    catalogState.breadcrumbs = [{ name: 'Tee & Kaffee' }];
+
+    expect((await findTitle()).find('[data-testid="gj-page-banner-kicker"]').exists()).toBe(false);
+  });
+
+  it('should show no line above the title of a content page', async () => {
+    routeState.baseName = 'slug';
+    catalogState.category = contentPageFixture;
+    catalogState.breadcrumbs = [{ name: 'A' }, { name: 'B' }, { name: 'C' }];
+
+    expect((await findTitle()).find('[data-testid="gj-page-banner-kicker"]').exists()).toBe(false);
   });
 });

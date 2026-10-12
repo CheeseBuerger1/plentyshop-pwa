@@ -1,4 +1,4 @@
-import { ACCOUNT_TITLE_KEY, getFixedPageBannerTitleKey, getTagName } from '../pageBanner';
+import { ACCOUNT_TITLE_KEY, getCategoryKicker, getFixedPageBannerTitleKey, getTagName } from '../pageBanner';
 
 describe('pageBanner', () => {
   describe('getFixedPageBannerTitleKey', () => {
@@ -25,6 +25,22 @@ describe('pageBanner', () => {
     it('should return the tag name of a tag page slug', () => {
       expect(getTagName('glas_12')).toBe('glas');
       expect(getTagName('glas')).toBe('glas');
+    });
+  });
+
+  describe('getCategoryKicker', () => {
+    const path = [{ name: 'Tee & Kaffee' }, { name: 'Teekannen' }, { name: 'mit Glasfilter' }, { name: 'kleiner 1 L' }];
+
+    it('should return the categories above without the main category', () => {
+      expect(getCategoryKicker(path)).toEqual(['Teekannen', 'mit Glasfilter']);
+      expect(getCategoryKicker(path.slice(0, 3))).toEqual(['Teekannen']);
+    });
+
+    it('should return nothing for a main category, its direct subcategories or a missing path', () => {
+      expect(getCategoryKicker(path.slice(0, 1))).toEqual([]);
+      expect(getCategoryKicker(path.slice(0, 2))).toEqual([]);
+      expect(getCategoryKicker([])).toEqual([]);
+      expect(getCategoryKicker(undefined)).toEqual([]);
     });
   });
 });

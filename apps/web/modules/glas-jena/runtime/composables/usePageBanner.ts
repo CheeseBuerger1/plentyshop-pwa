@@ -8,6 +8,7 @@ import {
   SEARCH_RESULTS_TITLE_KEY,
   SEARCH_ROUTE,
   TAG_ROUTE,
+  getCategoryKicker,
   getFixedPageBannerTitleKey,
   getTagName,
 } from '../utils/pageBanner';
@@ -21,6 +22,9 @@ import {
  *
  * Derived from the route instead of the page's `setPageMeta`, so pages that do not set it never show the title of
  * the previous page.
+ *
+ * `kicker`: on product categories from the third level on the categories above (without the main category), shown
+ * as a small line above the title, e.g. "Teekannen › mit Glasfilter" above "kleiner 1 L".
  *
  * `routeBaseName`: the page's route without locale (e.g. `shipping`), set on the banner as `data-gj-route`, so
  * glas-jena.css can style single pages (the banner is a sibling right before main).
@@ -73,5 +77,9 @@ export const usePageBanner = (translateOwn: (key: string, params?: Record<string
     return titleKey ? t(titleKey) : '';
   });
 
-  return { title, isItemCategoryPage, routeBaseName };
+  const kicker = computed(() =>
+    isItemCategoryPage.value ? getCategoryKicker(productsCatalog.value?.breadcrumbs) : [],
+  );
+
+  return { title, kicker, isItemCategoryPage, routeBaseName };
 };

@@ -6,7 +6,16 @@
     :data-gj-route="routeBaseName"
     data-testid="gj-page-banner"
   >
-    <h1 class="gj-page-banner__title" data-testid="gj-page-banner-title">{{ title }}</h1>
+    <h1 class="gj-page-banner__title" data-testid="gj-page-banner-title">
+      <!-- Part of the heading: "Teekannen › mit Glasfilter kleiner 1 L" for search engines and screen readers -->
+      <span v-if="kicker.length" class="gj-page-banner__kicker" data-testid="gj-page-banner-kicker">
+        <template v-for="(name, index) in kicker" :key="index">
+          <span v-if="index > 0" aria-hidden="true"> › </span>{{ name }}
+        </template>
+        <span class="sr-only">: </span>
+      </span>
+      {{ title }}
+    </h1>
   </div>
 </template>
 
@@ -18,7 +27,9 @@ import { usePageBanner } from '../composables/usePageBanner';
  * banner) and the cancellation page, which holds the policy and the form ("Widerrufsbelehrung & Widerrufsformular").
  */
 const { t } = useI18n({ useScope: 'local' });
-const { title, isItemCategoryPage, routeBaseName } = usePageBanner((key, params) => (params ? t(key, params) : t(key)));
+const { title, kicker, isItemCategoryPage, routeBaseName } = usePageBanner((key, params) =>
+  params ? t(key, params) : t(key),
+);
 </script>
 
 <i18n lang="json">
@@ -53,6 +64,24 @@ const { title, isItemCategoryPage, routeBaseName } = usePageBanner((key, params)
   text-align: center;
   overflow-wrap: break-word;
   color: #555;
+}
+
+/*
+ * Line above the title on deeper categories (the categories above): small, regular weight, same colour. Not in the
+ * LTS shop; there "mit Glasfilter" or "kleiner 1 L" stand alone.
+ */
+.gj-page-banner__kicker {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+@media (max-width: 767.98px) {
+  .gj-page-banner__kicker {
+    font-size: 1rem;
+  }
 }
 
 /* Font sizes and breakpoints of the LTS shop (window width, like the header) */
