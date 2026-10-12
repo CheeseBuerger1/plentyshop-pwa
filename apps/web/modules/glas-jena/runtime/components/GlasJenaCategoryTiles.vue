@@ -60,22 +60,18 @@ const tiles = computed(() =>
 
 <style scoped>
 /*
- * Subcategories as tiles, like the LTS shop: three per row (two from 576 px, one below), square image of at most
- * 200 px, name below in Light, centred, no frame. Hover and keyboard focus like the LTS: a light slate blue veil
+ * Subcategories as tiles, like the LTS shop: three per row, square image of at most 200 px, name below in Light,
+ * centred, no frame. Below 768 px two per row (the LTS shows one below 576 px, which makes long pages); there the
+ * names shrink with the window below 576 px (5 % of its width, 16–20 px), so the longest word ("Mikrowellengeschirr")
+ * still fits in a tile of a 320 px phone; browsers with a German dictionary also hyphenate. Hover and keyboard focus like the LTS: a light slate blue veil
  * over the whole tile (10 %, fades in within 0.2 s), no underline; the keyboard focus also keeps the browser's ring.
  */
 .gj-category-tiles {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin: 0 0 2.5rem;
   padding: 0;
   list-style: none;
-}
-
-@media (min-width: 576px) {
-  .gj-category-tiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (min-width: 768px) {
@@ -87,7 +83,7 @@ const tiles = computed(() =>
 .gj-category-tiles__link {
   position: relative;
   display: block;
-  padding: 2.5rem 0.5rem 1.5rem;
+  padding: 1.5rem 0.25rem 1rem;
   text-align: center;
   text-decoration: none;
   color: #555;
@@ -130,9 +126,22 @@ const tiles = computed(() =>
 
 .gj-category-tiles__name {
   display: block;
-  font-size: 1.575rem;
+  font-size: clamp(1rem, 5vw, 1.25rem);
   font-weight: 300;
-  line-height: 1.1;
+  line-height: 1.2;
   overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+@media (min-width: 576px) {
+  .gj-category-tiles__link {
+    padding: 2.5rem 0.5rem 1.5rem;
+  }
+
+  .gj-category-tiles__name {
+    font-size: 1.575rem;
+    line-height: 1.1;
+    hyphens: manual;
+  }
 }
 </style>
