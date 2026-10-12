@@ -101,14 +101,12 @@
 }
 
 /*
- * Category pages with subcategory tiles (GlasJenaCategoryPage.vue): from 992 px the category list and the tiles
- * follow the banner without a gap (wish of the shop owner); both bring their own space above the first line.
- * Below 992 px the breadcrumbs stand in between and keep the banner's distance.
+ * Category pages with subcategory tiles (GlasJenaCategoryPage.vue): no gap below the banner (wish of the shop
+ * owner). From 992 px the category list and the tiles follow it directly, both bring their own space above the
+ * first line; below 992 px the breadcrumbs follow with their own padding.
  */
-@media (min-width: 992px) {
-  .gj-page-banner:has(~ main > .gj-subcategories) {
-    margin-bottom: 0;
-  }
+.gj-page-banner:has(~ main > .gj-subcategories) {
+  margin-bottom: 0;
 }
 
 /*
