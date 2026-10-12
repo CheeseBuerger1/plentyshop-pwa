@@ -156,6 +156,30 @@ const showPrevious = () => page(-1);
 }
 
 /*
+ * The item image grows slightly while the pointer is over the card or the keyboard focus on its image link, like
+ * the tiles of the home page and the subcategory tiles (6 %, from 576 px; see GlasJenaTile.vue). The card's image
+ * box clips it. The fade of the card's own image swap (opacity, 0.3 s) is kept.
+ */
+.gj-product-carousel :deep([data-testid='product-card-link'] img) {
+  transition-property: opacity, transform;
+  transition-duration: 0.3s, 0.4s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0, 0, 0.26, 1);
+}
+
+@media (min-width: 576px) {
+  .gj-product-carousel :deep([data-testid='product-card']:hover [data-testid='product-card-link'] img),
+  .gj-product-carousel :deep([data-testid='product-card-link']:focus-visible img) {
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gj-product-carousel :deep([data-testid='product-card-link'] img) {
+    transition-duration: 0.3s, 0s;
+  }
+}
+
+/*
  * No rating stars on the cards (the shop shows no reviews; as requested by the shop owner). The editor's "Item card"
  * setting only reaches the item grid of category pages, the slider always shows them.
  */
