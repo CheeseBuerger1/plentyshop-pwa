@@ -1,4 +1,5 @@
 import type { CategoryTreeItem } from '@plentymarkets/shop-api';
+import type { CategorySidebarRow } from './types';
 
 /**
  * Category with its subcategories: a category that has subcategories shows only these (as tiles), one without shows
@@ -39,3 +40,22 @@ export const getCategoryTileDetails = (category: CategoryTreeItem) => {
 /** Image of a category (path as the tree has it, e.g. `category/56/katkaff2.jpg`) in the shop's document folder. */
 export const getCategoryImageUrl = (domain: string, imagePath: string | null) =>
   imagePath ? `${domain}/documents/${imagePath}` : '';
+
+/**
+ * Lines of the category list: all main categories, below every open category its subcategories.
+ *
+ * @param isExpanded Whether the subcategories of the category are shown
+ */
+export const getCategorySidebarRows = (
+  tree: CategoryTreeItem[] | undefined,
+  isExpanded: (category: CategoryTreeItem) => boolean,
+  depth = 0,
+): CategorySidebarRow[] =>
+  (tree ?? []).flatMap((category) => {
+    const hasChildren = (category.children?.length ?? 0) > 0;
+    const expanded = hasChildren && isExpanded(category);
+    return [
+      { category, depth, hasChildren, expanded },
+      ...(expanded ? getCategorySidebarRows(category.children, isExpanded, depth + 1) : []),
+    ];
+  });

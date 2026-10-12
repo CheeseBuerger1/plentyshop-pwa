@@ -60,37 +60,64 @@ const tiles = computed(() =>
 
 <style scoped>
 /*
- * Subcategories as tiles, like the LTS shop: three per row (two on phones), square image, name below in Light,
- * centred, no frame. Hover/focus: the name turns dark and gets an underline (keyboard focus ring from the browser).
+ * Subcategories as tiles, like the LTS shop: three per row (two from 576 px, one below), square image of at most
+ * 200 px, name below in Light, centred, no frame. Hover and keyboard focus like the LTS: a light slate blue veil
+ * over the whole tile (10 %, fades in within 0.2 s), no underline; the keyboard focus also keeps the browser's ring.
  */
 .gj-category-tiles {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem 1rem;
+  grid-template-columns: minmax(0, 1fr);
   margin: 0 0 2.5rem;
-  padding: 0 1rem;
+  padding: 0;
   list-style: none;
+}
+
+@media (min-width: 576px) {
+  .gj-category-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 768px) {
   .gj-category-tiles {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2rem 1.5rem;
   }
 }
 
 .gj-category-tiles__link {
+  position: relative;
   display: block;
+  padding: 2.5rem 0.5rem 1.5rem;
   text-align: center;
   text-decoration: none;
   color: #555;
 }
 
+.gj-category-tiles__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgb(74 103 124 / 10%);
+  opacity: 0;
+  transition: opacity 0.2s ease-in;
+  pointer-events: none;
+}
+
+.gj-category-tiles__link:hover::after,
+.gj-category-tiles__link:focus-visible::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gj-category-tiles__link::after {
+    transition: none;
+  }
+}
+
 .gj-category-tiles__image {
   display: block;
-  /* As large as in the LTS shop (there the tiles share the row with the category list) */
-  max-width: 17.5rem;
-  margin: 0 auto;
+  max-width: 12.5rem;
+  margin: 0 auto 0.5rem;
   aspect-ratio: 1 / 1;
 }
 
@@ -103,22 +130,9 @@ const tiles = computed(() =>
 
 .gj-category-tiles__name {
   display: block;
-  margin-top: 0.5rem;
-  font-size: 1.25rem;
+  font-size: 1.575rem;
   font-weight: 300;
-  line-height: 1.3;
+  line-height: 1.1;
   overflow-wrap: break-word;
-}
-
-@media (min-width: 768px) {
-  .gj-category-tiles__name {
-    font-size: 1.5rem;
-  }
-}
-
-.gj-category-tiles__link:hover .gj-category-tiles__name,
-.gj-category-tiles__link:focus-visible .gj-category-tiles__name {
-  color: #222;
-  text-decoration: underline;
 }
 </style>

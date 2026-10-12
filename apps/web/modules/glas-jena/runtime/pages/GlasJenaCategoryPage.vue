@@ -1,7 +1,7 @@
 <!--
   Category page (replaces pages/[...slug].vue, see PAGE_OVERRIDES). Copy of the original with one change: a product
-  category that has subcategories shows only these, as tiles (rule of the LTS shop); one without subcategories shows
-  its articles. In the editor (edit mode) the category template stays, so it can still be edited. Content categories
+  category that has subcategories shows only these, as tiles (rule of the LTS shop), from 992 px with the category
+  list beside them; one without subcategories shows its articles. In the editor (edit mode) the category template stays, so it can still be edited. Content categories
   keep their editor blocks. Everything else is the original; upstreamContract.spec.ts shows when the original changes.
 -->
 <template>
@@ -12,12 +12,11 @@
     :class="{ 'pointer-events-none opacity-50': loading }"
   >
     <SfLoaderCircular v-if="loading" class="fixed top-[50%] right-0 left-0 m-auto z-max" size="2xl" />
-    <GlasJenaCategoryTiles
-      v-if="hasSubcategories"
-      :categories="subcategories"
-      :tree="categoryTree"
-      data-testid="category-page-content"
-    />
+    <!-- Category list beside the tiles from 992 px (below: breadcrumbs of the layout, see glas-jena.css) -->
+    <div v-if="hasSubcategories" class="gj-subcategories" data-testid="category-page-content">
+      <GlasJenaCategorySidebar :tree="categoryTree" class="gj-subcategories__sidebar" />
+      <GlasJenaCategoryTiles :categories="subcategories" :tree="categoryTree" class="gj-subcategories__tiles" />
+    </div>
     <EditableBlocks
       v-else
       :identifier="identifier"
@@ -32,6 +31,7 @@
 import { breadcrumbGetters, categoryGetters } from '@plentymarkets/shop-api';
 import type { Locale } from '#i18n';
 import { SfLoaderCircular } from '@storefront-ui/vue';
+import GlasJenaCategorySidebar from '../components/GlasJenaCategorySidebar.vue';
 import GlasJenaCategoryTiles from '../components/GlasJenaCategoryTiles.vue';
 import { getSubcategories } from '../utils/categoryTiles';
 
@@ -159,3 +159,27 @@ useHead({
   ],
 });
 </script>
+
+<style scoped>
+/* Subcategories: list of 270 px beside the tiles like the LTS shop; below 992 px (window width) only the tiles */
+.gj-subcategories {
+  padding: 0 1rem;
+}
+
+.gj-subcategories__sidebar {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .gj-subcategories {
+    display: grid;
+    grid-template-columns: 16.875rem minmax(0, 1fr);
+    gap: 1.875rem;
+    align-items: start;
+  }
+
+  .gj-subcategories__sidebar {
+    display: block;
+  }
+}
+</style>

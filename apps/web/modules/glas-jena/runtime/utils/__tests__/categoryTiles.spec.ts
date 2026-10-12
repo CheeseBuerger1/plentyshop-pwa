@@ -1,5 +1,11 @@
 import type { CategoryTreeItem } from '@plentymarkets/shop-api';
-import { findCategory, getCategoryImageUrl, getCategoryTileDetails, getSubcategories } from '../categoryTiles';
+import {
+  findCategory,
+  getCategoryImageUrl,
+  getCategorySidebarRows,
+  getCategoryTileDetails,
+  getSubcategories,
+} from '../categoryTiles';
 
 const category = (id: number, name: string, children: CategoryTreeItem[] = [], imagePath: string | null = null) =>
   ({
@@ -54,5 +60,23 @@ describe('categoryTiles', () => {
       'https://www.glas-jena.de/documents/category/56/katkaff2.jpg',
     );
     expect(getCategoryImageUrl('https://www.glas-jena.de', null)).toBe('');
+  });
+
+  it('should list the main categories and the subcategories of every open category for the category list', () => {
+    const open = new Set([24, 25]);
+    const rows = getCategorySidebarRows(tree, (item) => open.has(item.id));
+
+    expect(rows.map((row) => [row.category.id, row.depth, row.hasChildren, row.expanded])).toEqual([
+      [24, 0, true, true],
+      [56, 1, false, false],
+      [25, 1, true, true],
+      [30, 2, true, false],
+      [57, 0, false, false],
+    ]);
+  });
+
+  it('should list only the main categories when no category is open', () => {
+    expect(getCategorySidebarRows(tree, () => false).map((row) => row.category.id)).toEqual([24, 57]);
+    expect(getCategorySidebarRows(undefined, () => true)).toEqual([]);
   });
 });
