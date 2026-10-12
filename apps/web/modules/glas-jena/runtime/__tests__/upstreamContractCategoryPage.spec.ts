@@ -1,0 +1,44 @@
+/**
+ * Upstream contract of the category page.
+ *
+ * Part of the upstream contract of the glas-jena module, see upstreamContract.spec.ts; in its own file because that
+ * one has reached the maximum length of a file (ESLint `max-lines`).
+ */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+/* Vitest runs in apps/web (the Nuxt test environment gives no file URL for this module) */
+const readApp = (path: string) => readFileSync(join(process.cwd(), 'app', path), 'utf8');
+
+describe('upstream contract of the glas-jena module: category page', () => {
+  it('should find the category page parts that the module copy GlasJenaCategoryPage builds on', () => {
+    const page = readApp('pages/[...slug].vue');
+    /* The copy shows the subcategories as tiles instead of EditableBlocks, the rest is the original */
+    for (const part of [
+      '<EditableBlocks',
+      ':prevent-blocks-request="productsCatalog.category?.type === \'item\'"',
+      "middleware: ['category-guard']",
+      "type: 'category'",
+      'isBlockified: true',
+      'const { data: productsCatalog, loading } = useProducts();',
+      "const isItemCategoryPage = computed(() => productsCatalog.value.category?.type === 'item');",
+      'setCategoriesPageMeta(productsCatalog.value, getFacetsFromURL(), canonicalDb);',
+      "setBlocksListContext(isItemCategoryPage.value ? 'productCategory' : 'content');",
+      'setItemListMetaData(productsCatalog.value.products || []);',
+      "route.meta.identifier = productsCatalog.value.category?.type === 'content'",
+    ]) {
+      expect(page).toContain(part);
+    }
+  });
+
+  it('should find the category tree data and the editor state that the tiles rely on', () => {
+    expect(readApp('composables/useCategoryTree/useCategoryTree.ts')).toContain('data');
+    expect(readApp('composables/useEditorState/useEditorState.ts')).toContain(
+      'const isEditMode = computed(() => !!$isEditor && disableActions.value);',
+    );
+    /* Image path as in the category data block: `<domain>/documents/<imagePath>` */
+    expect(readApp('components/blocks/CategoryData/CategoryData.vue')).toContain(
+      '`${runtimeConfig.public.domain}/documents/${imagePath.value}`',
+    );
+  });
+});

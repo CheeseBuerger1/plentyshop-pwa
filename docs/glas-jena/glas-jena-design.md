@@ -108,6 +108,19 @@ Umgesetzt in `GlasJenaPageBanner.vue` (Titel: `usePageBanner`, Zuordnung in `uti
 - Die Überschriften der Original-Seiten, die den Titel wiederholen (Kategoriename im Block „Category Data“, Suchergebnisse, Warenkorb/Kasse, Kontakt, „Mein Konto“, Passwort-Seiten), sind bei sichtbarem Banner per CSS ausgeblendet (`glas-jena.css`). Die Rechtstexte behalten ihre eigenen Überschriften.
 - **Brotkrumen-Leiste:** auf Artikelseiten immer sichtbar, auf Kategorieseiten nur unter 992 px Fensterbreite (dort ist die Kategorienavigation im Burger-Menü), auf allen anderen Seiten (z. B. Mein Konto) ausgeblendet (`glas-jena.css`, erkennt Kategorieseiten an der Klasse `gj-page-banner--category` des Banners).
 
+### Kategorieseiten: Unterkategorien oder Artikel (wie im LTS-Shop)
+
+Umgesetzt in `apps/web/modules/glas-jena/runtime/pages/GlasJenaCategoryPage.vue` (ersetzt `pages/[...slug].vue`, siehe `PAGE_OVERRIDES`), `components/GlasJenaCategoryTiles.vue` und `utils/categoryTiles.ts`.
+
+- **Regel:** Hat eine Artikelkategorie Unterkategorien, zeigt ihre Seite nur diese als Kacheln und keine Artikel. Hat sie keine, zeigt sie wie bisher ihre Artikel (Kategorie-Vorlage aus dem Editor mit Filter, Sortierung, Artikelraster). Die Seite schaltet von selbst um, sobald in PlentyONE eine Unterkategorie angelegt oder entfernt wird; im Editor ist dafür nichts einzustellen.
+- Die Unterkategorien kommen aus dem Kategoriebaum (`useCategoryTree`, dieselben Kategorien und dieselbe Reihenfolge wie in der Navigation). Kategorien, die nicht in der Navigation stehen, erscheinen auch hier nicht.
+- **Kacheln wie im LTS:** drei pro Zeile, unter 768 px zwei. Quadratisches Kategoriebild (Bild 1 der Kategorie aus PlentyONE, ersatzweise Bild 2, höchstens 280 px breit), darunter der Name in Light, `#555`, zentriert, ohne Rahmen. Bild und Name sind ein gemeinsamer Link; das Bild hat keinen eigenen Text (`alt=""`), damit Screenreader den Namen nicht doppelt vorlesen. Hover und Tastaturfokus: Name dunkler und unterstrichen. Kategorien ohne Bild zeigen nur den Namen.
+- Abweichung vom LTS: keine Kategorieliste links neben den Kacheln (die Navigation im Header bzw. im Burger-Menü zeigt dieselben Kategorien).
+- **Artikel, die nur in einer Kategorie mit Unterkategorien liegen, sind über die Kategorieseite nicht erreichbar** (wie im LTS; Suche und Direktlink gehen weiter). Dafür gibt es die Sammelkategorien „alle Filter“ / „alle Größen“.
+- Inhaltskategorien (Typ „Inhalt“) behalten ihre Editor-Blöcke, auch wenn sie Unterkategorien haben.
+- **Editor:** Im Bearbeitungsmodus bleibt die Kategorie-Vorlage sichtbar, damit sie bearbeitet werden kann; die Kacheln erscheinen in der Vorschau („Preview“) und im Shop.
+- Bei Kachelseiten entfällt die Artikelliste in den strukturierten Daten (`ItemList`), weil keine Artikel zu sehen sind.
+
 ### Hauptnavigation (wie im LTS-Shop)
 
 Umgesetzt in `apps/web/modules/glas-jena/runtime/components/GlasJenaNavigation.vue` (Hauptleiste) und `GlasJenaNavigationMenu.vue` (Dropdown-Ebenen).

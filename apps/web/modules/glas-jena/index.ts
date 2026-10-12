@@ -66,6 +66,8 @@ export const PAGE_OVERRIDES: Record<string, string> = {
   '/pages/contact.vue': './runtime/pages/GlasJenaContact.vue',
   /* My orders: one layout for all widths, without the "buy again" menu */
   '/pages/my-account/my-orders.vue': './runtime/pages/GlasJenaMyOrders.vue',
+  /* Category page: a product category with subcategories shows these as tiles, one without shows its articles */
+  '/pages/[...slug].vue': './runtime/pages/GlasJenaCategoryPage.vue',
 };
 
 const getPageFile = (page: NuxtPage) => page.file?.replace(/\\/g, '/') ?? '';
