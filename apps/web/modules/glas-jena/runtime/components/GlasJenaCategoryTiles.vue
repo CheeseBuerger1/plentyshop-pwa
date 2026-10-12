@@ -64,7 +64,7 @@ const tiles = computed(() =>
  * centred, no frame. Below 768 px two per row (the LTS shows one below 576 px, which makes long pages); there the
  * names shrink with the window below 576 px (5 % of its width, 16–20 px), so the longest word ("Mikrowellengeschirr")
  * still fits in a tile of a 320 px phone; browsers with a German dictionary also hyphenate. Hover and keyboard focus like the LTS: a light slate blue veil
- * over the whole tile (10 %, fades in within 0.2 s), no underline; the keyboard focus also keeps the browser's ring.
+ * over the whole tile (10 %, fades in within 0.2 s), no underline, and the image grows slightly; the keyboard focus also keeps the browser's ring.
  */
 .gj-category-tiles {
   display: grid;
@@ -104,12 +104,6 @@ const tiles = computed(() =>
   opacity: 1;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .gj-category-tiles__link::after {
-    transition: none;
-  }
-}
-
 .gj-category-tiles__image {
   display: block;
   max-width: 12.5rem;
@@ -122,6 +116,15 @@ const tiles = computed(() =>
   width: 100%;
   height: 100%;
   object-fit: contain;
+  transition: transform 0.4s cubic-bezier(0, 0, 0.26, 1);
+}
+
+/* The image grows slightly, like the tiles of the home page (6 %, from 576 px; see GlasJenaTile.vue) */
+@media (min-width: 576px) {
+  .gj-category-tiles__link:hover .gj-category-tiles__img,
+  .gj-category-tiles__link:focus-visible .gj-category-tiles__img {
+    transform: scale(1.06);
+  }
 }
 
 .gj-category-tiles__name {
@@ -142,6 +145,13 @@ const tiles = computed(() =>
     font-size: 1.575rem;
     line-height: 1.1;
     hyphens: manual;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gj-category-tiles__link::after,
+  .gj-category-tiles__img {
+    transition: none;
   }
 }
 </style>
