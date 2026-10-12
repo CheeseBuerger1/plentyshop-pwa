@@ -252,8 +252,9 @@ const showPrevious = () => page(-1);
 }
 
 @media (max-width: 575.98px) {
+  /* Phones: no arrows (swiping), but the page's side margin of 16 px, so the cards do not touch the screen edge */
   .gj-product-carousel__slider {
-    padding: 0;
+    padding: 0 1rem;
   }
 
   .gj-product-carousel__arrow {
