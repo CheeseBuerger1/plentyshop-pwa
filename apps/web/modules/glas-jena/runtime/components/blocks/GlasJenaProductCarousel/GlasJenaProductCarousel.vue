@@ -156,11 +156,11 @@ const showPrevious = () => page(-1);
 }
 
 /*
- * Smaller item images (as requested by the shop owner): 85 % of the card's image box instead of all of it, so the
+ * Smaller item images (as requested by the shop owner): 92.5 % of the card's image box instead of all of it, so the
  * items do not fill the cards to the edge. The box itself keeps its size.
  */
 .gj-product-carousel :deep([data-testid='product-card-link'] > div) {
-  padding: 7.5%;
+  padding: 3.75%;
 }
 
 /*
