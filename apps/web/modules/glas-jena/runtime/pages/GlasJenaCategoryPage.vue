@@ -162,8 +162,9 @@ useHead({
 
 <style scoped>
 /* Subcategories: list of 270 px beside the tiles like the LTS shop; below 992 px (window width) only the tiles */
+/* No padding around the tiles: their hover veil reaches the edge of the page box (the tiles have their own padding) */
 .gj-subcategories {
-  padding: 0 1rem;
+  padding: 0;
 }
 
 .gj-subcategories__sidebar {
@@ -176,6 +177,7 @@ useHead({
     grid-template-columns: 16.875rem minmax(0, 1fr);
     gap: 1.875rem;
     align-items: start;
+    padding-left: 1rem;
   }
 
   .gj-subcategories__sidebar {
