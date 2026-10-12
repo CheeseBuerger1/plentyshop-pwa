@@ -101,6 +101,53 @@
 }
 
 /*
+ * Breadcrumbs like the LTS shop: links in blue, the current page stays dark; the home page is a house symbol
+ * instead of "Startseite" (also in the "…" menu of narrow screens). Slate blue instead of the LTS blue #6e9abb,
+ * which has only 3.0:1 on white. The link text stays for screen readers (font-size 0 keeps the accessible name).
+ */
+[data-testid='breadcrumbs'] a {
+  color: var(--gj-slate-blue);
+}
+
+[data-testid='breadcrumbs'] a:hover {
+  color: var(--gj-link-hover);
+}
+
+[data-testid='breadcrumbs'] > ol > li:nth-child(2) > a,
+[data-testid='breadcrumbs-dropdown'] > li:first-child a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  font-size: 0;
+}
+
+/* In the menu the house stands flush left above the category names */
+[data-testid='breadcrumbs-dropdown'] > li:first-child a {
+  justify-content: flex-start;
+}
+
+[data-testid='breadcrumbs'] > ol > li:nth-child(2) > a::before,
+[data-testid='breadcrumbs-dropdown'] > li:first-child a::before {
+  content: '';
+  width: 1.125rem;
+  height: 1.125rem;
+  background-color: currentcolor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/*
+ * Category pages with subcategory tiles (GlasJenaCategoryPage.vue): no gap below the banner (wish of the shop
+ * owner). From 992 px the category list and the tiles follow it directly, both bring their own space above the
+ * first line; below 992 px the breadcrumbs follow with their own padding.
+ */
+.gj-page-banner:has(~ main > .gj-subcategories) {
+  margin-bottom: 0;
+}
+
+/*
  * Content pages (e.g. "Unser hitzebeständiges Glas"): less space below the banner and above the footer. The first
  * block drops its top padding (the banner already keeps 28 px), the last one the block spacing from the editor
  * settings (e.g. 40 px) down to 16 px.

@@ -27,3 +27,12 @@ export type AddressWithOptions = { options?: { typeId?: number; value?: string }
 
 /** Storage for the flag per tracked order (localStorage, or a stand-in in tests). */
 export type FlagStorage = Pick<Storage, 'getItem' | 'setItem'>;
+
+/** One line of the category list beside the subcategory tiles (the tree flattened to the open lines). */
+export type CategorySidebarRow = {
+  category: import('@plentymarkets/shop-api').CategoryTreeItem;
+  /** 0 = main category */
+  depth: number;
+  hasChildren: boolean;
+  expanded: boolean;
+};

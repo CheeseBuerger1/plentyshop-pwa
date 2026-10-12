@@ -59,3 +59,16 @@ export const getFixedPageBannerTitleKey = (routeBaseName: string) => {
 
 /** Tag name of a tag page slug (`<name>_<id>`), as the tag page shows it. */
 export const getTagName = (slug: string) => slug.split('_')[0] ?? '';
+
+/**
+ * Line above the banner title of a category from the third level on: the categories above it without the main
+ * category, e.g. `['Teekannen', 'mit Glasfilter']` for "kleiner 1 L". Names like "mit Glasfilter" or "alle Größen"
+ * say little on their own; the main category is left out because the navigation already highlights it.
+ *
+ * @param breadcrumbs Path of the category from the main category down to the category itself
+ */
+export const getCategoryKicker = (breadcrumbs: { name: string }[] | undefined) =>
+  (breadcrumbs ?? [])
+    .slice(1, -1)
+    .map(({ name }) => name)
+    .filter(Boolean);
