@@ -156,6 +156,14 @@ const showPrevious = () => page(-1);
 }
 
 /*
+ * Smaller item images (as requested by the shop owner): 85 % of the card's image box instead of all of it, so the
+ * items do not fill the cards to the edge. The box itself keeps its size.
+ */
+.gj-product-carousel :deep([data-testid='product-card-link'] > div) {
+  padding: 7.5%;
+}
+
+/*
  * The item image grows slightly while the pointer is over the card or the keyboard focus on its image link, like
  * the tiles of the home page and the subcategory tiles (6 %, from 576 px; see GlasJenaTile.vue). The card's image
  * box clips it. The fade of the card's own image swap (opacity, 0.3 s) is kept.
