@@ -101,6 +101,17 @@
 }
 
 /*
+ * Category pages with subcategory tiles (GlasJenaCategoryPage.vue): from 992 px the category list and the tiles
+ * follow the banner without a gap (wish of the shop owner); both bring their own space above the first line.
+ * Below 992 px the breadcrumbs stand in between and keep the banner's distance.
+ */
+@media (min-width: 992px) {
+  .gj-page-banner:has(~ main > .gj-subcategories) {
+    margin-bottom: 0;
+  }
+}
+
+/*
  * Content pages (e.g. "Unser hitzebeständiges Glas"): less space below the banner and above the footer. The first
  * block drops its top padding (the banner already keeps 28 px), the last one the block spacing from the editor
  * settings (e.g. 40 px) down to 16 px.
