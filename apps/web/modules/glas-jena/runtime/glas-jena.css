@@ -30,6 +30,9 @@
   --gj-soft-green: #ddebc8;
   --gj-tile-blue: #a9c9e3;
   --gj-tile-grey-blue: #d6e1ea;
+  /* Active path in all menus (main navigation, its dropdowns, account menu, category list): a quarter lighter than
+     the grey blue of the tiles (as requested by the shop owner) */
+  --gj-menu-active: #e0e9ef;
   --gj-tile-lilac: #d4c8e8;
   /* Footer bar of the LTS shop (measured); also the open search bar */
   --gj-footer-bg: #263238;

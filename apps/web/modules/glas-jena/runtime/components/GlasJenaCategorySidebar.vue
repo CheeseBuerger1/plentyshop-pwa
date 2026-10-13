@@ -143,7 +143,7 @@ const rows = computed(() =>
 
 /* Grey blue like the active path of the main navigation (the LTS marks it soft green, #ebf4eb) */
 .gj-category-sidebar__item--active {
-  background-color: var(--gj-tile-grey-blue);
+  background-color: var(--gj-menu-active);
   color: #212529;
 }
 
