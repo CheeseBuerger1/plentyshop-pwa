@@ -31,6 +31,12 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
 };
 
 /**
+ * Replaced components whose original unit test takes the component from Nuxt's registry (`#components`): in the
+ * unit tests the original stays, so that upstream test keeps testing the original (the module's copy has its own).
+ */
+export const COMPONENT_OVERRIDES_NOT_IN_TESTS = ['CategoryTree'];
+
+/**
  * Original layouts (name) replaced by the module's own ones. Account: on phones the menu has its own page and every
  * account page shows "← Zurück" to it (see the layout).
  */
@@ -145,7 +151,8 @@ export default defineNuxtModule({
     nuxt.hook('components:extend', (components) => {
       for (const component of components) {
         const override = COMPONENT_OVERRIDES[component.pascalName];
-        if (override) {
+        const keepOriginal = nuxt.options.test && COMPONENT_OVERRIDES_NOT_IN_TESTS.includes(component.pascalName);
+        if (override && !keepOriginal) {
           component.filePath = resolve(override);
         }
       }
