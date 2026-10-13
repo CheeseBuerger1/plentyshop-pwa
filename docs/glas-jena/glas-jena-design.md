@@ -185,6 +185,7 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 
 - Weißer Hintergrund, Produktbild freigestellt.
 - Oben rechts eine **Dreieck-Ecke** in Blaugrau mit Warenkorb-Symbol (In-den-Warenkorb); das Symbol sitzt 7,2 px von oberer und rechter Kante, gut im Dreieck (Wunsch des Shopbetreibers, `glas-jena.css`).
+- **Dreiecke nur in Karussells** (Wunsch des Shopbetreibers, 2026-10-13): Die Dreieck-Ecke gilt nur für Artikelkarten in einem Karussell (`ProductSlider`: „Unsere Topseller“, empfohlene Artikel). In Artikellisten (Kategorieseiten, Suche) steht stattdessen der Button der Karte in voller Kartenbreite unter dem Preis (40 px hoch, Schieferblau, Warenkorb-Symbol und Text). Der Text ist der Übersetzungsschlüssel `common.actions.add` („Hinzufügen“), der nur in der Artikelkarte vorkommt und im Editor unter Localization geändert werden kann. Dazu passend in der Kategorie-Vorlage drei Artikel pro Zeile am Desktop (Block „ItemGrid“).
 - Darunter Artikelname (16 px), Preis groß und rechtsbündig (20 px, direkt unter dem Namen, darunter 4 px Abstand; Wünsche des Shopbetreibers, `glas-jena.css`) mit „\*“, Hinweis „\* inkl. ges. MwSt. zzgl. Versandkosten“ (Versandkosten als Link).
 - **Kein Herz / keine Wunschliste** (siehe unten).
 
