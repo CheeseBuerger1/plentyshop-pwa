@@ -51,4 +51,17 @@ describe('upstream contract of the glas-jena module: category page', () => {
     /* glas-jena.css gives the article column the top space of the list's heading */
     expect(readApp('components/blocks/structure/MultiGrid/MultiGrid.vue')).toContain('data-testid="multi-grid-column"');
   });
+
+  it('should find the defaults and the pagination that the module changes for item lists', () => {
+    /* utils/shopDefaults.ts replaces the auto-import `defaults` (100 articles per page instead of 50) */
+    const defaults = readApp('composables/defaults.ts');
+    expect(defaults).toContain('export const defaults = {');
+    expect(defaults).toContain('DEFAULT_ITEMS_PER_PAGE,');
+    expect(defaults).toContain('const PER_PAGE_STEPS: number[] = [10, 20, 50, 100];');
+    /* glas-jena.css hides a pagination whose two arrows are both disabled (a single page) */
+    const pagination = readApp('components/ui/Pagination/Pagination.vue');
+    expect(pagination).toContain('data-testid="pagination-previous"');
+    expect(pagination).toContain('data-testid="pagination-next"');
+    expect(pagination).toContain(':disabled="pagination.selectedPage >= pagination.totalPages || disabled"');
+  });
 });

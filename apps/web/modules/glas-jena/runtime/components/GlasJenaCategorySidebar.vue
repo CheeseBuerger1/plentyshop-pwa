@@ -147,6 +147,11 @@ const rows = computed(() =>
   color: #212529;
 }
 
+/* The current category itself a touch stronger than the path to it: the grey blue of the tiles */
+.gj-category-sidebar__item--active:has(> [aria-current='page']) {
+  background-color: var(--gj-tile-grey-blue);
+}
+
 .gj-category-sidebar__link {
   display: block;
   padding: 0.4375rem 0.5rem 0.4375rem var(--gj-sidebar-indent);
