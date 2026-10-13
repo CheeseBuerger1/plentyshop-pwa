@@ -75,6 +75,11 @@ describe('upstream contract of the glas-jena module: category page', () => {
     const sidebar = readApp('components/CategorySidebar/CategorySidebar.vue');
     expect(sidebar).toContain('data-testid="category-sidebar"');
     expect(sidebar).toContain('<div class="p-4 @md:mt-2 flex flex-wrap justify-between');
+    /* Below 768 px the button "list settings" (in the row above the results) and the drawer's title row are hidden */
+    expect(layout).toContain('<div class="flex-1">');
+    expect(layout).toContain('<UiButton variant="tertiary" class="@md:hidden whitespace-nowrap" @click="open">');
+    expect(sidebar).toContain('<div class="p-4 flex justify-between items-center @md:hidden">');
+    expect(sidebar).toContain('v-show="isOpen"');
     const search = readApp('pages/search.vue');
     expect(search).toContain('<CategorySorting />');
     expect(search).toContain('<CategoryItemsPerPage class="mt-6"');

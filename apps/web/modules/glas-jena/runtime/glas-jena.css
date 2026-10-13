@@ -182,22 +182,21 @@
 }
 
 /*
- * Article categories between 768 and 991 px: the category list is hidden there (window below 992 px) and sorting and
- * "per page" are no longer in the filter column, so the column would stay empty beside the articles. It is hidden and
- * the other cells take the whole width – unless it still holds a filter (a select or an input).
+ * Article categories below 992 px: the category list is hidden there and sorting and "per page" are no longer in the
+ * filter column, so the column would stay empty beside the articles (768 to 991 px) or show only the button "list
+ * settings" that opens an empty window (below 768 px). It is hidden and the other cells take the whole width –
+ * unless it still holds a filter (a select or an input).
  */
 @media (max-width: 991.98px) {
-  @container (min-width: 768px) {
-    [data-testid='multi-grid-structure']
-      > [data-testid='multi-grid-column']:has(.gj-category-tree):not(:has(select, input)) {
-      display: none;
-    }
+  [data-testid='multi-grid-structure']
+    > [data-testid='multi-grid-column']:has(.gj-category-tree):not(:has(select, input)) {
+    display: none;
+  }
 
-    /* The filter column is the first cell (`:has()` cannot be nested, so the following cells are addressed) */
-    [data-testid='multi-grid-column']:has(.gj-category-tree):not(:has(select, input))
-      ~ [data-testid='multi-grid-column'] {
-      grid-column: 1 / -1;
-    }
+  /* The filter column is the first cell (`:has()` cannot be nested, so the following cells are addressed) */
+  [data-testid='multi-grid-column']:has(.gj-category-tree):not(:has(select, input))
+    ~ [data-testid='multi-grid-column'] {
+    grid-column: 1 / -1;
   }
 }
 
@@ -238,7 +237,8 @@
 
   /* On the right above the results, flush with their edge, with a thin frame (as requested by the shop owner) */
   [data-testid='category-layout'] [data-testid='category-sorting'] {
-    max-width: 18rem;
+    /* As wide as the result below it: three per row with 24 px between them (four from 1024 px, see below) */
+    max-width: calc((100% - 3rem) / 3);
     margin: 0 0 1rem auto;
   }
 
@@ -261,6 +261,56 @@
 @container (min-width: 1024px) {
   [data-testid='category-layout'] [data-testid='category-grid'] {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  [data-testid='category-layout'] [data-testid='category-sorting'] {
+    max-width: calc((100% - 4.5rem) / 4);
+  }
+}
+
+/*
+ * Below 768 px the original moves the sorting into a window behind the button "list settings". As long as that
+ * window holds nothing but the sorting (no filter, i.e. no input), the sorting stands above the results here too
+ * and the button is hidden: the drawer is laid out as a normal box (it is hidden with an inline `display: none`,
+ * hence `!important`), without its title row and its footer.
+ */
+@container (max-width: 767.98px) {
+  [data-testid='category-layout'] [data-testid='category-sidebar']:not(:has(input)) {
+    position: static;
+    display: block !important;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    transform: none;
+  }
+
+  [data-testid='category-layout'] [data-testid='category-sidebar']:not(:has(input)) > div {
+    display: block;
+  }
+
+  [data-testid='category-layout'] [data-testid='category-sidebar']:not(:has(input)) > div > div:first-child,
+  [data-testid='category-layout'] [data-testid='category-sidebar']:not(:has(input)) > div > div:last-child {
+    display: none;
+  }
+
+  [data-testid='category-layout']:not(:has([data-testid='category-sidebar'] input))
+    [data-testid='category-page-content']
+    > .flex-1
+    > div:first-child
+    > button {
+    display: none;
+  }
+
+  [data-testid='category-layout'] [data-testid='category-sorting'] {
+    margin-bottom: 1rem;
+  }
+
+  [data-testid='category-layout'] [data-testid='category-sorting'] > div:first-child:not(:only-child) {
+    display: none;
+  }
+
+  [data-testid='category-layout'] [data-testid='category-sorting'] > div:last-child {
+    padding-inline: 0;
   }
 }
 
@@ -300,11 +350,11 @@ nav:has(> [data-testid='pagination-previous']:disabled):has(> [data-testid='pagi
   }
 
   /*
-   * The select on the right above the articles, flush with their edge, as wide as it was in the filter column, like
-   * on the search page; less space below it.
+   * The select on the right above the articles, flush with their edge and as wide as the article below it (three
+   * per row with 24 px between them, the template's setting from 768 px), like on the search page; less space below.
    */
   [data-testid='multi-grid-structure']:has(.gj-category-tree) [data-testid='category-sort'] {
-    max-width: 18rem;
+    max-width: calc((100% - 3rem) / 3);
     margin-left: auto;
   }
 
@@ -313,13 +363,14 @@ nav:has(> [data-testid='pagination-previous']:disabled):has(> [data-testid='pagi
     [data-testid='category-sorting'] {
     margin-bottom: 1rem;
   }
+}
 
-  [data-testid='multi-grid-structure']:has(.gj-category-tree)
-    [data-testid='category-sort']
-    [data-testid='category-sorting']
-    > div:last-child {
-    padding-inline: 0;
-  }
+/* At every width the select starts and ends with the articles (the original insets it by 16 px) */
+[data-testid='multi-grid-structure']:has(.gj-category-tree)
+  [data-testid='category-sort']
+  [data-testid='category-sorting']
+  > div:last-child {
+  padding-inline: 0;
 }
 
 /*
@@ -334,12 +385,13 @@ nav:has(> [data-testid='pagination-previous']:disabled):has(> [data-testid='pagi
   }
 }
 
-/* Thin frame around the sorting select of the item lists (categories and search; as requested by the shop owner) */
+/* Thin frame around the sorting select of the item lists (categories and search) */
 [data-testid='category-sort'] [data-testid='select-sort-by'],
 [data-testid='category-layout'] [data-testid='select-sort-by'] {
   /* Lower than the shop's select (34 px instead of 40 px without the frame; as requested by the shop owner) */
   padding-block: 0.25rem;
-  border: 1px solid var(--gj-field-border);
+  /* The frame of the item cards (neutral-200), as requested by the shop owner; lighter than the other form fields */
+  border: 1px solid rgb(var(--colors-neutral-200));
 }
 
 /*
