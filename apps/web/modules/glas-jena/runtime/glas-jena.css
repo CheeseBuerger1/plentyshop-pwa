@@ -238,7 +238,7 @@
 
   /* On the right above the results, flush with their edge, with a thin frame (as requested by the shop owner) */
   [data-testid='category-layout'] [data-testid='category-sorting'] {
-    max-width: 18rem;
+    max-width: 14rem;
     margin: 0 0 1rem auto;
   }
 
@@ -304,7 +304,7 @@ nav:has(> [data-testid='pagination-previous']:disabled):has(> [data-testid='pagi
    * on the search page; less space below it.
    */
   [data-testid='multi-grid-structure']:has(.gj-category-tree) [data-testid='category-sort'] {
-    max-width: 18rem;
+    max-width: 14rem;
     margin-left: auto;
   }
 
