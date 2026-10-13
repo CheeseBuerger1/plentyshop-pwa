@@ -125,10 +125,12 @@ const showPrevious = () => page(-1);
 /*
  * Items like the LTS shop: four per view on desktops, three on tablets (below 992 px), two on phones (below 576 px)
  * instead of the slider's fixed 192 px cards; the picture grows with the card. Arrows at the sides in the mid blue.
+ * Side margins of 40 px (first 56 px; a little wider items as requested by the shop owner): the arrows' 44 px boxes
+ * start 4 px outside, their lines stay inside the margin.
  */
 .gj-product-carousel__slider {
   position: relative;
-  padding: 0 3.5rem;
+  padding: 0 2.5rem;
 }
 
 /* Paging with the arrows and swiping end on a card's edge */
@@ -234,12 +236,12 @@ const showPrevious = () => page(-1);
 }
 
 .gj-product-carousel__arrow--previous {
-  left: 0.375rem;
+  left: -0.25rem;
   --gj-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15 3L6 12L15 21' fill='none' stroke='black' stroke-width='0.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
 .gj-product-carousel__arrow--next {
-  right: 0.375rem;
+  right: -0.25rem;
   --gj-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 3L18 12L9 21' fill='none' stroke='black' stroke-width='0.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
@@ -250,8 +252,9 @@ const showPrevious = () => page(-1);
 }
 
 @media (max-width: 575.98px) {
+  /* Phones: no arrows (swiping), but the page's side margin of 16 px, so the cards do not touch the screen edge */
   .gj-product-carousel__slider {
-    padding: 0;
+    padding: 0 1rem;
   }
 
   .gj-product-carousel__arrow {
