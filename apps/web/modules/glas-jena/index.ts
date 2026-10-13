@@ -52,9 +52,10 @@ const EXTRA_VIEWPORT_BREAKPOINTS = {
 
 /**
  * Auto-imports of the shop that the module replaces by its own file of the same export name (`file`: the original,
- * with or without its extension). Each replacement wraps the original and changes one thing:
- * - `defaults`: 100 instead of 50 articles per page, see utils/shopDefaults.ts
- * - `useSearchSuggestions`: categories of the search preview with their path, see utils/searchPreview.ts
+ * with or without its extension):
+ * - `defaults`: wraps the original, 100 instead of 50 articles per page, see utils/shopDefaults.ts
+ * - `useSearchSuggestions`: copy of the original; suggested search terms without fragments, categories of the search
+ *   preview with their path, see utils/searchPreview.ts
  */
 export const IMPORT_OVERRIDES = [
   {

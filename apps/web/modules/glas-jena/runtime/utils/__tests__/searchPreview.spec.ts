@@ -1,5 +1,10 @@
 import type { CategoryTreeItem } from '@plentymarkets/shop-api';
-import { CATEGORY_PATH_SEPARATOR, findCategoryPathByLink, getCategoryPathLabel } from '../searchPreview';
+import {
+  CATEGORY_PATH_SEPARATOR,
+  filterSearchSuggestions,
+  findCategoryPathByLink,
+  getCategoryPathLabel,
+} from '../searchPreview';
 
 const category = (id: number, name: string, children: CategoryTreeItem[] = []) =>
   ({
@@ -59,5 +64,29 @@ describe('searchPreview', () => {
 
   it('should keep the name of the search for a category the tree does not know', () => {
     expect(getCategoryPathLabel([], 'Sonderposten')).toBe('Sonderposten');
+  });
+  const labelsOf = (labels: string[]) =>
+    filterSearchSuggestions(labels.map((label) => ({ label }))).map(({ label }) => label);
+
+  it('should drop suggested terms that begin or end with a filler word', () => {
+    expect(
+      labelsOf(['teekanne', 'für teekanne', 'glaskörper für', 'und auflaufform', 'auflaufform rund mit', 'mit deckel']),
+    ).toEqual(['teekanne']);
+  });
+
+  it('should keep a filler word in the middle and the order of the search', () => {
+    expect(labelsOf(['glaskörper für teekanne', 'teekanne miko', 'brat und auflaufform'])).toEqual([
+      'glaskörper für teekanne',
+      'teekanne miko',
+      'brat und auflaufform',
+    ]);
+  });
+
+  it('should drop terms that begin with a number, whatever the case, and empty ones', () => {
+    expect(labelsOf(['8 tassen', 'Für Tasse', '  ', 'teekanne kando 1.2l'])).toEqual(['teekanne kando 1.2l']);
+  });
+
+  it('should keep the other fields of a suggestion', () => {
+    expect(filterSearchSuggestions([{ label: 'deckel', count: 22 }])).toEqual([{ label: 'deckel', count: 22 }]);
   });
 });
