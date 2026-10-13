@@ -81,6 +81,8 @@ export const PAGE_OVERRIDES: Record<string, string> = {
   '/pages/my-account/my-orders.vue': './runtime/pages/GlasJenaMyOrders.vue',
   /* Category page: a product category with subcategories shows these as tiles, one without shows its articles */
   '/pages/[...slug].vue': './runtime/pages/GlasJenaCategoryPage.vue',
+  /* Search results built like an article category: category list beside them, breadcrumbs on narrow screens */
+  '/pages/search.vue': './runtime/pages/GlasJenaSearch.vue',
 };
 
 const getPageFile = (page: NuxtPage) => page.file?.replace(/\\/g, '/') ?? '';
@@ -207,6 +209,9 @@ export default defineNuxtModule({
 
     /* Order status without the PlentyONE number ("[8] Storniert"), see utils/orderStatus.ts */
     addPlugin(resolve('./runtime/plugins/orderStatus'));
+
+    /* Breadcrumbs on one line: the whole path if it fits, otherwise the short form, see utils/breadcrumbsFit.ts */
+    addPlugin({ src: resolve('./runtime/plugins/breadcrumbsFit.client'), mode: 'client' });
 
     /* Remembers the last control the visitor used, so the cart window can give the focus back, see utils/lastInteractiveElement.ts */
     addPlugin({ src: resolve('./runtime/plugins/lastInteractiveElement.client'), mode: 'client' });
