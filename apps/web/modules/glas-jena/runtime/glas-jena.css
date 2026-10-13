@@ -163,6 +163,20 @@
 }
 
 /*
+ * Article categories (category list in the filter column, GlasJenaCategoryTree.vue) are built like the tile pages:
+ * no gap below the banner either. From 992 px the article column starts as low as the list's heading "Kategorien".
+ */
+.gj-page-banner:has(~ main .gj-category-tree) {
+  margin-bottom: 0;
+}
+
+@media (min-width: 992px) {
+  main:has(.gj-category-tree) [data-testid='multi-grid-column']:not(:has(.gj-category-tree)) {
+    padding-top: 1.2rem;
+  }
+}
+
+/*
  * Content pages (e.g. "Unser hitzebeständiges Glas"): less space below the banner and above the footer. The first
  * block drops its top padding (the banner already keeps 28 px), the last one the block spacing from the editor
  * settings (e.g. 40 px) down to 16 px.

@@ -26,6 +26,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   OrderTotals: './runtime/components/GlasJenaOrderTotals.vue',
   /* Window after "Add to cart": new button "Einkauf fortsetzen", cart button "Zum Warenkorb" (wish of the shop owner) */
   QuickCheckout: './runtime/components/GlasJenaQuickCheckout.vue',
+  /* Article categories: the LTS category list in the filter column instead of the "back to the parent" link */
+  CategoryTree: './runtime/components/GlasJenaCategoryTree.vue',
 };
 
 /**
