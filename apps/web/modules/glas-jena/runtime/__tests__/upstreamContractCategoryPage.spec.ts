@@ -80,9 +80,25 @@ describe('upstream contract of the glas-jena module: category page', () => {
     expect(layout).toContain('<UiButton variant="tertiary" class="@md:hidden whitespace-nowrap" @click="open">');
     expect(sidebar).toContain('<div class="p-4 flex justify-between items-center @md:hidden">');
     expect(sidebar).toContain('v-show="isOpen"');
+    /* pages/GlasJenaSearch.vue is a copy of the search page with the category list and breadcrumbs added */
     const search = readApp('pages/search.vue');
-    expect(search).toContain('<CategorySorting />');
-    expect(search).toContain('<CategoryItemsPerPage class="mt-6"');
+    for (const part of [
+      '<NuxtLayout name="default">',
+      '<div data-testid="search-results" class="relative"',
+      '<CategoryPageContent',
+      ':title="t(\'search.searchResults\', { phrase: route.query.term })"',
+      '<template #sidebar>',
+      '<CategorySorting />',
+      '<CategoryItemsPerPage class="mt-6"',
+      '<CategoryFilters v-if="facetGetters.hasFilters(productsCatalog.facets)"',
+      'const { getSearch, data: productsCatalog, productsPerPage, loading } = useSearch();',
+      'await getSearch(getFacetsFromURL());',
+      "setRobotForStaticPage('SearchResult');",
+    ]) {
+      expect(search).toContain(part);
+    }
+    /* The layout takes the breadcrumbs as a prop and renders them in the narrow container before main */
+    expect(readApp('layouts/default.vue')).toContain('breadcrumbs');
     /* Heading, select and its test id of the sorting; the test id of "per page" */
     const sorting = readApp('components/CategorySorting/CategorySorting.vue');
     expect(sorting).toContain('data-testid="category-sorting"');

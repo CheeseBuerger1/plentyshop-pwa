@@ -81,6 +81,8 @@ export const PAGE_OVERRIDES: Record<string, string> = {
   '/pages/my-account/my-orders.vue': './runtime/pages/GlasJenaMyOrders.vue',
   /* Category page: a product category with subcategories shows these as tiles, one without shows its articles */
   '/pages/[...slug].vue': './runtime/pages/GlasJenaCategoryPage.vue',
+  /* Search results built like an article category: category list beside them, breadcrumbs on narrow screens */
+  '/pages/search.vue': './runtime/pages/GlasJenaSearch.vue',
 };
 
 const getPageFile = (page: NuxtPage) => page.file?.replace(/\\/g, '/') ?? '';

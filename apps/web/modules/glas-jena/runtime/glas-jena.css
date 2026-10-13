@@ -95,12 +95,14 @@
  * on product categories only below the desktop navigation (window width under 992 px, where the category
  * navigation is behind the burger), nowhere else (e.g. my account, content pages).
  */
-.gj-page-banner:not(.gj-page-banner--category) ~ [data-testid='narrow-container']:has([data-testid='breadcrumbs']) {
+.gj-page-banner:not(.gj-page-banner--category, [data-gj-route='search'])
+  ~ [data-testid='narrow-container']:has([data-testid='breadcrumbs']) {
   display: none;
 }
 
 @media (min-width: 992px) {
-  .gj-page-banner--category ~ [data-testid='narrow-container']:has([data-testid='breadcrumbs']) {
+  .gj-page-banner--category ~ [data-testid='narrow-container']:has([data-testid='breadcrumbs']),
+  .gj-page-banner[data-gj-route='search'] ~ [data-testid='narrow-container']:has([data-testid='breadcrumbs']) {
     display: none;
   }
 }
@@ -247,12 +249,18 @@
 }
 
 @container (min-width: 768px) {
+  /* 16 px at the sides like the category template; the sorting is placed relative to this area */
   [data-testid='category-layout'] > [data-testid='category-page-content'] {
+    position: relative;
     display: block;
+    padding-inline: 1rem;
   }
 
+  /* No transform and no clipping, so the sorting inside can stand above the results */
   [data-testid='category-layout'] [data-testid='category-sidebar'] {
     width: auto;
+    overflow: visible;
+    transform: none;
   }
 
   /* The drawer's footer only holds the phone button "show products" */
@@ -260,11 +268,28 @@
     display: none;
   }
 
-  /* On the right above the results, flush with their edge, with a thin frame (as requested by the shop owner) */
+  /*
+   * On the right, on the line with the number of results, flush with the edge of the results and as wide as one of
+   * them (three per row with 24 px between them), with a thin frame (as requested by the shop owner).
+   */
   [data-testid='category-layout'] [data-testid='category-sorting'] {
-    /* As wide as the result below it: three per row with 24 px between them (four from 1024 px, see below) */
-    max-width: calc((100% - 3rem) / 3);
-    margin: 0 0 1rem auto;
+    position: absolute;
+    top: 0.9375rem;
+    right: 1rem;
+    width: calc((100% - 2rem - 3rem) / 3);
+  }
+
+  /*
+   * The line with the number of results: as high as the select, 15 px above (as padding of the column: a margin
+   * would collapse through to the content area and shift the line against the select) and 16 px below it.
+   */
+  [data-testid='category-layout'] [data-testid='category-page-content'] > .flex-1 {
+    padding-top: 0.9375rem;
+  }
+
+  [data-testid='category-layout'] [data-testid='category-page-content'] > .flex-1 > div:first-child {
+    min-height: 2.125rem;
+    margin: 0 0 1rem;
   }
 
   [data-testid='category-layout'] [data-testid='category-sorting'] > div:last-child {
@@ -276,20 +301,54 @@
   }
 }
 
-/* With the whole width: three results per row from 768 px (the original: two), four from 1024 px (three) */
+/* Results per row like the articles of a category: three from 768 px, two from 576 px, one below */
 @container (min-width: 768px) {
   [data-testid='category-layout'] [data-testid='category-grid'] {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@container (min-width: 1024px) {
+@container (max-width: 575.98px) {
   [data-testid='category-layout'] [data-testid='category-grid'] {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/*
+ * The search page (pages/GlasJenaSearch.vue) is built like an article category. The category list in its sidebar
+ * shows from 992 px only; then the list (286 px) stands beside the results, the sorting on the right above them in
+ * the width of one result, level with the line "… Artikel von … Artikeln", and the results start level with the
+ * first line of the list (65 px below the banner). Same measures as the category template: 16 px at the sides, 8 px
+ * between list and results, 24 px between the results.
+ */
+[data-testid='category-layout'] .gj-search-tree {
+  display: none;
+}
+
+/* The class twice: the banner's own (scoped) rule has the same weight otherwise and comes later */
+.gj-page-banner.gj-page-banner[data-gj-route='search'] {
+  margin-bottom: 0;
+}
+
+@media (min-width: 992px) {
+  [data-testid='category-layout']:has(.gj-search-tree) > [data-testid='category-page-content'] {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
   }
 
-  [data-testid='category-layout'] [data-testid='category-sorting'] {
-    max-width: calc((100% - 4.5rem) / 4);
+  [data-testid='category-layout'] .gj-search-tree {
+    display: block;
+  }
+
+  [data-testid='category-layout']:has(.gj-search-tree) [data-testid='category-sidebar'] {
+    flex: none;
+    width: 17.875rem;
+  }
+
+  /* One result of the three beside the list */
+  [data-testid='category-layout']:has(.gj-search-tree) [data-testid='category-sorting'] {
+    width: calc((100% - 2rem - 17.875rem - 0.5rem - 3rem) / 3);
   }
 }
 
@@ -336,16 +395,6 @@
 
   [data-testid='category-layout'] [data-testid='category-sorting'] > div:last-child {
     padding-inline: 0;
-  }
-}
-
-/* Two results per row on phones: the button text stays on one line */
-@container (max-width: 575.98px) {
-  .font-body [data-testid='category-layout'] [data-testid='product-card'] [data-testid='add-to-basket-short'] {
-    gap: 0.25rem;
-    padding-inline: 0.25rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
   }
 }
 
