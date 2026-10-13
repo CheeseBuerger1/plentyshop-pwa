@@ -147,9 +147,12 @@ const rows = computed(() =>
   color: #212529;
 }
 
-/* The current category itself a touch stronger than the path to it: the grey blue of the tiles */
+/*
+ * The current category itself clearly stronger than the path to it (#e0e9ef): the grey blue of the tiles (#d6e1ea)
+ * was too close to tell apart, so a step darker.
+ */
 .gj-category-sidebar__item--active:has(> [aria-current='page']) {
-  background-color: var(--gj-tile-grey-blue);
+  background-color: var(--gj-menu-current);
 }
 
 .gj-category-sidebar__link {

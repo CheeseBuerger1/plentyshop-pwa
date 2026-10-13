@@ -64,4 +64,31 @@ describe('upstream contract of the glas-jena module: category page', () => {
     expect(pagination).toContain('data-testid="pagination-next"');
     expect(pagination).toContain(':disabled="pagination.selectedPage >= pagination.totalPages || disabled"');
   });
+
+  it('should find the search result layout that glas-jena.css rearranges (sorting on top, no stars, no "per page")', () => {
+    const layout = readApp('components/CategoryPageContent/CategoryPageContent.vue');
+    expect(layout).toContain('data-testid="category-layout"');
+    expect(layout).toContain('<div class="@md:flex gap-6" data-testid="category-page-content">');
+    expect(layout).toContain('<CategorySidebar class="@md:w-[303px]"');
+    expect(layout).toContain('data-testid="category-grid"');
+    /* The sidebar's last child is the footer with the phone button; sorting and "per page" come from the search page */
+    const sidebar = readApp('components/CategorySidebar/CategorySidebar.vue');
+    expect(sidebar).toContain('data-testid="category-sidebar"');
+    expect(sidebar).toContain('<div class="p-4 @md:mt-2 flex flex-wrap justify-between');
+    /* Below 768 px the button "list settings" (in the row above the results) and the drawer's title row are hidden */
+    expect(layout).toContain('<div class="flex-1">');
+    expect(layout).toContain('<UiButton variant="tertiary" class="@md:hidden whitespace-nowrap" @click="open">');
+    expect(sidebar).toContain('<div class="p-4 flex justify-between items-center @md:hidden">');
+    expect(sidebar).toContain('v-show="isOpen"');
+    const search = readApp('pages/search.vue');
+    expect(search).toContain('<CategorySorting />');
+    expect(search).toContain('<CategoryItemsPerPage class="mt-6"');
+    /* Heading, select and its test id of the sorting; the test id of "per page" */
+    const sorting = readApp('components/CategorySorting/CategorySorting.vue');
+    expect(sorting).toContain('data-testid="category-sorting"');
+    expect(sorting).toContain('data-testid="select-sort-by"');
+    expect(readApp('components/CategoryItemsPerPage/CategoryItemsPerPage.vue')).toContain(
+      'data-testid="category-items-per-page"',
+    );
+  });
 });
