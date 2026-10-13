@@ -50,10 +50,24 @@ const EXTRA_VIEWPORT_BREAKPOINTS = {
   [ACCOUNT_MENU_BREAKPOINT]: ACCOUNT_MENU_MIN_WIDTH,
 };
 
-/** Auto-import of the shop's defaults (articles per page …) that the module replaces, see utils/shopDefaults.ts. */
-export const DEFAULTS_IMPORT_NAME = 'defaults';
-/** The file of that auto-import, with or without its extension */
-export const DEFAULTS_IMPORT_FILE = /\/app\/composables\/defaults(\.ts)?$/;
+/**
+ * Auto-imports of the shop that the module replaces by its own file of the same export name (`file`: the original,
+ * with or without its extension). Each replacement wraps the original and changes one thing:
+ * - `defaults`: 100 instead of 50 articles per page, see utils/shopDefaults.ts
+ * - `useSearchSuggestions`: categories of the search preview with their path, see utils/searchPreview.ts
+ */
+export const IMPORT_OVERRIDES = [
+  {
+    name: 'defaults',
+    file: /\/app\/composables\/defaults(\.ts)?$/,
+    replacement: './runtime/utils/shopDefaults',
+  },
+  {
+    name: 'useSearchSuggestions',
+    file: /\/app\/composables\/useSearch\/useSearchSuggestions(\.ts)?$/,
+    replacement: './runtime/composables/useGlasJenaSearchSuggestions',
+  },
+];
 
 /** Alias under which nuxt-viewport provides its generated options to its runtime plugins. */
 const VIEWPORT_OPTIONS_ALIAS = '#viewport-options';
@@ -168,16 +182,19 @@ export default defineNuxtModule({
     nuxt.hook('pages:extend', (pages) => extendPages(pages, resolve));
 
     /*
-     * 100 instead of 50 articles per page: the auto-import `defaults` comes from the module's copy with that one
-     * value changed, see utils/shopDefaults.ts. Not in the unit tests, where the upstream specs expect the original.
+     * Auto-imports that come from the module's own file instead (see IMPORT_OVERRIDES). Not in the unit tests, where
+     * the upstream specs expect the originals.
      */
     nuxt.hook('imports:extend', (imports) => {
       if (nuxt.options.test) {
         return;
       }
       for (const entry of imports) {
-        if (entry.name === DEFAULTS_IMPORT_NAME && DEFAULTS_IMPORT_FILE.test(entry.from.replace(/\\/g, '/'))) {
-          entry.from = resolve('./runtime/utils/shopDefaults');
+        const override = IMPORT_OVERRIDES.find(
+          ({ name, file }) => entry.name === name && file.test(entry.from.replace(/\\/g, '/')),
+        );
+        if (override) {
+          entry.from = resolve(override.replacement);
         }
       }
     });
