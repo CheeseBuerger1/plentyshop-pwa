@@ -1575,3 +1575,90 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
 .font-body [aria-label='quick-checkout-modal'] [data-testid='gj-quick-checkout-continue-button']:hover {
   background-color: #eef2f5;
 }
+
+/*
+ * Search preview (the suggestions below the search bar of the header, components/ui/Search.vue) in the look of the
+ * shop: flat and angular, links not underlined (search terms and categories are a list of choices, the hover shows
+ * them as links), the categories as angular fields in the menu colour instead of round pills.
+ */
+[data-testid='gj-header-search-panel'] section a,
+[data-testid='gj-header-search-panel'] section a:hover {
+  text-decoration: none;
+}
+
+[data-testid='gj-header-search-panel'] [data-testid='search-suggestion-item'] {
+  border-radius: 0;
+}
+
+[data-testid='gj-header-search-panel'] [data-testid='search-suggestion-item']:hover {
+  background-color: #f8f9fa;
+}
+
+[data-testid='gj-header-search-panel'] section ul.flex-wrap > li > a {
+  height: 2rem;
+  padding-inline: 0.75rem;
+  border: 0;
+  border-radius: 0;
+  font-size: 0.875rem;
+  background-color: var(--gj-menu-active);
+  color: #212529;
+}
+
+[data-testid='gj-header-search-panel'] section ul.flex-wrap > li > a:hover {
+  background-color: var(--gj-menu-current);
+}
+
+/* The line "Alle Ergebnisse für „…“ anzeigen (…)": the original spreads its parts with gaps inside the quotes */
+[data-testid='gj-header-search-panel'] section > a > div > span:first-child {
+  gap: 0;
+}
+
+/* Suggested articles: angular, a thin frame instead of the shadow */
+[data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] {
+  border: 1px solid rgb(var(--colors-neutral-200));
+  border-radius: 0;
+  box-shadow: none;
+}
+
+[data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product']:hover {
+  border-color: var(--gj-slate-blue);
+  box-shadow: none;
+}
+
+/*
+ * Narrow preview (below 1024 px, where the suggested articles stand below the search terms and categories instead of
+ * beside them, i.e. phones and tablets): the suggested articles as compact lines – small picture on the left, name
+ * and price beside it – in one column (two from 448 px) instead of large cards, so the whole preview fits without
+ * long scrolling.
+ */
+@container dropdown (max-width: 63.99rem) {
+  [data-testid='gj-header-search-panel'] section ul:has(> li > [data-testid='search-suggestion-product']) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  [data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] {
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+  }
+
+  [data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] > div:first-child {
+    flex: none;
+    width: 4.5rem;
+    aspect-ratio: 1 / 1;
+  }
+
+  [data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] > div:last-child {
+    min-width: 0;
+    padding: 0.375rem 0.75rem;
+  }
+}
+
+@container dropdown (max-width: 63.99rem) {
+  @container products (min-width: 28rem) {
+    [data-testid='gj-header-search-panel'] section ul:has(> li > [data-testid='search-suggestion-product']) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}

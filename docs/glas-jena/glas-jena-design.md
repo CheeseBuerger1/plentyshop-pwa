@@ -133,6 +133,14 @@ Umgesetzt in `apps/web/modules/glas-jena/runtime/pages/GlasJenaCategoryPage.vue`
 - **Editor:** Im Bearbeitungsmodus bleibt die Kategorie-Vorlage sichtbar, damit sie bearbeitet werden kann; die Kacheln erscheinen in der Vorschau („Preview“) und im Shop.
 - Bei Kachelseiten entfällt die Artikelliste in den strukturierten Daten (`ItemList`), weil keine Artikel zu sehen sind.
 
+### Suchvorschau (Vorschläge unter dem Suchfeld)
+
+Umgesetzt in `apps/web/modules/glas-jena/runtime/composables/useGlasJenaSearchSuggestions.ts`, `utils/searchPreview.ts` und `glas-jena.css` (Abschnitt „Search preview“); das Original `components/ui/Search.vue` bleibt unverändert (Wunsch des Shopbetreibers, 2026-10-14).
+
+- **Kategorien mit Pfad:** Ab der dritten Ebene steht vor dem Namen der Weg dorthin, ohne die Hauptkategorie – „Teekannen › alle Filter“ statt „alle Filter“, „Teekannen › alle Filter › alle Größen“ statt „alle Größen“. Namen wie „alle Größen“ kommen mehrfach vor und sagen allein nichts. Dieselbe Regel wie bei der Dachzeile im Banner. Der Pfad kommt aus dem Kategoriebaum (Abgleich über den Link der Kategorie); findet sich die Kategorie dort nicht, bleibt der Name der Suche. Technisch ersetzt das Modul den Auto-Import `useSearchSuggestions` des Shops durch eine Hülle, die nur die Namen der Kategorien ändert (`IMPORT_OVERRIDES` in `index.ts`).
+- **Aussehen wie der übrige Shop:** keine Unterstreichungen (Suchbegriffe, Kategorien und Artikel sind eine Auswahlliste; den Link zeigt der Hover), alles eckig. Die Kategorien sind eckige Felder in der Menüfarbe (`--gj-menu-active`, Hover `--gj-menu-current`; Text `#212529`, 13,3:1 bzw. 10,9:1), 32 px hoch, Schrift 14 px statt 12 px. Vorgeschlagene Artikel mit schmalem Rahmen (`neutral-200`) statt Schatten, beim Hover Rahmen in Schieferblau. In der Zeile „Alle Ergebnisse für „…“ anzeigen (…)“ stehen Anführungszeichen und Klammern direkt am Wort (das Original setzt dazwischen 4 px Abstand).
+- **Kompakte Artikelzeilen:** Solange die Vorschau schmaler als 1024 px ist (Handy und Tablet; die Artikel stehen dort unter den Suchbegriffen und Kategorien statt daneben), erscheinen die vorgeschlagenen Artikel als Zeilen – Bild 72 px links, Name und Preis daneben – statt als große Karten: eine Spalte, ab 448 px Breite zwei. Am Handy passen so alle vier Artikel ohne langes Scrollen. In der zweispaltigen Vorschau am Desktop bleiben die Karten mit großem Bild (zwei nebeneinander).
+
 ### Hauptnavigation (wie im LTS-Shop)
 
 Umgesetzt in `apps/web/modules/glas-jena/runtime/components/GlasJenaNavigation.vue` (Hauptleiste) und `GlasJenaNavigationMenu.vue` (Dropdown-Ebenen).
