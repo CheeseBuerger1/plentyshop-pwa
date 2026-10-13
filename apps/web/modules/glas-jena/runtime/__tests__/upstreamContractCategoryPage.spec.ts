@@ -91,4 +91,14 @@ describe('upstream contract of the glas-jena module: category page', () => {
       'data-testid="category-items-per-page"',
     );
   });
+
+  it('should find the breadcrumb structure that the one-line breadcrumbs rely on', () => {
+    /* utils/breadcrumbsFit.ts measures `nav > ol`; glas-jena.css shows the "…" menu (first li) or all levels */
+    const breadcrumbs = readApp('components/ui/Breadcrumbs/Breadcrumbs.vue');
+    expect(breadcrumbs).toContain('<nav data-testid="breadcrumbs"');
+    expect(breadcrumbs).toContain('<ol class="flex w-auto leading-none group @md:flex-wrap">');
+    expect(breadcrumbs).toContain('<li class="flex items-center @sm:hidden text-neutral-500 z-overlap">');
+    expect(breadcrumbs).toContain('data-testid="breadcrumbs-dropdown"');
+    expect(breadcrumbs).toContain('<span v-else>');
+  });
 });

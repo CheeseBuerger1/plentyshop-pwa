@@ -119,28 +119,48 @@
 }
 
 /*
- * The whole path on narrow screens too (wish of the shop owner): the original collapses it to a "…" menu below
- * 640 px. The menu is hidden, all levels show and wrap; a long last entry (product name) may break.
+ * One line (as requested by the shop owner): the whole path if it fits, otherwise the short form of the shop, a "…"
+ * menu with the levels above followed by the current page. plugins/breadcrumbsFit.client.ts measures the path and
+ * sets `data-gj-breadcrumbs`; until then (server HTML) the original applies: short below 640 px, full above.
  */
 [data-testid='breadcrumbs'] > ol {
-  flex-wrap: wrap;
-  row-gap: 0.25rem;
+  flex-wrap: nowrap;
 }
 
-[data-testid='breadcrumbs'] > ol > li:first-child {
+[data-testid='breadcrumbs'] > ol > li {
+  white-space: nowrap;
+}
+
+[data-testid='breadcrumbs'][data-gj-breadcrumbs='full'] > ol > li:first-child,
+[data-testid='breadcrumbs'][data-gj-breadcrumbs='short'] > ol > li:not(:first-child, :last-child) {
   display: none;
 }
 
-[data-testid='breadcrumbs'] > ol > li:not(:first-child) {
+[data-testid='breadcrumbs'][data-gj-breadcrumbs='full'] > ol > li:not(:first-child),
+[data-testid='breadcrumbs'][data-gj-breadcrumbs='short'] > ol > li:first-child,
+[data-testid='breadcrumbs'][data-gj-breadcrumbs='short'] > ol > li:last-child {
   display: flex;
 }
 
-[data-testid='breadcrumbs'] > ol > li:last-child {
-  min-width: 0;
-  overflow-wrap: anywhere;
+/* A current page too long even for the short form (a long product name) is cut off with "…" */
+[data-testid='breadcrumbs'][data-gj-breadcrumbs='short'],
+[data-testid='breadcrumbs'][data-gj-breadcrumbs='short'] > ol {
+  max-width: 100%;
 }
 
-[data-testid='breadcrumbs'] > ol > li:nth-child(2) > a {
+[data-testid='breadcrumbs'][data-gj-breadcrumbs='short'] > ol,
+[data-testid='breadcrumbs'][data-gj-breadcrumbs='short'] > ol > li:last-child {
+  min-width: 0;
+}
+
+[data-testid='breadcrumbs'][data-gj-breadcrumbs='short'] > ol > li:last-child > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The house symbol: the first level of the path and the first entry of the "…" menu (there flush left) */
+[data-testid='breadcrumbs'] > ol > li:nth-child(2) > a,
+[data-testid='breadcrumbs-dropdown'] > li:first-child a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -149,7 +169,12 @@
   font-size: 0;
 }
 
-[data-testid='breadcrumbs'] > ol > li:nth-child(2) > a::before {
+[data-testid='breadcrumbs-dropdown'] > li:first-child a {
+  justify-content: flex-start;
+}
+
+[data-testid='breadcrumbs'] > ol > li:nth-child(2) > a::before,
+[data-testid='breadcrumbs-dropdown'] > li:first-child a::before {
   content: '';
   width: 1.125rem;
   height: 1.125rem;
