@@ -700,7 +700,7 @@ watch(isLoginOpen, async (open) => {
 }
 
 .gj-header__account-item[aria-current='page'] {
-  background-color: var(--gj-tile-grey-blue);
+  background-color: var(--gj-menu-active);
 }
 
 .gj-header__account-separator {

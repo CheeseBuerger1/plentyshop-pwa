@@ -236,7 +236,7 @@ onBeforeUnmount(() => removeRouteHook?.());
 }
 
 .gj-nav__link--active {
-  background-color: var(--gj-tile-grey-blue);
+  background-color: var(--gj-menu-active);
 }
 
 .gj-nav__chevron {

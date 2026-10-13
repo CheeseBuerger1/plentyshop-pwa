@@ -100,7 +100,7 @@ const rows = computed(() =>
 <style scoped>
 /*
  * Category list beside the subcategory tiles, like the LTS shop: heading "Kategorien" in mid blue, all main
- * categories, the path to the current category open and on soft green. Sizes of the LTS shop (main categories
+ * categories, the path to the current category open and on grey blue (LTS: soft green). Sizes of the LTS shop (main categories
  * 18.2 px / 48 px high, below 15.4 px / 37 px, 17.5 px more indent per level). The arrow stands in the indent.
  */
 .gj-category-sidebar__title {
@@ -141,8 +141,9 @@ const rows = computed(() =>
   --gj-sidebar-indent: 4.8125rem;
 }
 
+/* Grey blue like the active path of the main navigation (the LTS marks it soft green, #ebf4eb) */
 .gj-category-sidebar__item--active {
-  background-color: #ebf4eb;
+  background-color: var(--gj-menu-active);
   color: #212529;
 }
 

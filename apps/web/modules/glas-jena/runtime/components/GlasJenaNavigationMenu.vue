@@ -238,7 +238,7 @@ watch(
 }
 
 .gj-nav-menu__link--active {
-  background-color: var(--gj-tile-grey-blue);
+  background-color: var(--gj-menu-active);
 }
 
 .gj-nav-menu__chevron {
