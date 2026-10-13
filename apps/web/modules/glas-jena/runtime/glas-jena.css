@@ -180,6 +180,14 @@
 }
 
 /*
+ * No pagination with a single page (both arrows disabled): item lists show up to 100 articles per page, no category
+ * has that many (as requested by the shop owner). With more than one page it appears as usual.
+ */
+nav:has(> [data-testid='pagination-previous']:disabled):has(> [data-testid='pagination-next']:disabled) {
+  display: none;
+}
+
+/*
  * Sorting above the articles like the LTS shop: the category template has three cells in this order – "Sort and
  * filter" (3/12, with the category list), "Sort" (9/12) and the item grid (9/12). The editor's grid only knows cells
  * side by side, so the column with the category list spans both rows here; "Sort" then stands beside it above the
