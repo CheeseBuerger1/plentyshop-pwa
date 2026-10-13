@@ -246,10 +246,6 @@
     padding-inline: 0;
   }
 
-  [data-testid='category-layout'] [data-testid='select-sort-by'] {
-    border: 1px solid var(--gj-field-border);
-  }
-
   [data-testid='category-layout'] [data-testid='category-sorting'] > div:first-child:not(:only-child) {
     display: none;
   }
@@ -303,10 +299,45 @@ nav:has(> [data-testid='pagination-previous']:disabled):has(> [data-testid='pagi
     grid-row: span 2;
   }
 
-  /* The select keeps the width it has in the filter column instead of the whole article column */
+  /*
+   * The select on the right above the articles, flush with their edge, as wide as it was in the filter column, like
+   * on the search page; less space below it.
+   */
   [data-testid='multi-grid-structure']:has(.gj-category-tree) [data-testid='category-sort'] {
     max-width: 18rem;
+    margin-left: auto;
   }
+
+  [data-testid='multi-grid-structure']:has(.gj-category-tree)
+    [data-testid='category-sort']
+    [data-testid='category-sorting'] {
+    margin-bottom: 0.75rem;
+  }
+
+  [data-testid='multi-grid-structure']:has(.gj-category-tree)
+    [data-testid='category-sort']
+    [data-testid='category-sorting']
+    > div:last-child {
+    padding-inline: 0;
+  }
+}
+
+/*
+ * From 992 px the item grid starts level with the first line of the category list (65 px below the banner, the
+ * height of the heading "Kategorien"): 11 px above the select, the select with its frame 42 px, 12 px below it.
+ */
+@media (min-width: 992px) {
+  main
+    [data-testid='multi-grid-column']:has(.gj-category-tree)
+    + [data-testid='multi-grid-column']:has([data-testid='category-sort']) {
+    padding-top: 0.6875rem;
+  }
+}
+
+/* Thin frame around the sorting select of the item lists (categories and search; as requested by the shop owner) */
+[data-testid='category-sort'] [data-testid='select-sort-by'],
+[data-testid='category-layout'] [data-testid='select-sort-by'] {
+  border: 1px solid var(--gj-field-border);
 }
 
 /*
