@@ -407,6 +407,19 @@ nav:has(> [data-testid='pagination-previous']:disabled):has(> [data-testid='pagi
 }
 
 /*
+ * 16 px between the item lists and the footer (as requested by the shop owner), like the content pages: the category
+ * template brings 40 px as an inline style from the editor ("Vertical margin", hence `!important`; the value in the
+ * editor no longer has an effect on article categories), the search results 80 px.
+ */
+main [data-testid='multi-grid-structure']:has(.gj-category-tree) {
+  margin-bottom: 1rem !important;
+}
+
+main [data-testid='category-layout'] {
+  margin-bottom: 1rem;
+}
+
+/*
  * Sorting above the articles like the LTS shop: the category template has three cells in this order – "Sort and
  * filter" (3/12, with the category list), "Sort" (9/12) and the item grid (9/12). The editor's grid only knows cells
  * side by side, so the column with the category list spans both rows here; "Sort" then stands beside it above the
