@@ -238,7 +238,7 @@
 
   /* On the right above the results, flush with their edge, with a thin frame (as requested by the shop owner) */
   [data-testid='category-layout'] [data-testid='category-sorting'] {
-    max-width: 14rem;
+    max-width: 18rem;
     margin: 0 0 1rem auto;
   }
 
@@ -304,14 +304,14 @@ nav:has(> [data-testid='pagination-previous']:disabled):has(> [data-testid='pagi
    * on the search page; less space below it.
    */
   [data-testid='multi-grid-structure']:has(.gj-category-tree) [data-testid='category-sort'] {
-    max-width: 14rem;
+    max-width: 18rem;
     margin-left: auto;
   }
 
   [data-testid='multi-grid-structure']:has(.gj-category-tree)
     [data-testid='category-sort']
     [data-testid='category-sorting'] {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   [data-testid='multi-grid-structure']:has(.gj-category-tree)
@@ -324,19 +324,21 @@ nav:has(> [data-testid='pagination-previous']:disabled):has(> [data-testid='pagi
 
 /*
  * From 992 px the item grid starts level with the first line of the category list (65 px below the banner, the
- * height of the heading "Kategorien"): 11 px above the select, the select with its frame 42 px, 12 px below it.
+ * height of the heading "Kategorien"): 15 px above the select, the select with its frame 34 px, 16 px below it.
  */
 @media (min-width: 992px) {
   main
     [data-testid='multi-grid-column']:has(.gj-category-tree)
     + [data-testid='multi-grid-column']:has([data-testid='category-sort']) {
-    padding-top: 0.6875rem;
+    padding-top: 0.9375rem;
   }
 }
 
 /* Thin frame around the sorting select of the item lists (categories and search; as requested by the shop owner) */
 [data-testid='category-sort'] [data-testid='select-sort-by'],
 [data-testid='category-layout'] [data-testid='select-sort-by'] {
+  /* Lower than the shop's select (34 px instead of 40 px without the frame; as requested by the shop owner) */
+  padding-block: 0.25rem;
   border: 1px solid var(--gj-field-border);
 }
 
