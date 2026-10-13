@@ -171,8 +171,31 @@
 }
 
 @media (min-width: 992px) {
-  main:has(.gj-category-tree) [data-testid='multi-grid-column']:not(:has(.gj-category-tree)) {
+  main [data-testid='multi-grid-column']:has(.gj-category-tree) + [data-testid='multi-grid-column'] {
     padding-top: 1.2rem;
+  }
+}
+
+/*
+ * Sorting above the articles like the LTS shop: the category template has three cells in this order – "Sort and
+ * filter" (3/12, with the category list), "Sort" (9/12) and the item grid (9/12). The editor's grid only knows cells
+ * side by side, so the column with the category list spans both rows here; "Sort" then stands beside it above the
+ * item grid, which follows in the second row. Extra height of a long category list goes to the second row. Only
+ * with the container wide enough for the columns (768 px, the editor grid's own breakpoint).
+ */
+@container (min-width: 768px) {
+  [data-testid='multi-grid-structure']:has(.gj-category-tree):has([data-testid='category-sort']) {
+    grid-template-rows: auto 1fr;
+  }
+
+  [data-testid='multi-grid-structure']:has([data-testid='category-sort'])
+    > [data-testid='multi-grid-column']:has(.gj-category-tree) {
+    grid-row: span 2;
+  }
+
+  /* The select keeps the width it has in the filter column instead of the whole article column */
+  [data-testid='multi-grid-structure']:has(.gj-category-tree) [data-testid='category-sort'] {
+    max-width: 18rem;
   }
 }
 
