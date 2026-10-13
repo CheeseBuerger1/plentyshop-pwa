@@ -41,4 +41,14 @@ describe('upstream contract of the glas-jena module: category page', () => {
       '`${runtimeConfig.public.domain}/documents/${imagePath.value}`',
     );
   });
+
+  it('should find the category filter of the "Sort and filter" block that GlasJenaCategoryTree replaces', () => {
+    /* The block renders CategoryTree in its filter column; the module shows the LTS category list there instead */
+    const sortFilter = readApp('components/blocks/SortFilter/SortFilter.vue');
+    expect(sortFilter).toContain('<CategoryTree');
+    expect(sortFilter).toContain(':category="productsCatalog.category"');
+    expect(readApp('components/CategoryTree/types.ts')).toContain('export type CategoryTreeProps');
+    /* glas-jena.css gives the article column the top space of the list's heading */
+    expect(readApp('components/blocks/structure/MultiGrid/MultiGrid.vue')).toContain('data-testid="multi-grid-column"');
+  });
 });
