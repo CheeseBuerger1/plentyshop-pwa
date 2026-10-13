@@ -26,12 +26,34 @@ describe('upstream contract of the glas-jena module: search preview', () => {
     });
   });
 
-  it('should find the search suggestions that useGlasJenaSearchSuggestions wraps', () => {
-    /* The wrapper replaces `results` and passes everything else on; categories carry `label` and `url` */
+  it('should find the search suggestions that useGlasJenaSearchSuggestions copies', () => {
+    /* The copy differs in two places (filter before the cut to five, categories with path); the rest is the original */
     const suggestions = readApp('composables/useSearch/useSearchSuggestions.ts');
-    expect(suggestions).toContain('export const useSearchSuggestions: UseSearchSuggestionsReturn = () => {');
-    expect(suggestions).toContain('results: null as ItemSearchAutocompleteResult | null,');
-    expect(suggestions).toContain("results: toRef(state.value, 'results'),");
+    for (const part of [
+      'const CATEGORY_LIMIT = 5;',
+      'const SUGGESTIONS_LIMIT = 5;',
+      'const ITEMS_LIMIT = 4;',
+      'export const useSearchSuggestions: UseSearchSuggestionsReturn = () => {',
+      "const state = useState<UseSearchSuggestionsState>('useSearchSuggestions', () => ({",
+      'results: null as ItemSearchAutocompleteResult | null,',
+      'const term = text.trim().slice(0, 80);',
+      'if (term.length < 2) {',
+      'if (state.value.searchTerm === term) return;',
+      'const { data } = await useSdk().plentysystems.getItemSearchAutocomplete({',
+      "types: ['suggestion', 'category'],",
+      'data.categories = data?.categories?.splice(0, CATEGORY_LIMIT) ?? [];',
+      'data.suggestions = data?.suggestions?.splice(0, SUGGESTIONS_LIMIT) ?? [];',
+      'data.items = data?.items?.splice(0, ITEMS_LIMIT) ?? [];',
+      'useHandleError(error as ApiError);',
+      'const resetSuggestions = () => {',
+      "results: toRef(state.value, 'results'),",
+      "searchTerm: toRef(state.value, 'searchTerm'),",
+      "loading: toRef(state.value, 'loading'),",
+    ]) {
+      expect(suggestions).toContain(part);
+    }
+    /* 64 lines: a longer original has new logic that the copy lacks */
+    expect(suggestions.trimEnd().split('\n').length).toBeLessThanOrEqual(64);
     expect(readApp('composables/useSearch/types.ts')).toContain('export type UseSearchSuggestionsReturn');
   });
 
