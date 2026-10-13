@@ -33,6 +33,8 @@
   /* Active path in all menus (main navigation, its dropdowns, account menu, category list): a quarter lighter than
      the grey blue of the tiles (as requested by the shop owner) */
   --gj-menu-active: #e0e9ef;
+  /* The current category in the category list, clearly stronger than the path (dark text on it: 10.2:1) */
+  --gj-menu-current: #c3d4e2;
   --gj-tile-lilac: #d4c8e8;
   /* Footer bar of the LTS shop (measured); also the open search bar */
   --gj-footer-bg: #263238;
@@ -176,6 +178,103 @@
 @media (min-width: 992px) {
   main [data-testid='multi-grid-column']:has(.gj-category-tree) + [data-testid='multi-grid-column'] {
     padding-top: 1.2rem;
+  }
+}
+
+/*
+ * Article categories between 768 and 991 px: the category list is hidden there (window below 992 px) and sorting and
+ * "per page" are no longer in the filter column, so the column would stay empty beside the articles. It is hidden and
+ * the other cells take the whole width – unless it still holds a filter (a select or an input).
+ */
+@media (max-width: 991.98px) {
+  @container (min-width: 768px) {
+    [data-testid='multi-grid-structure']
+      > [data-testid='multi-grid-column']:has(.gj-category-tree):not(:has(select, input)) {
+      display: none;
+    }
+
+    /* The filter column is the first cell (`:has()` cannot be nested, so the following cells are addressed) */
+    [data-testid='multi-grid-column']:has(.gj-category-tree):not(:has(select, input))
+      ~ [data-testid='multi-grid-column'] {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+/*
+ * Item lists between 576 and 767 px: two articles per row. The item grid of the editor only switches to its tablet
+ * setting at 768 px, below it shows the phone setting (one per row), which makes a single huge card up to 767 px.
+ */
+@container (min-width: 576px) and (max-width: 767.98px) {
+  [data-testid='category-grid'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/*
+ * Search and tag results (CategoryPageContent, not an editor template) like the item lists of the categories: no
+ * rating stars (the shop shows no reviews), no "per page" selection (100 per page, see utils/shopDefaults.ts), and
+ * from 768 px the sorting above the results (on the right, framed) instead of in a column beside them, without its
+ * grey heading and as wide as on the category pages.
+ */
+[data-testid='category-layout'] [data-testid='product-card'] div:has(> [data-testid='rating']),
+[data-testid='category-layout'] [data-testid='category-items-per-page'] {
+  display: none;
+}
+
+@container (min-width: 768px) {
+  [data-testid='category-layout'] > [data-testid='category-page-content'] {
+    display: block;
+  }
+
+  [data-testid='category-layout'] [data-testid='category-sidebar'] {
+    width: auto;
+  }
+
+  /* The drawer's footer only holds the phone button "show products" */
+  [data-testid='category-layout'] [data-testid='category-sidebar'] > div > div:last-child {
+    display: none;
+  }
+
+  /* On the right above the results, flush with their edge, with a thin frame (as requested by the shop owner) */
+  [data-testid='category-layout'] [data-testid='category-sorting'] {
+    max-width: 18rem;
+    margin: 0 0 1rem auto;
+  }
+
+  [data-testid='category-layout'] [data-testid='category-sorting'] > div:last-child {
+    padding-inline: 0;
+  }
+
+  [data-testid='category-layout'] [data-testid='select-sort-by'] {
+    border: 1px solid var(--gj-field-border);
+  }
+
+  [data-testid='category-layout'] [data-testid='category-sorting'] > div:first-child:not(:only-child) {
+    display: none;
+  }
+}
+
+/* With the whole width: three results per row from 768 px (the original: two), four from 1024 px (three) */
+@container (min-width: 768px) {
+  [data-testid='category-layout'] [data-testid='category-grid'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 1024px) {
+  [data-testid='category-layout'] [data-testid='category-grid'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Two results per row on phones: the button text stays on one line */
+@container (max-width: 575.98px) {
+  .font-body [data-testid='category-layout'] [data-testid='product-card'] [data-testid='add-to-basket-short'] {
+    gap: 0.25rem;
+    padding-inline: 0.25rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
   }
 }
 
