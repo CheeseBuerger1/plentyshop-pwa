@@ -110,7 +110,7 @@ describe('upstream contract of the glas-jena module', () => {
   });
 
   it('should find the redirect parameter of the login page that leads into the account after logging in', () => {
-    /* getAccountLoginPath: /login/?redirect=/my-account */
+    /* getAccountLoginPath: /login/?redirect=/my-account/my-orders */
     expect(readApp('pages/login.vue')).toContain('router.currentRoute.value.query.redirect as string');
     expect(readApp('pages/login.vue')).toContain(
       'window.location.href = redirectUrl ? localePath(redirectUrl) : localePath(paths.home);',

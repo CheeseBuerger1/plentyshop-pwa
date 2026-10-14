@@ -14,13 +14,20 @@ export const ACCOUNT_MENU_BREAKPOINT = 'gjAccountMenu';
 export const ACCOUNT_MENU_MIN_WIDTH = 825;
 
 /**
- * Link to the login page that leads into the account afterwards (wish of the shop owner): the login page opens the
+ * Page the customer lands on after logging in, from the login dialog (account tile, mobile menu) and from the login
+ * page: "Meine Bestellungen" (wish of the shop owner, 2026-10-14; before: the account menu). Same as
+ * `paths.accountMyOrders`, written out because index.ts loads this file before the auto-imports exist.
+ */
+export const AFTER_LOGIN_PATH = '/my-account/my-orders';
+
+/**
+ * Link to the login page that leads to AFTER_LOGIN_PATH afterwards (wish of the shop owner): the login page opens the
  * page in `redirect`, without it the home page. For the links of the account tile and the mobile menu, which open
  * the login dialog on a plain click and the login page only in a new tab.
  *
  * @param loginPath Localised path of the login page.
  */
-export const getAccountLoginPath = (loginPath: string) => `${loginPath}?redirect=${ACCOUNT_MENU_PAGE_PATH}`;
+export const getAccountLoginPath = (loginPath: string) => `${loginPath}?redirect=${AFTER_LOGIN_PATH}`;
 
 /**
  * Account pages for signed-in customers, the same in the account menu of the header and in the mobile menu, followed

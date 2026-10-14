@@ -210,7 +210,7 @@ import HeaderBlocks from '~/components/ui/HeaderBlocks/HeaderBlocks.vue';
 import LanguageSelector from '~/components/LanguageSelector/LanguageSelector.vue';
 import {
   ACCOUNT_MENU_LINKS,
-  ACCOUNT_MENU_PAGE_PATH,
+  AFTER_LOGIN_PATH,
   AUTH_VIEW_LOGIN,
   getAccountLoginPath,
   logOutToHomePage,
@@ -391,9 +391,9 @@ const openLoginDialog = (view: GlasJenaAuthView) => {
   openLogin();
 };
 
-/* Into the account after logging in (wish of the shop owner); a full page load like the original's reload */
+/* To "Meine Bestellungen" after logging in (wish of the shop owner); a full page load like the original's reload */
 const openAccountAfterLogin = () => {
-  window.location.assign(localePath(ACCOUNT_MENU_PAGE_PATH));
+  window.location.assign(localePath(AFTER_LOGIN_PATH));
 };
 
 /*

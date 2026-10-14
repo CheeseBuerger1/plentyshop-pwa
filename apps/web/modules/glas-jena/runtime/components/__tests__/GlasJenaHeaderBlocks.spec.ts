@@ -85,7 +85,7 @@ describe('GlasJenaHeaderBlocks', () => {
     expect(wrapper.find('[data-testid="login-form"]').exists()).toBe(true);
   });
 
-  it('should open the account after logging in through the dialog', async () => {
+  it('should open "Meine Bestellungen" after logging in through the dialog', async () => {
     const assign = vi.fn();
     vi.stubGlobal('location', { ...window.location, assign });
     const wrapper = await mountHeader();
@@ -93,7 +93,7 @@ describe('GlasJenaHeaderBlocks', () => {
 
     await wrapper.get('[data-testid="login-form"]').trigger('submit');
 
-    expect(assign).toHaveBeenCalledWith(expect.stringMatching(/\/my-account\/?$/));
+    expect(assign).toHaveBeenCalledWith(expect.stringMatching(/\/my-account\/my-orders\/?$/));
     vi.unstubAllGlobals();
   });
 
