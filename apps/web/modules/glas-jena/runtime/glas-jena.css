@@ -1304,9 +1304,41 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
+ * A block that renders nothing keeps no space: e.g. "Ersatzteile" on an item without spare parts left a 40 px gap
+ * (the block's bottom margin) between the tiles and "Zubehör". Only the margin goes, the empty block stays in the
+ * page (in the editor such blocks show their bar and are not empty).
+ */
+.font-body [data-testid='block-wrapper']:has(> .block-wrapper:empty) {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/*
+ * Product page gallery: the thumbnails stay below 768 px too (wish of the shop owner). The original hides them there
+ * (`hidden @md:block`, the strip itself `hidden md:block`) and shows only a row of bars for more than one image,
+ * for a single image nothing. Here the strip of the wider views stays, swipeable, the bars go; 8 px above it as from
+ * 768 px. The arrows of the strip stay hidden on phones (swiping).
+ */
+@container (max-width: 767.98px) {
+  .font-body [data-testid='gallery'] > div:nth-child(2) > div:first-child,
+  .font-body [data-testid='gallery'] > div:nth-child(2) > div:first-child > .swiper {
+    display: block;
+  }
+
+  .font-body [data-testid='gallery'] > div:nth-child(2) {
+    margin-top: 0.5rem;
+  }
+
+  .font-body [data-testid='gallery'] > div:nth-child(2) > div:nth-child(2) {
+    display: none;
+  }
+}
+
+/*
  * Product page tiles like the LTS shop: description, product details (technical data) and further details
- * (item data) in their tile colours. The blocks have no background setting in the editor, so the colour is
- * tied to the block type. Placed side by side in a three-column MultiGrid in the editor.
+ * (item data, or the module's own block GlasJenaItemDetails with the LTS details) in their tile colours. The
+ * blocks have no background setting in the editor, so the colour is tied to the block type. Placed side by side in a
+ * three-column MultiGrid in the editor.
  */
 .font-body [data-testid='item-text-block'] {
   background-color: var(--gj-tile-blue);
@@ -1316,25 +1348,41 @@ div:has(> svg[data-testid='favorite']) {
   background-color: var(--gj-tile-grey-blue);
 }
 
-.font-body [data-testid='item-data-block'] {
+.font-body :is([data-testid='item-data-block'], [data-testid='gj-item-details']) {
   background-color: var(--gj-tile-lilac);
 }
 
 /* Equal tile heights: pass the stretched grid column height down through the column's row wrapper */
 .font-body
   [data-testid='multi-grid-column']:has(
-    :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+    :is(
+      [data-testid='item-text-block'],
+      [data-testid='technical-data-block'],
+      [data-testid='item-data-block'],
+      [data-testid='gj-item-details']
+    )
   )
   > div {
   height: 100%;
 }
 
-.font-body :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block']) {
+.font-body
+  :is(
+    [data-testid='item-text-block'],
+    [data-testid='technical-data-block'],
+    [data-testid='item-data-block'],
+    [data-testid='gj-item-details']
+  ) {
   height: 100%;
 }
 
 .font-body
-  :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+  :is(
+    [data-testid='item-text-block'],
+    [data-testid='technical-data-block'],
+    [data-testid='item-data-block'],
+    [data-testid='gj-item-details']
+  )
   h2 {
   margin-bottom: 1rem;
   font-size: 1.5rem;
@@ -1344,7 +1392,12 @@ div:has(> svg[data-testid='favorite']) {
 
 /* The accordion summary would otherwise turn light grey on hover inside the coloured tile */
 .font-body
-  :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+  :is(
+    [data-testid='item-text-block'],
+    [data-testid='technical-data-block'],
+    [data-testid='item-data-block'],
+    [data-testid='gj-item-details']
+  )
   summary:hover {
   background-color: transparent;
 }
@@ -1411,6 +1464,60 @@ div:has(> svg[data-testid='favorite']) {
 
 .font-body [data-testid='product-slider'] [data-testid='product-card'] [data-testid='add-to-basket-short']:hover {
   background-color: var(--gj-tile-blue);
+}
+
+/*
+ * Items that cannot be ordered ("Aktuell nicht lieferbar", utils/notOrderable.ts; wish of the shop owner,
+ * 2026-10-15): the disabled add-to-cart buttons are white with a dashed slate blue outline, a crossed-out cart and
+ * the text "Nicht lieferbar" (item cards, GlasJenaProductCard.vue) or "Aktuell nicht lieferbar" (product page, like
+ * the LTS shop) instead of their own text. All active buttons are filled, so the outline reads as "not active"; the
+ * text and the symbol name the reason, not the colour alone. Slate blue on white 5.70:1. The texts come from custom
+ * properties on the root element (plugins/notOrderable.ts), which also marks a product page showing such an item:
+ * the buy button is disabled while it adds to the cart too, without the mark it keeps its look.
+ */
+:root {
+  --gj-crossed-cart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M22.73 22.73 2.77 2.77 2 2l-.73-.73L0 2.54l4.39 4.39 2.21 4.66-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h7.46l1.38 1.38c-.5.36-.83.95-.83 1.62 0 1.1.89 2 1.99 2 .67 0 1.26-.33 1.62-.84L21.46 24l1.27-1.27zM7.42 15c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h2.36l2 2H7.42zm8.13-2c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0 0 20 4H6.54l9.01 9zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2z'/%3E%3C/svg%3E");
+}
+
+.font-body [data-testid='product-card'][data-gj-not-orderable] [data-testid='add-to-basket-short'],
+html[data-gj-not-orderable] .font-body [data-testid='purchase-card'] [data-testid='add-to-cart']:disabled {
+  gap: 0.5rem;
+  border: 2px dashed var(--gj-slate-blue);
+  background-color: #fff;
+  color: var(--gj-slate-blue);
+  cursor: not-allowed;
+}
+
+.font-body [data-testid='product-card'][data-gj-not-orderable] [data-testid='add-to-basket-short'] > *,
+html[data-gj-not-orderable] .font-body [data-testid='purchase-card'] [data-testid='add-to-cart']:disabled > * {
+  display: none;
+}
+
+.font-body [data-testid='product-card'][data-gj-not-orderable] [data-testid='add-to-basket-short']::before,
+html[data-gj-not-orderable] .font-body [data-testid='purchase-card'] [data-testid='add-to-cart']:disabled::before {
+  content: '';
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: currentcolor;
+  mask: var(--gj-crossed-cart) center / contain no-repeat;
+}
+
+.font-body [data-testid='product-card'][data-gj-not-orderable] [data-testid='add-to-basket-short']::after {
+  content: var(--gj-not-orderable-short);
+}
+
+html[data-gj-not-orderable] .font-body [data-testid='purchase-card'] [data-testid='add-to-cart']:disabled::after {
+  content: var(--gj-not-orderable-long);
+}
+
+/* The triangle in carousels: no fill and no outline (a dashed edge cannot follow the diagonal), only the symbol */
+.font-body
+  [data-testid='product-slider']
+  [data-testid='product-card'][data-gj-not-orderable]
+  [data-testid='add-to-basket-short'] {
+  border: 0;
+  background-color: transparent;
 }
 
 /*

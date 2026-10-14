@@ -36,3 +36,33 @@ export type CategorySidebarRow = {
   hasChildren: boolean;
   expanded: boolean;
 };
+
+/** One line of "Weitere Details" (GlasJenaItemDetails), see itemDetails.ts. */
+export type ItemDetailKey = 'itemNumber' | 'content' | 'dimensions' | 'availability' | 'manufacturer';
+
+export type ItemDetailRow = {
+  key: ItemDetailKey;
+  /** The value, one entry per line (the manufacturer's address has several). */
+  lines: string[];
+  /** The manufacturer's website, shown as a link below the lines. */
+  url?: string;
+};
+
+/** Country as the item search delivers it with the manufacturer (`countryObject`, not in the shop's types). */
+export type ManufacturerCountry = {
+  name?: string;
+  names?: { language?: string; name?: string }[];
+};
+
+/** Manufacturer of an item with the country object the API delivers in addition. */
+export type ManufacturerWithCountry = {
+  name?: string;
+  externalName?: string;
+  street?: string;
+  houseNo?: string;
+  postcode?: string;
+  town?: string;
+  url?: string;
+  country?: ManufacturerCountry;
+  countryObject?: ManufacturerCountry;
+};

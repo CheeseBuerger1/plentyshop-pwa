@@ -22,6 +22,45 @@ describe('upstream contract of the glas-jena module: product page', () => {
     expect(readApp('components/Price/Price.vue')).toContain("testId: 'price'");
   });
 
+  it('should find the add-to-cart buttons that items "Aktuell nicht lieferbar" disable', () => {
+    /* plugins/notOrderable.ts: the buy area disables its button and hides PayPal through `productGetters.isSalable` */
+    const purchaseCard = readApp('components/ui/PurchaseCard/PurchaseCard.vue');
+    expect(purchaseCard).toContain(':disabled="loading || !productGetters.isSalable(product)"');
+    expect(purchaseCard).toContain('productGetters.isSalable(props?.product));');
+    /*
+     * GlasJenaProductCard.vue wraps the card and disables its button: the original binds `disabled` to `loading` only.
+     * If the original disables it by itself one day, the wrapper may no longer be needed.
+     */
+    const card = readApp('components/ui/ProductCard/ProductCard.vue');
+    expect(card).toMatch(/data-testid="add-to-basket-short"\s*:disabled="loading"/);
+    expect(card).toMatch(/<template>\s*<div[^>]*\n?[^>]*data-testid="product-card"/);
+  });
+
+  it('should find the gallery parts that show the thumbnails on narrow screens too', () => {
+    /*
+     * glas-jena.css: `[data-testid='gallery'] > div:nth-child(2) > div:first-child` (and its `.swiper`) shown, the
+     * row of bars `> div:nth-child(2) > div:nth-child(2)` hidden below 768 px
+     */
+    const gallery = readApp('components/Gallery/Gallery.vue');
+    expect(gallery).toMatch(/data-testid="gallery">\s*<div\s+ref="mainBox"/);
+    expect(gallery).toMatch(
+      /v-show="configuration\.thumbnails\.showThumbnails"[\s\S]*?>\s*<div class="hidden @md:block/,
+    );
+    expect(gallery).toContain("'hidden md:block md:w-full md:min-h-[5.5rem]'");
+    expect(gallery).toContain('<div v-if="hasMoreImages" class="flex @md:hidden gap-0.5"');
+  });
+
+  it('should find the block wrappers that an empty block loses its margin by', () => {
+    /* glas-jena.css: `[data-testid='block-wrapper']:has(> .block-wrapper:empty)` */
+    expect(readApp('components/EditableBlocks/BlockItem.vue')).toContain('data-testid="block-wrapper"');
+    expect(readApp('components/PageBlock/PageBlock.vue')).toMatch(
+      /<template>\s*<div[^>]*>\s*<PageBlockContent[\s\S]*?wrapper-class="relative block-wrapper h-full"/,
+    );
+    expect(readApp('components/PageBlock/PageBlockContent.vue')).toMatch(
+      /<template>\s*<div[^>]*:class="wrapperClass">/,
+    );
+  });
+
   it('should find what the item carousel needs for the cross-selling items of product pages', () => {
     /* GlasJenaProductCarousel: the item of the product page, the editor mode and the shop's cross-selling search */
     const products = readApp('composables/useProducts/useProducts.ts');

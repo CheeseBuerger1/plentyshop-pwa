@@ -28,13 +28,15 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   QuickCheckout: './runtime/components/GlasJenaQuickCheckout.vue',
   /* Article categories: the LTS category list in the filter column instead of the "back to the parent" link */
   CategoryTree: './runtime/components/GlasJenaCategoryTree.vue',
+  /* Item cards: disabled add-to-cart button for items that cannot be ordered ("Aktuell nicht lieferbar") */
+  UiProductCard: './runtime/components/GlasJenaProductCard.vue',
 };
 
 /**
  * Replaced components whose original unit test takes the component from Nuxt's registry (`#components`): in the
  * unit tests the original stays, so that upstream test keeps testing the original (the module's copy has its own).
  */
-export const COMPONENT_OVERRIDES_NOT_IN_TESTS = ['CategoryTree'];
+export const COMPONENT_OVERRIDES_NOT_IN_TESTS = ['CategoryTree', 'UiProductCard'];
 
 /**
  * Original layouts (name) replaced by the module's own ones. Account: on phones the menu has its own page and every
@@ -227,6 +229,12 @@ export default defineNuxtModule({
 
     /* Order status without the PlentyONE number ("[8] Storniert"), see utils/orderStatus.ts */
     addPlugin(resolve('./runtime/plugins/orderStatus'));
+
+    /*
+     * Items "Aktuell nicht lieferbar" cannot be ordered on the product page, see utils/notOrderable.ts. Appended like
+     * homeSeo: it uses the head and the route, which before the shop's plugins (i18n) broke the hydration.
+     */
+    addPlugin(resolve('./runtime/plugins/notOrderable'), { append: true });
 
     /* Breadcrumbs on one line: the whole path if it fits, otherwise the short form, see utils/breadcrumbsFit.ts */
     addPlugin({ src: resolve('./runtime/plugins/breadcrumbsFit.client'), mode: 'client' });
