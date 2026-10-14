@@ -103,6 +103,17 @@ describe('upstream contract of the glas-jena module: category page', () => {
     const sorting = readApp('components/CategorySorting/CategorySorting.vue');
     expect(sorting).toContain('data-testid="category-sorting"');
     expect(sorting).toContain('data-testid="select-sort-by"');
+    /* GlasJenaSearchSorting copies the select and its logic (without the compact mode) */
+    for (const part of [
+      "const { getJsonSetting: availableSortingOptions } = useSiteSettings('availableSortingOptions');",
+      "const { getSetting: defaultSortingSearch } = useSiteSettings('defaultSortingSearch');",
+      "isPageOfType('search') ? defaultSortingSearch() : defaultSortingOption(),",
+      'if (currentSort && options.value.includes(currentSort)) return currentSort;',
+      'updateSorting(val);',
+      '{{ t(`category.sorting.${option}`) }}',
+    ]) {
+      expect(sorting).toContain(part);
+    }
     expect(readApp('components/CategoryItemsPerPage/CategoryItemsPerPage.vue')).toContain(
       'data-testid="category-items-per-page"',
     );
