@@ -155,8 +155,13 @@ const showPrevious = () => page(-1);
   padding: 0 2.5rem;
 }
 
-/* Paging with the arrows and swiping end on a card's edge */
+/*
+ * Paging with the arrows and swiping end on a card's edge. The scroll area spans the whole row: with fewer items
+ * than places (e.g. three spare parts) it would shrink to its cards, and their quarter width would refer to that
+ * smaller area (cards of 171 instead of 268 px); this way the remaining places stay empty.
+ */
 .gj-product-carousel :deep([data-testid='product-slider']) {
+  width: 100%;
   gap: 1rem;
   padding-bottom: 0;
   scroll-snap-type: x mandatory;
