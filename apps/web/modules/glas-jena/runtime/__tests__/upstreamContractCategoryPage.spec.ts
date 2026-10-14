@@ -117,4 +117,13 @@ describe('upstream contract of the glas-jena module: category page', () => {
     expect(breadcrumbs).toContain('data-testid="breadcrumbs-dropdown"');
     expect(breadcrumbs).toContain('<span v-else>');
   });
+
+  it('should find the item grids and the card image that the hover zoom of item lists relies on', () => {
+    /* glas-jena.css: `[data-testid='category-grid'] [data-testid='product-card-link'] img` grows on hover */
+    expect(readApp('components/blocks/ItemGrid/ItemGrid.vue')).toContain('data-testid="category-grid"');
+    expect(readApp('components/CategoryPageContent/CategoryPageContent.vue')).toContain('data-testid="category-grid"');
+    const card = readApp('components/ui/ProductCard/ProductCard.vue');
+    expect(card).toContain('data-testid="product-card-link"');
+    expect(card).toContain('<div class="relative overflow-hidden">');
+  });
 });

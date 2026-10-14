@@ -1663,3 +1663,27 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
     width: 6rem;
   }
 }
+
+/*
+ * Item lists (article categories, search, tag pages): the article picture grows slightly on hover like in the
+ * carousels and on the tiles (6 %, 0.4 s, from 576 px; see GlasJenaProductCarousel.vue; as requested by the shop
+ * owner, 2026-10-14). The card's image box clips it, the fade of the card's own image swap (opacity, 0.3 s) is kept.
+ */
+[data-testid='category-grid'] [data-testid='product-card-link'] img {
+  transition-property: opacity, transform;
+  transition-duration: 0.3s, 0.4s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1), cubic-bezier(0, 0, 0.26, 1);
+}
+
+@media (min-width: 576px) {
+  [data-testid='category-grid'] [data-testid='product-card']:hover [data-testid='product-card-link'] img,
+  [data-testid='category-grid'] [data-testid='product-card-link']:focus-visible img {
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-testid='category-grid'] [data-testid='product-card-link'] img {
+    transition-duration: 0.3s, 0s;
+  }
+}
