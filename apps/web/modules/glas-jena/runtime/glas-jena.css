@@ -1304,6 +1304,16 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
+ * A block that renders nothing keeps no space: e.g. "Ersatzteile" on an item without spare parts left a 40 px gap
+ * (the block's bottom margin) between the tiles and "Zubehör". Only the margin goes, the empty block stays in the
+ * page (in the editor such blocks show their bar and are not empty).
+ */
+.font-body [data-testid='block-wrapper']:has(> .block-wrapper:empty) {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/*
  * Product page tiles like the LTS shop: description, product details (technical data) and further details
  * (item data) in their tile colours. The blocks have no background setting in the editor, so the colour is
  * tied to the block type. Placed side by side in a three-column MultiGrid in the editor.

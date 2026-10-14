@@ -218,9 +218,10 @@ Wünsche des Shopbetreibers vom 2026-10-14, Vorbild ist die LTS-Artikelseite.
   - Sie stehen in einem Raster 4/4/4 mit „Full width“, damit sie mit den blauen Leisten darunter bündig sind. Unter 768 px stehen sie untereinander.
   - Farben, gleiche Höhen und zentrierte Überschriften kommen aus `glas-jena.css`.
 - **„Ersatzteile“ und „Zubehör“:** Block „Item carousel (GLAS IN JENA)“ mit der Quelle „Cross-selling of the item“ und der Beziehung „Spare parts“ bzw. „Accessories“ (Cross-Selling des Artikels in PlentyONE).
-  - Blaue Leiste und Karten wie bei „Unsere Topseller“: 4 Plätze am Desktop, 3 unter 992 px, 2 unter 576 px. Bei weniger Artikeln bleiben die übrigen Plätze leer, die Karten werden nicht breiter.
+  - Blaue Leiste und Karten wie bei „Unsere Topseller“: 4 Plätze am Desktop, 3 unter 992 px, 2 unter 576 px. Bei weniger Artikeln bleiben die übrigen Plätze leer, die Karten werden nicht breiter und nicht schmaler. Die Scrollfläche des Karussells ist dafür immer so breit wie die Zeile; sonst schrumpfte sie auf ihre Karten, und die Karten wurden schmaler (171 statt 268 px).
   - Pfeile gibt es nur, wenn es mehr Artikel als Plätze gibt.
   - Hat ein Artikel keine Ersatzteile oder kein Zubehör, entfällt die ganze Leiste. Im Editor bleibt sie stehen, damit man sie anklicken kann.
+  - Auch der Abstand der leeren Leiste entfällt: Ein Block, der nichts anzeigt, hat keinen Außenabstand. Vorher blieb eine 40 px hohe weiße Lücke zwischen Kacheln und „Zubehör“.
   - Reihenfolge: „Recommended“, also die Reihenfolge von PlentyONE.
 - **Karussell-Pfeile im Rand:** Die Pfeile füllen genau den 40-px-Rand. Vorher ragten sie 4 px über das Karussell hinaus. Wo das Karussell die volle Fensterbreite hat (etwa 576–1215 px), wurde die Seite dadurch 4 px breiter als das Fenster, mit einer waagerechten Bildlaufleiste. Das betraf auch die Startseite.
 

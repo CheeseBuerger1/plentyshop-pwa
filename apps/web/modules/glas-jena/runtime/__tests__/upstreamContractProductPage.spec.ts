@@ -22,6 +22,17 @@ describe('upstream contract of the glas-jena module: product page', () => {
     expect(readApp('components/Price/Price.vue')).toContain("testId: 'price'");
   });
 
+  it('should find the block wrappers that an empty block loses its margin by', () => {
+    /* glas-jena.css: `[data-testid='block-wrapper']:has(> .block-wrapper:empty)` */
+    expect(readApp('components/EditableBlocks/BlockItem.vue')).toContain('data-testid="block-wrapper"');
+    expect(readApp('components/PageBlock/PageBlock.vue')).toMatch(
+      /<template>\s*<div[^>]*>\s*<PageBlockContent[\s\S]*?wrapper-class="relative block-wrapper h-full"/,
+    );
+    expect(readApp('components/PageBlock/PageBlockContent.vue')).toMatch(
+      /<template>\s*<div[^>]*:class="wrapperClass">/,
+    );
+  });
+
   it('should find what the item carousel needs for the cross-selling items of product pages', () => {
     /* GlasJenaProductCarousel: the item of the product page, the editor mode and the shop's cross-selling search */
     const products = readApp('composables/useProducts/useProducts.ts');
