@@ -1,6 +1,7 @@
 import {
   clampCarouselItems,
   clampHeroSliderInterval,
+  getCarouselFacetParams,
   getHeroSlideImage,
   getHeroSlides,
   getHeroSliderImageUrls,
@@ -99,6 +100,42 @@ describe('home utils', () => {
       expect(clampCarouselItems(undefined)).toBe(50);
       expect(clampCarouselItems(0)).toBe(50);
       expect(clampCarouselItems('abc')).toBe(50);
+    });
+  });
+
+  describe('getCarouselFacetParams', () => {
+    it('should fetch a category in random order by default, also without a source type (older blocks)', () => {
+      expect(getCarouselFacetParams({ categoryId: ' 385 ' }, '105075')).toEqual({
+        type: 'category',
+        categoryId: '385',
+        itemsPerPage: 50,
+        sort: 'item.random',
+      });
+    });
+
+    it('should fetch the cross-selling items of the item in the recommended order by default', () => {
+      expect(
+        getCarouselFacetParams({ type: 'cross_selling', crossSellingRelation: 'Accessory', itemsPerPage: 8 }, '105075'),
+      ).toEqual({
+        type: 'cross_selling',
+        itemId: '105075',
+        crossSellingRelation: 'Accessory',
+        itemsPerPage: 8,
+        sort: 'default.recommended_sorting',
+      });
+    });
+
+    it('should use spare parts when no relation is chosen and keep a chosen order', () => {
+      expect(getCarouselFacetParams({ type: 'cross_selling', sort: 'texts.name1_asc' }, '7')).toMatchObject({
+        crossSellingRelation: 'ReplacementPart',
+        sort: 'texts.name1_asc',
+      });
+    });
+
+    it('should fetch nothing without a category or, for cross-selling, without an item', () => {
+      expect(getCarouselFacetParams({ categoryId: '' }, '105075')).toBeNull();
+      expect(getCarouselFacetParams(undefined, '105075')).toBeNull();
+      expect(getCarouselFacetParams({ type: 'cross_selling', categoryId: '385' }, '')).toBeNull();
     });
   });
 
