@@ -1,8 +1,12 @@
-import { getAccountLoginPath, logOutToHomePage } from '../accountMenu';
+import { AFTER_LOGIN_PATH, getAccountLoginPath, logOutToHomePage } from '../accountMenu';
 
 describe('getAccountLoginPath', () => {
-  it('should lead the login page into the account menu', () => {
-    expect(getAccountLoginPath('/en/login/')).toBe('/en/login/?redirect=/my-account');
+  it('should land on the page "Meine Bestellungen" of the shop', () => {
+    expect(AFTER_LOGIN_PATH).toBe(paths.accountMyOrders);
+  });
+
+  it('should lead the login page to "Meine Bestellungen"', () => {
+    expect(getAccountLoginPath('/en/login/')).toBe('/en/login/?redirect=/my-account/my-orders');
   });
 });
 
