@@ -1626,39 +1626,40 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
 }
 
 /*
- * Narrow preview (below 1024 px, where the suggested articles stand below the search terms and categories instead of
- * beside them, i.e. phones and tablets): the suggested articles as compact lines – small picture on the left, name
- * and price beside it – in one column (two from 448 px) instead of large cards, so the whole preview fits without
- * long scrolling.
+ * Suggested articles as compact lines on all widths – picture on the left, name and price beside it – instead of
+ * large cards (wish of the shop owner, 2026-10-14: the cards' pictures were far too large): one column, two from
+ * 448 px of article column. The picture is 72 px wide, 96 px in the two-column preview from 1024 px.
  */
-@container dropdown (max-width: 63.99rem) {
+[data-testid='gj-header-search-panel'] section ul:has(> li > [data-testid='search-suggestion-product']) {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+[data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] {
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+}
+
+[data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] > div:first-child {
+  flex: none;
+  width: 4.5rem;
+  aspect-ratio: 1 / 1;
+}
+
+[data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] > div:last-child {
+  min-width: 0;
+  padding: 0.375rem 0.75rem;
+}
+
+@container products (min-width: 28rem) {
   [data-testid='gj-header-search-panel'] section ul:has(> li > [data-testid='search-suggestion-product']) {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.5rem;
-  }
-
-  [data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] {
-    flex-direction: row;
-    align-items: center;
-    height: 100%;
-  }
-
-  [data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] > div:first-child {
-    flex: none;
-    width: 4.5rem;
-    aspect-ratio: 1 / 1;
-  }
-
-  [data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] > div:last-child {
-    min-width: 0;
-    padding: 0.375rem 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@container dropdown (max-width: 63.99rem) {
-  @container products (min-width: 28rem) {
-    [data-testid='gj-header-search-panel'] section ul:has(> li > [data-testid='search-suggestion-product']) {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+@container dropdown (min-width: 64rem) {
+  [data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] > div:first-child {
+    width: 6rem;
   }
 }
