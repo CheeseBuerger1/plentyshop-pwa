@@ -22,6 +22,20 @@ describe('upstream contract of the glas-jena module: product page', () => {
     expect(readApp('components/Price/Price.vue')).toContain("testId: 'price'");
   });
 
+  it('should find the add-to-cart buttons that items "Aktuell nicht lieferbar" disable', () => {
+    /* plugins/notOrderable.ts: the buy area disables its button and hides PayPal through `productGetters.isSalable` */
+    const purchaseCard = readApp('components/ui/PurchaseCard/PurchaseCard.vue');
+    expect(purchaseCard).toContain(':disabled="loading || !productGetters.isSalable(product)"');
+    expect(purchaseCard).toContain('productGetters.isSalable(props?.product));');
+    /*
+     * GlasJenaProductCard.vue wraps the card and disables its button: the original binds `disabled` to `loading` only.
+     * If the original disables it by itself one day, the wrapper may no longer be needed.
+     */
+    const card = readApp('components/ui/ProductCard/ProductCard.vue');
+    expect(card).toMatch(/data-testid="add-to-basket-short"\s*:disabled="loading"/);
+    expect(card).toMatch(/<template>\s*<div[^>]*\n?[^>]*data-testid="product-card"/);
+  });
+
   it('should find the gallery parts that show the thumbnails on narrow screens too', () => {
     /*
      * glas-jena.css: `[data-testid='gallery'] > div:nth-child(2) > div:first-child` (and its `.swiper`) shown, the

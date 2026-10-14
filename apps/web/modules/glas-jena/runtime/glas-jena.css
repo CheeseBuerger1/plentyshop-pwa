@@ -1467,6 +1467,21 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
+ * Items that cannot be ordered ("Aktuell nicht lieferbar", GlasJenaProductCard.vue): the add-to-cart button is
+ * disabled and grey like the LTS shop's button, in lists and as the triangle in carousels. Disabled controls need
+ * no contrast (WCAG 1.4.3/1.4.11 exempt them); the tooltip names the reason.
+ */
+.font-body [data-testid='product-card'] [data-testid='add-to-basket-short']:disabled,
+.font-body
+  [data-testid='product-slider']
+  [data-testid='product-card']
+  [data-testid='add-to-basket-short']:disabled:hover {
+  cursor: not-allowed;
+  background-color: #e4e4e4;
+  color: #8a8a8a;
+}
+
+/*
  * Product card text larger, as requested by the shop owner: name 16 px instead of 14 px, price 20 px instead of 14 px
  * with less space below it (4 px instead of 8 px).
  */
