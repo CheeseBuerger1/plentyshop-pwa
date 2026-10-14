@@ -108,6 +108,17 @@
 }
 
 /*
+ * Product pages have no banner, so the logo overhangs the breadcrumbs (from about 600 px window width, where the logo
+ * field is higher than the header; 47 px from 992 px). Like the LTS shop they start right of the logo field, 16 px
+ * after it; the padding refers to the same width as the logo field (header and container are the box width).
+ */
+@media (min-width: 600px) {
+  [data-testid='narrow-container']:has([data-testid='breadcrumbs']):not(.gj-page-banner ~ *) {
+    padding-left: calc(var(--gj-logo-width) + 1rem);
+  }
+}
+
+/*
  * Breadcrumbs like the LTS shop: links in blue, the current page stays dark; the home page is a house symbol
  * instead of "Startseite". Slate blue instead of the LTS blue #6e9abb,
  * which has only 3.0:1 on white. The link text stays for screen readers (font-size 0 keeps the accessible name).
@@ -1271,6 +1282,25 @@ div:has(> svg[data-testid='favorite']) {
 
 .font-body [data-testid='text-card'] [data-testid='text-button'].ring-inset:hover {
   background-color: rgb(255 255 255 / 0.55);
+}
+
+/*
+ * Product page, buy area (Price Card) like the LTS shop: the item name large and dark instead of 18 px light grey,
+ * the price large in slate blue. The shop's secondary colour (the LTS mid blue #6e9bbf) reaches only 2.96:1 on white,
+ * below the 3:1 needed even for large text; slate blue 5.70:1.
+ */
+.font-body [data-testid='purchase-card'] [data-testid='product-name'] {
+  margin-bottom: 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--gj-text);
+}
+
+.font-body [data-testid='purchase-card'] [data-testid='price'] {
+  font-size: 1.75rem;
+  line-height: 1.25;
+  color: var(--gj-slate-blue);
 }
 
 /*

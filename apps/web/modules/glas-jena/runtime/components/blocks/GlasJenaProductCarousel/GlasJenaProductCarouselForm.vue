@@ -14,6 +14,29 @@
 
     <EditorFormPanel v-model="sourceSettingsOpen" :title="getEditorTranslation('source-group-label')">
       <div class="py-2">
+        <UiFormLabel for="gj-product-carousel-source">{{ getEditorTranslation('source-label') }}</UiFormLabel>
+        <SfSelect id="gj-product-carousel-source" v-model="block.source.type" data-testid="gj-product-carousel-source">
+          <option v-for="option in PRODUCT_CAROUSEL_SOURCE_OPTIONS" :key="option.value" :value="option.value">
+            {{ getEditorTranslation(option.label) }}
+          </option>
+        </SfSelect>
+      </div>
+
+      <div v-if="isCrossSelling" class="py-2">
+        <UiFormLabel for="gj-product-carousel-relation">{{ getEditorTranslation('relation-label') }}</UiFormLabel>
+        <SfSelect
+          id="gj-product-carousel-relation"
+          v-model="block.source.crossSellingRelation"
+          data-testid="gj-product-carousel-relation"
+        >
+          <option v-for="option in CROSS_SELLING_RELATION_OPTIONS" :key="option.value" :value="option.value">
+            {{ getEditorTranslation(option.label) }}
+          </option>
+        </SfSelect>
+        <p class="mt-1 typography-text-xs text-neutral-600">{{ getEditorTranslation('relation-hint') }}</p>
+      </div>
+
+      <div v-else class="py-2">
         <UiFormLabel>{{ getEditorTranslation('category-label') }}</UiFormLabel>
         <EditorCategorySelect
           v-model="categoryIdModel"
@@ -54,9 +77,15 @@ import type {
   NormalizedGlasJenaProductCarouselContent,
 } from './types';
 import {
+  CROSS_SELLING_RELATION_OPTIONS,
+  CROSS_SELLING_REPLACEMENT_PART,
   PRODUCT_CAROUSEL_MAX_ITEMS,
   PRODUCT_CAROUSEL_SORT_OPTIONS,
   PRODUCT_CAROUSEL_SORT_RANDOM,
+  PRODUCT_CAROUSEL_SORT_RECOMMENDED,
+  PRODUCT_CAROUSEL_SOURCE_CATEGORY,
+  PRODUCT_CAROUSEL_SOURCE_CROSS_SELLING,
+  PRODUCT_CAROUSEL_SOURCE_OPTIONS,
 } from '../../../utils/home';
 
 const props = defineProps<GlasJenaProductCarouselFormProps>();
@@ -78,12 +107,20 @@ const block = computed<NormalizedGlasJenaProductCarouselContent>(() => {
   if (!content.source) {
     content.source = {};
   }
+  content.source.type = content.source.type || PRODUCT_CAROUSEL_SOURCE_CATEGORY;
   content.source.categoryId = content.source.categoryId ?? '';
-  content.source.sort = content.source.sort || PRODUCT_CAROUSEL_SORT_RANDOM;
+  content.source.crossSellingRelation = content.source.crossSellingRelation || CROSS_SELLING_REPLACEMENT_PART;
+  content.source.sort =
+    content.source.sort ||
+    (content.source.type === PRODUCT_CAROUSEL_SOURCE_CROSS_SELLING
+      ? PRODUCT_CAROUSEL_SORT_RECOMMENDED
+      : PRODUCT_CAROUSEL_SORT_RANDOM);
   content.source.itemsPerPage = content.source.itemsPerPage ?? PRODUCT_CAROUSEL_MAX_ITEMS;
 
   return content as NormalizedGlasJenaProductCarouselContent;
 });
+
+const isCrossSelling = computed(() => block.value.source.type === PRODUCT_CAROUSEL_SOURCE_CROSS_SELLING);
 
 const categoryIdModel = computed({
   get: () => block.value.source.categoryId || null,
@@ -102,6 +139,14 @@ const sourceSettingsOpen = ref(true);
     "text-group-label": "Text",
     "title-label": "Heading in the bar",
     "source-group-label": "Items",
+    "source-label": "Items from",
+    "source-category": "A category",
+    "source-cross-selling": "Cross-selling of the item (product pages)",
+    "relation-label": "Cross-selling relation",
+    "relation-replacement-part": "Spare parts",
+    "relation-accessory": "Accessories",
+    "relation-similar": "Similar items",
+    "relation-hint": "Items without such related items show no bar.",
     "category-label": "Category",
     "sort-label": "Order",
     "sort-random": "Random (like the LTS shop)",
@@ -116,6 +161,14 @@ const sourceSettingsOpen = ref(true);
     "text-group-label": "Text",
     "title-label": "Heading in the bar",
     "source-group-label": "Items",
+    "source-label": "Items from",
+    "source-category": "A category",
+    "source-cross-selling": "Cross-selling of the item (product pages)",
+    "relation-label": "Cross-selling relation",
+    "relation-replacement-part": "Spare parts",
+    "relation-accessory": "Accessories",
+    "relation-similar": "Similar items",
+    "relation-hint": "Items without such related items show no bar.",
     "category-label": "Category",
     "sort-label": "Order",
     "sort-random": "Random (like the LTS shop)",

@@ -1,8 +1,10 @@
+import type { FacetSearchCriteria } from '@plentymarkets/shop-api';
 import type {
   GlasJenaHeroImageContent,
   GlasJenaHeroSlide,
   GlasJenaHeroSlideImage,
 } from '../components/blocks/GlasJenaHeroImage/types';
+import type { GlasJenaProductCarouselSource } from '../components/blocks/GlasJenaProductCarousel/types';
 
 /** Editor blocks of the module for the home page (the name is also the component's file name). */
 export const HERO_IMAGE_BLOCK_NAME = 'GlasJenaHeroImage';
@@ -125,9 +127,10 @@ export const pickHeroStartIndex = (images: unknown[], random = Math.random) => {
  * editor form.
  */
 export const PRODUCT_CAROUSEL_SORT_RANDOM = 'item.random';
+export const PRODUCT_CAROUSEL_SORT_RECOMMENDED = 'default.recommended_sorting';
 export const PRODUCT_CAROUSEL_SORT_OPTIONS = [
   { value: PRODUCT_CAROUSEL_SORT_RANDOM, label: 'sort-random' },
-  { value: 'default.recommended_sorting', label: 'sort-recommended' },
+  { value: PRODUCT_CAROUSEL_SORT_RECOMMENDED, label: 'sort-recommended' },
   { value: 'texts.name1_asc', label: 'sort-name' },
   { value: 'sorting.price.avg_asc', label: 'sort-price-asc' },
   { value: 'sorting.price.avg_desc', label: 'sort-price-desc' },
@@ -144,6 +147,61 @@ export const clampCarouselItems = (value: unknown) => {
     return PRODUCT_CAROUSEL_MAX_ITEMS;
   }
   return Math.min(number, PRODUCT_CAROUSEL_MAX_ITEMS);
+};
+
+/**
+ * Where the item carousel takes its items from: the items of one category ("Unsere Topseller", the default, also for
+ * blocks saved before there was a choice) or the cross-selling items of the product page's item, e.g. "Ersatzteile"
+ * and "Zubehör" like the LTS shop. The cross-selling relations are those of PlentyONE (item » Cross-Selling).
+ */
+export const PRODUCT_CAROUSEL_SOURCE_CATEGORY = 'category';
+export const PRODUCT_CAROUSEL_SOURCE_CROSS_SELLING = 'cross_selling';
+export const CROSS_SELLING_REPLACEMENT_PART = 'ReplacementPart';
+export const CROSS_SELLING_ACCESSORY = 'Accessory';
+export const CROSS_SELLING_SIMILAR = 'Similar';
+/** Choices of the editor form (label: translation key of the form). */
+export const PRODUCT_CAROUSEL_SOURCE_OPTIONS = [
+  { value: PRODUCT_CAROUSEL_SOURCE_CATEGORY, label: 'source-category' },
+  { value: PRODUCT_CAROUSEL_SOURCE_CROSS_SELLING, label: 'source-cross-selling' },
+] as const;
+export const CROSS_SELLING_RELATION_OPTIONS = [
+  { value: CROSS_SELLING_REPLACEMENT_PART, label: 'relation-replacement-part' },
+  { value: CROSS_SELLING_ACCESSORY, label: 'relation-accessory' },
+  { value: CROSS_SELLING_SIMILAR, label: 'relation-similar' },
+] as const;
+
+/**
+ * Parameters of the shop's item search for the carousel, or `null` when there is nothing to fetch (no category; for
+ * cross-selling no item, i.e. not on a product page). Cross-selling items come in the recommended order unless
+ * another order is chosen.
+ */
+export const getCarouselFacetParams = (
+  source: GlasJenaProductCarouselSource | undefined,
+  itemId: string,
+): FacetSearchCriteria | null => {
+  const itemsPerPage = clampCarouselItems(source?.itemsPerPage);
+  if (source?.type === PRODUCT_CAROUSEL_SOURCE_CROSS_SELLING) {
+    if (!itemId) {
+      return null;
+    }
+    return {
+      type: PRODUCT_CAROUSEL_SOURCE_CROSS_SELLING,
+      itemId,
+      crossSellingRelation: source.crossSellingRelation || CROSS_SELLING_REPLACEMENT_PART,
+      itemsPerPage,
+      sort: source.sort || PRODUCT_CAROUSEL_SORT_RECOMMENDED,
+    };
+  }
+  const categoryId = source?.categoryId?.toString().trim() ?? '';
+  if (!categoryId) {
+    return null;
+  }
+  return {
+    type: PRODUCT_CAROUSEL_SOURCE_CATEGORY,
+    categoryId,
+    itemsPerPage,
+    sort: source?.sort || PRODUCT_CAROUSEL_SORT_RANDOM,
+  };
 };
 
 /*

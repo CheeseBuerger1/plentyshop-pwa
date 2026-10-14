@@ -3,9 +3,14 @@ import { flushPromises } from '@vue/test-utils';
 import GlasJenaProductCarousel from '../GlasJenaProductCarousel.vue';
 import type { GlasJenaProductCarouselContent } from '../types';
 
-const { getFacet } = vi.hoisted(() => ({ getFacet: vi.fn() }));
+const { getFacet, pageState } = vi.hoisted(() => ({
+  getFacet: vi.fn(),
+  pageState: { product: {} as object, isEditMode: false },
+}));
 
 mockNuxtImport('useSdk', () => () => ({ plentysystems: { getFacet } }));
+mockNuxtImport('useProducts', () => () => ({ currentProduct: ref(pageState.product) }));
+mockNuxtImport('useEditorState', () => () => ({ isEditMode: ref(pageState.isEditMode) }));
 
 const mountCarousel = async (content: GlasJenaProductCarouselContent, uuid: string) => {
   const wrapper = await mountSuspended(GlasJenaProductCarousel, {
@@ -27,6 +32,8 @@ describe('GlasJenaProductCarousel', () => {
   beforeEach(() => {
     getFacet.mockReset();
     getFacet.mockResolvedValue({ data: { products: [{ id: 1 }, { id: 2 }, { id: 3 }] } });
+    pageState.product = {};
+    pageState.isEditMode = false;
   });
 
   it('should show the heading as a level 2 heading and the items of the category', async () => {
@@ -68,6 +75,56 @@ describe('GlasJenaProductCarousel', () => {
     getFacet.mockResolvedValue({ data: { products: [] } });
     const empty = await mountCarousel({ text: { title: 'Topseller' }, source: { categoryId: '7' } }, 'e');
     expect(empty.find('[data-testid="slider-stub"]').exists()).toBe(false);
+  });
+
+  it('should show the spare parts of the product page item', async () => {
+    pageState.product = { item: { id: 105075 } };
+    const wrapper = await mountCarousel(
+      { text: { title: 'Ersatzteile' }, source: { type: 'cross_selling', crossSellingRelation: 'ReplacementPart' } },
+      'g',
+    );
+
+    expect(getFacet).toHaveBeenCalledWith({
+      type: 'cross_selling',
+      itemId: '105075',
+      crossSellingRelation: 'ReplacementPart',
+      itemsPerPage: 50,
+      sort: 'default.recommended_sorting',
+    });
+    expect(wrapper.find('[data-testid="gj-product-carousel-title"]').text()).toBe('Ersatzteile');
+    expect(wrapper.find('[data-testid="slider-stub"]').text()).toBe('3');
+  });
+
+  it('should leave out a cross-selling bar without items, except in the editor', async () => {
+    pageState.product = { item: { id: 400408 } };
+    getFacet.mockResolvedValue({ data: { products: [] } });
+    const content: GlasJenaProductCarouselContent = {
+      text: { title: 'Zubehör' },
+      source: { type: 'cross_selling', crossSellingRelation: 'Accessory' },
+    };
+
+    const shop = await mountCarousel(content, 'h');
+    expect(shop.find('[data-testid="gj-product-carousel"]').exists()).toBe(false);
+
+    pageState.isEditMode = true;
+    const editor = await mountCarousel(content, 'i');
+    expect(editor.find('[data-testid="gj-product-carousel-title"]').text()).toBe('Zubehör');
+  });
+
+  it('should not fetch cross-selling items outside a product page', async () => {
+    const wrapper = await mountCarousel({ text: { title: 'Zubehör' }, source: { type: 'cross_selling' } }, 'j');
+
+    expect(getFacet).not.toHaveBeenCalled();
+    expect(wrapper.find('[data-testid="gj-product-carousel"]').exists()).toBe(false);
+  });
+
+  it('should count the items up to five for the arrows', async () => {
+    const few = await mountCarousel({ text: {}, source: { categoryId: '385' } }, 'k');
+    expect(few.find('.gj-product-carousel__slider').attributes('data-gj-items')).toBe('3');
+
+    getFacet.mockResolvedValue({ data: { products: Array.from({ length: 7 }, (_, id) => ({ id })) } });
+    const many = await mountCarousel({ text: {}, source: { categoryId: '12' } }, 'l');
+    expect(many.find('.gj-product-carousel__slider').attributes('data-gj-items')).toBe('5');
   });
 
   it('should page round in a loop with its own arrows', async () => {

@@ -205,6 +205,38 @@ Umgesetzt in `GlasJenaMobileNavigation.vue`, geöffnet über den Burger im Heade
 - Darunter Artikelname (16 px), Preis groß und rechtsbündig (20 px, direkt unter dem Namen, darunter 4 px Abstand; Wünsche des Shopbetreibers, `glas-jena.css`) mit „\*“, Hinweis „\* inkl. ges. MwSt. zzgl. Versandkosten“ (Versandkosten als Link).
 - **Kein Herz / keine Wunschliste** (siehe unten).
 
+### Artikelseite (wie im LTS-Shop)
+
+Wünsche des Shopbetreibers vom 2026-10-14, Vorbild ist die LTS-Artikelseite.
+
+- **Brotkrumen rechts neben dem Logo:** Artikelseiten haben keinen Banner, deshalb ragt das Logo ab etwa 600 px Fensterbreite in die Zeile der Brotkrumen. Ab 992 px sind das 47 px. Vorher waren Haus-Symbol und erste Ebene verdeckt. Die Leiste beginnt jetzt wie im LTS 16 px rechts vom Logofeld. Die Regel in `glas-jena.css` greift nur, wenn vor der Brotkrumen-Zeile kein Banner steht.
+- **Kaufbereich (Price Card):**
+  - Artikelname 28 px, Stärke 400, Textfarbe (vorher 18 px dünn und grau).
+  - Preis 28 px in Schieferblau `#4b6a82` (5,70:1). Die Sekundärfarbe des Shops `#6e9bbf` hat nur 2,96:1 und reicht nicht einmal für große Schrift (3:1).
+  - Ohne Rahmen: im Editor ausschalten, siehe unten.
+- **Drei Kacheln unter dem Kaufbereich** wie im LTS: Beschreibung (`ItemText`, `#a9c9e3`), Produktdetails (`TechnicalData`, `#d6e1ea`) und Weitere Details (`ItemData`, `#d4c8e8`).
+  - Sie stehen in einem Raster 4/4/4 mit „Full width“, damit sie mit den blauen Leisten darunter bündig sind. Unter 768 px stehen sie untereinander.
+  - Farben, gleiche Höhen und zentrierte Überschriften kommen aus `glas-jena.css`.
+- **„Ersatzteile“ und „Zubehör“:** Block „Item carousel (GLAS IN JENA)“ mit der Quelle „Cross-selling of the item“ und der Beziehung „Spare parts“ bzw. „Accessories“ (Cross-Selling des Artikels in PlentyONE).
+  - Blaue Leiste und Karten wie bei „Unsere Topseller“: 4 Plätze am Desktop, 3 unter 992 px, 2 unter 576 px. Bei weniger Artikeln bleiben die übrigen Plätze leer, die Karten werden nicht breiter.
+  - Pfeile gibt es nur, wenn es mehr Artikel als Plätze gibt.
+  - Hat ein Artikel keine Ersatzteile oder kein Zubehör, entfällt die ganze Leiste. Im Editor bleibt sie stehen, damit man sie anklicken kann.
+  - Reihenfolge: „Recommended“, also die Reihenfolge von PlentyONE.
+- **Karussell-Pfeile im Rand:** Die Pfeile füllen genau den 40-px-Rand. Vorher ragten sie 4 px über das Karussell hinaus. Wo das Karussell die volle Fensterbreite hat (etwa 576–1215 px), wurde die Seite dadurch 4 px breiter als das Fenster, mit einer waagerechten Bildlaufleiste. Das betraf auch die Startseite.
+
+**Einrichtung im Editor**, Vorlage „Product detail page“, nur im Vorschau-Modus speichern:
+
+1. Block **Price Card**: „Borders“ aus. „Item text“ und „Technical data“ bleiben aus, sonst stehen die Texte doppelt.
+2. Die bisherigen Blöcke „Artikeldetails“ (Item text) und „Technische Daten“ (Technical data) sowie „Empfohlene Artikel“ entfernen.
+3. Unter dem Kaufbereich einen **MultiGrid 4/4/4** einfügen, Gap „None“, **„Full width“ an**. Spalten:
+   - **Item text**, Titel „Beschreibung“
+   - **Technical data**, Titel „Produktdetails“
+   - **More details (Item data)**, Titel „Weitere Details“, Felder Art.-ID, Inhalt, Maße, Hersteller
+
+   Alle drei Kacheln nicht aufklappbar, Innenabstand 24 px rundum.
+
+4. Darunter zweimal **„Item carousel (GLAS IN JENA)“** mit den Vorlagen „Ersatzteile (product page)“ und „Zubehör (product page)“.
+
 ### Warenkorb-Fenster (nach „In den Warenkorb“)
 
 Eigene Kopie `GlasJenaQuickCheckout.vue`, ersetzt `components/QuickCheckout/QuickCheckout.vue` über `COMPONENT_OVERRIDES` in `index.ts` (Wünsche des Shopbetreibers). Der Vertragstest `upstreamContractQuickCheckout.spec.ts` zeigt nach einem Update des Originals, ob die Kopie nachgezogen werden muss.

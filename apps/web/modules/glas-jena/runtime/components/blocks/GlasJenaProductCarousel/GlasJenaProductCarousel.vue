@@ -1,9 +1,19 @@
 <template>
-  <section class="gj-product-carousel" :aria-labelledby="title ? titleId : undefined" data-testid="gj-product-carousel">
+  <section
+    v-if="isShown"
+    class="gj-product-carousel"
+    :aria-labelledby="title ? titleId : undefined"
+    data-testid="gj-product-carousel"
+  >
     <h2 v-if="title" :id="titleId" class="gj-product-carousel__title" data-testid="gj-product-carousel-title">
       {{ title }}
     </h2>
-    <div v-if="products.length" ref="sliderRef" class="gj-product-carousel__slider">
+    <div
+      v-if="products.length"
+      ref="sliderRef"
+      class="gj-product-carousel__slider"
+      :data-gj-items="Math.min(products.length, MAX_ITEMS_ATTRIBUTE)"
+    >
       <button
         type="button"
         class="gj-product-carousel__arrow gj-product-carousel__arrow--previous"
@@ -24,17 +34,24 @@
 </template>
 
 <script setup lang="ts">
+import { productGetters } from '@plentymarkets/shop-api';
 import type { GlasJenaProductCarouselProps } from './types';
-import { PRODUCT_CAROUSEL_SORT_RANDOM, clampCarouselItems } from '../../../utils/home';
+import { PRODUCT_CAROUSEL_SOURCE_CROSS_SELLING, getCarouselFacetParams } from '../../../utils/home';
 
 /** Scroll area of the shop's ProductSlider */
 const SLIDER_SELECTOR = '[data-testid="product-slider"]';
+/*
+ * Number of items for the CSS (`data-gj-items`), counted up to one more than fit in a view (four): the arrows are
+ * left out while all items fit (e.g. three spare parts), like the LTS shop.
+ */
+const MAX_ITEMS_ATTRIBUTE = 5;
 
 /*
  * Item carousel of the home page like the LTS shop ("Unsere Topseller"): a blue bar with the heading, below it the
  * items of one category with the shop's own item cards and slider (ProductSlider). Unlike the shop's "Recommended
  * products" block it shows up to 50 items in a chosen order (random like the LTS shop) and fetches them on the
- * server, so the item links are part of the page for search engines.
+ * server, so the item links are part of the page for search engines. On product pages it shows the item's
+ * cross-selling items instead ("Ersatzteile", "Zubehör" like the LTS shop), see getCarouselFacetParams.
  */
 const props = defineProps<GlasJenaProductCarouselProps>();
 
@@ -42,34 +59,40 @@ const { locale } = useI18n();
 const { t } = useI18n({ useScope: 'local' });
 const titleId = useId();
 
+const { currentProduct } = useProducts();
+const { isEditMode } = useEditorState();
+
 const title = computed(() => props.content?.text?.title?.trim() ?? '');
-const categoryId = computed(() => props.content?.source?.categoryId?.toString().trim() ?? '');
-const sort = computed(() => props.content?.source?.sort || PRODUCT_CAROUSEL_SORT_RANDOM);
-const itemsPerPage = computed(() => clampCarouselItems(props.content?.source?.itemsPerPage));
+const isCrossSelling = computed(() => props.content?.source?.type === PRODUCT_CAROUSEL_SOURCE_CROSS_SELLING);
+/* Cross-selling: the item of the product page (none elsewhere, then the block shows nothing) */
+const itemId = computed(() =>
+  Object.keys(currentProduct.value ?? {}).length ? String(productGetters.getItemId(currentProduct.value)) : '',
+);
+const facetParams = computed(() => getCarouselFacetParams(props.content?.source, itemId.value));
 
 const { data } = useAsyncData(
-  () =>
-    `gj-product-carousel-${props.meta.uuid}-${categoryId.value}-${sort.value}-${itemsPerPage.value}-${locale.value}`,
+  () => `gj-product-carousel-${props.meta.uuid}-${JSON.stringify(facetParams.value)}-${locale.value}`,
   async () => {
-    if (!categoryId.value) {
+    if (!facetParams.value) {
       return [];
     }
     try {
-      const { data: facet } = await useSdk().plentysystems.getFacet({
-        type: 'category',
-        categoryId: categoryId.value,
-        itemsPerPage: itemsPerPage.value,
-        sort: sort.value,
-      });
+      const { data: facet } = await useSdk().plentysystems.getFacet(facetParams.value);
       return facet?.products ?? [];
     } catch {
       return [];
     }
   },
-  { watch: [categoryId, sort, itemsPerPage, locale] },
+  { watch: [facetParams, locale] },
 );
 
 const products = computed(() => data.value ?? []);
+
+/*
+ * An item without spare parts or accessories gets no empty bar: without items the cross-selling block is left out
+ * (in the editor it stays, so it can be selected).
+ */
+const isShown = computed(() => !isCrossSelling.value || products.value.length > 0 || isEditMode.value);
 
 /*
  * Own arrows instead of the slider's buttons, like the LTS shop: always both visible, paging round in a loop (from
@@ -125,8 +148,7 @@ const showPrevious = () => page(-1);
 /*
  * Items like the LTS shop: four per view on desktops, three on tablets (below 992 px), two on phones (below 576 px)
  * instead of the slider's fixed 192 px cards; the picture grows with the card. Arrows at the sides in the mid blue.
- * Side margins of 40 px (first 56 px; a little wider items as requested by the shop owner): the arrows' 44 px boxes
- * start 4 px outside, their lines stay inside the margin.
+ * Side margins of 40 px (first 56 px; a little wider items as requested by the shop owner), filled by the arrows.
  */
 .gj-product-carousel__slider {
   position: relative;
@@ -204,14 +226,16 @@ const showPrevious = () => page(-1);
 
 /*
  * Thin line arrows like the "Did you know" box (2.75rem, lines 1.4 px) in the margin next to the items, centred on
- * the cards, in the bar's blue (3.23:1 on white). On phones the items are swiped, without arrows.
+ * the cards, in the bar's blue (3.23:1 on white). On phones the items are swiped, without arrows. The button fills
+ * the 40 px margin exactly (the chevron keeps its 2.75rem size, its lines lie well inside): a box reaching beyond
+ * the carousel made the page 4 px wider than the window wherever the carousel spans the whole width.
  */
 .gj-product-carousel__arrow {
   position: absolute;
   top: 0;
   bottom: 2rem;
   z-index: 1;
-  width: 2.75rem;
+  width: 2.5rem;
   height: 2.75rem;
   margin: auto 0;
   color: var(--gj-bar-blue);
@@ -223,7 +247,7 @@ const showPrevious = () => page(-1);
   width: 100%;
   height: 100%;
   background: currentColor;
-  mask: var(--gj-chevron) center / contain no-repeat;
+  mask: var(--gj-chevron) center / 2.75rem 2.75rem no-repeat;
 }
 
 .gj-product-carousel__arrow:hover {
@@ -236,18 +260,30 @@ const showPrevious = () => page(-1);
 }
 
 .gj-product-carousel__arrow--previous {
-  left: -0.25rem;
+  left: 0;
   --gj-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15 3L6 12L15 21' fill='none' stroke='black' stroke-width='0.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
 .gj-product-carousel__arrow--next {
-  right: -0.25rem;
+  right: 0;
   --gj-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 3L18 12L9 21' fill='none' stroke='black' stroke-width='0.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* No arrows while all items fit in the view: up to four on desktops, up to three on tablets */
+.gj-product-carousel__slider:is([data-gj-items='1'], [data-gj-items='2'], [data-gj-items='3'], [data-gj-items='4'])
+  .gj-product-carousel__arrow {
+  display: none;
 }
 
 @media (max-width: 991.98px) {
   .gj-product-carousel :deep([data-testid='product-card']) {
     width: calc((100% - 2rem) / 3);
+  }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .gj-product-carousel__slider[data-gj-items='4'] .gj-product-carousel__arrow {
+    display: block;
   }
 }
 
