@@ -12,20 +12,45 @@ export const ITEM_DETAILS_BLOCK_NAME = 'GlasJenaItemDetails';
 
 /** A capacity in the variation name: a number, in millilitres (all variations, as of 2026-10-15). */
 const CAPACITY = /^\d+(?:[.,]\d+)?$/;
+/** Locale of the English shop, which adds US units like the English LTS shop. */
+const ENGLISH = 'en';
+const ML_PER_US_FLUID_OUNCE = 29.5735295625;
+const MM_PER_INCH = 25.4;
 
-/** Content from the variation name, which holds the capacity in ml ("1200" → "1200 ml"); empty otherwise. */
-export const getItemContent = (variationName: string | undefined) => {
+/** A converted value with two decimals, like the English LTS shop ("40.58", "4.49"). */
+const formatConverted = (value: number) => value.toFixed(2);
+
+/**
+ * Content from the variation name, which holds the capacity in ml ("1200" → "1200 ml"); empty otherwise. In English
+ * also in US fluid ounces, like the English LTS shop ("1200 ml / 40.58 US fl.oz.").
+ */
+export const getItemContent = (variationName: string | undefined, locale = '') => {
   const name = variationName?.trim() ?? '';
-  return CAPACITY.test(name) ? `${name} ml` : '';
+  if (!CAPACITY.test(name)) {
+    return '';
+  }
+  if (locale !== ENGLISH) {
+    return `${name} ml`;
+  }
+  const ounces = Number(name.replace(',', '.')) / ML_PER_US_FLUID_OUNCE;
+  return `${name} ml / ${formatConverted(ounces)} US fl.oz.`;
 };
 
 /**
- * Dimensions in the LTS order "H | B | T": height, length, width of the variation in mm. Empty while none is set.
+ * Dimensions in the LTS order "H | B | T": height, length, width of the variation in mm, one line; in English a
+ * second line in inches, like the English LTS shop ("4.49 in | 8.86 in | 6.69 in"). None while no size is set.
  * (The LTS shop shows the length as "B", e.g. NOVA+ 114 mm | 225 mm | 170 mm.)
  */
-export const formatDimensions = (height?: number, length?: number, width?: number) => {
+export const formatDimensions = (height?: number, length?: number, width?: number, locale = '') => {
   const values = [height, length, width].map((value) => Number(value) || 0);
-  return values.some(Boolean) ? values.map((value) => `${value} mm`).join(' | ') : '';
+  if (!values.some(Boolean)) {
+    return [];
+  }
+  const millimetres = values.map((value) => `${value} mm`).join(' | ');
+  if (locale !== ENGLISH) {
+    return [millimetres];
+  }
+  return [millimetres, values.map((value) => `${formatConverted(value / MM_PER_INCH)} in`).join(' | ')];
 };
 
 const getCountryName = (country: ManufacturerCountry | undefined, locale: string) =>
@@ -50,16 +75,15 @@ export const getItemDetailRows = (product: Product, locale: string): ItemDetailR
   const manufacturerLines = getManufacturerLines(manufacturer, locale);
   const rows: ItemDetailRow[] = [
     { key: 'itemNumber', lines: [productGetters.getVariationNumber(product)] },
-    { key: 'content', lines: [getItemContent(product.variation?.name)] },
+    { key: 'content', lines: [getItemContent(product.variation?.name, locale)] },
     {
       key: 'dimensions',
-      lines: [
-        formatDimensions(
-          productGetters.getHeightMM(product),
-          productGetters.getLengthMM(product),
-          productGetters.getWidthMM(product),
-        ),
-      ],
+      lines: formatDimensions(
+        productGetters.getHeightMM(product),
+        productGetters.getLengthMM(product),
+        productGetters.getWidthMM(product),
+        locale,
+      ),
     },
     /* The getter fails on a variation without availability */
     {

@@ -41,8 +41,8 @@ const rows = computed(() =>
 {
   "en": {
     "itemNumber": "Item number",
-    "content": "Content",
-    "dimensions": "Dimensions (H{'|'}W{'|'}D)",
+    "content": "Capacity",
+    "dimensions": "Size (H{'|'}W{'|'}D)",
     "availability": "Availability",
     "manufacturer": "Manufacturer"
   },

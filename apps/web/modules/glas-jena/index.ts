@@ -230,8 +230,11 @@ export default defineNuxtModule({
     /* Order status without the PlentyONE number ("[8] Storniert"), see utils/orderStatus.ts */
     addPlugin(resolve('./runtime/plugins/orderStatus'));
 
-    /* Items "Aktuell nicht lieferbar" cannot be ordered on the product page, see utils/notOrderable.ts */
-    addPlugin(resolve('./runtime/plugins/notOrderable'));
+    /*
+     * Items "Aktuell nicht lieferbar" cannot be ordered on the product page, see utils/notOrderable.ts. Appended like
+     * homeSeo: it uses the head and the route, which before the shop's plugins (i18n) broke the hydration.
+     */
+    addPlugin(resolve('./runtime/plugins/notOrderable'), { append: true });
 
     /* Breadcrumbs on one line: the whole path if it fits, otherwise the short form, see utils/breadcrumbsFit.ts */
     addPlugin({ src: resolve('./runtime/plugins/breadcrumbsFit.client'), mode: 'client' });

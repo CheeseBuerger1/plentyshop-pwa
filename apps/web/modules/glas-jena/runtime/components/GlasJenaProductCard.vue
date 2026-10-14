@@ -14,37 +14,50 @@ const ADD_TO_CART_SELECTOR = '[data-testid="add-to-basket-short"]';
 /*
  * The shop's item card with one change: an item that cannot be ordered ("Aktuell nicht lieferbar", see
  * utils/notOrderable.ts) gets a disabled add-to-cart button. The original card only disables it while it loads, so
- * the button is disabled from here after each render; the card itself stays the original (all other props pass
- * through). Vue only touches `disabled` when the card's loading state changes, which a disabled button cannot start.
+ * the button is disabled from here; the card itself stays the original (all other props pass through). The card can
+ * render its button again after this component has mounted (item lists hydrate their cards later), so an observer
+ * disables it again on every change inside the card, and a click on it is stopped in any case.
+ * Look and text ("Nicht lieferbar") come from glas-jena.css via `data-gj-not-orderable`.
  */
 const props = defineProps<{ product: Product }>();
 
-const { t } = useI18n({ useScope: 'local' });
 const cardRef = ref<ComponentPublicInstance | null>(null);
 const notOrderable = computed(() => isNotOrderable(props.product));
 
+const getRoot = () => cardRef.value?.$el as HTMLElement | undefined;
+
 const syncButton = () => {
-  const root = cardRef.value?.$el as HTMLElement | undefined;
-  const button = root?.querySelector?.<HTMLButtonElement>(ADD_TO_CART_SELECTOR);
-  if (!button) {
-    return;
-  }
-  button.disabled = notOrderable.value;
-  if (notOrderable.value) {
-    button.title = t('notOrderable');
-  } else {
-    button.removeAttribute('title');
+  const button = getRoot()?.querySelector?.<HTMLButtonElement>(ADD_TO_CART_SELECTOR);
+  if (button && button.disabled !== notOrderable.value) {
+    button.disabled = notOrderable.value;
   }
 };
 
-onMounted(syncButton);
+const stopNotOrderableClick = (event: Event) => {
+  if (notOrderable.value && (event.target as Element | null)?.closest?.(ADD_TO_CART_SELECTOR)) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }
+};
+
+let observer: MutationObserver | null = null;
+
+onMounted(() => {
+  const root = getRoot();
+  if (!root?.querySelector) {
+    return;
+  }
+  syncButton();
+  root.addEventListener('click', stopNotOrderableClick, true);
+  observer = new MutationObserver(syncButton);
+  observer.observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['disabled'] });
+});
+
+onBeforeUnmount(() => {
+  observer?.disconnect();
+  getRoot()?.removeEventListener?.('click', stopNotOrderableClick, true);
+});
+
 onUpdated(syncButton);
 watch(notOrderable, () => nextTick(syncButton));
 </script>
-
-<i18n lang="json">
-{
-  "en": { "notOrderable": "Currently not available" },
-  "de": { "notOrderable": "Aktuell nicht lieferbar" }
-}
-</i18n>

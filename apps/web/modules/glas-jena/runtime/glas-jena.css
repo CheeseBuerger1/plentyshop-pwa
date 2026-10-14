@@ -1467,18 +1467,57 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
- * Items that cannot be ordered ("Aktuell nicht lieferbar", GlasJenaProductCard.vue): the add-to-cart button is
- * disabled and grey like the LTS shop's button, in lists and as the triangle in carousels. Disabled controls need
- * no contrast (WCAG 1.4.3/1.4.11 exempt them); the tooltip names the reason.
+ * Items that cannot be ordered ("Aktuell nicht lieferbar", utils/notOrderable.ts; wish of the shop owner,
+ * 2026-10-15): the disabled add-to-cart buttons are white with a dashed slate blue outline, a crossed-out cart and
+ * the text "Nicht lieferbar" (item cards, GlasJenaProductCard.vue) or "Aktuell nicht lieferbar" (product page, like
+ * the LTS shop) instead of their own text. All active buttons are filled, so the outline reads as "not active"; the
+ * text and the symbol name the reason, not the colour alone. Slate blue on white 5.70:1. The texts come from custom
+ * properties on the root element (plugins/notOrderable.ts), which also marks a product page showing such an item:
+ * the buy button is disabled while it adds to the cart too, without the mark it keeps its look.
  */
-.font-body [data-testid='product-card'] [data-testid='add-to-basket-short']:disabled,
+:root {
+  --gj-crossed-cart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M22.73 22.73 2.77 2.77 2 2l-.73-.73L0 2.54l4.39 4.39 2.21 4.66-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h7.46l1.38 1.38c-.5.36-.83.95-.83 1.62 0 1.1.89 2 1.99 2 .67 0 1.26-.33 1.62-.84L21.46 24l1.27-1.27zM7.42 15c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h2.36l2 2H7.42zm8.13-2c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0 0 20 4H6.54l9.01 9zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2z'/%3E%3C/svg%3E");
+}
+
+.font-body [data-testid='product-card'][data-gj-not-orderable] [data-testid='add-to-basket-short'],
+html[data-gj-not-orderable] .font-body [data-testid='purchase-card'] [data-testid='add-to-cart']:disabled {
+  gap: 0.5rem;
+  border: 2px dashed var(--gj-slate-blue);
+  background-color: #fff;
+  color: var(--gj-slate-blue);
+  cursor: not-allowed;
+}
+
+.font-body [data-testid='product-card'][data-gj-not-orderable] [data-testid='add-to-basket-short'] > *,
+html[data-gj-not-orderable] .font-body [data-testid='purchase-card'] [data-testid='add-to-cart']:disabled > * {
+  display: none;
+}
+
+.font-body [data-testid='product-card'][data-gj-not-orderable] [data-testid='add-to-basket-short']::before,
+html[data-gj-not-orderable] .font-body [data-testid='purchase-card'] [data-testid='add-to-cart']:disabled::before {
+  content: '';
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: currentcolor;
+  mask: var(--gj-crossed-cart) center / contain no-repeat;
+}
+
+.font-body [data-testid='product-card'][data-gj-not-orderable] [data-testid='add-to-basket-short']::after {
+  content: var(--gj-not-orderable-short);
+}
+
+html[data-gj-not-orderable] .font-body [data-testid='purchase-card'] [data-testid='add-to-cart']:disabled::after {
+  content: var(--gj-not-orderable-long);
+}
+
+/* The triangle in carousels: no fill and no outline (a dashed edge cannot follow the diagonal), only the symbol */
 .font-body
   [data-testid='product-slider']
-  [data-testid='product-card']
-  [data-testid='add-to-basket-short']:disabled:hover {
-  cursor: not-allowed;
-  background-color: #e4e4e4;
-  color: #8a8a8a;
+  [data-testid='product-card'][data-gj-not-orderable]
+  [data-testid='add-to-basket-short'] {
+  border: 0;
+  background-color: transparent;
 }
 
 /*

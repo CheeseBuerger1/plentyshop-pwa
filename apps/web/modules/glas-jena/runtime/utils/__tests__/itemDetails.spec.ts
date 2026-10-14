@@ -39,6 +39,7 @@ const createProduct = (overrides: { variation?: object; manufacturer?: object | 
   }) as unknown as Product;
 
 const keysOf = (rows: ItemDetailRow[]) => rows.map(({ key }) => key);
+const linesOf = (rows: ItemDetailRow[], key: ItemDetailRow['key']) => rows.find((row) => row.key === key)?.lines;
 
 describe('itemDetails', () => {
   describe('getItemContent', () => {
@@ -51,17 +52,30 @@ describe('itemDetails', () => {
       expect(getItemContent('')).toBe('');
       expect(getItemContent(undefined)).toBe('');
       expect(getItemContent('Glaskörper')).toBe('');
+      expect(getItemContent('', 'en')).toBe('');
+    });
+
+    it('should add US fluid ounces in English like the English LTS shop', () => {
+      expect(getItemContent('1200', 'en')).toBe('1200 ml / 40.58 US fl.oz.');
+      expect(getItemContent('1200', 'de')).toBe('1200 ml');
     });
   });
 
   describe('formatDimensions', () => {
     it('should list height, length and width in mm like the LTS shop', () => {
-      expect(formatDimensions(114, 225, 170)).toBe('114 mm | 225 mm | 170 mm');
+      expect(formatDimensions(114, 225, 170, 'de')).toEqual(['114 mm | 225 mm | 170 mm']);
+    });
+
+    it('should add a line in inches in English like the English LTS shop', () => {
+      expect(formatDimensions(114, 225, 170, 'en')).toEqual([
+        '114 mm | 225 mm | 170 mm',
+        '4.49 in | 8.86 in | 6.69 in',
+      ]);
     });
 
     it('should show nothing without any dimension', () => {
-      expect(formatDimensions(0, 0, 0)).toBe('');
-      expect(formatDimensions()).toBe('');
+      expect(formatDimensions(0, 0, 0, 'en')).toEqual([]);
+      expect(formatDimensions()).toEqual([]);
     });
   });
 
@@ -95,6 +109,14 @@ describe('itemDetails', () => {
           url: 'https://www.trendglas-jena.com',
         },
       ]);
+    });
+
+    it('should give content and dimensions with US units and the country in English', () => {
+      const rows = getItemDetailRows(createProduct(), 'en');
+
+      expect(linesOf(rows, 'content')).toEqual(['1200 ml / 40.58 US fl.oz.']);
+      expect(linesOf(rows, 'dimensions')).toEqual(['114 mm | 225 mm | 170 mm', '4.49 in | 8.86 in | 6.69 in']);
+      expect(linesOf(rows, 'manufacturer')?.at(-1)).toBe('Germany');
     });
 
     it('should leave out lines without a value', () => {
