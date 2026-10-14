@@ -22,6 +22,20 @@ describe('upstream contract of the glas-jena module: product page', () => {
     expect(readApp('components/Price/Price.vue')).toContain("testId: 'price'");
   });
 
+  it('should find the gallery parts that show the thumbnails on narrow screens too', () => {
+    /*
+     * glas-jena.css: `[data-testid='gallery'] > div:nth-child(2) > div:first-child` (and its `.swiper`) shown, the
+     * row of bars `> div:nth-child(2) > div:nth-child(2)` hidden below 768 px
+     */
+    const gallery = readApp('components/Gallery/Gallery.vue');
+    expect(gallery).toMatch(/data-testid="gallery">\s*<div\s+ref="mainBox"/);
+    expect(gallery).toMatch(
+      /v-show="configuration\.thumbnails\.showThumbnails"[\s\S]*?>\s*<div class="hidden @md:block/,
+    );
+    expect(gallery).toContain("'hidden md:block md:w-full md:min-h-[5.5rem]'");
+    expect(gallery).toContain('<div v-if="hasMoreImages" class="flex @md:hidden gap-0.5"');
+  });
+
   it('should find the block wrappers that an empty block loses its margin by', () => {
     /* glas-jena.css: `[data-testid='block-wrapper']:has(> .block-wrapper:empty)` */
     expect(readApp('components/EditableBlocks/BlockItem.vue')).toContain('data-testid="block-wrapper"');

@@ -1314,9 +1314,31 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
+ * Product page gallery: the thumbnails stay below 768 px too (wish of the shop owner). The original hides them there
+ * (`hidden @md:block`, the strip itself `hidden md:block`) and shows only a row of bars for more than one image,
+ * for a single image nothing. Here the strip of the wider views stays, swipeable, the bars go; 8 px above it as from
+ * 768 px. The arrows of the strip stay hidden on phones (swiping).
+ */
+@container (max-width: 767.98px) {
+  .font-body [data-testid='gallery'] > div:nth-child(2) > div:first-child,
+  .font-body [data-testid='gallery'] > div:nth-child(2) > div:first-child > .swiper {
+    display: block;
+  }
+
+  .font-body [data-testid='gallery'] > div:nth-child(2) {
+    margin-top: 0.5rem;
+  }
+
+  .font-body [data-testid='gallery'] > div:nth-child(2) > div:nth-child(2) {
+    display: none;
+  }
+}
+
+/*
  * Product page tiles like the LTS shop: description, product details (technical data) and further details
- * (item data) in their tile colours. The blocks have no background setting in the editor, so the colour is
- * tied to the block type. Placed side by side in a three-column MultiGrid in the editor.
+ * (item data, or the module's own block GlasJenaItemDetails with the LTS details) in their tile colours. The
+ * blocks have no background setting in the editor, so the colour is tied to the block type. Placed side by side in a
+ * three-column MultiGrid in the editor.
  */
 .font-body [data-testid='item-text-block'] {
   background-color: var(--gj-tile-blue);
@@ -1326,25 +1348,41 @@ div:has(> svg[data-testid='favorite']) {
   background-color: var(--gj-tile-grey-blue);
 }
 
-.font-body [data-testid='item-data-block'] {
+.font-body :is([data-testid='item-data-block'], [data-testid='gj-item-details']) {
   background-color: var(--gj-tile-lilac);
 }
 
 /* Equal tile heights: pass the stretched grid column height down through the column's row wrapper */
 .font-body
   [data-testid='multi-grid-column']:has(
-    :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+    :is(
+      [data-testid='item-text-block'],
+      [data-testid='technical-data-block'],
+      [data-testid='item-data-block'],
+      [data-testid='gj-item-details']
+    )
   )
   > div {
   height: 100%;
 }
 
-.font-body :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block']) {
+.font-body
+  :is(
+    [data-testid='item-text-block'],
+    [data-testid='technical-data-block'],
+    [data-testid='item-data-block'],
+    [data-testid='gj-item-details']
+  ) {
   height: 100%;
 }
 
 .font-body
-  :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+  :is(
+    [data-testid='item-text-block'],
+    [data-testid='technical-data-block'],
+    [data-testid='item-data-block'],
+    [data-testid='gj-item-details']
+  )
   h2 {
   margin-bottom: 1rem;
   font-size: 1.5rem;
@@ -1354,7 +1392,12 @@ div:has(> svg[data-testid='favorite']) {
 
 /* The accordion summary would otherwise turn light grey on hover inside the coloured tile */
 .font-body
-  :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='item-data-block'])
+  :is(
+    [data-testid='item-text-block'],
+    [data-testid='technical-data-block'],
+    [data-testid='item-data-block'],
+    [data-testid='gj-item-details']
+  )
   summary:hover {
   background-color: transparent;
 }

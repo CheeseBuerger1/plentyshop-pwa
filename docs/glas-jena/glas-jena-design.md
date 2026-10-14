@@ -214,9 +214,17 @@ Wünsche des Shopbetreibers vom 2026-10-14, Vorbild ist die LTS-Artikelseite.
   - Artikelname 28 px, Stärke 400, Textfarbe (vorher 18 px dünn und grau).
   - Preis 28 px in Schieferblau `#4b6a82` (5,70:1). Die Sekundärfarbe des Shops `#6e9bbf` hat nur 2,96:1 und reicht nicht einmal für große Schrift (3:1).
   - Ohne Rahmen: im Editor ausschalten, siehe unten.
-- **Drei Kacheln unter dem Kaufbereich** wie im LTS: Beschreibung (`ItemText`, `#a9c9e3`), Produktdetails (`TechnicalData`, `#d6e1ea`) und Weitere Details (`ItemData`, `#d4c8e8`).
+- **Vorschaubilder auf allen Breiten** (Wunsch des Shopbetreibers, 2026-10-15): Unter 768 px blendet die Galerie des Originals die Vorschaubilder aus und zeigt bei mehreren Bildern nur eine Reihe Balken, bei einem Bild nichts. `glas-jena.css` zeigt dort dieselbe Leiste wie am Desktop (wischbar, 80 px große Bilder, 8 px unter dem Bild), die Balken entfallen.
+- **Drei Kacheln unter dem Kaufbereich** wie im LTS: Beschreibung (`ItemText`, `#a9c9e3`), Produktdetails (`TechnicalData`, `#d6e1ea`) und Weitere Details (eigener Block, `#d4c8e8`).
   - Sie stehen in einem Raster 4/4/4 mit „Full width“, damit sie mit den blauen Leisten darunter bündig sind. Unter 768 px stehen sie untereinander.
   - Farben, gleiche Höhen und zentrierte Überschriften kommen aus `glas-jena.css`.
+- **„Weitere Details“ wie im LTS** (Wunsch des Shopbetreibers, 2026-10-15): eigener Block „More details (GLAS IN JENA)“ (`GlasJenaItemDetails`, Logik in `utils/itemDetails.ts`). Der Block „More details“ des Shops (`ItemData`) kennt weder Variantennummer noch Variantenname noch die Herstelleradresse, außerdem war seine Schrift kleiner (14 statt 16 px). Zeilen wie im LTS, Beschriftung fett:
+  - **Artikelnummer:** Variantennummer (Feld „Variantennr.“).
+  - **Inhalt:** Variantenname in ml, z. B. „1200“ → „1200 ml“. Alle 564 Artikel haben dort eine Zahl oder nichts (Stand 2026-10-15); andere Texte werden nicht gezeigt.
+  - **Maße (H|B|T):** Höhe, Länge, Breite in mm, z. B. „114 mm | 225 mm | 170 mm“ (Reihenfolge wie im LTS, an NOVA+ und OPUS geprüft).
+  - **Verfügbarkeit:** Name der Verfügbarkeit, z. B. „lieferbar“.
+  - **Hersteller:** externer Name, Straße mit Hausnummer, PLZ und Ort, Land (in der Sprache des Shops) und die Webseite als Link (`--gj-link`, unterstrichen, 5,0:1 auf Flieder).
+  - Zeilen ohne Wert entfallen. Text 16 px wie in den anderen Kacheln, Innenabstand 24 px.
 - **„Ersatzteile“ und „Zubehör“:** Block „Item carousel (GLAS IN JENA)“ mit der Quelle „Cross-selling of the item“ und der Beziehung „Spare parts“ bzw. „Accessories“ (Cross-Selling des Artikels in PlentyONE).
   - Blaue Leiste und Karten wie bei „Unsere Topseller“: 4 Plätze am Desktop, 3 unter 992 px, 2 unter 576 px. Bei weniger Artikeln bleiben die übrigen Plätze leer, die Karten werden nicht breiter und nicht schmaler. Die Scrollfläche des Karussells ist dafür immer so breit wie die Zeile; sonst schrumpfte sie auf ihre Karten, und die Karten wurden schmaler (171 statt 268 px).
   - Pfeile gibt es nur, wenn es mehr Artikel als Plätze gibt.
@@ -232,9 +240,9 @@ Wünsche des Shopbetreibers vom 2026-10-14, Vorbild ist die LTS-Artikelseite.
 3. Unter dem Kaufbereich einen **MultiGrid 4/4/4** einfügen, Gap „None“, **„Full width“ an**. Spalten:
    - **Item text**, Titel „Beschreibung“
    - **Technical data**, Titel „Produktdetails“
-   - **More details (Item data)**, Titel „Weitere Details“, Felder Art.-ID, Inhalt, Maße, Hersteller
+   - **More details (GLAS IN JENA)**, Vorlage „Weitere Details“ (statt des Shop-Blocks „More details“)
 
-   Alle drei Kacheln nicht aufklappbar, Innenabstand 24 px rundum.
+   Die ersten beiden Kacheln nicht aufklappbar, Innenabstand 24 px rundum (die dritte bringt ihn mit).
 
 4. Darunter zweimal **„Item carousel (GLAS IN JENA)“** mit den Vorlagen „Ersatzteile (product page)“ und „Zubehör (product page)“.
 
