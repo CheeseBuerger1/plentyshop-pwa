@@ -126,15 +126,17 @@ onBeforeUnmount(() => observer?.disconnect());
 }
 
 /*
- * Line arrows like the home page's carousel, white on a slate blue field like the shop's buttons (5.70:1), so they
- * stand out on the white product photos and read as buttons: 44 px, always visible (touch screens have no hover).
- * A light field or the line alone was hardly visible on the white pictures.
+ * Line arrows like the home page's carousel, white on a semi-transparent slate blue field (75 %; wish of the shop
+ * owner: the opaque field was too heavy), so they read as buttons on the white product photos and let the picture
+ * show through: 44 px, always visible (touch screens have no hover). On white the field mixes to #78909f, white on it
+ * 3.36:1 (needed 3:1; less opacity falls below, 55 % 2.31:1); on darker picture parts the contrast only grows.
+ * A white field or the line alone was hardly visible on the white pictures.
  */
 .gj-gallery__arrow {
   width: 2.75rem;
   height: 2.75rem;
   color: #fff;
-  background-color: var(--gj-button-bg);
+  background-color: rgb(75 106 130 / 0.75);
   pointer-events: auto;
   cursor: pointer;
 }
@@ -148,8 +150,9 @@ onBeforeUnmount(() => observer?.disconnect());
   mask: var(--gj-chevron) center / 1.5rem 1.5rem no-repeat;
 }
 
+/* Hover: the field turns opaque slate blue (5.70:1) */
 .gj-gallery__arrow:hover {
-  background-color: var(--gj-button-hover-bg);
+  background-color: var(--gj-slate-blue);
 }
 
 .gj-gallery__arrow:focus-visible {

@@ -1824,3 +1824,12 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
     transition-duration: 0.3s, 0s;
   }
 }
+
+/*
+ * Item images as large as in the carousels (wish of the shop owner, 2026-10-15): 92.5 % of the card's image box
+ * instead of all of it (see GlasJenaProductCarousel.vue); the box keeps its size. Before, the list images were about
+ * 10 % larger than the carousel's with nearly equally wide cards.
+ */
+[data-testid='category-grid'] [data-testid='product-card-link'] > div {
+  padding: 3.75%;
+}
