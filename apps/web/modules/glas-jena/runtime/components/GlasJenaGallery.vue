@@ -1,24 +1,34 @@
 <template>
-  <div ref="rootRef" class="gj-gallery" data-testid="gj-gallery">
+  <div ref="rootRef" class="gj-gallery" data-testid="gj-gallery" @click="onGalleryClick">
     <Gallery :images="images" :configuration="configuration" />
-    <div v-if="hasMoreImages" class="gj-gallery__nav" :style="navStyle">
+    <div v-if="images.length" class="gj-gallery__nav" :style="navStyle">
       <button
         type="button"
-        class="gj-gallery__arrow gj-gallery__arrow--previous"
-        :aria-label="t('previous')"
-        :title="t('previous')"
-        data-testid="gj-gallery-previous"
-        @click="showPrevious"
+        class="gj-gallery__enlarge"
+        :aria-label="t('enlarge')"
+        data-testid="gj-gallery-enlarge"
+        @click="openLightbox"
       />
-      <button
-        type="button"
-        class="gj-gallery__arrow gj-gallery__arrow--next"
-        :aria-label="t('next')"
-        :title="t('next')"
-        data-testid="gj-gallery-next"
-        @click="showNext"
-      />
+      <template v-if="hasMoreImages">
+        <button
+          type="button"
+          class="gj-image-button gj-image-button--previous gj-gallery__arrow"
+          :aria-label="t('previous')"
+          :title="t('previous')"
+          data-testid="gj-gallery-previous"
+          @click="showPrevious"
+        />
+        <button
+          type="button"
+          class="gj-image-button gj-image-button--next gj-gallery__arrow"
+          :aria-label="t('next')"
+          :title="t('next')"
+          data-testid="gj-gallery-next"
+          @click="showNext"
+        />
+      </template>
     </div>
+    <GlasJenaLightbox ref="lightboxRef" :images="images" @close="onLightboxClose" />
   </div>
 </template>
 
@@ -26,25 +36,30 @@
 import type { Swiper as SwiperType } from 'swiper';
 import Gallery from '~/components/Gallery/Gallery.vue';
 import type { GalleryProps } from '~/components/Gallery/types';
+import GlasJenaLightbox from './GlasJenaLightbox.vue';
 
 /** The big picture of the shop's gallery and its Swiper element (Swiper keeps its instance on the element). */
 const MAIN_BOX_SELECTOR = '[data-testid="gallery-images"]';
 const SWIPER_SELECTOR = `${MAIN_BOX_SELECTOR} .swiper`;
 
 /*
- * The shop's product gallery with clear arrows for changing the picture (wish of the shop owner, 2026-10-15): the
- * original has them on the thumbnail strip as white squares, which the flat look leaves without frame and shadow,
- * hardly visible and easily taken for part of the strip; their labels are English only. Here they sit left and right
- * on the big picture like the LTS shop, at every width (on phones besides swiping), and page round in a loop like the
- * home page's carousel. The gallery itself stays the original; its own arrows are hidden.
+ * The shop's product gallery with clear arrows for changing the picture and a lightbox (wishes of the shop owner,
+ * 2026-10-15). The original has its arrows on the thumbnail strip as white squares, which the flat look leaves
+ * without frame and shadow, hardly visible and easily taken for part of the strip; their labels are English only.
+ * Here they sit left and right on the big picture like the LTS shop, at every width (on phones besides swiping), and
+ * page round in a loop like the home page's carousel. A click on the big picture opens it large like the LTS shop's
+ * lightbox (GlasJenaLightbox.vue); for the keyboard a button "Bild vergrößern" lies over the picture (invisible
+ * until focused, mouse clicks go through to the picture). The gallery itself stays the original; its own arrows and
+ * the phone hint "double tap to zoom" are hidden (a tap opens the lightbox).
  */
 const props = defineProps<GalleryProps>();
 
 const { t } = useI18n({ useScope: 'local' });
 const rootRef = ref<HTMLElement | null>(null);
+const lightboxRef = ref<InstanceType<typeof GlasJenaLightbox> | null>(null);
 const hasMoreImages = computed(() => props.images.length > 1);
 
-/* The arrows' area covers exactly the big picture, wherever the thumbnails are (below or beside it) */
+/* The buttons' area covers exactly the big picture, wherever the thumbnails are (below or beside it) */
 const navStyle = ref<Record<string, string>>({});
 
 const measure = () => {
@@ -79,6 +94,19 @@ const page = (direction: number) => {
 const showPrevious = () => page(-1);
 const showNext = () => page(1);
 
+const openLightbox = () => lightboxRef.value?.open(getSwiper()?.activeIndex ?? 0);
+
+/* A click on the big picture opens the lightbox; Swiper marks the click that ends a drag as handled (no opening) */
+const onGalleryClick = (event: MouseEvent) => {
+  const target = event.target as Element;
+  if (!event.defaultPrevented && target.closest?.(MAIN_BOX_SELECTOR)) {
+    openLightbox();
+  }
+};
+
+/* The gallery shows the picture last seen in the lightbox */
+const onLightboxClose = (index: number) => getSwiper()?.slideTo(index);
+
 let observer: ResizeObserver | null = null;
 
 onMounted(() => {
@@ -98,8 +126,8 @@ onBeforeUnmount(() => observer?.disconnect());
 
 <i18n lang="json">
 {
-  "en": { "previous": "Previous picture", "next": "Next picture" },
-  "de": { "previous": "Vorheriges Bild", "next": "Nächstes Bild" }
+  "en": { "previous": "Previous picture", "next": "Next picture", "enlarge": "Enlarge picture" },
+  "de": { "previous": "Vorheriges Bild", "next": "Nächstes Bild", "enlarge": "Bild vergrößern" }
 }
 </i18n>
 
@@ -109,12 +137,18 @@ onBeforeUnmount(() => observer?.disconnect());
   height: 100%;
 }
 
-/* The original arrows on the thumbnail strip (replaced by the ones below) */
-.gj-gallery :deep([data-testid='gallery'] button:is([aria-label='Previous'], [aria-label='Next'])) {
+/* The original arrows on the thumbnail strip (replaced by the ones below) and the phone hint for zooming */
+.gj-gallery :deep([data-testid='gallery'] button:is([aria-label='Previous'], [aria-label='Next'])),
+.gj-gallery :deep(.zoom-hint) {
   display: none;
 }
 
-/* Over the big picture; only the arrows take clicks, swiping and the zoom stay on the picture */
+/* The big picture opens the lightbox */
+.gj-gallery :deep([data-testid='gallery-images']) {
+  cursor: zoom-in;
+}
+
+/* Over the big picture; only the arrows take clicks, swiping and clicks on the picture stay on the picture */
 .gj-gallery__nav {
   position: absolute;
   z-index: 1;
@@ -125,46 +159,19 @@ onBeforeUnmount(() => observer?.disconnect());
   pointer-events: none;
 }
 
-/*
- * Line arrows like the home page's carousel, white on a semi-transparent slate blue field (75 %; wish of the shop
- * owner: the opaque field was too heavy), so they read as buttons on the white product photos and let the picture
- * show through: 44 px, always visible (touch screens have no hover). On white the field mixes to #78909f, white on it
- * 3.36:1 (needed 3:1; less opacity falls below, 55 % 2.31:1); on darker picture parts the contrast only grows.
- * A white field or the line alone was hardly visible on the white pictures.
- */
 .gj-gallery__arrow {
-  width: 2.75rem;
-  height: 2.75rem;
-  color: #fff;
-  background-color: rgb(75 106 130 / 0.75);
+  position: relative;
   pointer-events: auto;
-  cursor: pointer;
 }
 
-.gj-gallery__arrow::before {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: currentColor;
-  mask: var(--gj-chevron) center / 1.5rem 1.5rem no-repeat;
+/* For the keyboard only: covers the picture, shows a frame while focused, lets mouse and touch through */
+.gj-gallery__enlarge {
+  position: absolute;
+  inset: 0;
 }
 
-/* Hover: the field turns opaque slate blue (5.70:1) */
-.gj-gallery__arrow:hover {
-  background-color: var(--gj-slate-blue);
-}
-
-.gj-gallery__arrow:focus-visible {
+.gj-gallery__enlarge:focus-visible {
   outline: 2px solid #263238;
-  outline-offset: 2px;
-}
-
-.gj-gallery__arrow--previous {
-  --gj-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15 3L6 12L15 21' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-}
-
-.gj-gallery__arrow--next {
-  --gj-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 3L18 12L9 21' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  outline-offset: -2px;
 }
 </style>

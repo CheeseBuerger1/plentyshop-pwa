@@ -61,6 +61,8 @@ describe('upstream contract of the glas-jena module: product page', () => {
       /export type GalleryProps = \{\s*configuration\?: ImageGalleryContent;\s*images: ImagesData\[\];\s*\};/,
     );
     expect(readApp('components/blocks/ImageGallery/ImageGallery.vue')).toContain('<Gallery');
+    /* The lightbox hides the phone hint for zooming (a tap opens the lightbox) */
+    expect(readApp('components/ZoomableImage/ZoomableImage.vue')).toContain('class="zoom-hint');
   });
 
   it('should find the block wrappers that an empty block loses its margin by', () => {

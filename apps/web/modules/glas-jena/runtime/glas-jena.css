@@ -1833,3 +1833,49 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
 [data-testid='category-grid'] [data-testid='product-card-link'] > div {
   padding: 3.75%;
 }
+
+/*
+ * Picture buttons of the product gallery and its lightbox (GlasJenaGallery.vue, GlasJenaLightbox.vue): line icons
+ * like the home page's carousel arrows, white on a semi-transparent slate blue field (75 %; wish of the shop owner:
+ * the opaque field was too heavy), so they read as buttons on the white product photos and let the picture show
+ * through: 44 px, always visible (touch screens have no hover). On white the field mixes to #78909f, white on it
+ * 3.36:1 (needed 3:1; less opacity falls below, 55 % 2.31:1); on darker picture parts the contrast only grows.
+ * A white field or the line alone was hardly visible on the white pictures. Hover: opaque slate blue (5.70:1).
+ */
+.gj-image-button {
+  width: 2.75rem;
+  height: 2.75rem;
+  color: #fff;
+  background-color: rgb(75 106 130 / 0.75);
+  cursor: pointer;
+}
+
+.gj-image-button::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: currentColor;
+  mask: var(--gj-image-button-icon) center / 1.5rem 1.5rem no-repeat;
+}
+
+.gj-image-button:hover {
+  background-color: var(--gj-slate-blue);
+}
+
+.gj-image-button:focus-visible {
+  outline: 2px solid #263238;
+  outline-offset: 2px;
+}
+
+.gj-image-button--previous {
+  --gj-image-button-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15 3L6 12L15 21' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.gj-image-button--next {
+  --gj-image-button-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 3L18 12L9 21' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.gj-image-button--close {
+  --gj-image-button-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 5L19 19M19 5L5 19' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round'/%3E%3C/svg%3E");
+}
