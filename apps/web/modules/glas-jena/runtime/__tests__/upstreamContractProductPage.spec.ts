@@ -50,6 +50,19 @@ describe('upstream contract of the glas-jena module: product page', () => {
     expect(gallery).toContain('<div v-if="hasMoreImages" class="flex @md:hidden gap-0.5"');
   });
 
+  it('should find the gallery parts that GlasJenaGallery puts its arrows over and pages with', () => {
+    /* The wrapper measures the big picture, pages its Swiper (instance on the element) and hides the strip's arrows */
+    const gallery = readApp('components/Gallery/Gallery.vue');
+    expect(gallery).toContain('data-testid="gallery-images"');
+    expect(gallery).toMatch(/data-testid="gallery-images"\s*>\s*<Swiper/);
+    expect(gallery).toContain('aria-label="Previous"');
+    expect(gallery).toContain('aria-label="Next"');
+    expect(readApp('components/Gallery/types.ts')).toMatch(
+      /export type GalleryProps = \{\s*configuration\?: ImageGalleryContent;\s*images: ImagesData\[\];\s*\};/,
+    );
+    expect(readApp('components/blocks/ImageGallery/ImageGallery.vue')).toContain('<Gallery');
+  });
+
   it('should find the block wrappers that an empty block loses its margin by', () => {
     /* glas-jena.css: `[data-testid='block-wrapper']:has(> .block-wrapper:empty)` */
     expect(readApp('components/EditableBlocks/BlockItem.vue')).toContain('data-testid="block-wrapper"');
