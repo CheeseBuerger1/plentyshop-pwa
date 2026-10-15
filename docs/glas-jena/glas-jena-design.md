@@ -215,6 +215,12 @@ Wünsche des Shopbetreibers vom 2026-10-14, Vorbild ist die LTS-Artikelseite.
   - Preis 28 px in Schieferblau `#4b6a82` (5,70:1). Die Sekundärfarbe des Shops `#6e9bbf` hat nur 2,96:1 und reicht nicht einmal für große Schrift (3:1).
   - Ohne Rahmen: im Editor ausschalten, siehe unten.
 - **Vorschaubilder auf allen Breiten** (Wunsch des Shopbetreibers, 2026-10-15): Unter 768 px blendet die Galerie des Originals die Vorschaubilder aus und zeigt bei mehreren Bildern nur eine Reihe Balken, bei einem Bild nichts. `glas-jena.css` zeigt dort dieselbe Leiste wie am Desktop (wischbar, 80 px große Bilder, 8 px unter dem Bild), die Balken entfallen.
+- **Pfeile zum Bildwechsel am großen Bild** (Wunsch des Shopbetreibers, 2026-10-15: „kaum zu erkennen, Funktion schwer zu erraten“): Das Original setzt sie als weiße Quadrate auf das erste und letzte Vorschaubild; im flachen Look ohne Rand und Schatten waren sie kaum zu sehen und wirkten wie Teil der Leiste. Ihre Beschriftung war nur Englisch („Previous“/„Next“). `GlasJenaGallery.vue` umhüllt die Galerie des Shops (`COMPONENT_OVERRIDES`, `Gallery`), blendet diese Pfeile aus und setzt eigene links und rechts mittig auf das große Bild, wie im LTS.
+  - 44 px, schieferblaues Feld mit weißem Linienpfeil wie bei den Knöpfen des Shops (5,70:1), Hover dunkler, sichtbarer Fokusrahmen.
+  - Beschriftung „Vorheriges Bild“ / „Nächstes Bild“ (englisch „Previous picture“ / „Next picture“).
+  - Blättern im Kreis wie bei „Unsere Topseller“; das aktive Vorschaubild folgt.
+  - Auf allen Breiten, auf dem Handy zusätzlich zum Wischen. Bei nur einem Bild gibt es keine Pfeile.
+  - Ein helles Feld oder nur der Strich (erster Versuch) war auf den weißen Produktfotos kaum zu sehen.
 - **Drei Kacheln unter dem Kaufbereich** wie im LTS: Beschreibung (`ItemText`, `#a9c9e3`), Produktdetails (`TechnicalData`, `#d6e1ea`) und Weitere Details (eigener Block, `#d4c8e8`).
   - Sie stehen in einem Raster 4/4/4 mit „Full width“, damit sie mit den blauen Leisten darunter bündig sind. Unter 768 px stehen sie untereinander.
   - Farben, gleiche Höhen und zentrierte Überschriften kommen aus `glas-jena.css`.

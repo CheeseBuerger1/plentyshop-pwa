@@ -30,13 +30,15 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   CategoryTree: './runtime/components/GlasJenaCategoryTree.vue',
   /* Item cards: disabled add-to-cart button for items that cannot be ordered ("Aktuell nicht lieferbar") */
   UiProductCard: './runtime/components/GlasJenaProductCard.vue',
+  /* Product gallery: clear arrows on the big picture instead of the hardly visible ones on the thumbnail strip */
+  Gallery: './runtime/components/GlasJenaGallery.vue',
 };
 
 /**
  * Replaced components whose original unit test takes the component from Nuxt's registry (`#components`): in the
  * unit tests the original stays, so that upstream test keeps testing the original (the module's copy has its own).
  */
-export const COMPONENT_OVERRIDES_NOT_IN_TESTS = ['CategoryTree', 'UiProductCard'];
+export const COMPONENT_OVERRIDES_NOT_IN_TESTS = ['CategoryTree', 'UiProductCard', 'Gallery'];
 
 /**
  * Original layouts (name) replaced by the module's own ones. Account: on phones the menu has its own page and every
