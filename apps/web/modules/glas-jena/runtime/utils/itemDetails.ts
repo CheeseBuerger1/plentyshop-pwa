@@ -22,17 +22,20 @@ const formatConverted = (value: number) => value.toFixed(2);
 
 /**
  * Content from the variation name, which holds the capacity in ml ("1200" → "1200 ml"); empty otherwise. In English
- * also in US fluid ounces, like the English LTS shop ("1200 ml / 40.58 US fl.oz.").
+ * also in US fluid ounces, like the English LTS shop ("1200 ml / 40.58 US fl.oz."). Items without a capacity have the
+ * name "0" (72 of 344 as of 2026-10-15) or none: the line is left out (wish of the shop owner; the LTS shop shows
+ * "n/a" there).
  */
 export const getItemContent = (variationName: string | undefined, locale = '') => {
   const name = variationName?.trim() ?? '';
-  if (!CAPACITY.test(name)) {
+  const millilitres = Number(name.replace(',', '.'));
+  if (!CAPACITY.test(name) || millilitres <= 0) {
     return '';
   }
   if (locale !== ENGLISH) {
     return `${name} ml`;
   }
-  const ounces = Number(name.replace(',', '.')) / ML_PER_US_FLUID_OUNCE;
+  const ounces = millilitres / ML_PER_US_FLUID_OUNCE;
   return `${name} ml / ${formatConverted(ounces)} US fl.oz.`;
 };
 
