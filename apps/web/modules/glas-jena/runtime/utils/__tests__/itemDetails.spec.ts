@@ -55,6 +55,11 @@ describe('itemDetails', () => {
       expect(getItemContent('', 'en')).toBe('');
     });
 
+    it('should leave out the capacity 0 (items without a capacity) in German and English', () => {
+      expect(getItemContent('0', 'de')).toBe('');
+      expect(getItemContent('0', 'en')).toBe('');
+    });
+
     it('should add US fluid ounces in English like the English LTS shop', () => {
       expect(getItemContent('1200', 'en')).toBe('1200 ml / 40.58 US fl.oz.');
       expect(getItemContent('1200', 'de')).toBe('1200 ml');

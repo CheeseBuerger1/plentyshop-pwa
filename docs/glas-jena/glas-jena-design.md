@@ -228,7 +228,7 @@ Wünsche des Shopbetreibers vom 2026-10-14, Vorbild ist die LTS-Artikelseite.
   - Farben, gleiche Höhen und zentrierte Überschriften kommen aus `glas-jena.css`.
 - **„Weitere Details“ wie im LTS** (Wunsch des Shopbetreibers, 2026-10-15): eigener Block „More details (GLAS IN JENA)“ (`GlasJenaItemDetails`, Logik in `utils/itemDetails.ts`). Der Block „More details“ des Shops (`ItemData`) kennt weder Variantennummer noch Variantenname noch die Herstelleradresse, außerdem war seine Schrift kleiner (14 statt 16 px). Zeilen wie im LTS, Beschriftung fett:
   - **Artikelnummer:** Variantennummer (Feld „Variantennr.“).
-  - **Inhalt:** Variantenname in ml, z. B. „1200“ → „1200 ml“. Alle 564 Artikel haben dort eine Zahl oder nichts (Stand 2026-10-15); andere Texte werden nicht gezeigt.
+  - **Inhalt:** Variantenname in ml, z. B. „1200“ → „1200 ml“. Artikel ohne Inhalt haben dort „0“ (72 von 344, Stand 2026-10-15) oder nichts (8); dann entfällt die Zeile ganz (Wunsch des Shopbetreibers; der LTS zeigt dort „n/a“). Andere Texte werden nicht gezeigt.
   - **Maße (H|B|T):** Höhe, Länge, Breite in mm, z. B. „114 mm | 225 mm | 170 mm“ (Reihenfolge wie im LTS, an NOVA+ und OPUS geprüft).
   - **Verfügbarkeit:** Name der Verfügbarkeit, z. B. „lieferbar“.
   - **Hersteller:** externer Name, Straße mit Hausnummer, PLZ und Ort, Land (in der Sprache des Shops) und die Webseite als Link (`--gj-link`, unterstrichen, 5,0:1 auf Flieder).
