@@ -216,7 +216,7 @@ Wünsche des Shopbetreibers vom 2026-10-14, Vorbild ist die LTS-Artikelseite.
   - Ohne Rahmen: im Editor ausschalten, siehe unten.
 - **Vorschaubilder auf allen Breiten** (Wunsch des Shopbetreibers, 2026-10-15): Unter 768 px blendet die Galerie des Originals die Vorschaubilder aus und zeigt bei mehreren Bildern nur eine Reihe Balken, bei einem Bild nichts. `glas-jena.css` zeigt dort dieselbe Leiste wie am Desktop (wischbar, 80 px große Bilder, 8 px unter dem Bild), die Balken entfallen.
 - **Pfeile zum Bildwechsel am großen Bild** (Wunsch des Shopbetreibers, 2026-10-15: „kaum zu erkennen, Funktion schwer zu erraten“): Das Original setzt sie als weiße Quadrate auf das erste und letzte Vorschaubild; im flachen Look ohne Rand und Schatten waren sie kaum zu sehen und wirkten wie Teil der Leiste. Ihre Beschriftung war nur Englisch („Previous“/„Next“). `GlasJenaGallery.vue` umhüllt die Galerie des Shops (`COMPONENT_OVERRIDES`, `Gallery`), blendet diese Pfeile aus und setzt eigene links und rechts mittig auf das große Bild, wie im LTS.
-  - 44 px, schieferblaues Feld mit weißem Linienpfeil wie bei den Knöpfen des Shops (5,70:1), Hover dunkler, sichtbarer Fokusrahmen.
+  - 44 px, weißer Linienpfeil auf halbtransparentem Schieferblau (75 % Deckkraft; Wunsch des Shopbetreibers, das deckende Feld war zu heftig). Auf Weiß 3,36:1 (nötig 3:1, weniger Deckkraft fällt darunter), auf dunkleren Bildstellen mehr. Beim Überfahren deckend (5,70:1), sichtbarer Fokusrahmen.
   - Beschriftung „Vorheriges Bild“ / „Nächstes Bild“ (englisch „Previous picture“ / „Next picture“).
   - Blättern im Kreis wie bei „Unsere Topseller“; das aktive Vorschaubild folgt.
   - Auf allen Breiten, auf dem Handy zusätzlich zum Wischen. Bei nur einem Bild gibt es keine Pfeile.
