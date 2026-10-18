@@ -59,7 +59,10 @@ export const formatDimensions = (height?: number, length?: number, width?: numbe
 const getCountryName = (country: ManufacturerCountry | undefined, locale: string) =>
   country?.names?.find((entry) => entry.language === locale)?.name || country?.name || '';
 
-/** Name and address of the manufacturer, one line each, like the LTS shop. */
+/**
+ * Name and address of the manufacturer, one line each, like the LTS shop. The name is the company name (`name`), not
+ * the external name: that one is the brand for search engines ("trendglas JENA", see the editor's SEO settings).
+ */
 export const getManufacturerLines = (manufacturer: ManufacturerWithCountry | undefined, locale: string) => {
   if (!manufacturer) {
     return [];
@@ -67,7 +70,7 @@ export const getManufacturerLines = (manufacturer: ManufacturerWithCountry | und
   const street = [manufacturer.street, manufacturer.houseNo].filter(Boolean).join(' ');
   const town = [manufacturer.postcode, manufacturer.town].filter(Boolean).join(' ');
   const country = getCountryName(manufacturer.countryObject ?? manufacturer.country, locale);
-  return [manufacturer.externalName || manufacturer.name, street, town, country]
+  return [manufacturer.name || manufacturer.externalName, street, town, country]
     .map((line) => line?.trim() ?? '')
     .filter(Boolean);
 };
