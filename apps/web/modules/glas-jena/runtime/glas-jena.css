@@ -1714,6 +1714,51 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
 }
 
 /*
+ * Cart page (GlasJenaCart.vue), like the LTS cart: no "Zurück" button of the checkout layout above it (the LTS cart
+ * has none, the browser goes back anyway); its row also holds the page heading, which the banner replaces.
+ */
+.gj-page-banner
+  ~ main
+  [data-testid='checkout-layout']:has([data-testid='cart-page-content'])
+  > [data-testid='narrow-container']
+  > div:first-child {
+  display: none;
+}
+
+/*
+ * Cart page: the total in bold, like "Gesamtsumme" in the LTS cart – as a heading (h2) it had the light 300 of all
+ * headings and looked weaker than the lines above it, although it is the most important one.
+ */
+.font-body
+  [data-testid='cart-page-content']
+  [data-testid='order-summary']
+  :is([data-testid='total-label'], [data-testid='total']) {
+  font-weight: 700;
+}
+
+/*
+ * Cart page: the price of an article line in slate blue (5.70:1) like the price on the product page, instead of the
+ * shop's secondary colour, the LTS mid blue, which reaches only 2.96:1 on white at 14–18 px (4.5:1 needed).
+ */
+.font-body [data-testid='cart-page-content'] [data-testid='product-full-price'] {
+  color: var(--gj-slate-blue);
+}
+
+/* Cart page: shipping methods (GlasJenaCartShipping.vue) as lines with a thin rule between them, like a list */
+.font-body [data-testid='gj-cart-shipping-methods'] .gj-cart-shipping-method + .gj-cart-shipping-method {
+  border-top: 1px solid #e5e7eb;
+}
+
+/*
+ * The radio buttons round: the flat look (`border-radius: 0 !important` above) made them square, so they looked like
+ * checkboxes, i.e. like a multiple choice.
+ */
+.font-body [data-testid='gj-cart-shipping-methods'] input[type='radio'],
+.font-body [data-testid='gj-cart-shipping-methods'] input[type='radio']::before {
+  border-radius: 9999px !important;
+}
+
+/*
  * Search preview (the suggestions below the search bar of the header, components/ui/Search.vue) in the look of the
  * shop: flat and angular, links not underlined (search terms and categories are a list of choices, the hover shows
  * them as links), the categories as angular fields in the menu colour instead of round pills.

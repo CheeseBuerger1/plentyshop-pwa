@@ -1,8 +1,16 @@
-import { addPlugin, addRouteMiddleware, addTemplate, createResolver, defineNuxtModule } from 'nuxt/kit';
+import {
+  addPlugin,
+  addRouteMiddleware,
+  addServerHandler,
+  addTemplate,
+  createResolver,
+  defineNuxtModule,
+} from 'nuxt/kit';
 import type { NuxtPage } from 'nuxt/schema';
 import { getGtmHeadScript, getGtmNoscript } from './runtime/utils/googleTagManager';
 import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './runtime/utils/navigation';
 import { ACCOUNT_MENU_BREAKPOINT, ACCOUNT_MENU_MIN_WIDTH } from './runtime/utils/accountMenu';
+import { SHIPPING_COUNTRY_ROUTE } from './runtime/utils/cartShipping';
 
 /** Original components (Nuxt name) replaced by the module's own ones. */
 export const COMPONENT_OVERRIDES: Record<string, string> = {
@@ -110,6 +118,8 @@ export const PAGE_OVERRIDES: Record<string, string> = {
   '/pages/[...slug].vue': './runtime/pages/GlasJenaCategoryPage.vue',
   /* Search results built like an article category: category list beside them, breadcrumbs on narrow screens */
   '/pages/search.vue': './runtime/pages/GlasJenaSearch.vue',
+  /* Cart like the LTS shop: introduction, country of delivery and shipping method below the articles, no "Zurück" */
+  '/pages/cart.vue': './runtime/pages/GlasJenaCart.vue',
 };
 
 const getPageFile = (page: NuxtPage) => page.file?.replace(/\\/g, '/') ?? '';
@@ -251,6 +261,13 @@ export default defineNuxtModule({
      * homeSeo: it uses the head and the route, which before the shop's plugins (i18n) broke the hydration.
      */
     addPlugin(resolve('./runtime/plugins/notOrderable'), { append: true });
+
+    /* Country of delivery in the cart: changes the country of the visitor's session, see utils/cartShipping.ts */
+    addServerHandler({
+      route: SHIPPING_COUNTRY_ROUTE,
+      method: 'post',
+      handler: resolve('./runtime/server/shippingCountry.post'),
+    });
 
     /* Breadcrumbs on one line: the whole path if it fits, otherwise the short form, see utils/breadcrumbsFit.ts */
     addPlugin({ src: resolve('./runtime/plugins/breadcrumbsFit.client'), mode: 'client' });
