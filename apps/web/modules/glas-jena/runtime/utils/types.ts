@@ -66,3 +66,24 @@ export type ManufacturerWithCountry = {
   country?: ManufacturerCountry;
   countryObject?: ManufacturerCountry;
 };
+
+/** Open Graph tags of an item page, see seo.ts; `undefined` keeps the shop's default. */
+export type ProductOpenGraph = {
+  type: 'product';
+  title?: string;
+  description?: string;
+  image?: string;
+  priceAmount?: string;
+  priceCurrency?: string;
+};
+
+/** One entry of the breadcrumbs for search engines: its name and its absolute address. */
+export type BreadcrumbListEntry = { name: string; url: string };
+
+/** The parts of a head tag (unhead `HeadTag`) that seo.ts reads and changes. */
+export type SeoHeadTag = {
+  tag: string;
+  key?: string;
+  props: Record<string, unknown>;
+  innerHTML?: string;
+};
