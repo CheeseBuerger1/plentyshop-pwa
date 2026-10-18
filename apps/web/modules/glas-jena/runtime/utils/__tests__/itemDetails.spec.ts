@@ -5,7 +5,7 @@ import { formatDimensions, getItemContent, getItemDetailRows, getManufacturerLin
 /* The NOVA+ teapot as the item search delivers it (shortened) */
 const manufacturer = {
   name: 'Trendglas Jena GmbH',
-  externalName: 'Trendglas Jena GmbH',
+  externalName: 'trendglas JENA',
   street: 'Westbahnhofstr.',
   houseNo: '8',
   postcode: '07745',
@@ -93,6 +93,14 @@ describe('itemDetails', () => {
         'Deutschland',
       ]);
       expect(getManufacturerLines(manufacturer, 'en').at(-1)).toBe('Germany');
+    });
+
+    it('should take the company name and the external name (the brand) only without one', () => {
+      expect(getManufacturerLines(manufacturer, 'de')[0]).toBe('Trendglas Jena GmbH');
+      expect(getManufacturerLines({ externalName: 'trendglas JENA', town: 'Jena' }, 'de')).toEqual([
+        'trendglas JENA',
+        'Jena',
+      ]);
     });
 
     it('should leave out missing parts of the address', () => {
