@@ -272,6 +272,20 @@ Eigene Kopie `GlasJenaQuickCheckout.vue`, ersetzt `components/QuickCheckout/Quic
 - **„Anzahl“** hat Größe, Farbe und Stärke der Zusammenfassung (16 px, #444, 400); im Original war es 18 px und grau.
 - **Tastatur und Screenreader:** Das Fenster ist ein benannter Dialog (`role="dialog"`, `aria-labelledby` auf den Titel). Beim Öffnen springt der Fokus in das Fenster; `SfModal` hält Tab dann im Fenster und schließt es mit Escape, was im Original nicht griff, weil der Fokus hinter dem Fenster blieb. Beim Schließen (✕, Escape, „Einkauf fortsetzen“) geht der Fokus zurück auf „In den Warenkorb“, nicht aber bei „Zum Warenkorb“ und „Zur Kasse“, weil dort die Seite wechselt. Den Button muss sich das Modul vorher merken, denn er ist beim Öffnen deaktiviert und hat den Fokus schon verloren: das Plugin `lastInteractiveElement.client.ts` (mit `utils/lastInteractiveElement.ts`) merkt sich das zuletzt benutzte Bedienelement.
 
+### Warenkorb-Seite `/cart/` (wie im LTS-Shop)
+
+Eigene Kopie `runtime/pages/GlasJenaCart.vue`, ersetzt `pages/cart.vue` über `PAGE_OVERRIDES` (Wünsche des Shopbetreibers, 2026-10-18). Der Vertragstest `upstreamContractCart.spec.ts` zeigt nach einem Update, ob die Kopie nachgezogen werden muss.
+
+- **Einführungstext** über den Artikeln, kürzer als im LTS: „Hier können Sie Mengen ändern, Artikel entfernen und das Lieferland wählen. Mit „Zur Kasse“ beginnen Sie die Bestellung; vor dem Absenden sehen Sie noch einmal alle Angaben.“ Der Name des Buttons kommt aus dem Shop-Text `common.actions.goToCheckout`.
+- **Kein „← Zurück“** über dem Warenkorb (der LTS hat keinen, der Browser kann zurück); die Zeile des Checkout-Layouts ist per CSS ausgeblendet, den Titel zeigt der Banner.
+- **Lieferland** unter den Artikeln (Handy: unter dem Gutscheinfeld, vor der Bestellübersicht), alphabetisch nach dem Namen in der Shop-Sprache (`GlasJenaCartShipping.vue`, `useGlasJenaCartShipping.ts`). Die Bestellübersicht rechnet danach Versandkosten und MwSt. des Landes (z. B. Österreich 20 %, Großbritannien netto) und ist während des Ladens abgeblendet.
+  - Technik: Die Storefront-Schnittstelle von PlentyONE kann das Land nur über eine Adresse setzen. Das Modul nutzt deshalb wie der LTS-Warenkorb den IO-Aufruf `POST /rest/io/shipping/country` über eine eigene Server-Route (`/api/glas-jena/shipping-country`, `runtime/server/shippingCountry.post.ts`, `utils/cartShipping.ts`). Sie ruft PlentyONE genau wie die Middleware auf: Sitzungs-Cookie als `plentyID`, Sicherheitstoken (`API_SECURITY_TOKEN` zur Laufzeit; ohne Token gibt PlentyONE der Sitzung einen leeren Warenkorb), derselbe User-Agent (sonst neue Sitzungs-ID, das Land geht verloren; ohne Feature-Flag `shopMigrateLtsSession` `axios/<Version>`), die Sprache als Header `locale` (sonst stellt PlentyONE die Sitzung auf Deutsch und beim nächsten Aufruf zurück, das Land springt auf das Standardland), neue Cookies ohne `domain` zurück an den Browser.
+  - Der Sprachwechsel setzt das Standardland der Sprache wieder (PlentyONE: Englisch → Großbritannien). In der Kasse gilt das Land der Lieferadresse.
+  - **Zum Livegang prüfen:** Die Route braucht im Hosting dieselben Umgebungsvariablen wie die Middleware (`API_ENDPOINT`, `API_SECURITY_TOKEN`) und das Sitzungs-Cookie des Browsers; im lokalen Dev-Server geprüft, in der Vorschau auf www.glas-jena.de erst nach dem nächsten Shop-Update.
+- **Versandart** als Auswahl mit Preis nur, wenn es für das Land mehr als eine gibt (Deutschland: nur DHL Paketversand; Ausland zusätzlich „Warenpost International“). Runde Auswahlknöpfe (der flache Look machte sie eckig wie Kontrollkästchen). In der Kasse bleibt die Auswahl des Originals.
+- **Gesamt** fett (700) wie „Gesamtsumme“ im LTS; als Überschrift hatte es die 300 aller Überschriften und wirkte schwächer als die Zeilen darüber.
+- **Preis je Artikel** in Schieferblau (5,70:1) wie auf der Artikelseite statt Mittelblau (2,96:1 bei 14–18 px, nötig 4,5:1).
+
 ### Keine Wunschliste
 
 Der Shop bietet keine Wunschliste (wie der LTS-Shop).
