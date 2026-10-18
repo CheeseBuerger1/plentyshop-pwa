@@ -32,13 +32,15 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   UiProductCard: './runtime/components/GlasJenaProductCard.vue',
   /* Product gallery: clear arrows on the big picture instead of the hardly visible ones on the thumbnail strip */
   Gallery: './runtime/components/GlasJenaGallery.vue',
+  /* Breadcrumbs: unchanged on the page, for search engines with their real names and absolute addresses */
+  UiBreadcrumbs: './runtime/components/GlasJenaBreadcrumbs.vue',
 };
 
 /**
  * Replaced components whose original unit test takes the component from Nuxt's registry (`#components`): in the
  * unit tests the original stays, so that upstream test keeps testing the original (the module's copy has its own).
  */
-export const COMPONENT_OVERRIDES_NOT_IN_TESTS = ['CategoryTree', 'UiProductCard', 'Gallery'];
+export const COMPONENT_OVERRIDES_NOT_IN_TESTS = ['CategoryTree', 'UiProductCard', 'Gallery', 'UiBreadcrumbs'];
 
 /**
  * Original layouts (name) replaced by the module's own ones. Account: on phones the menu has its own page and every
@@ -60,6 +62,7 @@ const EXTRA_VIEWPORT_BREAKPOINTS = {
  * - `defaults`: wraps the original, 100 instead of 50 articles per page, see utils/shopDefaults.ts
  * - `useSearchSuggestions`: copy of the original; suggested search terms without fragments, categories of the search
  *   preview with their path, see utils/searchPreview.ts
+ * - `useStructuredData`: wraps the original; the Product JSON-LD takes the meta description, see utils/seo.ts
  */
 export const IMPORT_OVERRIDES = [
   {
@@ -71,6 +74,11 @@ export const IMPORT_OVERRIDES = [
     name: 'useSearchSuggestions',
     file: /\/app\/composables\/useSearch\/useSearchSuggestions(\.ts)?$/,
     replacement: './runtime/composables/useGlasJenaSearchSuggestions',
+  },
+  {
+    name: 'useStructuredData',
+    file: /\/app\/composables\/useStructuredData\/useStructuredData(\.ts)?$/,
+    replacement: './runtime/composables/useGlasJenaStructuredData',
   },
 ];
 
@@ -225,6 +233,12 @@ export default defineNuxtModule({
 
     /* English title and description of the home page for search engines, see HOME_SEO_TEXTS in utils/home.ts */
     addPlugin(resolve('./runtime/plugins/homeSeo'), { append: true });
+
+    /*
+     * Item pages: og:type "product" with price and Open Graph tags from the item data; canonical, hreflang and og:url
+     * without tracking parameters; the module's breadcrumbs for search engines, see utils/seo.ts. Appended like homeSeo.
+     */
+    addPlugin(resolve('./runtime/plugins/seo'), { append: true });
 
     /* Order dates without the time of day, see utils/orderDate.ts */
     addPlugin(resolve('./runtime/plugins/orderDate'));

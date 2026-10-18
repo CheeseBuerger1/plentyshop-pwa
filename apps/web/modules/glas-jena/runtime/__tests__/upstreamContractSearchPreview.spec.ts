@@ -13,7 +13,11 @@ const APP_DIR = join(process.cwd(), 'app');
 const readApp = (path: string) => readFileSync(join(APP_DIR, path), 'utf8');
 
 /** Files of the shop whose auto-import the module replaces, in the order of IMPORT_OVERRIDES */
-const REPLACED_IMPORT_FILES = ['composables/defaults.ts', 'composables/useSearch/useSearchSuggestions.ts'];
+const REPLACED_IMPORT_FILES = [
+  'composables/defaults.ts',
+  'composables/useSearch/useSearchSuggestions.ts',
+  'composables/useStructuredData/useStructuredData.ts',
+];
 
 describe('upstream contract of the glas-jena module: search preview', () => {
   it('should find every auto-import of the shop that the module replaces', () => {
