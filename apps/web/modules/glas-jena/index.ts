@@ -24,6 +24,19 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   Cookiebar: './runtime/components/GlasJenaCookiebar.vue',
   /* No returns through the web shop: the "return items" button on the order confirmation renders nothing */
   OrderReturnItems: './runtime/components/GlasJenaNoReturns.vue',
+  /* No coupons in the shop: the coupon field of the checkout renders nothing (the cart page's copy has none) */
+  Coupon: './runtime/components/GlasJenaNoCoupon.vue',
+  /*
+   * Checkout: "Ihre gesetzlichen Gewährleistungsrechte" and the terms note above the buy button, the terms without
+   * checkbox (wish of the shop owner); the guarantee link below the button renders nothing
+   */
+  PaymentButtons: './runtime/components/GlasJenaPaymentButtons.vue',
+  CheckoutGeneralTerms: './runtime/components/GlasJenaCheckoutGeneralTerms.vue',
+  GuaranteeNotice: './runtime/components/GlasJenaNoGuaranteeNotice.vue',
+  /* Consent to pass the e-mail on to the parcel service: short label like the LTS shop, full text behind a button */
+  ShippingPrivacy: './runtime/components/GlasJenaShippingPrivacy.vue',
+  /* DHL Packstation search of the checkout closed when it appears (the original opens it) */
+  PreferredDeliveryPackstationFinder: './runtime/components/GlasJenaPackstationFinder.vue',
   /* No "buy again" (as requested by the shop owner): on the order confirmation a link back to "My orders" instead */
   OrderAgainButton: './runtime/components/GlasJenaOrderBackLink.vue',
   /* Order confirmation = order details: thank-you text only for recent orders, no bank details when cancelled */
@@ -263,6 +276,12 @@ export default defineNuxtModule({
 
     /* Order status without the PlentyONE number ("[8] Storniert"), see utils/orderStatus.ts */
     addPlugin(resolve('./runtime/plugins/orderStatus'));
+
+    /*
+     * A new shipping address in the checkout starts with the cart's country of delivery, see utils/checkoutCountry.ts.
+     * Appended like homeSeo: it uses the shop's composables (cart, address form).
+     */
+    addPlugin(resolve('./runtime/plugins/checkoutCountry'), { append: true });
 
     /*
      * Items "Aktuell nicht lieferbar" cannot be ordered on the product page, see utils/notOrderable.ts. Appended like

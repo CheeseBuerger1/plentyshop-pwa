@@ -1212,6 +1212,8 @@ div:has(> svg[data-testid='favorite']) {
  * get real borders again. Accessibility: labels above the fields (never only a placeholder), 16 px field text (no
  * zoom on phones), 44 px high fields and buttons (touch targets), borders and focus with enough contrast, errors
  * marked by colour and text.
+ * Also the free fields of the checkout outside a form ("Hinweise und Wünsche", "Ihre Referenz": a heading and a field;
+ * wish of the shop owner, 2026-10-20), inside `:where` so the rules keep their specificity.
  *
  * Not included: the search in the header (own design) and the purchase card on product pages (quantity and cart
  * button, own layout). The price filter keeps its own button. The module's own form pages (`gj-form`) are also at
@@ -1221,7 +1223,13 @@ div:has(> svg[data-testid='favorite']) {
   max-width: 36rem;
 }
 
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) [data-testid='form-label'] {
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  [data-testid='form-label'] {
   padding-bottom: 0.25rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -1231,10 +1239,26 @@ div:has(> svg[data-testid='favorite']) {
 /* Text fields and selects: SfInput draws its frame on the span around the input, SfTextarea and SfSelect on the
  * field itself */
 .font-body
-  :is(.gj-form, form:not([role='search'], [data-testid='purchase-card']))
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
   span:has(> input:not([type='checkbox'], [type='radio'], [type='hidden'])),
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) textarea,
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) select {
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  textarea,
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  select {
   border: 1px solid var(--gj-field-border);
   background-color: #fff;
   font-size: 1rem;
@@ -1242,57 +1266,133 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 .font-body
-  :is(.gj-form, form:not([role='search'], [data-testid='purchase-card']))
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
   span:has(> input:not([type='checkbox'], [type='radio'], [type='hidden'])) {
   min-height: 2.75rem;
   padding: 0 0.75rem;
 }
 
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) select {
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  select {
   min-height: 2.75rem;
 }
 
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) textarea {
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  textarea {
   min-height: 8rem;
   padding: 0.625rem 0.75rem;
 }
 
 .font-body
-  :is(.gj-form, form:not([role='search'], [data-testid='purchase-card']))
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
   span:has(> input:not([type='checkbox'], [type='radio'], [type='hidden'])):hover,
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) textarea:hover,
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) select:hover {
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  textarea:hover,
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  select:hover {
   border-color: var(--gj-text);
 }
 
 /* Focus on the frame, not on the input inside it (which keeps no outline of its own) */
 .font-body
-  :is(.gj-form, form:not([role='search'], [data-testid='purchase-card']))
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
   span:has(> input:not([type='checkbox'], [type='radio'], [type='hidden']))
   > input:focus-visible {
   outline: none;
 }
 
 .font-body
-  :is(.gj-form, form:not([role='search'], [data-testid='purchase-card']))
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
   span:has(> input:focus-visible):not(:has(> input[type='checkbox'], > input[type='radio'])),
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) textarea:focus-visible,
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) select:focus-visible {
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  textarea:focus-visible,
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  select:focus-visible {
   border-color: var(--gj-link);
   outline: 2px solid var(--gj-link);
   outline-offset: 0;
 }
 
 /* Invalid fields (Storefront UI marks them with ring-negative-700): red frame, the message below says why */
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) span.ring-negative-700:has(> input),
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) textarea.ring-negative-700,
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) select.ring-negative-700 {
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  span.ring-negative-700:has(> input),
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  textarea.ring-negative-700,
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  select.ring-negative-700 {
   border-color: var(--gj-error);
   outline: 1px solid var(--gj-error);
   outline-offset: 0;
 }
 
-.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) .text-negative-700 {
+.font-body
+  :is(
+    .gj-form,
+    form:not([role='search'], [data-testid='purchase-card']),
+    :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
+  )
+  .text-negative-700 {
   color: var(--gj-error);
 }
 
@@ -1810,10 +1910,63 @@ html:has(.gj-header-wrapper--sticky) .font-body [data-testid='gj-cart-side'] {
 }
 
 /*
- * Cart page: the price of an article line in slate blue (5.70:1) like the price on the product page, instead of the
- * shop's secondary colour, the LTS mid blue, which reaches only 2.96:1 on white at 14–18 px (4.5:1 needed).
+ * Checkout: the legal notes above the buy button (GlasJenaCheckoutLegalNotice.vue) as small text (14 px, line height
+ * 1.5) with the shop's underlined links; the guarantee link of the original (centred, 16 px, with 16 px space above)
+ * left-aligned and in the same size, as the first line of the notes.
  */
-.font-body [data-testid='cart-page-content'] [data-testid='product-full-price'] {
+.font-body [data-testid='gj-checkout-legal'] {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.font-body [data-testid='gj-checkout-legal'] > div.w-full.flex {
+  justify-content: flex-start;
+  margin: 0 0 0.5rem;
+}
+
+.font-body [data-testid='gj-checkout-legal'] :is(a, button) {
+  color: var(--gj-link);
+  text-decoration: underline;
+}
+
+.font-body [data-testid='gj-checkout-legal'] :is(a, button):hover {
+  color: var(--gj-link-hover);
+}
+
+/*
+ * Checkout: info button of the consent to pass the e-mail on (GlasJenaShippingPrivacy.vue) in slate blue (5.70:1),
+ * 32 px target beside the label (a little up, so the symbol sits on the line of the text), visible focus; the
+ * full consent text below it in small grey text, indented to the label.
+ */
+.font-body [data-testid='gj-shipping-privacy-info'] {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-top: -0.25rem;
+  color: var(--gj-slate-blue);
+}
+
+.font-body [data-testid='gj-shipping-privacy-info']:focus-visible {
+  outline: 2px solid var(--gj-link);
+  outline-offset: 0;
+}
+
+.font-body [data-testid='gj-shipping-privacy-details'] {
+  margin: 0.5rem 0 0 1.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--gj-text-muted);
+}
+
+/*
+ * Cart and checkout: the price of an article line (CartProductCard) in slate blue (5.70:1) like the price on the
+ * product page, instead of the shop's secondary colour, the LTS mid blue, which reaches only 2.96:1 on white at
+ * 14–18 px (4.5:1 needed). The checkout shows the same article lines (2026-10-20).
+ */
+.font-body [data-testid='product-full-price'] {
   color: var(--gj-slate-blue);
 }
 

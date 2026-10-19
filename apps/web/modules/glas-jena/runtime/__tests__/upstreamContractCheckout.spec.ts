@@ -48,4 +48,88 @@ describe('upstream contract of the glas-jena module: checkout', () => {
       "'inline-flex items-center justify-center font-medium text-base no-underline",
     );
   });
+
+  it('should find the default country of the shipping address form that the module fills with the cart country', () => {
+    /* plugins/checkoutCountry.ts writes `defaultFormValues.country` of useAddressForm(AddressType.Shipping) */
+    const addressForm = readApp('composables/useAddressForm/useAddressForm.ts');
+    expect(addressForm).toContain("useState('useAddressForm' + type");
+    expect(addressForm).toContain(
+      '.default(state.value.defaultFormValues.country ?? cartGetters.getShippingCountryId(cartData.value).toString())',
+    );
+    expect(addressForm).toContain('...toRefs(state.value)');
+    /* The form takes the defaults of the schema when it is created */
+    const form = readApp('components/AddressFormShipping/AddressFormShipping.vue');
+    expect(form).toContain('useForm({ validationSchema: shippingSchema })');
+    expect(form).toContain("const [country, countryAttributes] = defineField('country');");
+  });
+
+  it('should find the buy button, terms and guarantee notice that the module rearranges', () => {
+    /* GlasJenaPaymentButtons.vue puts the notes above PaymentButtons; GuaranteeNotice below it renders nothing */
+    const checkout = readApp('pages/checkout.vue');
+    for (const part of [
+      '<PaymentButtons />',
+      '<CheckoutGeneralTerms />',
+      'GUARANTEE_NOTICE_DISPLAY_MODE.Modal',
+      "useFeatureFlag('shopPwaEnableEu2025-1960', false)",
+      "useSiteSettings('showGuaranteeNotice')",
+      'useSiteSettings(GUARANTEE_NOTICE_DISPLAY_MODE_SETTING)',
+      'resolveGuaranteeNoticeDisplayMode(getGuaranteeNoticeDisplayMode(), getShowGuaranteeNotice(true))',
+    ]) {
+      expect(checkout).toContain(part);
+    }
+    expect(checkout).toMatch(/<PaymentButtons \/>[\s\S]*<GuaranteeNotice\b/);
+    /* The terms count as accepted only through this state, which GlasJenaCheckoutGeneralTerms.vue sets */
+    expect(readApp('composables/useCheckout/useCheckout.ts')).toContain(
+      "const { checkboxValue: termsAccepted, setShowErrors } = useAgreementCheckbox('checkoutGeneralTerms');",
+    );
+    expect(readApp('pages/readonly-checkout.vue')).toContain('<CheckoutGeneralTerms />');
+    expect(readApp('utils/paths.ts')).toContain("readonlyCheckout: '/readonly-checkout',");
+  });
+
+  it('should find the free fields of the checkout that get the frame of the form fields', () => {
+    /* `[data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span))` */
+    expect(readApp('components/CustomerWish/CustomerWish.vue')).toMatch(/<\/h2>\s*<SfTextarea/);
+    expect(readApp('components/CustomerReference/CustomerReference.vue')).toMatch(/<\/h2>\s*<SfInput/);
+  });
+
+  it('should find the consent to pass the e-mail on that the module copy GlasJenaShippingPrivacy builds on', () => {
+    const original = readApp('components/ShippingPrivacy/ShippingPrivacy.vue');
+    for (const part of [
+      'id="shipping-agreement-checkbox"',
+      '@update:model-value="(event) => setShippingPrivacyAgreement(Boolean(event))"',
+      "t('shipping.method.showDataPrivacyAgreementHint', { parcelServiceInformation })",
+      "t('legal.privacyPolicyRequired')",
+      'const { shippingPrivacyAgreement, showErrors, setShippingPrivacyAgreement } = useAdditionalInformation();',
+      'shippingProviderGetters.getShippingMethodName(selectedMethod.value)',
+    ]) {
+      expect(original).toContain(part);
+    }
+    expect(readApp('components/ShippingMethod/ShippingMethod.vue')).toContain(
+      '<ShippingPrivacy v-if="showShippingPrivacy" />',
+    );
+  });
+
+  it('should find the open accordion of the Packstation search that GlasJenaPackstationFinder closes', () => {
+    /* The wrapper clicks `[data-testid='preferred-delivery-location-finder'] details[open] > summary` once */
+    const finder = readApp('components/PreferredDelivery/PackstationFinder.vue');
+    expect(finder).toContain('data-testid="preferred-delivery-location-finder"');
+    expect(finder).toContain('<SfAccordionItem v-model="packstationAccordionOpen"');
+    expect(finder).toContain('const packstationAccordionOpen = ref(true);');
+    expect(readApp('composables/usePackstationFinder/usePackstationFinder.ts')).toContain('deliveryLocationAvailable,');
+    /* SfAccordionItem: a <details> that toggles its v-model with a click on the <summary> */
+    const accordion = readFileSync(
+      join(
+        process.cwd(),
+        '../../node_modules/@storefront-ui/vue/dist/components/SfAccordionItem/SfAccordionItem.vue.mjs',
+      ),
+      'utf8',
+    );
+    expect(accordion).toContain('i("details", {');
+    expect(accordion).toContain('o.$emit("update:modelValue", !e.modelValue)');
+  });
+
+  it('should find the coupon field of the checkout that the module replaces by nothing', () => {
+    /* COMPONENT_OVERRIDES: Coupon → GlasJenaNoCoupon.vue */
+    expect(readApp('pages/checkout.vue')).toContain('<Coupon />');
+  });
 });
