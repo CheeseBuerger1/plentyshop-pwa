@@ -581,43 +581,62 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
- * Light headings like the LTS shop (banner, home page, content pages). Not in the customer account (account layout
- * including its address dialogs): its headings stay bold or semi-bold as in the original, at 18–24 px weight 300
- * looks too thin there and hardly stands out from the text (wish of the shop owner).
+ * Heading weights (wish of the shop owner, 2026-10-19): medium (500) by default, light (300) only where the LTS design
+ * uses it – the page banner, the home page (did you know, tiles, carousel bars, headline and text), headings in text
+ * blocks (content pages, legal texts keep their own weight below) and the tiles and bars of the product page
+ * ("Beschreibung", "Produktdetails", "Weitere Details", "Ersatzteile", "Zubehör"). Before, all headings were light and
+ * the functional headings of the cart, checkout and order pages, the guest or login choice and the dialogs had to be
+ * made medium one by one; at 18–24 px weight 300 looks too thin there and hardly stands out from the text.
+ * Not in the customer account (account layout including its address dialogs): its headings keep the weights of the
+ * original (bold or semi-bold, wish of the shop owner).
  */
 .font-body :is(h1, h2, h3, h4, h5, h6):not([data-testid='account-layout'] *) {
+  font-weight: 500;
+}
+
+.font-body
+  :is(
+    [data-testid='gj-page-banner-title'],
+    [data-testid='did-you-know-title'],
+    [data-testid='gj-tile-title'],
+    [data-testid='gj-product-carousel-title'],
+    [data-testid='text-card'] :is(h1, h2, h3, h4, h5, h6),
+    .rte-prose :is(h1, h2, h3, h4, h5, h6),
+    :is([data-testid='item-text-block'], [data-testid='technical-data-block'], [data-testid='gj-item-details'])
+      :is(h2, h3)
+  ) {
   font-weight: 300;
 }
 
 /*
- * Order confirmation and order details: the labels of the right column ("Versand nach", "Zahlungsart" …) are `h2`, those
- * of the left column ("Bestellnummer", "Zwischensumme" …) are `p`, both `font-medium` in the original. The light
- * headings above would make only the `h2` labels thin; the page heading (h1) stays light.
+ * Checkout, choice between guest and login (pages/guest/login.vue): "Sie haben noch kein Konto?" does not belong to the
+ * login above it, so a line like the one of "ODER" (2 px, the same grey) and more space set it apart (wish of the
+ * shop owner, 2026-10-19). The page has no test id of its own: the column with the button "Weiter als Gast" holds it.
  */
-.font-body [data-testid='order-success-page'] h2 {
-  font-weight: 500;
+.font-body div:has(> [data-testid='guest-checkout-button']) form div:has(> h3) {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid rgb(229 231 235);
 }
 
 /*
- * Checkout, choice between guest and login (pages/guest/login.vue): the headings "Gast Checkout", "Einloggen, um
- * schneller auszuchecken" and "Sie haben noch kein Konto?" medium (500) like the headings of the order pages and the
- * cart's "Bestellübersicht" (wish of the shop owner, 2026-10-19). Bold in the original, the light 300 of all headings
- * made them thinner than the labels below them (600). The page has no test id of its own: the column with the
- * button "Weiter als Gast" holds all three.
+ * Checkout layout (guest or login, checkout): less space between the banner and the content, and below it (wish of the
+ * shop owner, 2026-10-19). The original has 32 px above the "Zurück" row and 40 px below it (on the guest page another
+ * 24 px of padding: 136 px from the banner to the first heading), and 80 px below the content (with the padding
+ * 104 px on the guest page). Now 16 px above and 8 px below the row and no padding (64 px), 64 px below the content.
  */
-.font-body div:has(> [data-testid='guest-checkout-button']) :is(h2, h3) {
-  font-weight: 500;
+.font-body [data-testid='checkout-layout'] > [data-testid='narrow-container'] {
+  margin-bottom: 4rem;
 }
 
-/*
- * The heading of the order details "Bestellung 42030" and of the order confirmation "Vielen Dank für Ihre Bestellung!"
- * (GlasJenaConfirmationPageContent.vue) is medium, not light (wish of the shop owner): both pages look the same, the
- * confirmation only has the thank-you text on top.
- */
-.font-body
-  [data-testid='order-success-page']
-  :is(h1[data-testid='gj-order-heading'], h1[data-testid='success-header']) {
-  font-weight: 500;
+.font-body [data-testid='checkout-layout'] > [data-testid='narrow-container'] > div:first-child {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.font-body div:has(> [data-testid='guest-checkout-button']) {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 /*
@@ -1752,21 +1771,11 @@ html:has(.gj-header-wrapper--sticky) .font-body [data-testid='gj-cart-side'] {
 }
 
 /*
- * Cart page: the heading "Bestellübersicht" medium (500) like the headings of the order pages (wish of the shop owner,
- * 2026-10-19): bold in the original, the light 300 of all headings made it the thinnest line of the box.
+ * Order summary of the cart and the checkout: the total in bold, like "Gesamtsumme" in the LTS cart – the most
+ * important line of the box. It is a heading (h2), so it would get the 500 of all headings like the label above it;
+ * the checkout has the same box, so it looks the same there (2026-10-19).
  */
-.font-body [data-testid='cart-page-content'] [data-testid='order-summary'] > div:first-child > h2 {
-  font-weight: 500;
-}
-
-/*
- * Cart page: the total in bold, like "Gesamtsumme" in the LTS cart – as a heading (h2) it had the light 300 of all
- * headings and looked weaker than the lines above it, although it is the most important one.
- */
-.font-body
-  [data-testid='cart-page-content']
-  [data-testid='order-summary']
-  :is([data-testid='total-label'], [data-testid='total']) {
+.font-body [data-testid='order-summary'] :is([data-testid='total-label'], [data-testid='total']) {
   font-weight: 700;
 }
 

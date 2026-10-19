@@ -238,7 +238,8 @@ const getCookieDetailText = (cookie: Cookie, key: string) => {
   margin: 0 0 0.35rem;
   font-size: 1.5rem;
   line-height: 1.2;
-  font-weight: 300;
+  /* Medium like all functional headings, see "Heading weights" in glas-jena.css */
+  font-weight: 500;
 }
 
 .gj-cookiebar__text p {

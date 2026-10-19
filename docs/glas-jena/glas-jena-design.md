@@ -44,7 +44,7 @@ Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des L
 ## 3. Typografie
 
 - Schrift: **Source Sans Pro** (bzw. Nachfolger _Source Sans 3_), Fallback `sans-serif`.
-- Überschriften: groß, **Light** (Schriftstärke 300), viel Luft.
+- Überschriften: standardmäßig **halbfett (500)**. **Light (300)** mit viel Luft nur, wo der LTS-Look sie prägt: Seitenbanner, Startseite („Wussten Sie schon“, Kacheln, Karussell-Leisten wie „Unsere Topseller“, Überschrift und Text unten), Überschriften in Textblöcken (Inhaltsseiten) und die Kacheln und Leisten der Artikelseite („Beschreibung“, „Produktdetails“, „Weitere Details“, „Ersatzteile“, „Zubehör“). Rechtstexte behalten ihre eigene Stärke (400), das Konto die des Originals. Wunsch des Shopbetreibers (2026-10-19): Vorher waren alle Überschriften Light, und die Funktions-Überschriften von Warenkorb, Kasse, Bestellseiten und Dialogen mussten einzeln auf 500 zurückgeholt werden (Regel „Heading weights“ in `glas-jena.css`, Liste im Vertragstest `upstreamContractCheckout.spec.ts`).
 - Fließtext: Regular, gut lesbar, großzügige Zeilenhöhe.
 - Preise: kräftig (Semibold/Bold), Sternchen-Hinweis klein darunter.
 - Rechtstexte aus dem plentymarkets-System (Impressum, AGB, Datenschutz, Widerruf, Barrierefreiheit): wie im LTS (`.my-legal`) Überschriften normal, Absätze und h4 leicht eingerückt, Größenverhältnisse des LTS auf 16 px Grundschrift; abweichend Zeilenhöhe 1,5 und unterstrichene Links in `--gj-link` (`glas-jena.css`). Das Inhaltsverzeichnis der AGB springt wie im LTS zum Paragraphen (`runtime/utils/legalAnchors.ts`), anders als dort auf allen Bildschirmbreiten, ohne Animation bei „Bewegung reduzieren“ und mit dem Fokus auf dem Ziel.
@@ -285,14 +285,16 @@ Eigene Kopie `runtime/pages/GlasJenaCart.vue`, ersetzt `pages/cart.vue` über `P
   - **Im Hosting geprüft** (Vorschau www.glas-jena.de, 2026-10-19): Umgebungsvariablen und Sitzungs-Cookie kommen an, das Land bleibt nach dem Neuladen erhalten, der Warenkorb auch. Dort ist das Feature-Flag `shopMigrateLtsSession` an (Browser-User-Agent). Das Hosting leitet Adressen ohne Schrägstrich am Ende um, was aus dem POST einen GET mit 404 macht; der Warenkorb ruft die Route deshalb mit Schrägstrich auf (`SHIPPING_COUNTRY_URL`).
 - **Versandart** als Auswahl mit Preis nur, wenn es für das Land mehr als eine gibt (Deutschland: nur DHL Paketversand; Ausland zusätzlich „Warenpost International“). Runde Auswahlknöpfe (der flache Look machte sie eckig wie Kontrollkästchen). In der Kasse bleibt die Auswahl des Originals.
 - **Gesamt** fett (700) wie „Gesamtsumme“ im LTS; als Überschrift hatte es die 300 aller Überschriften und wirkte schwächer als die Zeilen darüber.
-- **„Bestellübersicht“** halbfett (500) wie die Überschriften der Bestellseiten (Wunsch des Shopbetreibers, 2026-10-19); mit der 300 aller Überschriften war sie die dünnste Zeile der Box.
+- **„Bestellübersicht“** halbfett (500) wie alle Funktions-Überschriften (siehe Typografie); „Gesamt“ fett (700), in der Kasse ebenso.
 - **Preis je Artikel** in Schieferblau (5,70:1) wie auf der Artikelseite statt Mittelblau (2,96:1 bei 14–18 px, nötig 4,5:1).
 
 ### Kasse
 
 Der Vertragstest `upstreamContractCheckout.spec.ts` prüft, worauf sich die Anpassungen der Kasse im Original verlassen.
 
-- **Gast oder Anmelden** (`/guest/login/`, Original `pages/guest/login.vue`): Die Überschriften „Gast Checkout“, „Einloggen, um schneller auszuchecken“ und „Sie haben noch kein Konto?“ halbfett (500) wie die Überschriften der Bestellseiten und „Bestellübersicht“ im Warenkorb (Wunsch des Shopbetreibers, 2026-10-19); mit der 300 aller Überschriften waren sie dünner als die Feldbeschriftungen darunter (600). CSS über die Spalte mit dem Knopf „Weiter als Gast“ (`guest-checkout-button`), die Seite hat keine eigene Test-ID.
+- **Gast oder Anmelden** (`/guest/login/`, Original `pages/guest/login.vue`; Wünsche des Shopbetreibers, 2026-10-19): Überschriften halbfett (500) wie alle Funktions-Überschriften (siehe Typografie). „Sie haben noch kein Konto?“ gehört nicht zur Anmeldung darüber: eine Linie wie bei „ODER“ (2 px, `#e5e7eb`) und je 32 px Abstand trennen es ab. CSS über die Spalte mit dem Knopf „Weiter als Gast“ (`guest-checkout-button`), die Seite hat keine eigene Test-ID.
+- **Abstände des Checkout-Layouts** (Gast oder Anmelden, Kasse): Vom Banner bis zum Inhalt etwa 76 px statt 136 px (16 px über und 8 px unter der „Zurück“-Zeile, auf der Gast-Seite kein Innenabstand), unter dem Inhalt 64 px statt 104 px bzw. 80 px.
+- **Gesamt** in der Bestellübersicht fett (700) wie im Warenkorb.
 
 ### Keine Wunschliste
 
