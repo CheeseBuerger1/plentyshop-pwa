@@ -1,5 +1,10 @@
 import { shippingProviderGetters } from '@plentymarkets/shop-api';
-import { MIGRATE_LTS_SESSION_FLAG, SHIPPING_COUNTRY_URL, sortShippingCountries } from '../utils/cartShipping';
+import {
+  MIGRATE_LTS_SESSION_FLAG,
+  SHIPPING_COUNTRY_URL,
+  getCartContentKey,
+  sortShippingCountries,
+} from '../utils/cartShipping';
 
 /**
  * Country of delivery and shipping method in the cart, like the LTS shop (see utils/cartShipping.ts).
@@ -9,7 +14,8 @@ import { MIGRATE_LTS_SESSION_FLAG, SHIPPING_COUNTRY_URL, sortShippingCountries }
  * one the cart is calculated with.
  * `changeCountry` / `changeShippingMethod` save the choice in the session and reload the cart, so the order summary
  * shows the new shipping costs (and net prices for countries without VAT, e.g. Great Britain). `changeCountry`
- * returns `false` if the country could not be changed.
+ * returns `false` if the country could not be changed. `watchCartContent` (in the component) fetches the shipping
+ * methods again when the articles change.
  */
 export const useGlasJenaCartShipping = () => {
   const { data: cart } = useCart();
@@ -25,10 +31,24 @@ export const useGlasJenaCartShipping = () => {
   const countryId = computed(() => cart.value?.shippingCountryId ?? null);
   const shippingMethods = computed(() => shippingProvider.value?.list ?? []);
   const shippingMethodId = computed(() => String(shippingProviderGetters.getShippingProfileId(cart.value)));
+  /* Changes when articles are added, removed or their quantity changes, see watchCartContent */
+  const cartContent = computed(() => getCartContentKey(cart.value?.items));
 
   const load = async () => {
     await Promise.all([fetchAggregatedCountries(), getShippingMethods()]);
   };
+
+  /*
+   * The shipping methods depend on the articles (weight, size): e.g. abroad "Warenpost" only for light parcels. So they
+   * are fetched again whenever the articles change, not only when the page loads or the country changes – otherwise a
+   * cart reduced to one light article kept showing only DHL (found by the shop owner, 2026-10-19).
+   */
+  const watchCartContent = () =>
+    watch(cartContent, async (content, previous) => {
+      if (content !== previous) {
+        await getShippingMethods();
+      }
+    });
 
   const changeCountry = async (shippingCountryId: number) => {
     if (shippingCountryId === countryId.value) {
@@ -70,6 +90,7 @@ export const useGlasJenaCartShipping = () => {
     shippingMethodId,
     loading,
     load,
+    watchCartContent,
     changeCountry,
     changeShippingMethod,
   };

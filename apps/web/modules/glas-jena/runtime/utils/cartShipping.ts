@@ -1,4 +1,4 @@
-import type { ActiveShippingCountry } from '@plentymarkets/shop-api';
+import type { ActiveShippingCountry, CartItem } from '@plentymarkets/shop-api';
 
 /*
  * Country of delivery in the cart, like the LTS shop (wish of the shop owner, 2026-10-18). The PWA sets the country
@@ -96,3 +96,13 @@ export const parseShippingCountryId = (value: unknown) => {
 /** The countries of delivery by their name in the shop language, like the selection of the LTS cart. */
 export const sortShippingCountries = (countries: ActiveShippingCountry[], locale: string) =>
   [...countries].sort((first, second) => first.currLangName.localeCompare(second.currLangName, locale));
+
+/**
+ * What the shipping methods depend on in the cart: its articles and their quantities (e.g. `12:1|15:3`, by cart item
+ * id). Changes when articles are added, removed or their quantity changes, not when only the country changes.
+ */
+export const getCartContentKey = (items: Pick<CartItem, 'id' | 'quantity'>[] | null | undefined) =>
+  (items ?? [])
+    .map(({ id, quantity }) => `${id}:${quantity}`)
+    .sort()
+    .join('|');
