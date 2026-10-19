@@ -35,6 +35,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   GuaranteeNotice: './runtime/components/GlasJenaNoGuaranteeNotice.vue',
   /* Consent to pass the e-mail on to the parcel service: short label like the LTS shop, full text behind a button */
   ShippingPrivacy: './runtime/components/GlasJenaShippingPrivacy.vue',
+  /* DHL Packstation search of the checkout closed when it appears (the original opens it) */
+  PreferredDeliveryPackstationFinder: './runtime/components/GlasJenaPackstationFinder.vue',
   /* No "buy again" (as requested by the shop owner): on the order confirmation a link back to "My orders" instead */
   OrderAgainButton: './runtime/components/GlasJenaOrderBackLink.vue',
   /* Order confirmation = order details: thank-you text only for recent orders, no bank details when cancelled */

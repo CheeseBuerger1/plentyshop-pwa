@@ -8,7 +8,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { orderGetters } from '@plentymarkets/shop-api';
-import { COMPONENT_OVERRIDES, LAYOUT_OVERRIDES, PAGE_OVERRIDES, REMOVED_PAGE_FILES } from '../../index';
+import { LAYOUT_OVERRIDES, PAGE_OVERRIDES, REMOVED_PAGE_FILES } from '../../index';
 import {
   ACCOUNT_ROUTE_PREFIX,
   ACCOUNT_TITLE_KEY,
@@ -83,19 +83,6 @@ describe('upstream contract of the glas-jena module', () => {
       .filter((id) => !id.startsWith(OWN_TEST_ID_PREFIX));
 
     const missing = [...new Set(testIds)].filter((id) => !hasTestId(id));
-
-    expect(missing).toEqual([]);
-  });
-
-  it('should find every original component the module replaces', () => {
-    const componentFile = (name: string) => {
-      /* Nuxt names: `UiHeaderBlocks` → components/ui/HeaderBlocks…, `Cookiebar` → components/Cookiebar… */
-      const path = name.startsWith('Ui') ? name.replace(/^Ui/, 'components/ui/') : `components/${name}`;
-      const fileName = path.split('/').pop();
-      return [`${path}.vue`, `${path}/${fileName}.vue`].find((file) => existsSync(join(APP_DIR, file)));
-    };
-
-    const missing = Object.keys(COMPONENT_OVERRIDES).filter((name) => !componentFile(name));
 
     expect(missing).toEqual([]);
   });

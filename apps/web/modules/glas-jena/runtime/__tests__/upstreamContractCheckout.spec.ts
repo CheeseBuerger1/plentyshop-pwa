@@ -109,6 +109,25 @@ describe('upstream contract of the glas-jena module: checkout', () => {
     );
   });
 
+  it('should find the open accordion of the Packstation search that GlasJenaPackstationFinder closes', () => {
+    /* The wrapper clicks `[data-testid='preferred-delivery-location-finder'] details[open] > summary` once */
+    const finder = readApp('components/PreferredDelivery/PackstationFinder.vue');
+    expect(finder).toContain('data-testid="preferred-delivery-location-finder"');
+    expect(finder).toContain('<SfAccordionItem v-model="packstationAccordionOpen"');
+    expect(finder).toContain('const packstationAccordionOpen = ref(true);');
+    expect(readApp('composables/usePackstationFinder/usePackstationFinder.ts')).toContain('deliveryLocationAvailable,');
+    /* SfAccordionItem: a <details> that toggles its v-model with a click on the <summary> */
+    const accordion = readFileSync(
+      join(
+        process.cwd(),
+        '../../node_modules/@storefront-ui/vue/dist/components/SfAccordionItem/SfAccordionItem.vue.mjs',
+      ),
+      'utf8',
+    );
+    expect(accordion).toContain('i("details", {');
+    expect(accordion).toContain('o.$emit("update:modelValue", !e.modelValue)');
+  });
+
   it('should find the coupon field of the checkout that the module replaces by nothing', () => {
     /* COMPONENT_OVERRIDES: Coupon → GlasJenaNoCoupon.vue */
     expect(readApp('pages/checkout.vue')).toContain('<Coupon />');
