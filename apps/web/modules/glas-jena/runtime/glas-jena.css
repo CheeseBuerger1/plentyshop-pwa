@@ -1934,6 +1934,34 @@ html:has(.gj-header-wrapper--sticky) .font-body [data-testid='gj-cart-side'] {
 }
 
 /*
+ * Checkout: info button of the consent to pass the e-mail on (GlasJenaShippingPrivacy.vue) in slate blue (5.70:1),
+ * 32 px target beside the label (a little up, so the symbol sits on the line of the text), visible focus; the
+ * full consent text below it in small grey text, indented to the label.
+ */
+.font-body [data-testid='gj-shipping-privacy-info'] {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-top: -0.25rem;
+  color: var(--gj-slate-blue);
+}
+
+.font-body [data-testid='gj-shipping-privacy-info']:focus-visible {
+  outline: 2px solid var(--gj-link);
+  outline-offset: 0;
+}
+
+.font-body [data-testid='gj-shipping-privacy-details'] {
+  margin: 0.5rem 0 0 1.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--gj-text-muted);
+}
+
+/*
  * Cart and checkout: the price of an article line (CartProductCard) in slate blue (5.70:1) like the price on the
  * product page, instead of the shop's secondary colour, the LTS mid blue, which reaches only 2.96:1 on white at
  * 14–18 px (4.5:1 needed). The checkout shows the same article lines (2026-10-20).

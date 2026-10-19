@@ -92,6 +92,23 @@ describe('upstream contract of the glas-jena module: checkout', () => {
     expect(readApp('components/CustomerReference/CustomerReference.vue')).toMatch(/<\/h2>\s*<SfInput/);
   });
 
+  it('should find the consent to pass the e-mail on that the module copy GlasJenaShippingPrivacy builds on', () => {
+    const original = readApp('components/ShippingPrivacy/ShippingPrivacy.vue');
+    for (const part of [
+      'id="shipping-agreement-checkbox"',
+      '@update:model-value="(event) => setShippingPrivacyAgreement(Boolean(event))"',
+      "t('shipping.method.showDataPrivacyAgreementHint', { parcelServiceInformation })",
+      "t('legal.privacyPolicyRequired')",
+      'const { shippingPrivacyAgreement, showErrors, setShippingPrivacyAgreement } = useAdditionalInformation();',
+      'shippingProviderGetters.getShippingMethodName(selectedMethod.value)',
+    ]) {
+      expect(original).toContain(part);
+    }
+    expect(readApp('components/ShippingMethod/ShippingMethod.vue')).toContain(
+      '<ShippingPrivacy v-if="showShippingPrivacy" />',
+    );
+  });
+
   it('should find the coupon field of the checkout that the module replaces by nothing', () => {
     /* COMPONENT_OVERRIDES: Coupon → GlasJenaNoCoupon.vue */
     expect(readApp('pages/checkout.vue')).toContain('<Coupon />');
