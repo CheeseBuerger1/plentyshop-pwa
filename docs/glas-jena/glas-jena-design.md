@@ -288,6 +288,12 @@ Eigene Kopie `runtime/pages/GlasJenaCart.vue`, ersetzt `pages/cart.vue` über `P
 - **„Bestellübersicht“** halbfett (500) wie die Überschriften der Bestellseiten (Wunsch des Shopbetreibers, 2026-10-19); mit der 300 aller Überschriften war sie die dünnste Zeile der Box.
 - **Preis je Artikel** in Schieferblau (5,70:1) wie auf der Artikelseite statt Mittelblau (2,96:1 bei 14–18 px, nötig 4,5:1).
 
+### Kasse
+
+Der Vertragstest `upstreamContractCheckout.spec.ts` prüft, worauf sich die Anpassungen der Kasse im Original verlassen.
+
+- **Gast oder Anmelden** (`/guest/login/`, Original `pages/guest/login.vue`): Die Überschriften „Gast Checkout“, „Einloggen, um schneller auszuchecken“ und „Sie haben noch kein Konto?“ halbfett (500) wie die Überschriften der Bestellseiten und „Bestellübersicht“ im Warenkorb (Wunsch des Shopbetreibers, 2026-10-19); mit der 300 aller Überschriften waren sie dünner als die Feldbeschriftungen darunter (600). CSS über die Spalte mit dem Knopf „Weiter als Gast“ (`guest-checkout-button`), die Seite hat keine eigene Test-ID.
+
 ### Keine Wunschliste
 
 Der Shop bietet keine Wunschliste (wie der LTS-Shop).
