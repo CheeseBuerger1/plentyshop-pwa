@@ -609,6 +609,36 @@ div:has(> svg[data-testid='favorite']) {
 }
 
 /*
+ * Buttons (UiButton: `inline-flex … justify-center font-medium … no-underline`) at 400 like the submit buttons of the
+ * forms (wish of the shop owner, 2026-10-19): before, "Weiter als Gast" (500) stood above "Einloggen und fortfahren"
+ * (400). `:where` keeps the rule weak, so buttons with a weight of their own keep it ("Mehr" 300).
+ */
+.font-body :where(.inline-flex.justify-center.no-underline).font-medium {
+  font-weight: 400;
+}
+
+/*
+ * Error page "404" (Error404Content.vue, in the shop's formatting since 2026-10-19, see GlasJenaError.vue): the flat
+ * look removes the shadows that draw the frame of the search field and of the category buttons (secondary buttons,
+ * `ring-inset`), so the field and the buttons were hardly visible on white. The field gets the frame of all form
+ * fields (#858585, 3.69:1), the buttons the outline of the shop's other outline buttons (slate blue, 5.70:1).
+ */
+.font-body main form[role='search'] [data-testid='input'] {
+  min-height: 2.75rem;
+  border: 1px solid var(--gj-field-border);
+}
+
+.font-body main div:has(> div > div > form[role='search']) > div > .ring-inset {
+  border: 1px solid var(--gj-button-bg);
+  background-color: #fff;
+  color: var(--gj-button-bg);
+}
+
+.font-body main div:has(> div > div > form[role='search']) > div > .ring-inset:hover {
+  background-color: #eef2f5;
+}
+
+/*
  * Checkout, choice between guest and login (pages/guest/login.vue): "Sie haben noch kein Konto?" does not belong to the
  * login above it, so a line like the one of "ODER" (2 px, the same grey) and more space set it apart (wish of the
  * shop owner, 2026-10-19). The page has no test id of its own: the column with the button "Weiter als Gast" holds it.
@@ -675,7 +705,7 @@ div:has(> svg[data-testid='favorite']) {
   background-color: #fff;
   color: var(--gj-button-bg);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5rem;
 }
 
@@ -1653,7 +1683,7 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
   background-color: #fff;
   color: var(--gj-button-bg);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5rem;
   text-decoration: none;
 }

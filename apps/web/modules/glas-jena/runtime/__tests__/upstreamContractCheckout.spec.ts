@@ -1,5 +1,5 @@
 /**
- * Upstream contract of the checkout (guest or login, checkout page) and of the heading weights.
+ * Upstream contract of the checkout (guest or login, checkout page) and of the heading and button weights.
  *
  * Part of the upstream contract of the glas-jena module, see upstreamContract.spec.ts; in its own file because that
  * one has reached the maximum length of a file (ESLint `max-lines`).
@@ -40,5 +40,12 @@ describe('upstream contract of the glas-jena module: checkout', () => {
     expect(read('blocks/TextCard/TextCard.vue')).toContain('data-testid="text-card"');
     expect(read('blocks/ItemText/ItemText.vue')).toContain('data-testid="item-text-block"');
     expect(read('blocks/TechnicalData/TechnicalData.vue')).toContain('data-testid="technical-data-block"');
+  });
+
+  it('should find the classes of UiButton by which glas-jena.css sets all buttons to 400', () => {
+    /* `:where(.inline-flex.justify-center.no-underline).font-medium` */
+    expect(readApp('components/ui/Button/Button.vue')).toContain(
+      "'inline-flex items-center justify-center font-medium text-base no-underline",
+    );
   });
 });

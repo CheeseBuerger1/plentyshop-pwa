@@ -1,5 +1,14 @@
 import type { CategoryTreeItem } from '@plentymarkets/shop-api';
 
+/** The error that Nuxt passes to the error page, as the original error.vue expects it (see GlasJenaError.vue). */
+export interface GlasJenaErrorProps {
+  error: {
+    statusCode: number;
+    statusMessage: string;
+    [key: string]: unknown;
+  };
+}
+
 export interface GlasJenaNavigationProps {
   /** Categories from the header's Navigation block; falls back to the fetched category tree when empty. */
   categories?: CategoryTreeItem[];
