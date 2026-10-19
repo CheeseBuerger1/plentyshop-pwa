@@ -1726,6 +1726,21 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
 }
 
 /*
+ * Cart page: the right column (country of delivery, shipping method, order summary) stays in view below the header
+ * while the articles scroll, so the country is never far away with many articles. The original keeps it 40 px from
+ * the top, i.e. behind the header wherever the header stays at the top too (from 992 px, or with "sticky").
+ */
+@media (min-width: 992px) {
+  .font-body [data-testid='gj-cart-side'] {
+    top: calc(var(--gj-header-height) + 1rem);
+  }
+}
+
+html:has(.gj-header-wrapper--sticky) .font-body [data-testid='gj-cart-side'] {
+  top: calc(var(--gj-header-height) + 1rem);
+}
+
+/*
  * Cart page: the total in bold, like "Gesamtsumme" in the LTS cart – as a heading (h2) it had the light 300 of all
  * headings and looked weaker than the lines above it, although it is the most important one.
  */

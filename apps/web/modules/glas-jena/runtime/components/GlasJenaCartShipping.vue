@@ -1,11 +1,12 @@
 <!--
-  Country of delivery and shipping method in the cart (GlasJenaCart.vue), like the LTS shop: below the articles a
-  selection of the country, the order summary then shows the shipping costs of that country. The shipping methods
+  Country of delivery and shipping method in the cart (GlasJenaCart.vue), like the LTS shop: a selection of the
+  country above the order summary (in the column that stays in view, so it is never far away with many articles),
+  which then shows the shipping costs of that country. The shipping methods
   only as a choice if there is more than one (Germany: DHL only; abroad also "Warenpost International"), otherwise the
   summary already says enough. Logic in useGlasJenaCartShipping, see utils/cartShipping.ts.
 -->
 <template>
-  <section class="gj-form mt-8" data-testid="gj-cart-shipping" :aria-busy="loading">
+  <section class="gj-form" data-testid="gj-cart-shipping" :aria-busy="loading">
     <label for="gj-cart-shipping-country" data-testid="form-label">{{ tLocal('country') }}</label>
     <SfSelect
       id="gj-cart-shipping-country"

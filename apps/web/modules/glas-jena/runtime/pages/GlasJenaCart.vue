@@ -2,8 +2,8 @@
   Cart page (replaces pages/cart.vue, see PAGE_OVERRIDES). Copy of the original with these changes, like the LTS cart
   (wish of the shop owner, 2026-10-18):
   - a short introduction above the articles: what can be done here and that the order is only sent in the last step
-  - below the articles the country of delivery and, if there is more than one, the shipping method
-    (GlasJenaCartShipping.vue); on phones below the coupon field, before the order summary
+  - the country of delivery and, if there is more than one, the shipping method above the order summary, in the
+    column that stays in view on wide screens (GlasJenaCartShipping.vue); on phones after the articles
   - no "Zurück" button of the checkout layout above the cart (glas-jena.css, the banner shows the page title)
   Everything else is the original; upstreamContractCart.spec.ts shows when the original changes.
 -->
@@ -24,37 +24,37 @@
             <UiCartProductCard :cart-item="cartItem" :class="{ 'border-t': index === 0 }" />
           </div>
           <Coupon v-if="viewport.isLessThan('lg')" class="mb-2" />
-          <GlasJenaCartShipping class="mb-8 @md:mb-0" />
         </div>
-        <div
-          class="relative col-span-5 @md:sticky @md:top-10 h-fit"
-          :class="{ 'pointer-events-none opacity-50': loading || shippingLoading }"
-        >
-          <SfLoaderCircular
-            v-if="loading || shippingLoading"
-            class="absolute top-[130px] right-0 left-0 m-auto z-loader"
-            size="2xl"
-          />
-          <OrderSummary :cart="cart">
-            <Coupon v-if="viewport.isGreaterOrEquals('lg')" class="mb-5" />
-            <UiButton
-              data-testid="checkout-button"
-              :tag="NuxtLink"
-              :to="goToCheckout()"
-              size="lg"
-              class="w-full mb-4 @md:mb-0"
-            >
-              {{ t('common.actions.goToCheckout') }}
-            </UiButton>
-            <client-only>
-              <PayPalExpressButton :disabled="loading" location="cartPage" class="mt-4" type="CartPreview" />
-              <PayPalPayLaterBanner
-                placement="cart"
-                location="cartPage"
-                :amount="cartGetters.getTotal(cartGetters.getTotals(cart))"
-              />
-            </client-only>
-          </OrderSummary>
+        <!-- Country and shipping method above the order summary, in the column that stays in view on wide screens -->
+        <div class="col-span-5 @md:sticky @md:top-10 h-fit" data-testid="gj-cart-side">
+          <GlasJenaCartShipping class="mt-6 mb-6 @md:mt-0" />
+          <div class="relative" :class="{ 'pointer-events-none opacity-50': loading || shippingLoading }">
+            <SfLoaderCircular
+              v-if="loading || shippingLoading"
+              class="absolute top-[130px] right-0 left-0 m-auto z-loader"
+              size="2xl"
+            />
+            <OrderSummary :cart="cart">
+              <Coupon v-if="viewport.isGreaterOrEquals('lg')" class="mb-5" />
+              <UiButton
+                data-testid="checkout-button"
+                :tag="NuxtLink"
+                :to="goToCheckout()"
+                size="lg"
+                class="w-full mb-4 @md:mb-0"
+              >
+                {{ t('common.actions.goToCheckout') }}
+              </UiButton>
+              <client-only>
+                <PayPalExpressButton :disabled="loading" location="cartPage" class="mt-4" type="CartPreview" />
+                <PayPalPayLaterBanner
+                  placement="cart"
+                  location="cartPage"
+                  :amount="cartGetters.getTotal(cartGetters.getTotals(cart))"
+                />
+              </client-only>
+            </OrderSummary>
+          </div>
         </div>
       </div>
     </div>
