@@ -1,9 +1,26 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
+import type { ShippingMethod } from '@plentymarkets/shop-api';
 import GlasJenaShippingPrivacy from '../GlasJenaShippingPrivacy.vue';
 
 describe('GlasJenaShippingPrivacy', () => {
   beforeEach(() => {
     useAdditionalInformation().setShippingPrivacyAgreement(false);
+  });
+
+  it('should name only the parcel service in the full consent text and end it with a full stop', async () => {
+    const { setShippingMethods } = useCartShippingMethods();
+    setShippingMethods(
+      [
+        { parcelServicePresetId: 25, parcelServiceName: 'DHL', parcelServicePresetName: 'Paketversand' },
+      ] as ShippingMethod[],
+      25,
+    );
+    const wrapper = await mountSuspended(GlasJenaShippingPrivacy);
+    const details = wrapper.get('[data-testid="gj-shipping-privacy-details"]').text();
+
+    expect(details).toContain('to DHL,');
+    expect(details).not.toContain('Paketversand');
+    expect(details.endsWith('.')).toBe(true);
   });
 
   it('should show the short label of the LTS shop and keep the full consent text closed', async () => {

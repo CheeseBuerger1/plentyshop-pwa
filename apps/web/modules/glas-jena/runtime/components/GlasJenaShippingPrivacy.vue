@@ -3,8 +3,9 @@
   Copy of the original with a short label like the LTS shop (wish of the shop owner, 2026-10-20): "Aktuellen
   Paketstatus per E-Mail vom Dienstleister erhalten." The full consent text of the original (with the note that it
   can be revoked) stays one click away: the LTS shop shows it as a tooltip of an info button, here the button opens
-  it below the label – a tooltip is out of reach by keyboard and on touch screens. The consent stays voluntary as in
-  the original (no check prevents the order without it); without it the address is not passed on.
+  it below the label – a tooltip is out of reach by keyboard and on touch screens. It names the parcel service ("an
+  DHL") and ends with a full stop. The consent stays voluntary as in the original (no check prevents the order
+  without it); without it the address is not passed on.
 -->
 <template>
   <div class="mt-6 @md:col-span-3" :class="[!showErrors ? 'mb-6' : 'mb-2']" data-testid="gj-shipping-privacy">
@@ -38,7 +39,7 @@
       class="gj-shipping-privacy__details"
       data-testid="gj-shipping-privacy-details"
     >
-      {{ t('shipping.method.showDataPrivacyAgreementHint', { parcelServiceInformation }) }}
+      {{ consentText }}
     </p>
   </div>
   <div v-if="showErrors" class="text-negative-700 text-sm mb-4">{{ t('legal.privacyPolicyRequired') }}</div>
@@ -51,9 +52,24 @@ import { SfCheckbox, SfIconInfo } from '@storefront-ui/vue';
 const { t: tLocal } = useI18n({ useScope: 'local' });
 const { shippingPrivacyAgreement, showErrors, setShippingPrivacyAgreement } = useAdditionalInformation();
 const { selectedMethod } = useCartShippingMethods();
-const parcelServiceInformation = computed(() =>
-  selectedMethod.value ? shippingProviderGetters.getShippingMethodName(selectedMethod.value) : '',
-);
+/*
+ * The parcel service the address goes to ("DHL", "POST"), not the whole shipping method like the original
+ * ("DHL - Paketversand"); the LTS shop says "den Versender", which would be the shop itself (wish of the shop owner)
+ */
+const parcelServiceInformation = computed(() => {
+  const method = selectedMethod.value;
+  if (!method) {
+    return '';
+  }
+  return method.parcelServiceName || shippingProviderGetters.getShippingMethodName(method);
+});
+/* The shop's text (editable in the editor) – its German version lacks the full stop at the end */
+const consentText = computed(() => {
+  const text = t('shipping.method.showDataPrivacyAgreementHint', {
+    parcelServiceInformation: parcelServiceInformation.value,
+  }).trim();
+  return /[.!?]$/.test(text) ? text : `${text}.`;
+});
 const detailsOpen = ref(false);
 </script>
 
