@@ -2,6 +2,7 @@ import type { ActiveShippingCountry } from '@plentymarkets/shop-api';
 import {
   SHIPPING_COUNTRY_ROUTE,
   SHIPPING_COUNTRY_URL,
+  getCartContentKey,
   getMiddlewareUserAgent,
   parseLocale,
   parseShippingCountryId,
@@ -62,6 +63,19 @@ describe('cartShipping', () => {
     for (const invalid of [0, -1, 1.5, 'de', null, undefined]) {
       expect(parseShippingCountryId(invalid)).toBeNull();
     }
+  });
+
+  it('should describe the cart content by its articles and quantities, in any order', () => {
+    const items = [
+      { id: 15, quantity: 3 },
+      { id: 12, quantity: 1 },
+    ];
+
+    expect(getCartContentKey(items)).toBe('12:1|15:3');
+    expect(getCartContentKey([...items].reverse())).toBe('12:1|15:3');
+    expect(getCartContentKey([{ id: 12, quantity: 1 }])).not.toBe(getCartContentKey(items));
+    expect(getCartContentKey([{ id: 12, quantity: 2 }])).not.toBe(getCartContentKey([{ id: 12, quantity: 1 }]));
+    expect(getCartContentKey(undefined)).toBe('');
   });
 
   it('should sort the countries by their name in the shop language', () => {

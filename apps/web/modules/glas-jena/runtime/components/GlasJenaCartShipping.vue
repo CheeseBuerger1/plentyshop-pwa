@@ -3,7 +3,8 @@
   country in the order summary below the totals (in the column that stays in view, so it is never far away with many
   articles); the totals above then show the shipping costs of that country. The shipping methods only as a choice if
   there is more than one (Germany: DHL only; abroad also "Warenpost International"), otherwise the summary already
-  says enough. Logic in useGlasJenaCartShipping, see utils/cartShipping.ts.
+  says enough; they are fetched again when the articles change (a lighter cart may allow "Warenpost"). Logic in
+  useGlasJenaCartShipping, see utils/cartShipping.ts.
 -->
 <template>
   <section class="gj-form" data-testid="gj-cart-shipping" :aria-busy="loading">
@@ -55,9 +56,20 @@ import { useGlasJenaCartShipping } from '../composables/useGlasJenaCartShipping'
 const { t: tLocal } = useI18n({ useScope: 'local' });
 const { send } = useNotification();
 const { format } = usePriceFormatter();
-const { countries, countryId, shippingMethods, shippingMethodId, loading, load, changeCountry, changeShippingMethod } =
-  useGlasJenaCartShipping();
+const {
+  countries,
+  countryId,
+  shippingMethods,
+  shippingMethodId,
+  loading,
+  load,
+  watchCartContent,
+  changeCountry,
+  changeShippingMethod,
+} = useGlasJenaCartShipping();
 
+/* Before the `await`, so the watcher belongs to this component and stops with it */
+watchCartContent();
 await load();
 
 const onCountryChange = async (value: string) => {
