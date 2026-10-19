@@ -1741,6 +1741,14 @@ html:has(.gj-header-wrapper--sticky) .font-body [data-testid='gj-cart-side'] {
 }
 
 /*
+ * Cart page: the heading "Bestellübersicht" medium (500) like the headings of the order pages (wish of the shop owner,
+ * 2026-10-19): bold in the original, the light 300 of all headings made it the thinnest line of the box.
+ */
+.font-body [data-testid='cart-page-content'] [data-testid='order-summary'] > div:first-child > h2 {
+  font-weight: 500;
+}
+
+/*
  * Cart page: the total in bold, like "Gesamtsumme" in the LTS cart – as a heading (h2) it had the light 300 of all
  * headings and looked weaker than the lines above it, although it is the most important one.
  */

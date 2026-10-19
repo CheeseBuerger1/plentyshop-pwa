@@ -1,9 +1,9 @@
 <!--
   Country of delivery and shipping method in the cart (GlasJenaCart.vue), like the LTS shop: a selection of the
-  country above the order summary (in the column that stays in view, so it is never far away with many articles),
-  which then shows the shipping costs of that country. The shipping methods
-  only as a choice if there is more than one (Germany: DHL only; abroad also "Warenpost International"), otherwise the
-  summary already says enough. Logic in useGlasJenaCartShipping, see utils/cartShipping.ts.
+  country in the order summary below the totals (in the column that stays in view, so it is never far away with many
+  articles); the totals above then show the shipping costs of that country. The shipping methods only as a choice if
+  there is more than one (Germany: DHL only; abroad also "Warenpost International"), otherwise the summary already
+  says enough. Logic in useGlasJenaCartShipping, see utils/cartShipping.ts.
 -->
 <template>
   <section class="gj-form" data-testid="gj-cart-shipping" :aria-busy="loading">

@@ -24,14 +24,22 @@ describe('upstream contract of the glas-jena module: cart page', () => {
   it('should find the parts of the cart page that the module copy GlasJenaCart builds on', () => {
     const original = readApp('pages/cart.vue');
     const copy = readModule('pages/GlasJenaCart.vue');
-    /* The copy adds the introduction and GlasJenaCartShipping; everything else has to be the same as in the original */
+    /*
+     * The copy adds the introduction and GlasJenaCartShipping in place of the coupon field (the shop has no coupons);
+     * everything else has to be the same as in the original
+     */
+    for (const part of [
+      '<Coupon v-if="viewport.isLessThan(\'lg\')" class="mb-2" />',
+      '<Coupon v-if="viewport.isGreaterOrEquals(\'lg\')" class="mb-5" />',
+    ]) {
+      expect(original).toContain(part);
+      expect(copy).not.toContain(part);
+    }
     for (const part of [
       'name="checkout"',
       ':heading="t(\'cart.myCart\')"',
       '<UiCartProductCard :cart-item="cartItem" :class="{ \'border-t\': index === 0 }" />',
-      '<Coupon v-if="viewport.isLessThan(\'lg\')" class="mb-2" />',
       '<OrderSummary :cart="cart">',
-      '<Coupon v-if="viewport.isGreaterOrEquals(\'lg\')" class="mb-5" />',
       'data-testid="checkout-button"',
       ':to="goToCheckout()"',
       '<PayPalExpressButton :disabled="loading" location="cartPage" class="mt-4" type="CartPreview" />',
@@ -59,11 +67,16 @@ describe('upstream contract of the glas-jena module: cart page', () => {
     expect(readApp('components/NarrowContainer/NarrowContainer.vue')).toContain('data-testid="narrow-container"');
   });
 
-  it('should find the total and the article price that glas-jena.css styles on the cart page', () => {
+  it('should find the heading, the total and the article price that glas-jena.css styles on the cart page', () => {
     const orderSummary = readApp('components/OrderSummary/OrderSummary.vue');
-    expect(orderSummary).toContain('data-testid="order-summary"');
+    /* `[data-testid='order-summary'] > div:first-child > h2` ("Bestellübersicht") */
+    expect(orderSummary).toMatch(
+      /<div[^>]*data-testid="order-summary">\s*<div[^>]*>\s*<h2[^>]*>\{\{ t\('common\.labels\.orderSummary'\) \}\}<\/h2>/,
+    );
     expect(orderSummary).toContain('<h2 data-testid="total-label">');
     expect(orderSummary).toContain('<h2 data-testid="total">');
+    /* The country of delivery goes into the slot, which has to stay below the totals */
+    expect(orderSummary).toMatch(/<h2 data-testid="total">[\s\S]*<slot \/>/);
     /* The article price is a Price component whose `test-id` becomes the data-testid */
     expect(readApp('components/ui/CartProductCard/CartProductCard.vue')).toContain('test-id="product-full-price"');
     expect(readApp('components/Price/Price.vue')).toContain(':data-testid="props.testId"');
