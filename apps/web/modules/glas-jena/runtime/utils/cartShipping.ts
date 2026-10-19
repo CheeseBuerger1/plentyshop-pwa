@@ -17,6 +17,12 @@ import type { ActiveShippingCountry } from '@plentymarkets/shop-api';
 /** Route of the module's server handler that changes the country of delivery of the visitor's session. */
 export const SHIPPING_COUNTRY_ROUTE = '/api/glas-jena/shipping-country';
 
+/**
+ * Address the cart calls the route with: with the trailing slash of the shop's URL setting. The hosting redirects
+ * addresses without it (tested on 2026-10-19), which turns the POST into a GET that ends in a 404.
+ */
+export const SHIPPING_COUNTRY_URL = `${SHIPPING_COUNTRY_ROUTE}/`;
+
 /** Call of the IO plugin that sets the country of delivery of the session (body `{ shippingCountryId }`). */
 export const IO_SHIPPING_COUNTRY_PATH = '/rest/io/shipping/country';
 

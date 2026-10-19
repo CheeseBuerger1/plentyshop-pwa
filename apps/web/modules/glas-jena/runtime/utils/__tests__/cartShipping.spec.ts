@@ -1,5 +1,7 @@
 import type { ActiveShippingCountry } from '@plentymarkets/shop-api';
 import {
+  SHIPPING_COUNTRY_ROUTE,
+  SHIPPING_COUNTRY_URL,
   getMiddlewareUserAgent,
   parseLocale,
   parseShippingCountryId,
@@ -11,6 +13,10 @@ import {
 const country = (id: number, currLangName: string) => ({ id, currLangName }) as ActiveShippingCountry;
 
 describe('cartShipping', () => {
+  it('should call the route with the trailing slash of the shop, which the hosting would redirect otherwise', () => {
+    expect(SHIPPING_COUNTRY_URL).toBe(`${SHIPPING_COUNTRY_ROUTE}/`);
+  });
+
   it('should pass the session cookie on as plentyID, like the middleware', () => {
     expect(toPlentySessionCookie('consent=1; plentyID=abc')).toBe('consent=1; plentyID=abc');
     expect(toPlentySessionCookie('consent=1; pwa-session-id=abc')).toBe('consent=1; plentyID=abc');
