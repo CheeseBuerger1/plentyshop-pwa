@@ -63,6 +63,35 @@ describe('upstream contract of the glas-jena module: checkout', () => {
     expect(form).toContain("const [country, countryAttributes] = defineField('country');");
   });
 
+  it('should find the buy button, terms and guarantee notice that the module rearranges', () => {
+    /* GlasJenaPaymentButtons.vue puts the notes above PaymentButtons; GuaranteeNotice below it renders nothing */
+    const checkout = readApp('pages/checkout.vue');
+    for (const part of [
+      '<PaymentButtons />',
+      '<CheckoutGeneralTerms />',
+      'GUARANTEE_NOTICE_DISPLAY_MODE.Modal',
+      "useFeatureFlag('shopPwaEnableEu2025-1960', false)",
+      "useSiteSettings('showGuaranteeNotice')",
+      'useSiteSettings(GUARANTEE_NOTICE_DISPLAY_MODE_SETTING)',
+      'resolveGuaranteeNoticeDisplayMode(getGuaranteeNoticeDisplayMode(), getShowGuaranteeNotice(true))',
+    ]) {
+      expect(checkout).toContain(part);
+    }
+    expect(checkout).toMatch(/<PaymentButtons \/>[\s\S]*<GuaranteeNotice\b/);
+    /* The terms count as accepted only through this state, which GlasJenaCheckoutGeneralTerms.vue sets */
+    expect(readApp('composables/useCheckout/useCheckout.ts')).toContain(
+      "const { checkboxValue: termsAccepted, setShowErrors } = useAgreementCheckbox('checkoutGeneralTerms');",
+    );
+    expect(readApp('pages/readonly-checkout.vue')).toContain('<CheckoutGeneralTerms />');
+    expect(readApp('utils/paths.ts')).toContain("readonlyCheckout: '/readonly-checkout',");
+  });
+
+  it('should find the free fields of the checkout that get the frame of the form fields', () => {
+    /* `[data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span))` */
+    expect(readApp('components/CustomerWish/CustomerWish.vue')).toMatch(/<\/h2>\s*<SfTextarea/);
+    expect(readApp('components/CustomerReference/CustomerReference.vue')).toMatch(/<\/h2>\s*<SfInput/);
+  });
+
   it('should find the coupon field of the checkout that the module replaces by nothing', () => {
     /* COMPONENT_OVERRIDES: Coupon → GlasJenaNoCoupon.vue */
     expect(readApp('pages/checkout.vue')).toContain('<Coupon />');

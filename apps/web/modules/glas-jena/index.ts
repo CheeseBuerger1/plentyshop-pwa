@@ -26,6 +26,13 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   OrderReturnItems: './runtime/components/GlasJenaNoReturns.vue',
   /* No coupons in the shop: the coupon field of the checkout renders nothing (the cart page's copy has none) */
   Coupon: './runtime/components/GlasJenaNoCoupon.vue',
+  /*
+   * Checkout: "Ihre gesetzlichen Gewährleistungsrechte" and the terms note above the buy button, the terms without
+   * checkbox (wish of the shop owner); the guarantee link below the button renders nothing
+   */
+  PaymentButtons: './runtime/components/GlasJenaPaymentButtons.vue',
+  CheckoutGeneralTerms: './runtime/components/GlasJenaCheckoutGeneralTerms.vue',
+  GuaranteeNotice: './runtime/components/GlasJenaNoGuaranteeNotice.vue',
   /* No "buy again" (as requested by the shop owner): on the order confirmation a link back to "My orders" instead */
   OrderAgainButton: './runtime/components/GlasJenaOrderBackLink.vue',
   /* Order confirmation = order details: thank-you text only for recent orders, no bank details when cancelled */

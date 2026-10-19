@@ -1,5 +1,10 @@
 import type { CategoryTreeItem } from '@plentymarkets/shop-api';
 
+export interface GlasJenaCheckoutLegalNoticeProps {
+  /** Shows "Ihre gesetzlichen Gewährleistungsrechte" above the terms note (checkout page, above the buy button). */
+  withGuaranteeNotice?: boolean;
+}
+
 /** The error that Nuxt passes to the error page, as the original error.vue expects it (see GlasJenaError.vue). */
 export interface GlasJenaErrorProps {
   error: {
