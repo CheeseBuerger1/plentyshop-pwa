@@ -58,6 +58,12 @@ export const LAYOUT_OVERRIDES: Record<string, string> = {
   account: './runtime/layouts/GlasJenaAccountLayout.vue',
 };
 
+/**
+ * Error component of the module: the original error.vue inside the class `font-body` and the shop's font, which app.vue
+ * sets on <body> but which the error page (shown instead of app.vue) never had.
+ */
+export const ERROR_COMPONENT_OVERRIDE = './runtime/components/GlasJenaError.vue';
+
 /** Own nuxt-viewport breakpoints of the module: desktop navigation (992 px) and account menu (825 px). */
 const EXTRA_VIEWPORT_BREAKPOINTS = {
   [DESKTOP_NAVIGATION_BREAKPOINT]: DESKTOP_NAVIGATION_MIN_WIDTH,
@@ -229,6 +235,8 @@ export default defineNuxtModule({
           layout.file = resolve(override);
         }
       }
+      /* Error page in the shop's formatting: wraps the original error.vue, see GlasJenaError.vue */
+      app.errorComponent = resolve(ERROR_COMPONENT_OVERRIDE);
     });
 
     /* Account pages without the trailing slash of the shop's URL setting, see utils/accountRedirect.ts */

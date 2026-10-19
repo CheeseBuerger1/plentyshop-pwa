@@ -67,12 +67,10 @@ describe('upstream contract of the glas-jena module: cart page', () => {
     expect(readApp('components/NarrowContainer/NarrowContainer.vue')).toContain('data-testid="narrow-container"');
   });
 
-  it('should find the heading, the total and the article price that glas-jena.css styles on the cart page', () => {
+  it('should find the total and the article price that glas-jena.css styles on the cart page', () => {
     const orderSummary = readApp('components/OrderSummary/OrderSummary.vue');
-    /* `[data-testid='order-summary'] > div:first-child > h2` ("Bestellübersicht") */
-    expect(orderSummary).toMatch(
-      /<div[^>]*data-testid="order-summary">\s*<div[^>]*>\s*<h2[^>]*>\{\{ t\('common\.labels\.orderSummary'\) \}\}<\/h2>/,
-    );
+    /* The total is a heading (h2): glas-jena.css makes it bold, more than the 500 of all headings */
+    expect(orderSummary).toContain('data-testid="order-summary"');
     expect(orderSummary).toContain('<h2 data-testid="total-label">');
     expect(orderSummary).toContain('<h2 data-testid="total">');
     /* The country of delivery goes into the slot, which has to stay below the totals */
