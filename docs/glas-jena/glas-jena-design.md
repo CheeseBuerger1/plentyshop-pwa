@@ -297,6 +297,9 @@ Der Vertragstest `upstreamContractCheckout.spec.ts` prüft, worauf sich die Anpa
 - **Gast oder Anmelden** (`/guest/login/`, Original `pages/guest/login.vue`; Wünsche des Shopbetreibers, 2026-10-19): Überschriften halbfett (500) wie alle Funktions-Überschriften (siehe Typografie). „Sie haben noch kein Konto?“ gehört nicht zur Anmeldung darüber: eine Linie wie bei „ODER“ (2 px, `#e5e7eb`) und je 32 px Abstand trennen es ab. CSS über die Spalte mit dem Knopf „Weiter als Gast“ (`guest-checkout-button`), die Seite hat keine eigene Test-ID.
 - **Abstände des Checkout-Layouts** (Gast oder Anmelden, Kasse): Vom Banner bis zum Inhalt etwa 76 px statt 136 px (16 px über und 8 px unter der „Zurück“-Zeile, auf der Gast-Seite kein Innenabstand), unter dem Inhalt 64 px statt 104 px bzw. 80 px.
 - **Gesamt** in der Bestellübersicht fett (700) wie im Warenkorb.
+- **Kein Gutscheinfeld** (Wünsche des Shopbetreibers, 2026-10-20): Der Shop hat keine Gutscheine; `Coupon` ist über `COMPONENT_OVERRIDES` durch `GlasJenaNoCoupon.vue` ersetzt, die nichts zeigt (der Warenkorb hat als Kopie ohnehin keins).
+- **Artikelpreise** in Schieferblau (5,70:1) wie im Warenkorb, statt Mittelblau (2,96:1).
+- **Land der neuen Lieferadresse** ist das Lieferland aus dem Warenkorb, statt „-- Auswählen --“. Das Original will das so (Standardwert `defaultFormValues.country ?? Land des Warenkorbs` in `useAddressForm`), der Zustand beginnt aber mit einem leeren Text statt mit nichts, sodass das Land des Warenkorbs nie greift. Das Plugin `plugins/checkoutCountry.ts` (Logik in `utils/checkoutCountry.ts`) setzt den Standardwert auf das Land des Warenkorbs und folgt dessen Änderungen, solange die Kundin oder der Kunde kein anderes Land gewählt hat.
 
 ### Keine Wunschliste
 

@@ -48,4 +48,23 @@ describe('upstream contract of the glas-jena module: checkout', () => {
       "'inline-flex items-center justify-center font-medium text-base no-underline",
     );
   });
+
+  it('should find the default country of the shipping address form that the module fills with the cart country', () => {
+    /* plugins/checkoutCountry.ts writes `defaultFormValues.country` of useAddressForm(AddressType.Shipping) */
+    const addressForm = readApp('composables/useAddressForm/useAddressForm.ts');
+    expect(addressForm).toContain("useState('useAddressForm' + type");
+    expect(addressForm).toContain(
+      '.default(state.value.defaultFormValues.country ?? cartGetters.getShippingCountryId(cartData.value).toString())',
+    );
+    expect(addressForm).toContain('...toRefs(state.value)');
+    /* The form takes the defaults of the schema when it is created */
+    const form = readApp('components/AddressFormShipping/AddressFormShipping.vue');
+    expect(form).toContain('useForm({ validationSchema: shippingSchema })');
+    expect(form).toContain("const [country, countryAttributes] = defineField('country');");
+  });
+
+  it('should find the coupon field of the checkout that the module replaces by nothing', () => {
+    /* COMPONENT_OVERRIDES: Coupon → GlasJenaNoCoupon.vue */
+    expect(readApp('pages/checkout.vue')).toContain('<Coupon />');
+  });
 });

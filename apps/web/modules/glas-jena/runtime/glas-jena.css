@@ -1810,10 +1810,11 @@ html:has(.gj-header-wrapper--sticky) .font-body [data-testid='gj-cart-side'] {
 }
 
 /*
- * Cart page: the price of an article line in slate blue (5.70:1) like the price on the product page, instead of the
- * shop's secondary colour, the LTS mid blue, which reaches only 2.96:1 on white at 14–18 px (4.5:1 needed).
+ * Cart and checkout: the price of an article line (CartProductCard) in slate blue (5.70:1) like the price on the
+ * product page, instead of the shop's secondary colour, the LTS mid blue, which reaches only 2.96:1 on white at
+ * 14–18 px (4.5:1 needed). The checkout shows the same article lines (2026-10-20).
  */
-.font-body [data-testid='cart-page-content'] [data-testid='product-full-price'] {
+.font-body [data-testid='product-full-price'] {
   color: var(--gj-slate-blue);
 }
 
