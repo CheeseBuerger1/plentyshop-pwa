@@ -1,5 +1,5 @@
 import { shippingProviderGetters } from '@plentymarkets/shop-api';
-import { MIGRATE_LTS_SESSION_FLAG, SHIPPING_COUNTRY_ROUTE, sortShippingCountries } from '../utils/cartShipping';
+import { MIGRATE_LTS_SESSION_FLAG, SHIPPING_COUNTRY_URL, sortShippingCountries } from '../utils/cartShipping';
 
 /**
  * Country of delivery and shipping method in the cart, like the LTS shop (see utils/cartShipping.ts).
@@ -36,7 +36,7 @@ export const useGlasJenaCartShipping = () => {
     }
     loading.value = true;
     try {
-      await $fetch(SHIPPING_COUNTRY_ROUTE, {
+      await $fetch(SHIPPING_COUNTRY_URL, {
         method: 'POST',
         body: { shippingCountryId, locale: $i18n.locale.value, forwardUserAgent: forwardUserAgent.value },
       });
