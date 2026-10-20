@@ -1,3 +1,5 @@
+import { isPlainLeftClick } from './navigation';
+
 /** Box of the legal texts from the plentymarkets system (see the legal pages and glas-jena.css). */
 export const LEGAL_TEXT_SELECTOR = 'main > .no-preflight';
 
@@ -23,14 +25,7 @@ export const findAnchorTarget = (root: Element, href: string) => {
  * not see the jump. Clicks with a modifier key or on other links keep their default behaviour.
  */
 export const handleLegalAnchorClick = (event: MouseEvent) => {
-  if (
-    event.defaultPrevented ||
-    event.button !== 0 ||
-    event.metaKey ||
-    event.ctrlKey ||
-    event.shiftKey ||
-    event.altKey
-  ) {
+  if (event.defaultPrevented || !isPlainLeftClick(event)) {
     return;
   }
 

@@ -1,4 +1,4 @@
-import { ACCOUNT_ROUTE_PREFIX } from './pageBanner';
+import { isAccountRoute } from './pageBanner';
 
 /**
  * Where a request for a customer account page has to be redirected to, or `undefined` if it can stay.
@@ -17,7 +17,7 @@ export const getAccountRedirectPath = (
   path: string,
   resolveTrailingSlash: (path: string) => string,
 ) => {
-  if (routeBaseName !== ACCOUNT_ROUTE_PREFIX && !routeBaseName.startsWith(`${ACCOUNT_ROUTE_PREFIX}-`)) {
+  if (!isAccountRoute(routeBaseName)) {
     return undefined;
   }
 

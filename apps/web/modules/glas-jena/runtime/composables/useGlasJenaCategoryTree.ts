@@ -1,5 +1,5 @@
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
-import { isCategoryPathActive } from '../utils/navigation';
+import { hasSubcategories, isCategoryPathActive } from '../utils/navigation';
 
 /**
  * Category tree, links and active path shared by the desktop and the mobile navigation.
@@ -28,7 +28,7 @@ export const useGlasJenaCategoryTree = (categories: () => CategoryTreeItem[]) =>
   /** The category is the current page or one of its ancestors (the LTS shop highlights the whole path). */
   const isActive = (category: CategoryTreeItem) => isCategoryPathActive(route.path, buildLink(category));
 
-  const hasChildren = (category: CategoryTreeItem) => category.childCount > 0 && (category.children?.length ?? 0) > 0;
+  const hasChildren = hasSubcategories;
 
   onNuxtReady(async () => {
     if (categories().length === 0 && fetchedCategoryTree.value.length === 0) {

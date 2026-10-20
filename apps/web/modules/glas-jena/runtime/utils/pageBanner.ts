@@ -6,6 +6,9 @@ export const TAG_ROUTE = 'tag-slug';
 export const ITEM_CATEGORY_TYPE = 'item';
 /** All pages of the customer account (`my-account`, `my-account-personal-data`, …) share the title "Mein Konto". */
 export const ACCOUNT_ROUTE_PREFIX = 'my-account';
+/** Whether a route base name belongs to the customer account (`my-account` itself or one of its pages). */
+export const isAccountRoute = (routeBaseName: string) =>
+  routeBaseName === ACCOUNT_ROUTE_PREFIX || routeBaseName.startsWith(`${ACCOUNT_ROUTE_PREFIX}-`);
 export const ACCOUNT_TITLE_KEY = 'account.heading';
 export const SEARCH_RESULTS_TITLE_KEY = 'search.searchResults';
 /** Status code shown in the banner of an error without one (Nuxt's default for errors). */
@@ -51,7 +54,7 @@ export const ERROR_TITLE_KEY = 'errorTitle';
 
 /** Translation key of the banner title for a page with a fixed title; `undefined` for all other pages. */
 export const getFixedPageBannerTitleKey = (routeBaseName: string) => {
-  if (routeBaseName === ACCOUNT_ROUTE_PREFIX || routeBaseName.startsWith(`${ACCOUNT_ROUTE_PREFIX}-`)) {
+  if (isAccountRoute(routeBaseName)) {
     return ACCOUNT_TITLE_KEY;
   }
   return PAGE_BANNER_TITLE_KEYS[routeBaseName];

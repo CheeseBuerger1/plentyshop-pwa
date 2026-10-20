@@ -48,7 +48,7 @@
 import { SfIconChevronRight } from '@storefront-ui/vue';
 import { type CategoryTreeItem, categoryTreeGetters } from '@plentymarkets/shop-api';
 import { useHoverIntent } from '../composables/useHoverIntent';
-import { focusFirstLinkOfFlyout } from '../utils/navigation';
+import { focusFirstLinkOfFlyout, hasSubcategories as hasChildren } from '../utils/navigation';
 import type { GlasJenaNavigationMenuProps } from './types';
 
 defineOptions({ name: 'GlasJenaNavigationMenu' });
@@ -61,8 +61,6 @@ const openChildId = ref<number | null>(null);
 const isFlipped = ref(false);
 const lastPointerType = ref('mouse');
 const hoverIntent = useHoverIntent();
-
-const hasChildren = (node: CategoryTreeItem) => node.childCount > 0 && (node.children?.length ?? 0) > 0;
 
 const openChild = (node: CategoryTreeItem | null) => {
   hoverIntent.cancel();
