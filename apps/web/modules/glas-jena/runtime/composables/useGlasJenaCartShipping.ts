@@ -1,5 +1,10 @@
 import { shippingProviderGetters } from '@plentymarkets/shop-api';
-import { MIGRATE_LTS_SESSION_FLAG, SHIPPING_COUNTRY_URL, sortShippingCountries } from '../utils/cartShipping';
+import {
+  MIGRATE_LTS_SESSION_FLAG,
+  SHIPPING_COUNTRY_URL,
+  isShippingCountryLocked,
+  sortShippingCountries,
+} from '../utils/cartShipping';
 import { useGlasJenaShippingRefresh } from './useGlasJenaShippingRefresh';
 
 /**
@@ -10,8 +15,9 @@ import { useGlasJenaShippingRefresh } from './useGlasJenaShippingRefresh';
  * one the cart is calculated with.
  * `changeCountry` / `changeShippingMethod` save the choice in the session and reload the cart, so the order summary
  * shows the new shipping costs (and net prices for countries without VAT, e.g. Great Britain). `changeCountry`
- * returns `false` if the country could not be changed. `watchCartContent` (in the component) fetches the shipping
- * methods again when the articles change.
+ * returns `false` if the country could not be changed. `countryLocked`: the cart has an address, whose country it is
+ * calculated with; the country then changes only with the address (isShippingCountryLocked). `watchCartContent` (in
+ * the component) fetches the shipping methods again when the articles change.
  */
 export const useGlasJenaCartShipping = () => {
   const { data: cart } = useCart();
@@ -25,6 +31,7 @@ export const useGlasJenaCartShipping = () => {
 
   const countries = computed(() => sortShippingCountries(shippingCountries.value, $i18n.locale.value));
   const countryId = computed(() => cart.value?.shippingCountryId ?? null);
+  const countryLocked = computed(() => isShippingCountryLocked(cart.value));
   const shippingMethods = computed(() => shippingProvider.value?.list ?? []);
   const shippingMethodId = computed(() => String(shippingProviderGetters.getShippingProfileId(cart.value)));
 
@@ -36,6 +43,9 @@ export const useGlasJenaCartShipping = () => {
   const watchCartContent = () => useGlasJenaShippingRefresh();
 
   const changeCountry = async (shippingCountryId: number) => {
+    if (countryLocked.value) {
+      return false;
+    }
     if (shippingCountryId === countryId.value) {
       return true;
     }
@@ -71,6 +81,7 @@ export const useGlasJenaCartShipping = () => {
   return {
     countries,
     countryId,
+    countryLocked,
     shippingMethods,
     shippingMethodId,
     loading,

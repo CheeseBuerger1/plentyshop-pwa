@@ -1,4 +1,4 @@
-import type { ActiveShippingCountry, CartItem, ShippingMethod } from '@plentymarkets/shop-api';
+import type { ActiveShippingCountry, Cart, CartItem, ShippingMethod } from '@plentymarkets/shop-api';
 import type { ShippingMethodLogo } from './types';
 
 /*
@@ -139,3 +139,14 @@ export const resortShippingCountries = (countries: ActiveShippingCountry[], loca
   const sorted = sortShippingCountries(countries, locale);
   return sorted.every((country, index) => country === countries[index]) ? null : sorted;
 };
+
+/**
+ * Whether the country of delivery of the cart is fixed by an address, like in the LTS shop (Ceres,
+ * ShippingCountrySelect: disabled as soon as the cart has a delivery or invoice address). PlentyONE then calculates
+ * the shipping costs and taxes for the country of that address; a country chosen in the cart only changed the shown
+ * country, so the cart said "Österreich" with the German shipping costs and VAT (found by the shop owner,
+ * 2026-10-20). The country then changes with the address in the checkout.
+ */
+export const isShippingCountryLocked = (
+  cart: Pick<Cart, 'customerShippingAddressId' | 'customerInvoiceAddressId'> | null | undefined,
+) => Boolean(cart?.customerShippingAddressId || cart?.customerInvoiceAddressId);

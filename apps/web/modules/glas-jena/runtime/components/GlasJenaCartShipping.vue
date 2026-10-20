@@ -5,6 +5,8 @@
   there is more than one (Germany: DHL only; abroad also "Warenpost International"), otherwise the summary already
   says enough; they are fetched again when the articles change (a lighter cart may allow "Warenpost"). As tiles like
   the payment methods of the checkout, one below the other in the narrow column (GlasJenaShippingMethodTile.vue).
+  With an address in the cart the country is fixed, like in the LTS shop: PlentyONE calculates with the country of the
+  address, so the choice is disabled with a note to change the address in the checkout (isShippingCountryLocked).
   Logic in useGlasJenaCartShipping, see utils/cartShipping.ts.
 -->
 <template>
@@ -13,7 +15,8 @@
     <SfSelect
       id="gj-cart-shipping-country"
       :model-value="countryId === null ? '' : String(countryId)"
-      :disabled="loading"
+      :disabled="loading || countryLocked"
+      :aria-describedby="countryLocked ? 'gj-cart-shipping-country-locked' : undefined"
       data-testid="gj-cart-shipping-country"
       @update:model-value="onCountryChange"
     >
@@ -27,6 +30,14 @@
         {{ country.currLangName }}
       </option>
     </SfSelect>
+    <p
+      v-if="countryLocked"
+      id="gj-cart-shipping-country-locked"
+      class="mt-2 text-sm text-neutral-600"
+      data-testid="gj-cart-shipping-country-locked"
+    >
+      {{ tLocal('countryLocked') }}
+    </p>
 
     <fieldset v-if="shippingMethods.length > 1" class="mt-6" data-testid="gj-cart-shipping-methods">
       <legend data-testid="form-label">{{ t('shipping.method.heading') }}</legend>
@@ -58,6 +69,7 @@ const { format } = usePriceFormatter();
 const {
   countries,
   countryId,
+  countryLocked,
   shippingMethods,
   shippingMethodId,
   loading,
@@ -90,10 +102,12 @@ const getShippingAmount = (amount: string) => (amount === '0' ? t('shipping.meth
 {
   "en": {
     "country": "Country of delivery",
+    "countryLocked": "Please change your address in the checkout in order to change the country of delivery.",
     "countryNotChanged": "The country of delivery could not be changed. Please try again."
   },
   "de": {
     "country": "Lieferland",
+    "countryLocked": "Bitte ändern Sie Ihre Adresse in der Kasse, um das Lieferland zu wechseln.",
     "countryNotChanged": "Das Lieferland konnte nicht geändert werden. Bitte versuchen Sie es noch einmal."
   }
 }
