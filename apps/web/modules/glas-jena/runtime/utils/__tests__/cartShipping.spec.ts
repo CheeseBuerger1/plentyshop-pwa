@@ -5,6 +5,7 @@ import {
   getCartContentKey,
   getMiddlewareUserAgent,
   getShippingMethodLogo,
+  isShippingCountryLocked,
   parseLocale,
   parseShippingCountryId,
   resortShippingCountries,
@@ -123,5 +124,13 @@ describe('cartShipping', () => {
 
   it('should leave countries alone that are already in order', () => {
     expect(resortShippingCountries([country(7, 'Dänemark'), country(1, 'Deutschland')], 'de')).toBeNull();
+  });
+
+  it('should fix the country of delivery as soon as the cart has a delivery or invoice address, like Ceres', () => {
+    expect(isShippingCountryLocked({ customerShippingAddressId: null, customerInvoiceAddressId: null })).toBe(false);
+    expect(isShippingCountryLocked({ customerShippingAddressId: 0, customerInvoiceAddressId: 0 })).toBe(false);
+    expect(isShippingCountryLocked(undefined)).toBe(false);
+    expect(isShippingCountryLocked({ customerShippingAddressId: 72282, customerInvoiceAddressId: null })).toBe(true);
+    expect(isShippingCountryLocked({ customerShippingAddressId: null, customerInvoiceAddressId: 15 })).toBe(true);
   });
 });

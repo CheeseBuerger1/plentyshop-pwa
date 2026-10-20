@@ -7,6 +7,7 @@ const { cartShipping, send } = vi.hoisted(() => ({
   cartShipping: {
     countries: { value: [] as ActiveShippingCountry[] },
     countryId: { value: 1 as number | null },
+    countryLocked: { value: false },
     shippingMethods: { value: [] as ShippingMethod[] },
     shippingMethodId: { value: '25' },
     loading: { value: false },
@@ -23,6 +24,7 @@ vi.mock('../../composables/useGlasJenaCartShipping', () => ({
     ...cartShipping,
     countries: ref(cartShipping.countries.value),
     countryId: ref(cartShipping.countryId.value),
+    countryLocked: ref(cartShipping.countryLocked.value),
     shippingMethods: ref(cartShipping.shippingMethods.value),
     shippingMethodId: ref(cartShipping.shippingMethodId.value),
     loading: ref(cartShipping.loading.value),
@@ -45,6 +47,7 @@ describe('GlasJenaCartShipping', () => {
     vi.clearAllMocks();
     cartShipping.countries.value = [country(1, 'Germany'), country(2, 'Austria')];
     cartShipping.countryId.value = 1;
+    cartShipping.countryLocked.value = false;
     cartShipping.shippingMethods.value = [method(25, 'Parcel', 7.4)];
   });
 
@@ -102,5 +105,23 @@ describe('GlasJenaCartShipping', () => {
     await wrapper.get('[data-testid="gj-shipping-method-26"]').trigger('click');
 
     expect(cartShipping.changeShippingMethod).toHaveBeenCalledWith('26');
+  });
+
+  it('should let the country be chosen without an address in the cart', async () => {
+    const wrapper = await mountSuspended(GlasJenaCartShipping);
+
+    expect(wrapper.get('select').attributes('disabled')).toBeUndefined();
+    expect(wrapper.find('[data-testid="gj-cart-shipping-country-locked"]').exists()).toBe(false);
+  });
+
+  it('should fix the country with a note when the cart has an address, like the LTS shop', async () => {
+    cartShipping.countryLocked.value = true;
+    const wrapper = await mountSuspended(GlasJenaCartShipping);
+
+    expect(wrapper.get('select').attributes('disabled')).toBeDefined();
+    expect(wrapper.get('select').attributes('aria-describedby')).toBe('gj-cart-shipping-country-locked');
+    expect(wrapper.get('#gj-cart-shipping-country-locked').text()).toBe(
+      'Please change your address in the checkout in order to change the country of delivery.',
+    );
   });
 });

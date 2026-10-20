@@ -130,4 +130,10 @@ describe('upstream contract of the glas-jena module: cart page', () => {
       `useFeatureFlag("${MIGRATE_LTS_SESSION_FLAG}")`,
     );
   });
+
+  it('should find the addresses of the cart by which the country of delivery is fixed (isShippingCountryLocked)', () => {
+    const cartTypes = readPackage('@plentymarkets/shop-api/lib/types/api/cart.d.ts');
+    expect(cartTypes).toContain('customerShippingAddressId: number | null;');
+    expect(cartTypes).toContain('customerInvoiceAddressId?: number | null;');
+  });
 });
