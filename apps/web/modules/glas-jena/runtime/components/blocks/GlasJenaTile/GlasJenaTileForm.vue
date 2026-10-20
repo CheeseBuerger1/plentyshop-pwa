@@ -110,6 +110,7 @@
 import { SfInput, SfSwitch } from '@storefront-ui/vue';
 import type { GlasJenaTileContent, GlasJenaTileFormProps, NormalizedGlasJenaTileContent } from './types';
 import { TILE_DEFAULT_TEXT_COLOR, TILE_GREEN } from '../../../utils/home';
+import { readImageSize } from '../../../utils/imageSize';
 
 const props = defineProps<GlasJenaTileFormProps>();
 
@@ -167,11 +168,35 @@ const removeBackgroundImage = () => {
 
 const setImage = ({ image }: { image: string }) => {
   block.value.image.url = image;
+  block.value.image.width = undefined;
+  block.value.image.height = undefined;
 };
 
 const removeImage = () => {
   block.value.image.url = '';
+  block.value.image.width = undefined;
+  block.value.image.height = undefined;
 };
+
+/*
+ * The picture's size goes with it (width/height of the img: the browser reserves the space before the picture loads,
+ * as search engines and Lighthouse ask for). Read when a picture is chosen, and for tiles saved without it as soon as
+ * the form opens; the editor then shows unsaved changes.
+ */
+watch(
+  () => block.value.image.url,
+  async (url) => {
+    if (!url || (block.value.image.width && block.value.image.height)) {
+      return;
+    }
+    const size = await readImageSize(url);
+    if (size && block.value.image.url === url) {
+      block.value.image.width = size.width;
+      block.value.image.height = size.height;
+    }
+  },
+  { immediate: true },
+);
 
 const colorFields = [
   { key: 'backgroundColor', label: 'background-color-label' },

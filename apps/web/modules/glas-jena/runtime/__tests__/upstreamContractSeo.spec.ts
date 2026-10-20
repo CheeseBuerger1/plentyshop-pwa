@@ -45,6 +45,18 @@ describe('upstream contract of the glas-jena module: search engines', () => {
     expect(readApp('utils/productHelper.ts')).toContain('breadcrumbs.push({ name: productName, link: `#` });');
   });
 
+  it('should find the default page title that GlasJenaPageBanner replaces with the page name', () => {
+    /* All pages but categories get the shop's default title; the banner's title (high priority) outranks it */
+    const app = readApp('app.vue');
+    expect(app).toMatch(/const getCategoryMetaTitle = \(\) => \{[\s\S]*?return getMetaTitle\(\);\s*\};/);
+    expect(app).toContain('title: () => title.value,');
+    expect(app).toContain('usePageTitle();');
+    /* The page name gets the shop name as suffix: "Warenkorb | OnlineMarket -GLAS in JENA-" */
+    expect(readApp('composables/usePageTitle/usePageTitle.ts')).toContain(
+      'return `${titleChunk} | ${titleSuffix.value}`;',
+    );
+  });
+
   it('should find the canonical and hreflang links whose query plugins/seo.ts removes', () => {
     /* The shop takes over the whole query string; the plugin keeps only `page` (from page 2 on) */
     const urlPageMeta = readApp('composables/useUrlPageMeta/useUrlPageMeta.ts');

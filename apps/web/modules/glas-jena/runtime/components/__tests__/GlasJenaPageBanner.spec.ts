@@ -23,6 +23,8 @@ mockNuxtImport('useI18n', () => () => ({
   t: (key: string, params?: Record<string, unknown>) => `local ${translate(key, params)}`,
 }));
 mockNuxtImport('useError', () => () => ref(errorState.error));
+const { useHeadMock } = vi.hoisted(() => ({ useHeadMock: vi.fn() }));
+mockNuxtImport('useHead', () => useHeadMock);
 
 const categoryFixture = { type: 'item', details: [{ name: 'Tee & Kaffee' }] };
 const contentPageFixture = { type: 'content', details: [{ name: 'Unser hitzebeständiges Glas' }] };
@@ -30,6 +32,15 @@ const contentPageFixture = { type: 'content', details: [{ name: 'Unser hitzebest
 const findBanner = async () => (await mountSuspended(GlasJenaPageBanner)).find('[data-testid="gj-page-banner"]');
 
 const findTitle = async () => (await mountSuspended(GlasJenaPageBanner)).find('[data-testid="gj-page-banner-title"]');
+
+/** Page title the banner sets (useHead), `undefined` where the page keeps its own */
+const getPageTitle = async () => {
+  useHeadMock.mockClear();
+  await mountSuspended(GlasJenaPageBanner);
+  const [input, options] = useHeadMock.mock.calls.at(-1) ?? [];
+  expect(options).toEqual({ tagPriority: 'high' });
+  return input.title();
+};
 
 describe('GlasJenaPageBanner', () => {
   afterEach(() => {
@@ -132,6 +143,41 @@ describe('GlasJenaPageBanner', () => {
     catalogState.breadcrumbs = [{ name: 'Tee & Kaffee' }];
 
     expect((await findTitle()).find('[data-testid="gj-page-banner-kicker"]').exists()).toBe(false);
+  });
+
+  it('should use the page name as page title on pages without a title of their own', async () => {
+    expect(await getPageTitle()).toBe('common.labels.cart');
+
+    routeState.baseName = 'cancellation-rights';
+    expect(await getPageTitle()).toBe('local cancellationRightsTitle');
+
+    routeState.baseName = 'search';
+    routeState.query = { term: 'tasse' };
+    expect(await getPageTitle()).toBe('search.searchResults: tasse');
+
+    routeState.baseName = 'my-account-my-orders';
+    expect(await getPageTitle()).toBe('account.heading');
+  });
+
+  it('should keep the own page title of categories, content pages, error pages, the home page and product pages', async () => {
+    routeState.baseName = 'slug';
+    catalogState.category = categoryFixture;
+    expect(await getPageTitle()).toBeUndefined();
+
+    catalogState.category = contentPageFixture;
+    expect(await getPageTitle()).toBeUndefined();
+
+    routeState.baseName = 'cart';
+    catalogState.category = undefined;
+    errorState.error = { statusCode: 404 };
+    expect(await getPageTitle()).toBeUndefined();
+
+    errorState.error = undefined;
+    routeState.baseName = 'index';
+    expect(await getPageTitle()).toBeUndefined();
+
+    routeState.baseName = 'product-slug';
+    expect(await getPageTitle()).toBeUndefined();
   });
 
   it('should show no line above the title of a content page', async () => {

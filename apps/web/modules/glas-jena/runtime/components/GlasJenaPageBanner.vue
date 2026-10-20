@@ -27,9 +27,24 @@ import { usePageBanner } from '../composables/usePageBanner';
  * banner) and the cancellation page, which holds the policy and the form ("Widerrufsbelehrung & Widerrufsformular").
  */
 const { t } = useI18n({ useScope: 'local' });
-const { title, kicker, isItemCategoryPage, routeBaseName } = usePageBanner((key, params) =>
+const { title, documentTitle, kicker, isItemCategoryPage, routeBaseName } = usePageBanner((key, params) =>
   params ? t(key, params) : t(key),
 );
+
+/*
+ * The banner title is also the page title, like the LTS shop ("Warenkorb | OnlineMarket -GLAS in JENA-", suffix from
+ * usePageTitle). High priority, so it wins over the shop's default title that app.vue sets; no title where the page
+ * keeps its own (home page, categories, product pages, errors).
+ * Read here and on page switches instead of inside useHead: the head is resolved outside the component, where the
+ * shop's `t()` finds no Nuxt instance (server error 500).
+ */
+const pageTitle = ref(documentTitle.value);
+if (import.meta.client) {
+  watch(documentTitle, (value) => {
+    pageTitle.value = value;
+  });
+}
+useHead({ title: () => pageTitle.value || undefined }, { tagPriority: 'high' });
 </script>
 
 <i18n lang="json">

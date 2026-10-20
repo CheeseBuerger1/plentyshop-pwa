@@ -29,6 +29,11 @@ import {
  * `routeBaseName`: the page's route without locale (e.g. `shipping`), set on the banner as `data-gj-route`, so
  * glas-jena.css can style single pages (the banner is a sibling right before main).
  *
+ * `documentTitle`: the title as page title (browser tab, search engines), on the pages that have no title of their
+ * own: the original sets the shop's default title (app.vue) on all pages but categories, content pages and product
+ * pages, so cart, legal texts, contact etc. all showed the home page's title. Empty on category and content pages
+ * (title from the category's SEO settings) and on error pages (GlasJenaError.vue sets its own).
+ *
  * `isItemCategoryPage`: the page is a product category (its breadcrumbs stay visible on narrow screens, see
  * glas-jena.css). Content pages share the category route, but their breadcrumbs only hold "Startseite".
  *
@@ -77,9 +82,11 @@ export const usePageBanner = (translateOwn: (key: string, params?: Record<string
     return titleKey ? t(titleKey) : '';
   });
 
+  const documentTitle = computed(() => (error.value || isCategoryPage.value ? '' : title.value));
+
   const kicker = computed(() =>
     isItemCategoryPage.value ? getCategoryKicker(productsCatalog.value?.breadcrumbs) : [],
   );
 
-  return { title, kicker, isItemCategoryPage, routeBaseName };
+  return { title, documentTitle, kicker, isItemCategoryPage, routeBaseName };
 };

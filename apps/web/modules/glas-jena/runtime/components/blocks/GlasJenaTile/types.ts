@@ -15,6 +15,9 @@ export type GlasJenaTileContent = {
   image?: {
     url?: string;
     alt?: string;
+    /** Size of the picture in pixels, read by the editor form; `width`/`height` of the img (layout without shifts). */
+    width?: number;
+    height?: number;
   };
   layout: {
     backgroundColor?: string;
@@ -49,7 +52,7 @@ export type GlasJenaTileFormProps = {
 export type NormalizedGlasJenaTileContent = {
   text: { title: string; htmlDescription: string };
   button: { label: string; link: string; openInNewTab: boolean; linkWholeTile: boolean };
-  image: { url: string; alt: string };
+  image: { url: string; alt: string; width?: number; height?: number };
   layout: { backgroundColor: string; textColor: string; titleColor: string; backgroundImage: string };
   collapsibleOnMobile: boolean;
 };
