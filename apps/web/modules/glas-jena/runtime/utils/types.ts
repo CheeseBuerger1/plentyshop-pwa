@@ -87,3 +87,9 @@ export type SeoHeadTag = {
   props: Record<string, unknown>;
   innerHTML?: string;
 };
+
+/** A logo of the shop for a shipping profile, see shippingLogos.ts: the image and the parcel service it shows. */
+export interface ShippingMethodLogo {
+  src: string;
+  label: string;
+}

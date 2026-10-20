@@ -1970,18 +1970,23 @@ html:has(.gj-header-wrapper--sticky) .font-body [data-testid='gj-cart-side'] {
   color: var(--gj-slate-blue);
 }
 
-/* Cart page: shipping methods (GlasJenaCartShipping.vue) as lines with a thin rule between them, like a list */
-.font-body [data-testid='gj-cart-shipping-methods'] .gj-cart-shipping-method + .gj-cart-shipping-method {
-  border-top: 1px solid #e5e7eb;
+/*
+ * Cart and checkout: logo of the parcel service on the tile of a shipping method (GlasJenaShippingMethodLogo.vue). The
+ * wide icons of PlentyONE (DHL: 256 × 57) as high as a line of small text, the shop's own logos (cards like in the LTS
+ * shop, 980 × 680, with frame) 58 × 40 like the payment logos. Never stretched by a flex column (found by the shop
+ * owner, 2026-10-20).
+ */
+.gj-shipping-method-logo {
+  flex-shrink: 0;
+  align-self: center;
+  width: auto;
+  max-width: none;
+  height: 1.25rem;
+  object-fit: contain;
 }
 
-/*
- * The radio buttons round: the flat look (`border-radius: 0 !important` above) made them square, so they looked like
- * checkboxes, i.e. like a multiple choice.
- */
-.font-body [data-testid='gj-cart-shipping-methods'] input[type='radio'],
-.font-body [data-testid='gj-cart-shipping-methods'] input[type='radio']::before {
-  border-radius: 9999px !important;
+.gj-shipping-method-logo--card {
+  height: 2.5rem;
 }
 
 /*

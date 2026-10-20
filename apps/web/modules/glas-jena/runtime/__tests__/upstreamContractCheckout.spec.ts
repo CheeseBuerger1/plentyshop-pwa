@@ -63,6 +63,18 @@ describe('upstream contract of the glas-jena module: checkout', () => {
     expect(form).toContain("const [country, countryAttributes] = defineField('country');");
   });
 
+  it('should find the shop list of countries of delivery that plugins/shippingCountriesOrder.ts sorts', () => {
+    /* The plugin watches `default` of useAggregatedCountries and sorts it with setCountries; both replace the list */
+    const countries = readApp('composables/useAggregatedCountries/useAggregatedCountries.ts');
+    expect(countries).toContain('state.value.default = data.value.data.default;');
+    expect(countries).toContain('state.value.default = defaultCountries;');
+    expect(countries).toContain('...toRefs(state.value)');
+    /* The address form of the checkout shows that list in its order */
+    expect(readApp('components/AddressFormShipping/AddressFormShipping.vue')).toContain(
+      'const { default: shippingCountries } = useAggregatedCountries();',
+    );
+  });
+
   it('should find the buy button, terms and guarantee notice that the module rearranges', () => {
     /* GlasJenaPaymentButtons.vue puts the notes above PaymentButtons; GuaranteeNotice below it renders nothing */
     const checkout = readApp('pages/checkout.vue');
@@ -107,6 +119,43 @@ describe('upstream contract of the glas-jena module: checkout', () => {
     expect(readApp('components/ShippingMethod/ShippingMethod.vue')).toContain(
       '<ShippingPrivacy v-if="showShippingPrivacy" />',
     );
+  });
+
+  it('should find the shipping methods of the checkout that the module copy GlasJenaShippingMethod builds on', () => {
+    /* The copy adds the logo, keeps the price on one line and fetches the methods again when the articles change */
+    const original = readApp('components/ShippingMethod/ShippingMethod.vue');
+    for (const part of [
+      '<div v-if="hasCheckoutAddress">',
+      'data-testid="shipping-method-list"',
+      '@click.prevent="updateShippingMethod(shippingProviderGetters.getParcelServicePresetId(method))"',
+      '<span>{{ shippingProviderGetters.getShippingMethodName(method) }}</span>',
+      '<span class="ml-auto">{{ getShippingAmount(shippingProviderGetters.getShippingAmount(method)) }}</span>',
+      "t('shipping.method.maxDeliveryDays', {",
+      'data-testid="no-shipping-method-available"',
+      '<ShippingMethodSkeleton v-else />',
+      'data-testid="shipping-method-no-address-set"',
+      'const { disabled = false, loading = false } = defineProps<ShippingMethodProps>();',
+      'const { shippingMethods } = useCheckoutPagePaymentAndShipping();',
+      "emit('update:shippingMethod', radioModel.value);",
+    ]) {
+      expect(original).toContain(part);
+    }
+    /* The checkout's article lines can be changed; the page fetches the shipping methods only once (with an address) */
+    const checkout = readApp('pages/checkout.vue');
+    expect(checkout).toContain('<UiCartProductCard :cart-item="cartItem"');
+    expect(checkout).toContain('...(hasCheckoutAddress.value ? [useCartShippingMethods().getShippingMethods()] : [])');
+    /* The tiles (GlasJenaShippingMethodTile.vue) take the look of the payment methods' tiles */
+    const payment = readApp('components/CheckoutPayment/CheckoutPayment.vue');
+    expect(payment).toContain('class="peer sr-only"');
+    expect(payment).toContain(
+      'h-20 flex flex-col items-center justify-center py-4 px-4 cursor-pointer rounded-md border border-neutral-200 -outline-offset-2 hover:border-primary-50 hover:bg-primary-50 active:border-primary-100 active:bg-primary-50 peer-checked:outline peer-checked:outline-2 peer-checked:outline-primary-500',
+    );
+    /* The logo: the icon of the shipping profile */
+    const shippingTypes = readFileSync(
+      join(process.cwd(), '../../node_modules/@plentymarkets/shop-api/lib/types/api/shipping.d.ts'),
+      'utf8',
+    );
+    expect(shippingTypes).toContain('icon: unknown;');
   });
 
   it('should find the open accordion of the Packstation search that GlasJenaPackstationFinder closes', () => {

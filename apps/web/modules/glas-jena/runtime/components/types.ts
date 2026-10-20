@@ -1,4 +1,25 @@
-import type { CategoryTreeItem } from '@plentymarkets/shop-api';
+import type { CategoryTreeItem, ShippingMethod } from '@plentymarkets/shop-api';
+
+/** A shipping method with its shipping profile and the icon of PlentyONE (see GlasJenaShippingMethodLogo.vue). */
+export interface GlasJenaShippingMethodLogoProps {
+  method: Pick<ShippingMethod, 'parcelServicePresetId' | 'parcelServiceName' | 'icon'>;
+}
+
+/** One shipping method as a tile of a choice (see GlasJenaShippingMethodTile.vue). */
+export interface GlasJenaShippingMethodTileProps {
+  method: ShippingMethod;
+  /** `name` of the radio buttons of the choice */
+  group: string;
+  checked: boolean;
+  disabled?: boolean;
+  /** The shipping costs as shown ("10,50 €", "Kostenlos") */
+  amount?: string;
+  /** "Lieferung in max. 3 Tagen", if the shop knows it */
+  deliveryDays?: string;
+}
+
+/** `select`: the shipping profile (parcelServicePresetId) of the tile that was chosen. */
+export type GlasJenaShippingMethodTileEmits = (event: 'select', presetId: string) => void;
 
 export interface GlasJenaCheckoutLegalNoticeProps {
   /** Shows "Ihre gesetzlichen Gewährleistungsrechte" above the terms note (checkout page, above the buy button). */
