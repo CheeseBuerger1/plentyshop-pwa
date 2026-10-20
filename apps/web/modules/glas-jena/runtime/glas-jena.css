@@ -1972,12 +1972,20 @@ html:has(.gj-header-wrapper--sticky) .font-body [data-testid='gj-cart-side'] {
 
 /*
  * Cart and checkout: logo of the parcel service next to a shipping method (GlasJenaShippingMethodLogo.vue), as high as
- * a line of small text, so the wide logos (DHL: 256 × 57) stay small next to the name
+ * a line of small text, so the wide logos (DHL: 256 × 57) stay small next to the name. Never stretched: in the
+ * checkout it stands in the column of the list item (SfListItem, `flex flex-col`), which stretched it to the width of
+ * the card (found by the shop owner, 2026-10-20).
  */
 .gj-shipping-method-logo {
   flex-shrink: 0;
   width: auto;
+  max-width: none;
   height: 1.25rem;
+  object-fit: contain;
+}
+
+[data-testid='shipping-method-list'] .gj-shipping-method-logo {
+  align-self: flex-start;
 }
 
 /* Cart page: shipping methods (GlasJenaCartShipping.vue) as lines with a thin rule between them, like a list */
