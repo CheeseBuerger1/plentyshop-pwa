@@ -26,7 +26,15 @@
 
     <div v-show="!isCollapsed" :id="bodyId" class="gj-tile__body" data-testid="gj-tile-body">
       <div v-if="image.url" class="gj-tile__image-box">
-        <img :src="image.url" :alt="image.alt" class="gj-tile__image" loading="lazy" data-testid="gj-tile-image" />
+        <img
+          :src="image.url"
+          :alt="image.alt"
+          :width="image.width"
+          :height="image.height"
+          class="gj-tile__image"
+          loading="lazy"
+          data-testid="gj-tile-image"
+        />
       </div>
 
       <TextContent v-if="htmlDescription" :text="textContent" class="gj-tile__text" />
@@ -35,11 +43,17 @@
         v-if="moreLink"
         :to="moreLink"
         class="gj-tile__more"
-        :aria-describedby="title ? titleId : undefined"
         v-bind="openInNewTab ? { target: '_blank', rel: 'noopener' } : {}"
         data-testid="gj-tile-more"
       >
-        <span>{{ moreLabel }}</span>
+        <!--
+          The tile's title completes the link text for screen readers and search engines ("Mehr – Tee & Kaffee"):
+          "Mehr" alone does not say where the link leads. Inside the visible span, which linked tiles position.
+        -->
+        <span>
+          {{ moreLabel }}
+          <span v-if="title" class="sr-only" data-testid="gj-tile-more-target">– {{ title }}</span>
+        </span>
       </NuxtLink>
     </div>
   </section>
@@ -88,9 +102,12 @@ const openInNewTab = computed(() => props.content?.button?.openInNewTab === true
 /* The whole tile opens the "Mehr" link (category tiles); the link stays the only one, its area covers the tile */
 const isLinkedTile = computed(() => props.content?.button?.linkWholeTile === true && Boolean(moreLink.value));
 
+/* Size from the editor form; tiles saved before it have none (no width/height, as before) */
 const image = computed(() => ({
   url: props.content?.image?.url?.trim() ?? '',
   alt: props.content?.image?.alt?.trim() ?? '',
+  width: props.content?.image?.width || undefined,
+  height: props.content?.image?.height || undefined,
 }));
 const titleStyle = computed(() => {
   const color = props.content?.layout?.titleColor?.trim();
@@ -256,9 +273,11 @@ const tileStyle = computed(() => {
   margin-top: 1.25rem;
 }
 
+/* `height: auto`: the width/height attributes only give the proportions, the picture keeps its own size */
 .gj-tile__image {
   display: block;
   width: auto;
+  height: auto;
   max-width: 100%;
   max-height: 100%;
   transition: transform 0.4s cubic-bezier(0, 0, 0.26, 1);

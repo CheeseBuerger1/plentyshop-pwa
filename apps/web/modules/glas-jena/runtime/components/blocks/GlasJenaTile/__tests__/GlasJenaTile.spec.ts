@@ -38,15 +38,21 @@ describe('GlasJenaTile', () => {
     expect(tile.attributes('style')).toContain('carafe.jpg');
   });
 
-  it('should link "Mehr" in a new tab, described by the title', async () => {
+  it('should link "Mehr" in a new tab, completed by the title for screen readers and search engines', async () => {
     const wrapper = await mountTile(createContent());
     const more = wrapper.find('[data-testid="gj-tile-more"]');
-    const titleId = wrapper.find('[data-testid="gj-tile-title"]').attributes('id');
 
-    expect(more.text()).toBe('Mehr');
+    /* Link text "Mehr – Werksverkauf", of which only "Mehr" is visible */
+    expect(more.text()).toBe('Mehr – Werksverkauf');
+    expect(more.find('[data-testid="gj-tile-more-target"]').classes()).toContain('sr-only');
     expect(more.attributes('href')).toBe('https://www.glas-in-jena.de/');
     expect(more.attributes('target')).toBe('_blank');
-    expect(more.attributes('aria-describedby')).toBe(titleId);
+  });
+
+  it('should keep "Mehr" alone on a tile without a title', async () => {
+    const wrapper = await mountTile(createContent({ text: { title: '', htmlDescription: '<p>Text</p>' } }));
+
+    expect(wrapper.find('[data-testid="gj-tile-more"]').text()).toBe('Mehr');
   });
 
   it('should hide "Mehr" without a link', async () => {
@@ -96,6 +102,19 @@ describe('GlasJenaTile', () => {
     expect(wrapper.find('[data-testid="gj-tile-image"]').attributes('alt')).toBe('');
     expect(wrapper.find('[data-testid="gj-tile-title"]').attributes('style')).toContain('color: #4d6f89');
     expect(wrapper.findAll('a')).toHaveLength(1);
+  });
+
+  it('should give the picture the size stored by the editor form, and none without it', async () => {
+    const withSize = await mountTile(createContent({ image: { url: 'teapot.jpg', alt: '', width: 325, height: 207 } }));
+    const image = withSize.find('[data-testid="gj-tile-image"]');
+
+    expect(image.attributes('width')).toBe('325');
+    expect(image.attributes('height')).toBe('207');
+
+    const withoutSize = await mountTile(createContent({ image: { url: 'teapot.jpg', alt: '' } }));
+
+    expect(withoutSize.find('[data-testid="gj-tile-image"]').attributes('width')).toBeUndefined();
+    expect(withoutSize.find('[data-testid="gj-tile-image"]').attributes('height')).toBeUndefined();
   });
 
   it('should not link the whole tile without a link', async () => {
