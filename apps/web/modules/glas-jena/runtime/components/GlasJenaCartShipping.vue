@@ -3,9 +3,9 @@
   country in the order summary below the totals (in the column that stays in view, so it is never far away with many
   articles); the totals above then show the shipping costs of that country. The shipping methods only as a choice if
   there is more than one (Germany: DHL only; abroad also "Warenpost International"), otherwise the summary already
-  says enough; they are fetched again when the articles change (a lighter cart may allow "Warenpost"). Each with the
-  logo of the parcel service and the price on one line (it wrapped the "€" after long names). Logic in
-  useGlasJenaCartShipping, see utils/cartShipping.ts.
+  says enough; they are fetched again when the articles change (a lighter cart may allow "Warenpost"). As tiles like
+  the payment methods of the checkout, one below the other in the narrow column (GlasJenaShippingMethodTile.vue).
+  Logic in useGlasJenaCartShipping, see utils/cartShipping.ts.
 -->
 <template>
   <section class="gj-form" data-testid="gj-cart-shipping" :aria-busy="loading">
@@ -30,33 +30,27 @@
 
     <fieldset v-if="shippingMethods.length > 1" class="mt-6" data-testid="gj-cart-shipping-methods">
       <legend data-testid="form-label">{{ t('shipping.method.heading') }}</legend>
-      <label
-        v-for="method in shippingMethods"
-        :key="shippingProviderGetters.getParcelServicePresetId(method)"
-        class="gj-cart-shipping-method flex items-center gap-3 py-2 cursor-pointer"
-      >
-        <SfRadio
-          name="gj-cart-shipping-method"
-          :value="shippingProviderGetters.getParcelServicePresetId(method)"
-          :model-value="shippingMethodId"
+      <div class="grid gap-3">
+        <GlasJenaShippingMethodTile
+          v-for="method in shippingMethods"
+          :key="shippingProviderGetters.getParcelServicePresetId(method)"
+          :method="method"
+          group="gj-cart-shipping-method"
+          :checked="shippingProviderGetters.getParcelServicePresetId(method) === shippingMethodId"
           :disabled="loading"
-          @update:model-value="onShippingMethodChange"
+          :amount="getShippingAmount(shippingProviderGetters.getShippingAmount(method))"
+          @select="onShippingMethodChange"
         />
-        <GlasJenaShippingMethodLogo :method="method" />
-        <span>{{ shippingProviderGetters.getShippingMethodName(method) }}</span>
-        <span class="ml-auto whitespace-nowrap">{{
-          getShippingAmount(shippingProviderGetters.getShippingAmount(method))
-        }}</span>
-      </label>
+      </div>
     </fieldset>
   </section>
 </template>
 
 <script setup lang="ts">
 import { shippingProviderGetters } from '@plentymarkets/shop-api';
-import { SfRadio, SfSelect } from '@storefront-ui/vue';
+import { SfSelect } from '@storefront-ui/vue';
 import { useGlasJenaCartShipping } from '../composables/useGlasJenaCartShipping';
-import GlasJenaShippingMethodLogo from './GlasJenaShippingMethodLogo.vue';
+import GlasJenaShippingMethodTile from './GlasJenaShippingMethodTile.vue';
 
 const { t: tLocal } = useI18n({ useScope: 'local' });
 const { send } = useNotification();

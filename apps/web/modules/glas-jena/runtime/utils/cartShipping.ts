@@ -1,4 +1,5 @@
 import type { ActiveShippingCountry, CartItem, ShippingMethod } from '@plentymarkets/shop-api';
+import type { ShippingMethodLogo } from './types';
 
 /*
  * Country of delivery in the cart, like the LTS shop (wish of the shop owner, 2026-10-18). The PWA sets the country
@@ -113,17 +114,19 @@ export const getCartContentKey = (items: Pick<CartItem, 'id' | 'quantity'>[] | n
  * `ownLogos`: the shop's own logos by shipping profile (see SHIPPING_METHOD_LOGOS), the ones of the LTS plugin "Ceres
  * Beautifier Shipping Icons" (`own: true`). Otherwise the icon PlentyONE gives the shipping profile, an address of an
  * image (e.g. the DHL logo of the DHL Shipping plugin, which PlentyONE gives "Warenpost International" of the Deutsche
- * Post as well). `null` without either.
+ * Post as well). `null` without either. `label`: the parcel service the logo shows, its alternative text.
  */
 export const getShippingMethodLogo = (
-  method: Pick<ShippingMethod, 'parcelServicePresetId' | 'icon'>,
-  ownLogos: Record<number, string>,
+  method: Pick<ShippingMethod, 'parcelServicePresetId' | 'parcelServiceName' | 'icon'>,
+  ownLogos: Record<number, ShippingMethodLogo>,
 ) => {
   const own = ownLogos[method.parcelServicePresetId];
   if (own) {
-    return { src: own, own: true };
+    return { ...own, own: true };
   }
-  return typeof method.icon === 'string' && /^https?:\/\//.test(method.icon) ? { src: method.icon, own: false } : null;
+  return typeof method.icon === 'string' && /^https?:\/\//.test(method.icon)
+    ? { src: method.icon, label: method.parcelServiceName, own: false }
+    : null;
 };
 
 /**

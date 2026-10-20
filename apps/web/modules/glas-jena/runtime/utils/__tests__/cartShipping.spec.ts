@@ -88,18 +88,21 @@ describe('cartShipping', () => {
   });
 
   it('should give the shop its own logo of a shipping profile first', () => {
-    const ownLogos = { 26: '/_nuxt/warenpost.svg' };
+    const ownLogos = { 26: { src: '/_nuxt/warenpost.svg', label: 'Deutsche Post' } };
+    const method = { parcelServicePresetId: 26, parcelServiceName: 'POST', icon: 'https://cdn.example/dhl.png' };
 
-    expect(getShippingMethodLogo({ parcelServicePresetId: 26, icon: 'https://cdn.example/dhl.png' }, ownLogos)).toEqual(
-      { src: '/_nuxt/warenpost.svg', own: true },
-    );
+    expect(getShippingMethodLogo(method, ownLogos)).toEqual({
+      src: '/_nuxt/warenpost.svg',
+      label: 'Deutsche Post',
+      own: true,
+    });
   });
 
   it('should give the icon of PlentyONE otherwise, only as the address of an image', () => {
     const logo = 'https://cdn.example/webspace/DHLShipping/logo.png';
-    const method = (icon: unknown) => ({ parcelServicePresetId: 25, icon });
+    const method = (icon: unknown) => ({ parcelServicePresetId: 25, parcelServiceName: 'DHL', icon });
 
-    expect(getShippingMethodLogo(method(logo), {})).toEqual({ src: logo, own: false });
+    expect(getShippingMethodLogo(method(logo), {})).toEqual({ src: logo, label: 'DHL', own: false });
     expect(getShippingMethodLogo(method(''), {})).toBeNull();
     expect(getShippingMethodLogo(method(null), {})).toBeNull();
     expect(getShippingMethodLogo(method('javascript:alert(1)'), {})).toBeNull();

@@ -86,16 +86,20 @@ describe('GlasJenaCartShipping', () => {
     expect(wrapper.find('[data-testid="gj-cart-shipping-methods"]').exists()).toBe(false);
   });
 
-  it('should offer the shipping methods with their costs if there are several', async () => {
+  it('should offer the shipping methods as tiles with their costs if there are several', async () => {
     cartShipping.shippingMethods.value = [method(26, 'Warenpost', 10.4), method(25, 'Parcel', 20.3)];
     const wrapper = await mountSuspended(GlasJenaCartShipping);
-    const methods = wrapper.get('[data-testid="gj-cart-shipping-methods"]');
+    const tiles = wrapper.findAll('[data-testid="gj-shipping-method-tile"]');
 
-    expect(methods.text()).toContain('Warenpost');
-    expect(methods.text()).toContain('10.40');
-    expect(methods.text()).toContain('20.30');
+    /* Only the name of the shipping profile: the logo shows the parcel service */
+    expect(tiles.map((tile) => tile.text())).toEqual([expect.stringContaining('Warenpost'), expect.any(String)]);
+    expect(tiles[0]!.text()).not.toContain('DHL');
+    expect(tiles[0]!.text()).toContain('10.40');
+    expect(tiles[1]!.text()).toContain('20.30');
+    /* The chosen one: the cart's shipping method */
+    expect((wrapper.get('[data-testid="gj-shipping-method-25"]').element as HTMLInputElement).checked).toBe(true);
 
-    await methods.findAll('input[type="radio"]')[0]!.setValue(true);
+    await wrapper.get('[data-testid="gj-shipping-method-26"]').trigger('click');
 
     expect(cartShipping.changeShippingMethod).toHaveBeenCalledWith('26');
   });

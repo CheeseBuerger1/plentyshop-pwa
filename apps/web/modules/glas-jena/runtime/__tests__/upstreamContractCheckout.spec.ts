@@ -144,6 +144,12 @@ describe('upstream contract of the glas-jena module: checkout', () => {
     const checkout = readApp('pages/checkout.vue');
     expect(checkout).toContain('<UiCartProductCard :cart-item="cartItem"');
     expect(checkout).toContain('...(hasCheckoutAddress.value ? [useCartShippingMethods().getShippingMethods()] : [])');
+    /* The tiles (GlasJenaShippingMethodTile.vue) take the look of the payment methods' tiles */
+    const payment = readApp('components/CheckoutPayment/CheckoutPayment.vue');
+    expect(payment).toContain('class="peer sr-only"');
+    expect(payment).toContain(
+      'h-20 flex flex-col items-center justify-center py-4 px-4 cursor-pointer rounded-md border border-neutral-200 -outline-offset-2 hover:border-primary-50 hover:bg-primary-50 active:border-primary-100 active:bg-primary-50 peer-checked:outline peer-checked:outline-2 peer-checked:outline-primary-500',
+    );
     /* The logo: the icon of the shipping profile */
     const shippingTypes = readFileSync(
       join(process.cwd(), '../../node_modules/@plentymarkets/shop-api/lib/types/api/shipping.d.ts'),

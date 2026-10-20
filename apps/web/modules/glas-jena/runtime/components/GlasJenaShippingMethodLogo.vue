@@ -1,15 +1,15 @@
 <!--
-  Logo of a shipping method in the shipping choice of the cart (GlasJenaCartShipping.vue) and the checkout
-  (GlasJenaShippingMethod.vue), like the LTS shop (wish of the shop owner, 2026-10-20), see getShippingMethodLogo: the
-  shop's own logo of the shipping profile (the cards of the LTS plugin "Ceres Beautifier Shipping Icons", 980 × 680),
-  otherwise the icon of PlentyONE (DHL: 256 × 57). The name of the shipping method stands next to it, so the image
-  needs no text of its own (empty alt). Nothing without a logo.
+  Logo of a shipping method on its tile (GlasJenaShippingMethodTile.vue) in the cart and the checkout, like the LTS
+  shop (wish of the shop owner, 2026-10-20), see getShippingMethodLogo: the shop's own logo of the shipping profile
+  (the cards of the LTS plugin "Ceres Beautifier Shipping Icons", 980 × 680), otherwise the icon of PlentyONE (DHL:
+  256 × 57). The tile names only the shipping profile ("Warenpost International"), so the logo tells the parcel service
+  (alternative text "Deutsche Post"). Nothing without a logo.
 -->
 <template>
   <img
     v-if="logo"
     :src="logo.src"
-    alt=""
+    :alt="logo.label"
     class="gj-shipping-method-logo"
     :class="{ 'gj-shipping-method-logo--card': logo.own }"
     :width="logo.own ? 980 : 256"
