@@ -33,6 +33,11 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   PaymentButtons: './runtime/components/GlasJenaPaymentButtons.vue',
   CheckoutGeneralTerms: './runtime/components/GlasJenaCheckoutGeneralTerms.vue',
   GuaranteeNotice: './runtime/components/GlasJenaNoGuaranteeNotice.vue',
+  /*
+   * Shipping methods of the checkout: with the logo of the parcel service, the price on one line, fetched again when
+   * the articles change
+   */
+  ShippingMethod: './runtime/components/GlasJenaShippingMethod.vue',
   /* Consent to pass the e-mail on to the parcel service: short label like the LTS shop, full text behind a button */
   ShippingPrivacy: './runtime/components/GlasJenaShippingPrivacy.vue',
   /* DHL Packstation search of the checkout closed when it appears (the original opens it) */
@@ -282,6 +287,12 @@ export default defineNuxtModule({
      * Appended like homeSeo: it uses the shop's composables (cart, address form).
      */
     addPlugin(resolve('./runtime/plugins/checkoutCountry'), { append: true });
+
+    /*
+     * Countries of delivery alphabetical everywhere, like the cart's selection, see resortShippingCountries in
+     * utils/cartShipping.ts. Appended like homeSeo: it uses the shop's composables (countries, i18n).
+     */
+    addPlugin(resolve('./runtime/plugins/shippingCountriesOrder'), { append: true });
 
     /*
      * Items "Aktuell nicht lieferbar" cannot be ordered on the product page, see utils/notOrderable.ts. Appended like

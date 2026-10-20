@@ -1970,6 +1970,16 @@ html:has(.gj-header-wrapper--sticky) .font-body [data-testid='gj-cart-side'] {
   color: var(--gj-slate-blue);
 }
 
+/*
+ * Cart and checkout: logo of the parcel service next to a shipping method (GlasJenaShippingMethodLogo.vue), as high as
+ * a line of small text, so the wide logos (DHL: 256 × 57) stay small next to the name
+ */
+.gj-shipping-method-logo {
+  flex-shrink: 0;
+  width: auto;
+  height: 1.25rem;
+}
+
 /* Cart page: shipping methods (GlasJenaCartShipping.vue) as lines with a thin rule between them, like a list */
 .font-body [data-testid='gj-cart-shipping-methods'] .gj-cart-shipping-method + .gj-cart-shipping-method {
   border-top: 1px solid #e5e7eb;

@@ -1,4 +1,4 @@
-import type { ActiveShippingCountry, CartItem } from '@plentymarkets/shop-api';
+import type { ActiveShippingCountry, CartItem, ShippingMethod } from '@plentymarkets/shop-api';
 
 /*
  * Country of delivery in the cart, like the LTS shop (wish of the shop owner, 2026-10-18). The PWA sets the country
@@ -106,3 +106,22 @@ export const getCartContentKey = (items: Pick<CartItem, 'id' | 'quantity'>[] | n
     .map(({ id, quantity }) => `${id}:${quantity}`)
     .sort()
     .join('|');
+
+/**
+ * Logo of a shipping method, like the LTS shop shows it next to the name (wish of the shop owner, 2026-10-20): the
+ * icon PlentyONE gives the shipping profile, an address of an image (e.g. the DHL logo of the DHL Shipping plugin,
+ * which PlentyONE gives "Warenpost International" of the Deutsche Post as well). `null` without one.
+ */
+export const getShippingMethodLogo = (method: Pick<ShippingMethod, 'icon'>) =>
+  typeof method.icon === 'string' && /^https?:\/\//.test(method.icon) ? method.icon : null;
+
+/**
+ * The countries of delivery of the whole shop in the order of the cart's selection (sortShippingCountries), or `null`
+ * if they already are in it. PlentyONE sorts them by bytes ("Österreich" and "Ägypten" last, "Dänemark" after
+ * "Dominikanische Republik"); the checkout, the registration and the account showed that order, the cart its own
+ * (found by the shop owner, 2026-10-20). See plugins/shippingCountriesOrder.ts.
+ */
+export const resortShippingCountries = (countries: ActiveShippingCountry[], locale: string) => {
+  const sorted = sortShippingCountries(countries, locale);
+  return sorted.every((country, index) => country === countries[index]) ? null : sorted;
+};

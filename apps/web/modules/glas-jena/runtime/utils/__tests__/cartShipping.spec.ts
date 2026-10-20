@@ -4,8 +4,10 @@ import {
   SHIPPING_COUNTRY_URL,
   getCartContentKey,
   getMiddlewareUserAgent,
+  getShippingMethodLogo,
   parseLocale,
   parseShippingCountryId,
+  resortShippingCountries,
   sortShippingCountries,
   toBrowserSetCookies,
   toPlentySessionCookie,
@@ -83,5 +85,31 @@ describe('cartShipping', () => {
 
     expect(sortShippingCountries(countries, 'de').map(({ id }) => id)).toEqual([52, 1, 2]);
     expect(countries.map(({ id }) => id)).toEqual([2, 1, 52]);
+  });
+
+  it('should give the logo of a shipping method only as the address of an image', () => {
+    const logo = 'https://cdn.example/webspace/DHLShipping/logo.png';
+
+    expect(getShippingMethodLogo({ icon: logo })).toBe(logo);
+    expect(getShippingMethodLogo({ icon: '' })).toBeNull();
+    expect(getShippingMethodLogo({ icon: null })).toBeNull();
+    expect(getShippingMethodLogo({ icon: 'javascript:alert(1)' })).toBeNull();
+  });
+
+  it('should sort the countries of the shop like the cart, with umlauts in their place', () => {
+    const countries = [country(1, 'Deutschland'), country(115, 'Dominikanische Republik'), country(7, 'Dänemark')];
+    const resorted = resortShippingCountries([...countries, country(2, 'Österreich'), country(4, 'Schweiz')], 'de');
+
+    expect(resorted?.map(({ currLangName }) => currLangName)).toEqual([
+      'Dänemark',
+      'Deutschland',
+      'Dominikanische Republik',
+      'Österreich',
+      'Schweiz',
+    ]);
+  });
+
+  it('should leave countries alone that are already in order', () => {
+    expect(resortShippingCountries([country(7, 'Dänemark'), country(1, 'Deutschland')], 'de')).toBeNull();
   });
 });

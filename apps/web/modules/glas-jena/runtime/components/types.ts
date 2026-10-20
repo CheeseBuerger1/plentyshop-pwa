@@ -1,4 +1,9 @@
-import type { CategoryTreeItem } from '@plentymarkets/shop-api';
+import type { CategoryTreeItem, ShippingMethod } from '@plentymarkets/shop-api';
+
+/** A shipping method with the icon of its shipping profile (see GlasJenaShippingMethodLogo.vue). */
+export interface GlasJenaShippingMethodLogoProps {
+  method: Pick<ShippingMethod, 'icon'>;
+}
 
 export interface GlasJenaCheckoutLegalNoticeProps {
   /** Shows "Ihre gesetzlichen Gewährleistungsrechte" above the terms note (checkout page, above the buy button). */

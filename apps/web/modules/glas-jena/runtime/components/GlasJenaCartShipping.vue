@@ -3,7 +3,8 @@
   country in the order summary below the totals (in the column that stays in view, so it is never far away with many
   articles); the totals above then show the shipping costs of that country. The shipping methods only as a choice if
   there is more than one (Germany: DHL only; abroad also "Warenpost International"), otherwise the summary already
-  says enough; they are fetched again when the articles change (a lighter cart may allow "Warenpost"). Logic in
+  says enough; they are fetched again when the articles change (a lighter cart may allow "Warenpost"). Each with the
+  logo of the parcel service and the price on one line (it wrapped the "€" after long names). Logic in
   useGlasJenaCartShipping, see utils/cartShipping.ts.
 -->
 <template>
@@ -41,8 +42,11 @@
           :disabled="loading"
           @update:model-value="onShippingMethodChange"
         />
+        <GlasJenaShippingMethodLogo :method="method" />
         <span>{{ shippingProviderGetters.getShippingMethodName(method) }}</span>
-        <span class="ml-auto">{{ getShippingAmount(shippingProviderGetters.getShippingAmount(method)) }}</span>
+        <span class="ml-auto whitespace-nowrap">{{
+          getShippingAmount(shippingProviderGetters.getShippingAmount(method))
+        }}</span>
       </label>
     </fieldset>
   </section>
@@ -52,6 +56,7 @@
 import { shippingProviderGetters } from '@plentymarkets/shop-api';
 import { SfRadio, SfSelect } from '@storefront-ui/vue';
 import { useGlasJenaCartShipping } from '../composables/useGlasJenaCartShipping';
+import GlasJenaShippingMethodLogo from './GlasJenaShippingMethodLogo.vue';
 
 const { t: tLocal } = useI18n({ useScope: 'local' });
 const { send } = useNotification();
