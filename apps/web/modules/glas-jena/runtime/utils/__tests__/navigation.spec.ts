@@ -1,4 +1,5 @@
-import { isCategoryPathActive } from '../navigation';
+import type { CategoryTreeItem } from '@plentymarkets/shop-api';
+import { hasSubcategories, isCategoryPathActive, normalizePath } from '../navigation';
 
 describe('isCategoryPathActive', () => {
   it('should be active on the category page itself', () => {
@@ -22,5 +23,28 @@ describe('isCategoryPathActive', () => {
   it('should not be active on unrelated pages or for the home link', () => {
     expect(isCategoryPathActive('/kueche-helfer/', '/tee-kaffee/')).toBe(false);
     expect(isCategoryPathActive('/tee-kaffee/', '/')).toBe(false);
+  });
+});
+
+describe('normalizePath', () => {
+  it('should drop the query, the hash and trailing slashes', () => {
+    expect(normalizePath('/tee-kaffee/teekannen/?page=2#top')).toBe('/tee-kaffee/teekannen');
+    expect(normalizePath('/en/tea-coffee//')).toBe('/en/tea-coffee');
+  });
+
+  it('should keep the root path', () => {
+    expect(normalizePath('/')).toBe('/');
+    expect(normalizePath('/?q=1')).toBe('/');
+  });
+});
+
+describe('hasSubcategories', () => {
+  const category = (childCount: number, children?: unknown[]) => ({ childCount, children }) as CategoryTreeItem;
+
+  it('should only count categories whose subcategories are in the tree', () => {
+    expect(hasSubcategories(category(2, [{}, {}]))).toBe(true);
+    expect(hasSubcategories(category(2, []))).toBe(false);
+    expect(hasSubcategories(category(2))).toBe(false);
+    expect(hasSubcategories(category(0, [{}]))).toBe(false);
   });
 });

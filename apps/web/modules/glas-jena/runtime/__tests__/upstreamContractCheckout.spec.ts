@@ -140,6 +140,14 @@ describe('upstream contract of the glas-jena module: checkout', () => {
     ]) {
       expect(original).toContain(part);
     }
+    /*
+     * "Kostenlos" for exactly zero, otherwise the price: the rule that utils/shippingAmount.ts (formatShippingAmount)
+     * takes over for the cart, the checkout and the order totals
+     */
+    expect(original).toContain("return amount === '0' ? t('shipping.method.free') : format(Number(amount));");
+    expect(readApp('components/OrderTotals/OrderTotals.vue')).toContain(
+      "return amount === 0 ? t('shipping.method.free') : formatWithSymbol(Number(amount), currency);",
+    );
     /* The checkout's article lines can be changed; the page fetches the shipping methods only once (with an address) */
     const checkout = readApp('pages/checkout.vue');
     expect(checkout).toContain('<UiCartProductCard :cart-item="cartItem"');

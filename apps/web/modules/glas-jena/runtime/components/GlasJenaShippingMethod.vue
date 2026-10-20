@@ -65,6 +65,7 @@ import { SfIconWarning } from '@storefront-ui/vue';
 import type { CheckoutShippingEmits, ShippingMethodProps } from '~/components/ShippingMethod/types';
 import { useGlasJenaShippingRefresh } from '../composables/useGlasJenaShippingRefresh';
 import GlasJenaShippingMethodTile from './GlasJenaShippingMethodTile.vue';
+import { formatShippingAmount } from '../utils/shippingAmount';
 
 const { disabled = false, loading = false } = defineProps<ShippingMethodProps>();
 const { hasCheckoutAddress } = useCheckoutAddress(AddressType.Shipping);
@@ -97,7 +98,5 @@ const updateShippingMethod = (shippingId: string) => {
   emit('update:shippingMethod', shippingId);
 };
 
-const getShippingAmount = (amount: string) => {
-  return amount === '0' ? t('shipping.method.free') : format(Number(amount));
-};
+const getShippingAmount = (amount: string) => formatShippingAmount(amount, t('shipping.method.free'), format);
 </script>

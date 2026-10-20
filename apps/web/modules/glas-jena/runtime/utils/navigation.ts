@@ -1,3 +1,5 @@
+import type { CategoryTreeItem } from '@plentymarkets/shop-api';
+
 /**
  * How long a submenu stays open after the pointer left it, and how long another item
  * has to be hovered before it replaces an open submenu. Lets users move diagonally
@@ -41,7 +43,15 @@ export const focusFirstLinkOfFlyout = (item: Element | null | undefined) => {
   (submenu?.firstElementChild?.firstElementChild as HTMLElement | null | undefined)?.focus();
 };
 
-const withoutTrailingSlash = (path: string) => (path.length > 1 ? path.replace(/\/+$/, '') : path);
+/** Path without query, hash and trailing slash, so links written in different ways compare equal. */
+export const normalizePath = (link: string) => {
+  const path = link.split(/[?#]/)[0] ?? '';
+  return path.length > 1 ? path.replace(/\/+$/, '') : path;
+};
+
+/** Whether a category of the tree has subcategories to open (a submenu or flyout). */
+export const hasSubcategories = (category: CategoryTreeItem) =>
+  category.childCount > 0 && (category.children?.length ?? 0) > 0;
 
 /**
  * Whether a category link belongs to the current page: the category itself or anything below it
@@ -49,8 +59,8 @@ const withoutTrailingSlash = (path: string) => (path.length > 1 ? path.replace(/
  * Query strings and hashes are ignored.
  */
 export const isCategoryPathActive = (currentPath: string, categoryPath: string) => {
-  const current = withoutTrailingSlash(currentPath.split(/[?#]/)[0] ?? '');
-  const category = withoutTrailingSlash(categoryPath.split(/[?#]/)[0] ?? '');
+  const current = normalizePath(currentPath);
+  const category = normalizePath(categoryPath);
 
   if (!category || category === '/') {
     return false;

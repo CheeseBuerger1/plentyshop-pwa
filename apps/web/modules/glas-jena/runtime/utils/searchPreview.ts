@@ -1,13 +1,8 @@
 import type { CategoryTreeItem } from '@plentymarkets/shop-api';
+import { normalizePath } from './navigation';
 
 /** Between the levels of a category path, e.g. "Teekannen › alle Filter" */
 export const CATEGORY_PATH_SEPARATOR = ' › ';
-
-/** Path without query, hash and trailing slash, so links written in different ways compare equal. */
-const normalizeLink = (link: string) => {
-  const path = link.split(/[?#]/)[0] ?? '';
-  return path.length > 1 ? path.replace(/\/+$/, '') : path;
-};
 
 /**
  * The categories from the main category down to the one the link leads to; empty if no category has that link.
@@ -19,9 +14,9 @@ export const findCategoryPathByLink = (
   link: string,
   buildLink: (category: CategoryTreeItem) => string,
 ): CategoryTreeItem[] => {
-  const target = normalizeLink(link);
+  const target = normalizePath(link);
   for (const category of tree ?? []) {
-    if (normalizeLink(buildLink(category)) === target) {
+    if (normalizePath(buildLink(category)) === target) {
       return [category];
     }
     const below = findCategoryPathByLink(category.children, link, buildLink);

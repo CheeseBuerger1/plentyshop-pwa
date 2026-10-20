@@ -70,6 +70,7 @@
  */
 import { orderGetters, offerGetters } from '@plentymarkets/shop-api';
 import type { OrderTotalsPropsType } from '~/components/OrderTotals/types';
+import { formatShippingAmount } from '../utils/shippingAmount';
 
 const props = defineProps<OrderTotalsPropsType>();
 const { formatWithSymbol } = usePriceFormatter();
@@ -93,9 +94,7 @@ const format = (value: number) => {
   return formatWithSymbol(value, currency);
 };
 
-const getShippingAmount = (amount: number) => {
-  return amount === 0 ? t('shipping.method.free') : formatWithSymbol(Number(amount), currency);
-};
+const getShippingAmount = (amount: number) => formatShippingAmount(amount, t('shipping.method.free'), format);
 
 const isOrderTypeOffer = offerGetters.isTypeOffer(props.order);
 const additionalCostsWithoutTax = orderGetters.getAdditionalCostsWithTax(props.order);

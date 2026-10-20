@@ -62,6 +62,7 @@ import { shippingProviderGetters } from '@plentymarkets/shop-api';
 import { SfSelect } from '@storefront-ui/vue';
 import { useGlasJenaCartShipping } from '../composables/useGlasJenaCartShipping';
 import GlasJenaShippingMethodTile from './GlasJenaShippingMethodTile.vue';
+import { formatShippingAmount } from '../utils/shippingAmount';
 
 const { t: tLocal } = useI18n({ useScope: 'local' });
 const { send } = useNotification();
@@ -95,7 +96,7 @@ const onShippingMethodChange = async (value: string) => {
 };
 
 /* Like the shipping methods of the checkout (ShippingMethod.vue) */
-const getShippingAmount = (amount: string) => (amount === '0' ? t('shipping.method.free') : format(Number(amount)));
+const getShippingAmount = (amount: string) => formatShippingAmount(amount, t('shipping.method.free'), format);
 </script>
 
 <i18n lang="json">
