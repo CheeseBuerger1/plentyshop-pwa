@@ -1,6 +1,7 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { flushPromises } from '@vue/test-utils';
 import type { Cart, ShippingMethod } from '@plentymarkets/shop-api';
+import { SHIPPING_METHOD_LOGOS } from '../../utils/shippingLogos';
 import GlasJenaShippingMethod from '../GlasJenaShippingMethod.vue';
 
 const LOGO = 'https://cdn.example/webspace/DHLShipping/logo.png';
@@ -38,13 +39,17 @@ describe('GlasJenaShippingMethod', () => {
     setCartItems([{ id: 12, quantity: 2 }]);
   });
 
-  it('should show the logo of the parcel service, if the shipping method has one', async () => {
+  it('should show the shop its own logo of a shipping profile, otherwise the icon of PlentyONE', async () => {
     const wrapper = await mountSuspended(GlasJenaShippingMethod);
-    const logos = wrapper.findAll('[data-testid="gj-shipping-method-logo"]');
+    const [plentyLogo, ownLogo] = wrapper.findAll('[data-testid="gj-shipping-method-logo"]');
 
-    expect(logos).toHaveLength(1);
-    expect(logos[0]?.attributes('src')).toBe(LOGO);
-    expect(logos[0]?.attributes('alt')).toBe('');
+    /* Profile 30 has no logo of its own: the icon of PlentyONE */
+    expect(plentyLogo?.attributes('src')).toBe(LOGO);
+    expect(plentyLogo?.classes()).not.toContain('gj-shipping-method-logo--card');
+    /* Profile 25 (DHL - Paketversand): the card of the LTS shop instead of PlentyONE's missing icon */
+    expect(ownLogo?.attributes('src')).toBe(SHIPPING_METHOD_LOGOS[25]);
+    expect(ownLogo?.classes()).toContain('gj-shipping-method-logo--card');
+    expect(ownLogo?.attributes('alt')).toBe('');
     wrapper.unmount();
   });
 

@@ -108,12 +108,23 @@ export const getCartContentKey = (items: Pick<CartItem, 'id' | 'quantity'>[] | n
     .join('|');
 
 /**
- * Logo of a shipping method, like the LTS shop shows it next to the name (wish of the shop owner, 2026-10-20): the
- * icon PlentyONE gives the shipping profile, an address of an image (e.g. the DHL logo of the DHL Shipping plugin,
- * which PlentyONE gives "Warenpost International" of the Deutsche Post as well). `null` without one.
+ * Logo of a shipping method, like the LTS shop shows it next to the name (wish of the shop owner, 2026-10-20).
+ *
+ * `ownLogos`: the shop's own logos by shipping profile (see SHIPPING_METHOD_LOGOS), the ones of the LTS plugin "Ceres
+ * Beautifier Shipping Icons" (`own: true`). Otherwise the icon PlentyONE gives the shipping profile, an address of an
+ * image (e.g. the DHL logo of the DHL Shipping plugin, which PlentyONE gives "Warenpost International" of the Deutsche
+ * Post as well). `null` without either.
  */
-export const getShippingMethodLogo = (method: Pick<ShippingMethod, 'icon'>) =>
-  typeof method.icon === 'string' && /^https?:\/\//.test(method.icon) ? method.icon : null;
+export const getShippingMethodLogo = (
+  method: Pick<ShippingMethod, 'parcelServicePresetId' | 'icon'>,
+  ownLogos: Record<number, string>,
+) => {
+  const own = ownLogos[method.parcelServicePresetId];
+  if (own) {
+    return { src: own, own: true };
+  }
+  return typeof method.icon === 'string' && /^https?:\/\//.test(method.icon) ? { src: method.icon, own: false } : null;
+};
 
 /**
  * The countries of delivery of the whole shop in the order of the cart's selection (sortShippingCountries), or `null`

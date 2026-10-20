@@ -1,8 +1,8 @@
 import type { CategoryTreeItem, ShippingMethod } from '@plentymarkets/shop-api';
 
-/** A shipping method with the icon of its shipping profile (see GlasJenaShippingMethodLogo.vue). */
+/** A shipping method with its shipping profile and the icon of PlentyONE (see GlasJenaShippingMethodLogo.vue). */
 export interface GlasJenaShippingMethodLogoProps {
-  method: Pick<ShippingMethod, 'icon'>;
+  method: Pick<ShippingMethod, 'parcelServicePresetId' | 'icon'>;
 }
 
 export interface GlasJenaCheckoutLegalNoticeProps {

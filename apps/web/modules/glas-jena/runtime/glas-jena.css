@@ -1984,6 +1984,11 @@ html:has(.gj-header-wrapper--sticky) .font-body [data-testid='gj-cart-side'] {
   object-fit: contain;
 }
 
+/* The shop's own logos: cards like in the LTS shop (980 × 680, with frame), 46 × 32 */
+.gj-shipping-method-logo--card {
+  height: 2rem;
+}
+
 [data-testid='shipping-method-list'] .gj-shipping-method-logo {
   align-self: flex-start;
 }
