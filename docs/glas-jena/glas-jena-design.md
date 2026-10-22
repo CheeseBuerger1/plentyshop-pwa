@@ -21,7 +21,7 @@ Screenshots der Desktop-Ansicht liegen im selben Ordner (`docs/glas-jena/`).
 
 ## 2. Farben
 
-Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des LTS-Shops abgleichen** und hier korrigieren.
+Die Werte stammen anfangs aus Screenshots, die gültigen stehen als Variablen in `glas-jena.css`. Die Kacheln der Startseite nutzen die Werte aus dem LTS-CSS (`utils/home.ts`, siehe Startseite).
 
 | Verwendung                                                                      | Farbe                                                |
 | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -355,7 +355,7 @@ Umgesetzt in `GlasJenaCookiebar.vue` (ersetzt die Original-Komponente `Cookiebar
 - **Erste Ebene:** Überschrift „Ihre Privatsphäre“ (Light), kurzer Text, Links zu Datenschutzerklärung und Impressum; drei Buttons: „Alle akzeptieren“ und „Ablehnen“ gleich groß in Schieferblau, „Einstellungen“ hellgrau. Ab 768 px Text links, Buttons rechts in einer Reihe; darunter Akzeptieren und Ablehnen nebeneinander, Einstellungen darunter (auf dem Handy ca. 37 % der Bildschirmhöhe).
 - **Einstellungen:** „Cookie-Einstellungen“ mit den Gruppen; optionale Gruppen mit Schalter (ein Schalter schaltet alle Cookies der Gruppe), notwendige mit „Immer aktiv“. „Mehr Informationen“ zeigt Anbieter, Zweck, Laufzeit und Datenschutz-Link je Cookie (externe Links in neuem Tab). Buttons: „Auswahl speichern“, „Alle akzeptieren“, „Zurück“.
 - **Cookie-Symbol** unten links (Schieferblau, 44 × 44 px) öffnet den Banner jederzeit wieder, damit die Einwilligung geändert oder widerrufen werden kann.
-- **Texte:** Die Kurztexte (Deutsch/Englisch) stehen in der Komponente (`<i18n>`), Gruppennamen und Cookie-Details aus den Shop-Übersetzungen. **Kurztext vor dem Livegang von der Datenschutzberatung freigeben lassen.**
+- **Texte:** Die Kurztexte (Deutsch/Englisch) stehen in der Komponente (`<i18n>`), Gruppennamen und Cookie-Details aus den Shop-Übersetzungen. Der Kurztext ist vom Shopbetreiber freigegeben (2026-10-22).
 - **Rechtlich:** „Ablehnen“ auf der ersten Ebene gleichwertig zu „Akzeptieren“; optionale Gruppen nicht vorab einschalten.
 
 ### Footer
@@ -406,9 +406,9 @@ Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet ho
 
 ## 6. Offene Punkte
 
-- [ ] Exakte Farbwerte und Schrift aus dem LTS-CSS übernehmen.
+- [x] Farbwerte und Schrift aus dem LTS übernehmen: umgesetzt in `glas-jena.css` (Variablen `--gj-…`, Schrift Source Sans 3), vom Shopbetreiber abgenommen (2026-10-22).
 - [x] Artikeldaten prüfen: Viele Artikel zeigten „1 Milliliter“ als Einheit. Am 2026-10-07 sind alle 347 aktiven Variationen in PlentyONE auf „Stück, Inhalt 1“ mit ausgeschaltetem Grundpreis umgestellt (Kannen und Gläser sind 1 Stück; die Kapazität in ml steht im Variantennamen als Hilfsfeld). Die PWA zeigt „Inhalt | Grundpreis“ nur bei eingeschaltetem Grundpreis.
 - [x] Copyright-Jahr im Footer automatisch setzen.
 - [x] Alle „Wussten Sie schon“-Fakten aus dem LTS-Shop sammeln (14 deutsche und 14 englische; gehören in den Block „Did you know“ der Startseite).
-- [ ] Englische Texte für den Sprachwechsel prüfen.
+- [x] Englische Texte für den Sprachwechsel prüfen (vom Shopbetreiber geprüft, 2026-10-22).
 - [x] SEO mobil: Das Server-HTML für Handys enthält jetzt alle Kategorie-Links (mobiles Menü, siehe oben).
