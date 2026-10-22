@@ -59,28 +59,23 @@ export const BLOCKED_SET_COOKIES = ['XSRF-TOKEN'];
 /**
  * The cookies that PlentyONE sets in its answer, as the browser gets them, like the middleware does (`handleSetCookie`
  * of the shop API): without `XSRF-TOKEN`, and without their `domain` (PlentyONE's own host), so they belong to the
- * shop's host – except with `keepDomain` (the middleware's `x-skip-modify-domain`: on a deployed shop with the feature
- * flag `shopMigrateLtsSession`, where the session is shared with the LTS shop). PlentyONE may give the session a new
- * id, and the cart moves there.
+ * shop's host – except with `keepDomain` (the middleware's `skipModifyDomain`: on a deployed shop, i.e. with
+ * `API_URL`, where the session is shared with the LTS shop). PlentyONE may give the session a new id, and the cart
+ * moves there.
  */
 export const toBrowserSetCookies = (setCookies: string[], keepDomain = false) =>
   setCookies
     .filter((setCookie) => !BLOCKED_SET_COOKIES.some((blocked) => setCookie.includes(blocked)))
     .map((setCookie) => (keepDomain ? setCookie : setCookie.replace(/;\s*domain=[^;]+/i, '')));
 
-/** Feature flag of the shop under which the middleware passes on the browser's user agent (`x-forward-user-agent`). */
-export const MIGRATE_LTS_SESSION_FLAG = 'shopMigrateLtsSession';
-
 /**
  * The user agent of the middleware's calls: PlentyONE ties the session to it, and a call with another one gets a new
- * session id, which loses the country again. The middleware sends the browser's user agent if the shop's feature
- * flag `shopMigrateLtsSession` is on, otherwise the default of its HTTP client axios (`axios/<version>`).
+ * session id, which loses the country again. The middleware passes the browser's user agent on (shop-api 0.188, before
+ * only with the feature flag `shopMigrateLtsSession`); without one its HTTP client axios sends its default
+ * (`axios/<version>`).
  */
-export const getMiddlewareUserAgent = (
-  forwardUserAgent: boolean,
-  browserUserAgent: string | undefined,
-  axiosVersion: string,
-) => (forwardUserAgent && browserUserAgent ? browserUserAgent : `axios/${axiosVersion}`);
+export const getMiddlewareUserAgent = (browserUserAgent: string | undefined, axiosVersion: string) =>
+  browserUserAgent || `axios/${axiosVersion}`;
 
 /**
  * The shop language of a request body for the `locale` header, like the middleware sends it with every call (two

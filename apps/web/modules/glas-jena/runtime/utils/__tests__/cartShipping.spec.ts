@@ -47,10 +47,10 @@ describe('cartShipping', () => {
     expect(toBrowserSetCookies(setCookies, true)).toEqual([setCookies[0]]);
   });
 
-  it("should use the middleware's user agent: axios, or the browser's with the feature flag", () => {
-    expect(getMiddlewareUserAgent(false, 'Mozilla/5.0', '1.20.0')).toBe('axios/1.20.0');
-    expect(getMiddlewareUserAgent(true, 'Mozilla/5.0', '1.20.0')).toBe('Mozilla/5.0');
-    expect(getMiddlewareUserAgent(true, undefined, '1.20.0')).toBe('axios/1.20.0');
+  it("should use the middleware's user agent: the browser's, or axios' default without one", () => {
+    expect(getMiddlewareUserAgent('Mozilla/5.0', '1.20.0')).toBe('Mozilla/5.0');
+    expect(getMiddlewareUserAgent(undefined, '1.20.0')).toBe('axios/1.20.0');
+    expect(getMiddlewareUserAgent('', '1.20.0')).toBe('axios/1.20.0');
   });
 
   it('should pass the language on only as two letters, like the middleware', () => {
