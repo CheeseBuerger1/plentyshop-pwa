@@ -50,6 +50,17 @@ describe('ltsRedirect', () => {
       });
     });
 
+    it('should send the moved content pages to their new address in the language of the old one', () => {
+      expect(findLtsRedirect('/sbc5/our-glass/', { a: '1' })).toEqual({
+        path: '/hitzebestaendiges-glas',
+        query: { a: '1' },
+      });
+      expect(findLtsRedirect('/en/sbc5/our-glass/', {})).toEqual({ locale: 'en', path: '/our-glass', query: {} });
+      expect(findLtsRedirect('/sbc5/bank-details', {})).toEqual({ path: '/bank-details', query: {} });
+      expect(findLtsRedirect('/en/sbc5/bank-details/', {})).toEqual({ locale: 'en', path: '/bank-details', query: {} });
+      expect(findLtsRedirect('/en/en/sbc5/our-glass', {})).toEqual({ locale: 'en', path: '/our-glass', query: {} });
+    });
+
     it('should leave PWA pages, categories, items and content pages alone', () => {
       expect(findLtsRedirect('/', {})).toBeUndefined();
       expect(findLtsRedirect('/en/', {})).toBeUndefined();
@@ -58,7 +69,9 @@ describe('ltsRedirect', () => {
       expect(findLtsRedirect('/en/cart/', {})).toBeUndefined();
       expect(findLtsRedirect('/tee-kaffee', {})).toBeUndefined();
       expect(findLtsRedirect('/tee-kaffee/teekannen/teekanne-miko-0-8l-g_101008_1002', {})).toBeUndefined();
-      expect(findLtsRedirect('/sbc5/our-glass', {})).toBeUndefined();
+      expect(findLtsRedirect('/hitzebestaendiges-glas/', {})).toBeUndefined();
+      expect(findLtsRedirect('/en/our-glass/', {})).toBeUndefined();
+      expect(findLtsRedirect('/bank-details/', {})).toBeUndefined();
       expect(findLtsRedirect('/wish-list', {})).toBeUndefined();
     });
   });

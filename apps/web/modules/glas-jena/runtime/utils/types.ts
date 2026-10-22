@@ -101,6 +101,9 @@ export interface ShippingMethodLogo {
  * Target of an old LTS address, see ltsRedirect.ts: PWA path without language prefix, the language prefix of the old
  * address (not yet checked against the shop's languages) and the query to send along.
  */
+/** New address of a moved LTS content page per language prefix, `default` for all others, see ltsRedirect.ts. */
+export type LtsMovedPage = { default: string } & Partial<Record<string, string>>;
+
 export interface LtsRedirect {
   locale?: string;
   path: string;
