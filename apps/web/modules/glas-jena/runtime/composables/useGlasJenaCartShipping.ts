@@ -1,10 +1,5 @@
 import { shippingProviderGetters } from '@plentymarkets/shop-api';
-import {
-  MIGRATE_LTS_SESSION_FLAG,
-  SHIPPING_COUNTRY_URL,
-  isShippingCountryLocked,
-  sortShippingCountries,
-} from '../utils/cartShipping';
+import { SHIPPING_COUNTRY_URL, isShippingCountryLocked, sortShippingCountries } from '../utils/cartShipping';
 import { useGlasJenaShippingRefresh } from './useGlasJenaShippingRefresh';
 
 /**
@@ -26,8 +21,6 @@ export const useGlasJenaCartShipping = () => {
   const { fetchSession } = useFetchSession();
   const { $i18n } = useNuxtApp();
   const loading = useState('glasJenaCartShippingLoading', () => false);
-  /* The server route has to call PlentyONE with the middleware's user agent, see getMiddlewareUserAgent */
-  const forwardUserAgent = useFeatureFlag(MIGRATE_LTS_SESSION_FLAG);
 
   const countries = computed(() => sortShippingCountries(shippingCountries.value, $i18n.locale.value));
   const countryId = computed(() => cart.value?.shippingCountryId ?? null);
@@ -53,7 +46,7 @@ export const useGlasJenaCartShipping = () => {
     try {
       await $fetch(SHIPPING_COUNTRY_URL, {
         method: 'POST',
-        body: { shippingCountryId, locale: $i18n.locale.value, forwardUserAgent: forwardUserAgent.value },
+        body: { shippingCountryId, locale: $i18n.locale.value },
       });
       await fetchSession();
       await getShippingMethods();

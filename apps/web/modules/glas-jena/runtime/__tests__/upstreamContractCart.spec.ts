@@ -8,12 +8,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { shippingProviderGetters } from '@plentymarkets/shop-api';
-import {
-  BLOCKED_SET_COOKIES,
-  MIGRATE_LTS_SESSION_FLAG,
-  PLENTY_SESSION_COOKIE,
-  PWA_SESSION_COOKIE,
-} from '../utils/cartShipping';
+import { BLOCKED_SET_COOKIES, PLENTY_SESSION_COOKIE, PWA_SESSION_COOKIE } from '../utils/cartShipping';
 
 /* Vitest runs in apps/web (the Nuxt test environment gives no file URL for this module) */
 const readApp = (path: string) => readFileSync(join(process.cwd(), 'app', path), 'utf8');
@@ -107,7 +102,8 @@ describe('upstream contract of the glas-jena module: cart page', () => {
   it("should find the middleware's session handling that the server route of the country copies", () => {
     /*
      * The route calls PlentyONE like the middleware: session cookie as plentyID, security token, the same user agent
-     * (PlentyONE gives the session a new id otherwise) and the new cookies back to the browser without domain
+     * (PlentyONE gives the session a new id otherwise) and the new cookies back to the browser, without domain except
+     * on a deployed shop (API_URL)
      */
     const middleware = readPackage('@plentymarkets/shop-api/server/index.js');
     for (const part of [
@@ -115,19 +111,21 @@ describe('upstream contract of the glas-jena module: cart page', () => {
       `const PwaSessionIdCookie = '${PWA_SESSION_COOKIE}';`,
       `const setCookieHeaderBlacklist = ${JSON.stringify(BLOCKED_SET_COOKIES).replace(/"/g, "'")};`,
       "setCookieHeader.replace(/domain=[^;]+;/, '')",
+      'const isLocalDevelopment = () => !process.env.API_URL;',
+      'const skipModifyDomain = !isLocalDevelopment();',
       "request.headers['x-security-token'] = config.api?.securityToken ?? '';",
-      "? [...FORWARD_HEADERS_KEYS, 'user-agent']",
       "var axios = require('axios');",
     ]) {
       expect(middleware).toContain(part);
     }
-    /* Without the feature flag the middleware sends axios' default user agent: the route takes the same version */
+    /* The middleware passes the browser's user agent on; without one axios sends its default with the same version */
+    expect(middleware).toMatch(/const FORWARD_HEADERS_KEYS = \[[^\]]*'user-agent',?\s*\];/);
     expect(middleware).not.toMatch(/['"]user-agent['"]\s*\]\s*=/i);
     const pinnedAxios = JSON.parse(readPackage('@plentymarkets/shop-api/package.json')).dependencies.axios;
     expect(JSON.parse(readPackage('axios/package.json')).version).toBe(pinnedAxios);
-    /* The feature flag under which the shop passes the browser's user agent on to the middleware */
+    /* The shop passes the browser's user agent on to the middleware */
     expect(readPackage('@plentymarkets/shop-core/dist/runtime/plugins/sdk.js')).toContain(
-      `useFeatureFlag("${MIGRATE_LTS_SESSION_FLAG}")`,
+      'useRequestHeaders(["cookie", "x-plenty-debug-mode", "x-plenty-debug", "user-agent"])',
     );
   });
 

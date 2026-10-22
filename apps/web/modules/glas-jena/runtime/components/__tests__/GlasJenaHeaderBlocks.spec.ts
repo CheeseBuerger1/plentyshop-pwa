@@ -87,7 +87,8 @@ describe('GlasJenaHeaderBlocks', () => {
 
   it('should open "Meine Bestellungen" after logging in through the dialog', async () => {
     const assign = vi.fn();
-    vi.stubGlobal('location', { ...window.location, assign });
+    /* `href` is a getter, which the spread leaves out; Nuxt's prefetch scheduler resolves routes against it */
+    vi.stubGlobal('location', { ...window.location, href: window.location.href, assign });
     const wrapper = await mountHeader();
     await wrapper.get('[data-testid="gj-header-account"]').trigger('click', { button: 0 });
 

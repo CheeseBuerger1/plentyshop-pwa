@@ -199,12 +199,20 @@ describe('GlasJenaMobileNavigation', () => {
     await mountMenu();
 
     expect(window.history.state?.gjMobileMenu).toBe(true);
+    /* The router navigates on the back step too; let it finish here, it would end in the next test otherwise */
+    const routerDone = new Promise<void>((resolve) => {
+      const removeHook = useRouter().afterEach(() => {
+        removeHook();
+        resolve();
+      });
+    });
 
     window.history.replaceState({}, '');
     window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
     await nextTick();
 
     expect(useMegaMenu().isOpen.value).toBe(false);
+    await routerDone;
   });
 
   it('should switch the language only after the router has finished the back step of the menu', async () => {
