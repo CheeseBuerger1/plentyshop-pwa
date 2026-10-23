@@ -189,4 +189,34 @@ describe('upstream contract of the glas-jena module: checkout', () => {
     /* COMPONENT_OVERRIDES: Coupon → GlasJenaNoCoupon.vue */
     expect(readApp('pages/checkout.vue')).toContain('<Coupon />');
   });
+
+  it('should find the payment method handling that useGlasJenaPaymentGuard builds on', () => {
+    /*
+     * The buy button orders with `paymentMethods.selected` and checks no payment method; the module checks it and
+     * catches the click before the original's handler (GlasJenaPaymentButtons.vue). If the original checks it itself
+     * one day, the module's check can go.
+     */
+    const buttons = readApp('components/PaymentButtons/PaymentButtons.vue');
+    expect(buttons).toContain('paymentId: paymentMethods.value.selected,');
+    expect(buttons).toMatch(/data-testid="place-order-button"[\s\S]*@click="handlePreparePayment"/);
+    expect(buttons).not.toMatch(/isPaymentMethod(Excluded|Unavailable)/);
+    /* The original switches the payment method only when the shipping method changes */
+    const paymentAndShipping = readApp(
+      'composables/useCheckoutPagePaymentAndShipping/useCheckoutPagePaymentAndShipping.ts',
+    );
+    for (const part of [
+      'const handlePaymentMethodUpdate = async (paymentMethodId: number) => {',
+      "send({ message: t('billing.methodChanged'), type: 'warning' });",
+      'paymentLoading,',
+      'shippingLoading,',
+      'paymentMethods,',
+      'handlePaymentMethodUpdate,',
+    ]) {
+      expect(paymentAndShipping).toContain(part);
+    }
+    /* What the original payment selection shows as not selectable, and the target of the scroll */
+    const payment = readApp('components/CheckoutPayment/CheckoutPayment.vue');
+    expect(payment).toContain('!paymentMethod.isSelectable ||');
+    expect(payment).toContain('data-testid="checkout-payment"');
+  });
 });
