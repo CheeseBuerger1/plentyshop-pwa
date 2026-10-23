@@ -69,6 +69,12 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
 export const COMPONENT_OVERRIDES_NOT_IN_TESTS = ['CategoryTree', 'UiProductCard', 'Gallery', 'UiBreadcrumbs'];
 
 /**
+ * Files the service worker may precache without a revision: none (a pattern that matches no address), see the hook
+ * `pwa:beforeBuildServiceWorker` below.
+ */
+export const PRECACHE_WITHOUT_REVISION = /(?!)/;
+
+/**
  * Original layouts (name) replaced by the module's own ones. Account: on phones the menu has its own page and every
  * account page shows "← Zurück" to it (see the layout).
  */
@@ -356,6 +362,16 @@ export default defineNuxtModule({
       name: 'glas-jena-lts-redirect',
       path: resolve('./runtime/middleware/ltsRedirect'),
       global: true,
+    });
+
+    /*
+     * Service worker: a revision (hash of the content) for every precached file. vite-plugin-pwa stores the files in
+     * `_nuxt/` without one, trusting that a new content always gets a new name – but some chunks keep their name and
+     * only change the CSS file they load. Returning visitors then kept the old chunk for good and saw old and new CSS
+     * mixed until a hard reload (2026-10-13, 2026-10-20; two builds compared on 2026-10-24).
+     */
+    nuxt.hook('pwa:beforeBuildServiceWorker', (options) => {
+      options.workbox.dontCacheBustURLsMatching = PRECACHE_WITHOUT_REVISION;
     });
   },
 });

@@ -403,6 +403,14 @@ Umgesetzt in `runtime/middleware/ltsRedirect.ts` (global) mit der Tabelle `LTS_R
 - **Nicht umgeleitet:** `/wish-list` bleibt 404, weil der Shop keine Wunschliste hat.
 - Die Middleware greift erst auf i18n zu, wenn sie eine alte Adresse erkannt hat (Grund wie bei `accountRedirect.ts`: Original-Tests ersetzen `useNuxtApp`). Den Pfad baut sie selbst, nämlich Sprachpräfix plus Pfad aus `paths`, weil `useLocalizedPath` keine Zielsprache kennt und `useLocalePath` per ESLint verboten ist. Das funktioniert, weil der Shop in jeder Sprache dieselben Pfade nutzt (`prefix_and_default`).
 
+### Service Worker (Updates für wiederkehrende Besucher)
+
+Der Service Worker des Originals (`@vite-pwa/nuxt`, `registerType: 'prompt'`) legt alle Skripte und Styles vorab in seinen Speicher. Ein neuer Stand übernimmt beim nächsten Wechsel auf eine Kategorie- oder Artikelseite (`app/middleware/pwa-update.global.client.ts`).
+
+- **Fehler (2026-10-13, 2026-10-20):** Nach einem Shop-Update zeigte Chrome alte und neue Styles gemischt, bis die Seite hart neu geladen wurde (Strg+Umschalt+R).
+- **Ursache (zwei Builds verglichen, 2026-10-24):** Bei einer reinen CSS-Änderung behielten vier Skripte ihren Namen und änderten nur die CSS-Datei, die sie laden. vite-plugin-pwa speichert alle Dateien in `_nuxt/` ohne Revision (`dontCacheBustURLsMatching = ^_nuxt/`), weil es neue Namen für neuen Inhalt erwartet. Der Service Worker hielt die alte Fassung deshalb für aktuell und ersetzte sie nie.
+- **Korrektur:** Das Modul setzt im Hook `pwa:beforeBuildServiceWorker` `dontCacheBustURLsMatching` auf ein Muster, das nie passt (`PRECACHE_WITHOUT_REVISION` in `index.ts`). Jede Datei bekommt eine Revision aus ihrem Inhalt, geänderte Dateien holt der neue Service Worker neu. Bis er übernimmt, kann ein kurzer Mischstand bleiben. Vertragstest `upstreamContractServiceWorker.spec.ts`.
+
 ### Test
 
 Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet hoch), 1180 px (Tablet quer) und 1440 px (Desktop).
