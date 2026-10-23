@@ -1629,6 +1629,38 @@ div:has(> svg[data-testid='favorite']) {
   text-align: center;
 }
 
+/*
+ * Long descriptions (wish of the shop owner, 2026-10-24): the text of the description tile scrolls inside the tile
+ * instead of stretching the page (and with it the tiles beside it). A thin scrollbar in slate blue on a light track,
+ * matching the tile: thumb 3.3:1 on the tile blue (graphics need 3:1). Scroll containers take the keyboard focus
+ * themselves in current browsers, so the arrow keys scroll too.
+ */
+.font-body [data-testid='item-text-block'] :is([data-testid='item-text-innertext'], h2 + div.no-preflight) {
+  max-height: 20rem;
+  overflow-y: auto;
+  padding-right: 0.75rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gj-slate-blue) rgb(255 255 255 / 45%);
+}
+
+.font-body
+  [data-testid='item-text-block']
+  :is([data-testid='item-text-innertext'], h2 + div.no-preflight)::-webkit-scrollbar {
+  width: 8px;
+}
+
+.font-body
+  [data-testid='item-text-block']
+  :is([data-testid='item-text-innertext'], h2 + div.no-preflight)::-webkit-scrollbar-track {
+  background-color: rgb(255 255 255 / 45%);
+}
+
+.font-body
+  [data-testid='item-text-block']
+  :is([data-testid='item-text-innertext'], h2 + div.no-preflight)::-webkit-scrollbar-thumb {
+  background-color: var(--gj-slate-blue);
+}
+
 /* The accordion summary would otherwise turn light grey on hover inside the coloured tile */
 .font-body
   :is(
