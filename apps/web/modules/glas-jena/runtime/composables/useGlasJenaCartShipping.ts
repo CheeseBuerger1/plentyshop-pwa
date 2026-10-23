@@ -1,5 +1,6 @@
 import { shippingProviderGetters } from '@plentymarkets/shop-api';
 import { SHIPPING_COUNTRY_URL, isShippingCountryLocked, sortShippingCountries } from '../utils/cartShipping';
+import { useGlasJenaShippingPreselect } from './useGlasJenaShippingPreselect';
 import { useGlasJenaShippingRefresh } from './useGlasJenaShippingRefresh';
 
 /**
@@ -12,7 +13,8 @@ import { useGlasJenaShippingRefresh } from './useGlasJenaShippingRefresh';
  * shows the new shipping costs (and net prices for countries without VAT, e.g. Great Britain). `changeCountry`
  * returns `false` if the country could not be changed. `countryLocked`: the cart has an address, whose country it is
  * calculated with; the country then changes only with the address (isShippingCountryLocked). `watchCartContent` (in
- * the component) fetches the shipping methods again when the articles change.
+ * the component) fetches the shipping methods again when the articles change, `preselectCheapest` (in the component)
+ * chooses the cheapest one when the methods on offer change.
  */
 export const useGlasJenaCartShipping = () => {
   const { data: cart } = useCart();
@@ -34,6 +36,9 @@ export const useGlasJenaCartShipping = () => {
 
   /* The shipping methods depend on the articles (weight, size), see useGlasJenaShippingRefresh */
   const watchCartContent = () => useGlasJenaShippingRefresh();
+
+  /* The cheapest method when the methods on offer change, see useGlasJenaShippingPreselect */
+  const preselectCheapest = () => useGlasJenaShippingPreselect(shippingMethods, changeShippingMethod);
 
   const changeCountry = async (shippingCountryId: number) => {
     if (countryLocked.value) {
@@ -80,6 +85,7 @@ export const useGlasJenaCartShipping = () => {
     loading,
     load,
     watchCartContent,
+    preselectCheapest,
     changeCountry,
     changeShippingMethod,
   };

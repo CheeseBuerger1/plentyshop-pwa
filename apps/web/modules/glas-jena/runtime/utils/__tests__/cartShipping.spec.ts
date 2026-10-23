@@ -1,20 +1,27 @@
 import type { ActiveShippingCountry } from '@plentymarkets/shop-api';
 import {
+  SHIPPING_CHOICE_STORAGE_KEY,
   SHIPPING_COUNTRY_ROUTE,
   SHIPPING_COUNTRY_URL,
   getCartContentKey,
+  getCheapestShippingMethodId,
   getMiddlewareUserAgent,
+  getShippingChoiceKey,
   getShippingMethodLogo,
+  getShippingPreselection,
   isShippingCountryLocked,
   parseLocale,
   parseShippingCountryId,
+  readShippingChoiceKey,
   resortShippingCountries,
   sortShippingCountries,
   toBrowserSetCookies,
   toPlentySessionCookie,
+  writeShippingChoiceKey,
 } from '../cartShipping';
 
 const country = (id: number, currLangName: string) => ({ id, currLangName }) as ActiveShippingCountry;
+const offer = (parcelServicePresetId: number, shippingAmount: number) => ({ parcelServicePresetId, shippingAmount });
 
 describe('cartShipping', () => {
   it('should call the route with the trailing slash of the shop, which the hosting would redirect otherwise', () => {
@@ -132,5 +139,58 @@ describe('cartShipping', () => {
     expect(isShippingCountryLocked(undefined)).toBe(false);
     expect(isShippingCountryLocked({ customerShippingAddressId: 72282, customerInvoiceAddressId: null })).toBe(true);
     expect(isShippingCountryLocked({ customerShippingAddressId: null, customerInvoiceAddressId: 15 })).toBe(true);
+  });
+
+  it('should tell the methods on offer by the country and the ids, in any order', () => {
+    expect(getShippingChoiceKey(12, [offer(26, 10.8), offer(25, 28.1)])).toBe('12:25,26');
+    expect(getShippingChoiceKey(12, [offer(25, 28.1), offer(26, 10.8)])).toBe('12:25,26');
+    expect(getShippingChoiceKey(1, [offer(25, 7.8)])).toBe('1:25');
+    expect(getShippingChoiceKey(null, [])).toBe(':');
+  });
+
+  it('should find the cheapest method, the first by priority if several cost the same', () => {
+    expect(getCheapestShippingMethodId([offer(25, 28.1), offer(26, 10.8)])).toBe('26');
+    expect(getCheapestShippingMethodId([offer(26, 10.8), offer(27, 10.8)])).toBe('26');
+    /* Free shipping is the cheapest; a method without costs is left out */
+    expect(getCheapestShippingMethodId([offer(25, 7.8), offer(30, 0)])).toBe('30');
+    expect(getCheapestShippingMethodId([offer(25, Number.NaN), offer(26, 10.8)])).toBe('26');
+    expect(getCheapestShippingMethodId([])).toBeNull();
+  });
+
+  it('should choose the cheapest method when the methods on offer change, e.g. from Germany to Great Britain', () => {
+    const methods = [offer(26, 10.8), offer(25, 28.1)];
+
+    expect(getShippingPreselection('12:25,26', '1:25', methods, '25')).toBe('26');
+    /* A new cart in the English shop: PlentyONE already chose it */
+    expect(getShippingPreselection('12:25,26', null, methods, '26')).toBeNull();
+  });
+
+  it("should keep the customer's choice while the methods on offer stay the same", () => {
+    expect(getShippingPreselection('12:25,26', '12:25,26', [offer(26, 10.8), offer(25, 28.1)], '25')).toBeNull();
+  });
+
+  it('should choose nothing without a choice of methods', () => {
+    expect(getShippingPreselection('1:25', '12:25,26', [offer(25, 7.8)], '25')).toBeNull();
+  });
+
+  it('should keep the methods last seen and do without a blocked storage', () => {
+    const values = new Map<string, string>();
+    const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: values.set.bind(values) };
+    const blocked = {
+      getItem: () => {
+        throw new Error('blocked');
+      },
+      setItem: () => {
+        throw new Error('blocked');
+      },
+    };
+
+    expect(readShippingChoiceKey(storage)).toBeNull();
+    writeShippingChoiceKey(storage, '12:25,26');
+    expect(values.get(SHIPPING_CHOICE_STORAGE_KEY)).toBe('12:25,26');
+    expect(readShippingChoiceKey(storage)).toBe('12:25,26');
+    expect(() => writeShippingChoiceKey(blocked, '1:25')).not.toThrow();
+    expect(readShippingChoiceKey(blocked)).toBeNull();
+    expect(readShippingChoiceKey(undefined)).toBeNull();
   });
 });
