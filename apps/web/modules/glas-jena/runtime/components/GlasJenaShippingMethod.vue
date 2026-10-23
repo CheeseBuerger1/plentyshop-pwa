@@ -1,12 +1,14 @@
 <!--
-  Shipping methods of the checkout (replaces ShippingMethod, see COMPONENT_OVERRIDES). Copy of the original with three
-  changes (wishes of the shop owner, 2026-10-20 and 2026-10-23):
+  Shipping methods of the checkout (replaces ShippingMethod, see COMPONENT_OVERRIDES). Copy of the original with four
+  changes (wishes of the shop owner, 2026-10-20 to 2026-10-24):
   - the methods as tiles like the payment methods below, with the logo of the parcel service like the LTS shop and the
     price on one line (GlasJenaShippingMethodTile.vue) instead of list items with radio buttons;
   - the methods are fetched again when the articles change, which the checkout's article lines allow: a cart reduced to
     one light article kept showing only DHL (useGlasJenaShippingRefresh, as on the cart page);
   - the cheapest method is chosen when the methods on offer change, e.g. after an address abroad: PlentyONE kept DHL
-    (useGlasJenaShippingPreselect, as on the cart page).
+    (useGlasJenaShippingPreselect, as on the cart page);
+  - the chosen method follows the cart when none on offer is chosen, e.g. back from an address abroad to Germany: the
+    payment methods took no click until the articles changed (getShippingMethodToSync).
 -->
 <template>
   <div data-testid="shipping-method" class="@md:px-4 my-6">
@@ -69,6 +71,7 @@ import { useGlasJenaShippingPreselect } from '../composables/useGlasJenaShipping
 import { useGlasJenaShippingRefresh } from '../composables/useGlasJenaShippingRefresh';
 import GlasJenaShippingMethodTile from './GlasJenaShippingMethodTile.vue';
 import { formatShippingAmount } from '../utils/shippingAmount';
+import { getShippingMethodToSync } from '../utils/cartShipping';
 
 const { disabled = false, loading = false } = defineProps<ShippingMethodProps>();
 const { hasCheckoutAddress } = useCheckoutAddress(AddressType.Shipping);
@@ -76,8 +79,26 @@ const emit = defineEmits<CheckoutShippingEmits>();
 
 const { data: cart } = useCart();
 const { format } = usePriceFormatter();
-const { selectedMethod } = useCartShippingMethods();
+const { selectedMethod, setShippingMethods } = useCartShippingMethods();
 const { shippingMethods } = useCheckoutPagePaymentAndShipping();
+
+/*
+ * The chosen shipping method follows the cart when none on offer is chosen, see getShippingMethodToSync: without it
+ * the payment methods take no click (CheckoutPayment needs a chosen shipping method)
+ */
+if (import.meta.client) {
+  watch(
+    [() => String(shippingProviderGetters.getShippingProfileId(cart.value)), shippingMethods, selectedMethod],
+    ([cartProfileId, list, selected]) => {
+      const selectedId = selected ? shippingProviderGetters.getParcelServicePresetId(selected) : null;
+      const method = getShippingMethodToSync(list, selectedId, cartProfileId);
+      if (method) {
+        setShippingMethods(list, method.parcelServicePresetId);
+      }
+    },
+    { immediate: true },
+  );
+}
 
 /* Like the checkout page, which fetches the shipping methods only once there is an address */
 useGlasJenaShippingRefresh(() => hasCheckoutAddress.value);

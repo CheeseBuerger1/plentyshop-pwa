@@ -185,6 +185,22 @@ describe('upstream contract of the glas-jena module: checkout', () => {
     expect(accordion).toContain('o.$emit("update:modelValue", !e.modelValue)');
   });
 
+  it('should find the race after a saved address that GlasJenaShippingMethod corrects (getShippingMethodToSync)', () => {
+    /* Cart and shipping methods are fetched at the same time; the chosen method is looked up in the cart */
+    expect(readApp('composables/useAddressForm/useAddressForm.ts')).toContain(
+      'await Promise.all([fetchSession(), getShippingMethods(), fetchPaymentMethods()]);',
+    );
+    const shippingMethods = readApp('composables/useCartShippingMethods/useCartShippingMethods.ts');
+    expect(shippingMethods).toContain(
+      'setSelectedMethod(Number(shippingProviderGetters.getShippingProfileId(cart.value)));',
+    );
+    expect(shippingMethods).toMatch(/return \{\s*setShippingMethods,/);
+    /* Without a chosen shipping method the payment methods take no click */
+    expect(readApp('components/CheckoutPayment/CheckoutPayment.vue')).toContain(
+      'if (!selectedShippingMethod.value || !paymentMethod.isSelectable || disabled) return;',
+    );
+  });
+
   it('should find the coupon field of the checkout that the module replaces by nothing', () => {
     /* COMPONENT_OVERRIDES: Coupon → GlasJenaNoCoupon.vue */
     expect(readApp('pages/checkout.vue')).toContain('<Coupon />');

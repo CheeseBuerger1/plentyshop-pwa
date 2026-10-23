@@ -7,15 +7,21 @@ import GlasJenaShippingMethod from '../GlasJenaShippingMethod.vue';
 
 const LOGO = 'https://cdn.example/webspace/DHLShipping/logo.png';
 
-const { getShippingMethods, hasCheckoutAddress, checkout } = vi.hoisted(() => ({
+const { getShippingMethods, setShippingMethods, hasCheckoutAddress, checkout, shipping } = vi.hoisted(() => ({
   getShippingMethods: vi.fn(),
+  setShippingMethods: vi.fn(),
   hasCheckoutAddress: { value: true },
   checkout: { shippingMethods: null as unknown },
+  shipping: { selectedMethod: undefined as unknown },
 }));
 
 mockNuxtImport('useCheckoutAddress', () => () => ({ hasCheckoutAddress: computed(() => hasCheckoutAddress.value) }));
 
-mockNuxtImport('useCartShippingMethods', () => () => ({ selectedMethod: ref(), getShippingMethods }));
+mockNuxtImport('useCartShippingMethods', () => () => ({
+  selectedMethod: ref(shipping.selectedMethod),
+  getShippingMethods,
+  setShippingMethods,
+}));
 
 mockNuxtImport('useCheckoutPagePaymentAndShipping', () => () => ({ shippingMethods: checkout.shippingMethods }));
 
@@ -47,6 +53,8 @@ const setCartItems = (items: { id: number; quantity: number }[]) => setCart({ it
 describe('GlasJenaShippingMethod', () => {
   beforeEach(() => {
     getShippingMethods.mockClear();
+    setShippingMethods.mockClear();
+    shipping.selectedMethod = undefined;
     hasCheckoutAddress.value = true;
     checkout.shippingMethods = ref(methods());
     window.sessionStorage.clear();
@@ -167,6 +175,32 @@ describe('GlasJenaShippingMethod', () => {
     await flushPromises();
 
     expect(wrapper.emitted('update:shippingMethod')).toEqual([['30']]);
+    wrapper.unmount();
+  });
+
+  it("should take the cart's method as chosen when none is chosen, so the payment methods take clicks", async () => {
+    /* Back from an address abroad: the original looked the method up in the old cart and found none on offer */
+    const list = methods(28.1);
+    checkout.shippingMethods = ref(list);
+    setCart({ shippingProfileId: 25 });
+    window.sessionStorage.setItem(SHIPPING_CHOICE_STORAGE_KEY, '12:25,30');
+    const wrapper = await mountSuspended(GlasJenaShippingMethod);
+    await flushPromises();
+
+    expect(setShippingMethods).toHaveBeenCalledWith(list, 25);
+    wrapper.unmount();
+  });
+
+  it('should keep a chosen method on offer, also while the cart has not caught up with it', async () => {
+    const list = methods(28.1);
+    checkout.shippingMethods = ref(list);
+    shipping.selectedMethod = { ...list[0], shippingPrivacyInformation: [] };
+    setCart({ shippingProfileId: 25 });
+    window.sessionStorage.setItem(SHIPPING_CHOICE_STORAGE_KEY, '12:25,30');
+    const wrapper = await mountSuspended(GlasJenaShippingMethod);
+    await flushPromises();
+
+    expect(setShippingMethods).not.toHaveBeenCalled();
     wrapper.unmount();
   });
 
