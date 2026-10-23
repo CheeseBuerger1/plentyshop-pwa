@@ -1359,14 +1359,17 @@ div:has(> svg[data-testid='favorite']) {
   outline-offset: 0;
 }
 
-/* Invalid fields (Storefront UI marks them with ring-negative-700): red frame, the message below says why */
+/*
+ * Invalid fields (Storefront UI marks them with ring-negative-700, some forms with `!ring-negative-700`, e.g. the
+ * birth date of the PayPal purchase on account): red frame, the message below says why
+ */
 .font-body
   :is(
     .gj-form,
     form:not([role='search'], [data-testid='purchase-card']),
     :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
   )
-  span.ring-negative-700:has(> input),
+  span:is(.ring-negative-700, [class~='!ring-negative-700']):has(> input),
 .font-body
   :is(
     .gj-form,
@@ -1393,6 +1396,82 @@ div:has(> svg[data-testid='favorite']) {
     :where([data-testid='checkout-layout'] div:has(> h2 + :is(textarea, span)))
   )
   .text-negative-700 {
+  color: var(--gj-error);
+}
+
+/*
+ * Phone number field with country selection (UiTelephoneInput, vue-tel-input; e.g. the PayPal purchase on account):
+ * its frame is a ring as well, which the flat look removes – the field was hardly visible (found by the shop owner,
+ * 2026-10-24). Frame, height, 16 px text, focus and error like the other fields.
+ */
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) .vue-tel-input {
+  min-height: 2.75rem;
+  border: 1px solid var(--gj-field-border);
+  background-color: #fff;
+}
+
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) .vue-tel-input:hover {
+  border-color: var(--gj-text);
+}
+
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) .vue-tel-input:focus-within {
+  border-color: var(--gj-link);
+  outline: 2px solid var(--gj-link);
+  outline-offset: 0;
+}
+
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) .vue-tel-input.ring-negative-700 {
+  border-color: var(--gj-error);
+  outline: 1px solid var(--gj-error);
+  outline-offset: 0;
+}
+
+.font-body :is(.gj-form, form:not([role='search'], [data-testid='purchase-card'])) .vue-tel-input input {
+  font-size: 1rem;
+  color: var(--gj-text);
+}
+
+/*
+ * Credit card window of Mollie (MollieCreditCardForm of @plentymarkets/shop-module-mollie, outside a form): the fields
+ * are Mollie's iframes in containers that draw their frame as a ring (box-shadow), which the flat look removes – the
+ * fields could not be seen (found by the shop owner, 2026-10-24). Frame, label, focus and error like all form fields.
+ * Mollie marks the containers itself (`mollie-component`, padding 15 px); the original marks errors `!ring-negative-700`.
+ */
+.font-body #pay-container :is(#cardNumber, #cardHolder, #expiryDate, #verificationCode) {
+  min-height: 2.75rem;
+  border: 1px solid var(--gj-field-border);
+  background-color: #fff;
+}
+
+.font-body #pay-container :is(#cardNumber, #cardHolder, #expiryDate, #verificationCode):hover {
+  border-color: var(--gj-text);
+}
+
+.font-body #pay-container :is(#cardNumber, #cardHolder, #expiryDate, #verificationCode):focus-within {
+  border-color: var(--gj-link);
+  outline: 2px solid var(--gj-link);
+  outline-offset: 0;
+}
+
+.font-body
+  #pay-container
+  :is(#cardNumber, #cardHolder, #expiryDate, #verificationCode):is(
+    [class~='!ring-negative-700'],
+    .is-invalid.is-touched
+  ) {
+  border-color: var(--gj-error);
+  outline: 1px solid var(--gj-error);
+  outline-offset: 0;
+}
+
+.font-body #pay-container:has(#cardNumber) [data-testid='form-label'] {
+  padding-bottom: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gj-text);
+}
+
+.font-body #pay-container:has(#cardNumber) .text-negative-700 {
   color: var(--gj-error);
 }
 

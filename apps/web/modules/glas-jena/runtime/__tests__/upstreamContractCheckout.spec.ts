@@ -9,8 +9,38 @@ import { join } from 'node:path';
 
 /* Vitest runs in apps/web (the Nuxt test environment gives no file URL for this module) */
 const readApp = (path: string) => readFileSync(join(process.cwd(), 'app', path), 'utf8');
+const readPackage = (path: string) => readFileSync(join(process.cwd(), '../../node_modules', path), 'utf8');
 
 describe('upstream contract of the glas-jena module: checkout', () => {
+  it('should find the credit card fields of Mollie that glas-jena.css frames', () => {
+    /* `#pay-container :is(#cardNumber, #cardHolder, #expiryDate, #verificationCode)`: frames drawn as rings */
+    const form = readPackage('@plentymarkets/shop-module-mollie/dist/runtime/components/MollieCreditCardForm.vue');
+    expect(form).toMatch(/id="pay-container"/);
+    for (const field of ['cardNumber', 'cardHolder', 'expiryDate', 'verificationCode']) {
+      expect(form).toMatch(new RegExp(`id="${field}"\\s+class="[^"]*\\bring-1\\b`));
+      expect(form).toContain(`'!ring-negative-700': !!errorObject['${field}']`);
+    }
+    expect(form).toContain('<UiFormLabel>');
+    expect(form).toContain('.mollie-component{padding:15px}');
+  });
+
+  it('should find the invalid birth date of the PayPal purchase on account that glas-jena.css frames red', () => {
+    /* `span[class~='!ring-negative-700']:has(> input)` inside a form */
+    const form = readFileSync(
+      join(process.cwd(), 'modules/paypal/runtime/components/PayPalPayUponInvoiceForm.vue'),
+      'utf8',
+    );
+    expect(form).toContain('<form class="grid grid-cols-1" novalidate');
+    expect(form).toContain(':wrapper-class="{ \'ring-2 !ring-negative-700\': !validBirthDate }"');
+    expect(form).toContain('<UiTelephoneInput');
+  });
+
+  it('should find the phone number field whose ring glas-jena.css replaces by a frame (.vue-tel-input)', () => {
+    const phone = readApp('components/ui/TelephoneInput/TelephoneInput.vue');
+    expect(phone).toContain('<VueTelInput');
+    expect(phone).toContain("props.error ? 'ring-2 ring-negative-700' : 'ring-1 ring-neutral-300',");
+  });
+
   it('should find the parts of the guest or login choice that glas-jena.css spaces and separates', () => {
     /*
      * `div:has(> [data-testid='guest-checkout-button'])`: the column with the guest button, without padding;
