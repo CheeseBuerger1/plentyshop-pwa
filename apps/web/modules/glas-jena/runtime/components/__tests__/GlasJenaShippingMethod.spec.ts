@@ -1,22 +1,27 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { flushPromises } from '@vue/test-utils';
 import type { Cart, ShippingMethod } from '@plentymarkets/shop-api';
+import { SHIPPING_CHOICE_STORAGE_KEY } from '../../utils/cartShipping';
 import { SHIPPING_METHOD_LOGOS } from '../../utils/shippingLogos';
 import GlasJenaShippingMethod from '../GlasJenaShippingMethod.vue';
 
 const LOGO = 'https://cdn.example/webspace/DHLShipping/logo.png';
 
-const { getShippingMethods, hasCheckoutAddress } = vi.hoisted(() => ({
+const { getShippingMethods, hasCheckoutAddress, checkout } = vi.hoisted(() => ({
   getShippingMethods: vi.fn(),
   hasCheckoutAddress: { value: true },
+  checkout: { shippingMethods: null as unknown },
 }));
 
 mockNuxtImport('useCheckoutAddress', () => () => ({ hasCheckoutAddress: computed(() => hasCheckoutAddress.value) }));
 
 mockNuxtImport('useCartShippingMethods', () => () => ({ selectedMethod: ref(), getShippingMethods }));
 
-mockNuxtImport('useCheckoutPagePaymentAndShipping', () => () => ({
-  shippingMethods: ref([
+mockNuxtImport('useCheckoutPagePaymentAndShipping', () => () => ({ shippingMethods: checkout.shippingMethods }));
+
+/* Warenpost with costs, DHL without (as the logo tests need it): Warenpost is the cheapest */
+const methods = (dhlAmount?: number) =>
+  [
     {
       parcelServicePresetId: 30,
       parcelServiceName: 'POST',
@@ -24,18 +29,28 @@ mockNuxtImport('useCheckoutPagePaymentAndShipping', () => () => ({
       shippingAmount: 10.5,
       icon: LOGO,
     },
-    { parcelServicePresetId: 25, parcelServiceName: 'DHL', parcelServicePresetName: 'Paketversand', icon: '' },
-  ] as unknown as ShippingMethod[]),
-}));
+    {
+      parcelServicePresetId: 25,
+      parcelServiceName: 'DHL',
+      parcelServicePresetName: 'Paketversand',
+      shippingAmount: dhlAmount,
+      icon: '',
+    },
+  ] as unknown as ShippingMethod[];
 
-const setCartItems = (items: { id: number; quantity: number }[]) => {
-  useCart().data.value = { ...useCart().data.value, shippingProfileId: 30, items } as Cart;
+const setCart = (cart: Partial<Cart>) => {
+  useCart().data.value = { ...useCart().data.value, ...cart } as Cart;
 };
+
+const setCartItems = (items: { id: number; quantity: number }[]) => setCart({ items: items as Cart['items'] });
 
 describe('GlasJenaShippingMethod', () => {
   beforeEach(() => {
     getShippingMethods.mockClear();
     hasCheckoutAddress.value = true;
+    checkout.shippingMethods = ref(methods());
+    window.sessionStorage.clear();
+    setCart({ shippingProfileId: 30, shippingCountryId: 12 });
     setCartItems([{ id: 12, quantity: 2 }]);
   });
 
@@ -102,6 +117,66 @@ describe('GlasJenaShippingMethod', () => {
     await flushPromises();
 
     expect(getShippingMethods).not.toHaveBeenCalled();
+    wrapper.unmount();
+  });
+
+  it('should choose the cheapest method through the checkout page when the methods on offer are new', async () => {
+    checkout.shippingMethods = ref(methods(28.1));
+    setCart({ shippingProfileId: 25 });
+    const wrapper = await mountSuspended(GlasJenaShippingMethod);
+    await flushPromises();
+
+    expect(wrapper.emitted('update:shippingMethod')).toEqual([['30']]);
+    wrapper.unmount();
+  });
+
+  it('should keep the method the customer chose while the methods on offer stay the same', async () => {
+    checkout.shippingMethods = ref(methods(28.1));
+    setCart({ shippingProfileId: 25 });
+    window.sessionStorage.setItem(SHIPPING_CHOICE_STORAGE_KEY, '12:25,30');
+    const wrapper = await mountSuspended(GlasJenaShippingMethod);
+    await flushPromises();
+
+    expect(wrapper.emitted('update:shippingMethod')).toBeUndefined();
+    wrapper.unmount();
+  });
+
+  it('should choose the cheapest method again when an address brings another country', async () => {
+    checkout.shippingMethods = ref(methods(28.1));
+    window.sessionStorage.setItem(SHIPPING_CHOICE_STORAGE_KEY, '1:25,30');
+    setCart({ shippingProfileId: 25, shippingCountryId: 1 });
+    const wrapper = await mountSuspended(GlasJenaShippingMethod);
+    await flushPromises();
+
+    setCart({ shippingCountryId: 12 });
+    await flushPromises();
+
+    expect(wrapper.emitted('update:shippingMethod')).toEqual([['30']]);
+    wrapper.unmount();
+  });
+
+  it('should choose nothing while the checkout loads or is busy, but once it is ready', async () => {
+    checkout.shippingMethods = ref(methods(28.1));
+    setCart({ shippingProfileId: 25 });
+    const wrapper = await mountSuspended(GlasJenaShippingMethod, { props: { loading: true } });
+    await flushPromises();
+
+    expect(wrapper.emitted('update:shippingMethod')).toBeUndefined();
+
+    await wrapper.setProps({ loading: false });
+    await flushPromises();
+
+    expect(wrapper.emitted('update:shippingMethod')).toEqual([['30']]);
+    wrapper.unmount();
+  });
+
+  it('should choose nothing in the read-only checkout', async () => {
+    checkout.shippingMethods = ref(methods(28.1));
+    setCart({ shippingProfileId: 25 });
+    const wrapper = await mountSuspended(GlasJenaShippingMethod, { props: { disabled: true } });
+    await flushPromises();
+
+    expect(wrapper.emitted('update:shippingMethod')).toBeUndefined();
     wrapper.unmount();
   });
 });

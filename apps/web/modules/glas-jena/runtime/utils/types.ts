@@ -25,7 +25,10 @@ export interface PurchaseEvent {
 /** Address of an order with its options (type 5 is the e-mail address). */
 export type AddressWithOptions = { options?: { typeId?: number; value?: string }[] } | null | undefined;
 
-/** Storage for the flag per tracked order (localStorage, or a stand-in in tests). */
+/**
+ * Storage for the flag per tracked order (localStorage) and the shipping methods last seen (sessionStorage, see
+ * cartShipping.ts), or a stand-in in tests.
+ */
 export type FlagStorage = Pick<Storage, 'getItem' | 'setItem'>;
 
 /** One line of the category list beside the subcategory tiles (the tree flattened to the open lines). */

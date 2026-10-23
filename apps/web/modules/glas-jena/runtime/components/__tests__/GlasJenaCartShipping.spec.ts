@@ -13,6 +13,7 @@ const { cartShipping, send } = vi.hoisted(() => ({
     loading: { value: false },
     load: vi.fn(),
     watchCartContent: vi.fn(),
+    preselectCheapest: vi.fn(),
     changeCountry: vi.fn(),
     changeShippingMethod: vi.fn(),
   },
@@ -58,6 +59,8 @@ describe('GlasJenaCartShipping', () => {
     expect(cartShipping.load).toHaveBeenCalled();
     /* The shipping methods are fetched again when the articles change */
     expect(cartShipping.watchCartContent).toHaveBeenCalled();
+    /* The cheapest method is chosen when the methods on offer change */
+    expect(cartShipping.preselectCheapest).toHaveBeenCalled();
     expect(wrapper.get('label[for="gj-cart-shipping-country"]').text()).toBe('Country of delivery');
     expect(options.map((option) => option.text())).toEqual(['Germany', 'Austria']);
     expect(options[0]!.attributes('selected')).toBeDefined();

@@ -3,7 +3,8 @@
   country in the order summary below the totals (in the column that stays in view, so it is never far away with many
   articles); the totals above then show the shipping costs of that country. The shipping methods only as a choice if
   there is more than one (Germany: DHL only; abroad also "Warenpost International"), otherwise the summary already
-  says enough; they are fetched again when the articles change (a lighter cart may allow "Warenpost"). As tiles like
+  says enough; they are fetched again when the articles change (a lighter cart may allow "Warenpost"), and the cheapest
+  one is chosen when the methods on offer change (useGlasJenaShippingPreselect). As tiles like
   the payment methods of the checkout, one below the other in the narrow column (GlasJenaShippingMethodTile.vue).
   With an address in the cart the country is fixed, like in the LTS shop: PlentyONE calculates with the country of the
   address, so the choice is disabled with a note to change the address in the checkout (isShippingCountryLocked).
@@ -76,12 +77,14 @@ const {
   loading,
   load,
   watchCartContent,
+  preselectCheapest,
   changeCountry,
   changeShippingMethod,
 } = useGlasJenaCartShipping();
 
-/* Before the `await`, so the watcher belongs to this component and stops with it */
+/* Before the `await`, so the watchers belong to this component and stop with it */
 watchCartContent();
+preselectCheapest();
 await load();
 
 const onCountryChange = async (value: string) => {

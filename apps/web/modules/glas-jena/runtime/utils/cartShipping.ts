@@ -1,5 +1,5 @@
 import type { ActiveShippingCountry, Cart, CartItem, ShippingMethod } from '@plentymarkets/shop-api';
-import type { ShippingMethodLogo } from './types';
+import type { FlagStorage, ShippingMethodLogo } from './types';
 
 /*
  * Country of delivery in the cart, like the LTS shop (wish of the shop owner, 2026-10-18). The PWA sets the country
@@ -102,6 +102,79 @@ export const getCartContentKey = (items: Pick<CartItem, 'id' | 'quantity'>[] | n
     .map(({ id, quantity }) => `${id}:${quantity}`)
     .sort()
     .join('|');
+
+/*
+ * The cheapest shipping method chosen beforehand (wish of the shop owner, 2026-10-23). PlentyONE chooses the shipping
+ * profile of the highest priority ("Warenpost International") only for a new cart; when the country changes later (the
+ * language switch to English, the country of the cart, an address abroad in the checkout) it keeps the one of before
+ * as long as the new country has it, e.g. DHL from Germany, where it is the only one (tested on 2026-10-23). So the
+ * module chooses the cheapest method whenever the methods on offer change (other country or other methods); a method
+ * the customer chose stays until then, also after a reload: the methods last seen are kept in the sessionStorage.
+ */
+
+/** Key of the sessionStorage with the shipping methods last seen (getShippingChoiceKey). */
+export const SHIPPING_CHOICE_STORAGE_KEY = 'gj-shipping-methods';
+
+/** What the shipping methods on offer are: the country and the ids of the methods, e.g. `12:25,26`. */
+export const getShippingChoiceKey = (
+  countryId: number | null | undefined,
+  methods: Pick<ShippingMethod, 'parcelServicePresetId'>[],
+) =>
+  `${countryId ?? ''}:${methods
+    .map((method) => method.parcelServicePresetId)
+    .sort((first, second) => first - second)
+    .join(',')}`;
+
+/**
+ * The id of the cheapest shipping method, the first of them if several cost the same (PlentyONE lists them by their
+ * priority); `null` without a method with costs.
+ */
+export const getCheapestShippingMethodId = (
+  methods: Pick<ShippingMethod, 'parcelServicePresetId' | 'shippingAmount'>[],
+) => {
+  let cheapest: Pick<ShippingMethod, 'parcelServicePresetId' | 'shippingAmount'> | null = null;
+  for (const method of methods) {
+    const amount = Number(method.shippingAmount);
+    if (Number.isFinite(amount) && (cheapest === null || amount < Number(cheapest.shippingAmount))) {
+      cheapest = method;
+    }
+  }
+  return cheapest === null ? null : String(cheapest.parcelServicePresetId);
+};
+
+/**
+ * The shipping method to choose instead of the cart's (`selectedId`): the cheapest, if the methods on offer (`key`,
+ * getShippingChoiceKey) are not the ones last seen (`lastKey`) and there is a choice at all; otherwise `null`.
+ */
+export const getShippingPreselection = (
+  key: string,
+  lastKey: string | null,
+  methods: Pick<ShippingMethod, 'parcelServicePresetId' | 'shippingAmount'>[],
+  selectedId: string,
+) => {
+  if (key === lastKey || methods.length < 2) {
+    return null;
+  }
+  const cheapestId = getCheapestShippingMethodId(methods);
+  return cheapestId === selectedId ? null : cheapestId;
+};
+
+/** The shipping methods last seen, or `null` (none yet, or the storage is blocked). */
+export const readShippingChoiceKey = (storage: FlagStorage | undefined) => {
+  try {
+    return storage?.getItem(SHIPPING_CHOICE_STORAGE_KEY) ?? null;
+  } catch {
+    return null;
+  }
+};
+
+export const writeShippingChoiceKey = (storage: FlagStorage | undefined, key: string) => {
+  try {
+    storage?.setItem(SHIPPING_CHOICE_STORAGE_KEY, key);
+  } catch {
+    /* storage blocked: the cheapest method is chosen again after a reload */
+  }
+};
 
 /**
  * Logo of a shipping method, like the LTS shop shows it next to the name (wish of the shop owner, 2026-10-20).

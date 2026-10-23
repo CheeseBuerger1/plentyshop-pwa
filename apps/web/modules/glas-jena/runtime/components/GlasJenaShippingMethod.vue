@@ -1,10 +1,12 @@
 <!--
-  Shipping methods of the checkout (replaces ShippingMethod, see COMPONENT_OVERRIDES). Copy of the original with two
-  changes (wishes of the shop owner, 2026-10-20):
+  Shipping methods of the checkout (replaces ShippingMethod, see COMPONENT_OVERRIDES). Copy of the original with three
+  changes (wishes of the shop owner, 2026-10-20 and 2026-10-23):
   - the methods as tiles like the payment methods below, with the logo of the parcel service like the LTS shop and the
     price on one line (GlasJenaShippingMethodTile.vue) instead of list items with radio buttons;
   - the methods are fetched again when the articles change, which the checkout's article lines allow: a cart reduced to
-    one light article kept showing only DHL (useGlasJenaShippingRefresh, as on the cart page).
+    one light article kept showing only DHL (useGlasJenaShippingRefresh, as on the cart page);
+  - the cheapest method is chosen when the methods on offer change, e.g. after an address abroad: PlentyONE kept DHL
+    (useGlasJenaShippingPreselect, as on the cart page).
 -->
 <template>
   <div data-testid="shipping-method" class="@md:px-4 my-6">
@@ -63,6 +65,7 @@
 import { AddressType, shippingProviderGetters, cartGetters } from '@plentymarkets/shop-api';
 import { SfIconWarning } from '@storefront-ui/vue';
 import type { CheckoutShippingEmits, ShippingMethodProps } from '~/components/ShippingMethod/types';
+import { useGlasJenaShippingPreselect } from '../composables/useGlasJenaShippingPreselect';
 import { useGlasJenaShippingRefresh } from '../composables/useGlasJenaShippingRefresh';
 import GlasJenaShippingMethodTile from './GlasJenaShippingMethodTile.vue';
 import { formatShippingAmount } from '../utils/shippingAmount';
@@ -97,6 +100,16 @@ const updateShippingMethod = (shippingId: string) => {
   }
   emit('update:shippingMethod', shippingId);
 };
+
+/*
+ * The cheapest method when the methods on offer change, through the checkout page like a click on a tile; not while
+ * the page loads or is busy (the read-only checkout is always `disabled`)
+ */
+useGlasJenaShippingPreselect(
+  shippingMethods,
+  updateShippingMethod,
+  () => hasCheckoutAddress.value && !loading && !disabled,
+);
 
 const getShippingAmount = (amount: string) => formatShippingAmount(amount, t('shipping.method.free'), format);
 </script>
