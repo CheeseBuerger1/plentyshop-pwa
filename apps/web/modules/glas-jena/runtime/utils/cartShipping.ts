@@ -144,7 +144,8 @@ export const getCheapestShippingMethodId = (
 
 /**
  * The shipping method to choose instead of the cart's (`selectedId`): the cheapest, if the methods on offer (`key`,
- * getShippingChoiceKey) are not the ones last seen (`lastKey`) and there is a choice at all; otherwise `null`.
+ * getShippingChoiceKey) are not the ones last seen (`lastKey`) and there is a choice at all; otherwise `null`. If the
+ * cart's method is not on offer at all, always the cheapest (the first without costs), even as the only one.
  */
 export const getShippingPreselection = (
   key: string,
@@ -152,11 +153,33 @@ export const getShippingPreselection = (
   methods: Pick<ShippingMethod, 'parcelServicePresetId' | 'shippingAmount'>[],
   selectedId: string,
 ) => {
-  if (key === lastKey || methods.length < 2) {
+  const isOnOffer = methods.some((method) => String(method.parcelServicePresetId) === selectedId);
+  if (isOnOffer && (key === lastKey || methods.length < 2)) {
     return null;
   }
-  const cheapestId = getCheapestShippingMethodId(methods);
+  const firstId = methods[0] ? String(methods[0].parcelServicePresetId) : null;
+  const cheapestId = getCheapestShippingMethodId(methods) ?? firstId;
   return cheapestId === selectedId ? null : cheapestId;
+};
+
+/**
+ * The cart's shipping method if the checkout takes none on offer as chosen, otherwise `null`. After an address is
+ * saved, the original fetches the shipping methods and the cart at the same time (refreshAddressDependencies in
+ * useAddressForm) and looks the chosen method up in the old cart: back from an address abroad to Germany it found the
+ * method abroad, not on offer, and the chosen method stayed empty. The payment methods then took no click until the
+ * articles changed (found by the shop owner, 2026-10-24). A chosen method on offer is kept, even if the cart has not
+ * caught up with it yet (while a new choice is saved).
+ */
+export const getShippingMethodToSync = <T extends Pick<ShippingMethod, 'parcelServicePresetId'>>(
+  methods: T[],
+  selectedId: string | null,
+  cartProfileId: string,
+) => {
+  const isOnOffer = (id: string | null) => methods.some((method) => String(method.parcelServicePresetId) === id);
+  if (isOnOffer(selectedId)) {
+    return null;
+  }
+  return methods.find((method) => String(method.parcelServicePresetId) === cartProfileId) ?? null;
 };
 
 /** The shipping methods last seen, or `null` (none yet, or the storage is blocked). */

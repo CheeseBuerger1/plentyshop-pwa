@@ -8,6 +8,7 @@ import {
   getMiddlewareUserAgent,
   getShippingChoiceKey,
   getShippingMethodLogo,
+  getShippingMethodToSync,
   getShippingPreselection,
   isShippingCountryLocked,
   parseLocale,
@@ -171,6 +172,30 @@ describe('cartShipping', () => {
 
   it('should choose nothing without a choice of methods', () => {
     expect(getShippingPreselection('1:25', '12:25,26', [offer(25, 7.8)], '25')).toBeNull();
+  });
+
+  it('should always replace a method of the cart that is not on offer, even by the only one', () => {
+    /* Back from an address abroad: the cart still has Warenpost International (26), Germany offers only DHL */
+    expect(getShippingPreselection('1:25', '12:25,26', [offer(25, 7.8)], '26')).toBe('25');
+    expect(getShippingPreselection('1:25', '1:25', [offer(25, 7.8)], '26')).toBe('25');
+    expect(getShippingPreselection('1:25', null, [offer(25, Number.NaN)], '26')).toBe('25');
+  });
+
+  it("should take the cart's method as chosen when none on offer is chosen", () => {
+    const methods = [offer(25, 7.8), offer(26, 10.8)];
+
+    expect(getShippingMethodToSync(methods, null, '25')?.parcelServicePresetId).toBe(25);
+    /* The method abroad, which the old cart had, is not on offer for Germany */
+    expect(getShippingMethodToSync([offer(25, 7.8)], '26', '25')?.parcelServicePresetId).toBe(25);
+  });
+
+  it('should keep a chosen method on offer, also while the cart has not caught up with a new choice', () => {
+    expect(getShippingMethodToSync([offer(25, 7.8), offer(26, 10.8)], '26', '25')).toBeNull();
+    expect(getShippingMethodToSync([offer(25, 7.8)], '25', '25')).toBeNull();
+  });
+
+  it("should leave it when the cart's method is not on offer either", () => {
+    expect(getShippingMethodToSync([offer(25, 7.8)], null, '26')).toBeNull();
   });
 
   it('should keep the methods last seen and do without a blocked storage', () => {
