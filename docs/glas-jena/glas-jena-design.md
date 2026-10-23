@@ -21,7 +21,7 @@ Screenshots der Desktop-Ansicht liegen im selben Ordner (`docs/glas-jena/`).
 
 ## 2. Farben
 
-Die Werte sind aus Screenshots geschätzt. **Vor der Umsetzung mit dem CSS des LTS-Shops abgleichen** und hier korrigieren.
+Die Werte stammen anfangs aus Screenshots, die gültigen stehen als Variablen in `glas-jena.css`. Die Kacheln der Startseite nutzen die Werte aus dem LTS-CSS (`utils/home.ts`, siehe Startseite).
 
 | Verwendung                                                                      | Farbe                                                |
 | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
@@ -355,7 +355,7 @@ Umgesetzt in `GlasJenaCookiebar.vue` (ersetzt die Original-Komponente `Cookiebar
 - **Erste Ebene:** Überschrift „Ihre Privatsphäre“ (Light), kurzer Text, Links zu Datenschutzerklärung und Impressum; drei Buttons: „Alle akzeptieren“ und „Ablehnen“ gleich groß in Schieferblau, „Einstellungen“ hellgrau. Ab 768 px Text links, Buttons rechts in einer Reihe; darunter Akzeptieren und Ablehnen nebeneinander, Einstellungen darunter (auf dem Handy ca. 37 % der Bildschirmhöhe).
 - **Einstellungen:** „Cookie-Einstellungen“ mit den Gruppen; optionale Gruppen mit Schalter (ein Schalter schaltet alle Cookies der Gruppe), notwendige mit „Immer aktiv“. „Mehr Informationen“ zeigt Anbieter, Zweck, Laufzeit und Datenschutz-Link je Cookie (externe Links in neuem Tab). Buttons: „Auswahl speichern“, „Alle akzeptieren“, „Zurück“.
 - **Cookie-Symbol** unten links (Schieferblau, 44 × 44 px) öffnet den Banner jederzeit wieder, damit die Einwilligung geändert oder widerrufen werden kann.
-- **Texte:** Die Kurztexte (Deutsch/Englisch) stehen in der Komponente (`<i18n>`), Gruppennamen und Cookie-Details aus den Shop-Übersetzungen. **Kurztext vor dem Livegang von der Datenschutzberatung freigeben lassen.**
+- **Texte:** Die Kurztexte (Deutsch/Englisch) stehen in der Komponente (`<i18n>`), Gruppennamen und Cookie-Details aus den Shop-Übersetzungen. Der Kurztext ist vom Shopbetreiber freigegeben (2026-10-22).
 - **Rechtlich:** „Ablehnen“ auf der ersten Ebene gleichwertig zu „Akzeptieren“; optionale Gruppen nicht vorab einschalten.
 
 ### Footer
@@ -387,6 +387,18 @@ Umgesetzt in `GlasJenaFooterBlocks.vue` (Links in `utils/footer.ts`); im Shop-Ed
 - Topseller-Karussell mit 1–2 Artikeln pro Ansicht, wischbar.
 - Footer: Links in zwei Spalten, Zahlungssymbole und Copyright zentriert darunter.
 
+### Alte Adressen des LTS-Shops (Weiterleitungen)
+
+Umgesetzt in `runtime/middleware/ltsRedirect.ts` (global) mit der Tabelle `LTS_REDIRECTS` in `utils/ltsRedirect.ts`. Kategorien und Artikel haben in der PWA dieselben Adressen wie im LTS, umgeleitet werden nur die Adressen, die es in der PWA nicht gibt. Alle Weiterleitungen sind dauerhaft (301), damit Suchmaschinen die neue Adresse übernehmen. Die Sprache der alten Adresse bleibt erhalten (`/en/sbc5/gtc` → `/en/terms-and-conditions/`), ebenso Parameter und Anker.
+
+- **Systemseiten:** `/basket`, `/gtc`, `/password-reset`, `/change-mail` und die Inhaltskategorien `/sbc5/…` (Warenkorb, Kasse, AGB, Kontakt, Impressum, Datenschutz, Widerruf, Versand, Registrierung, Login, Konto) führen auf die PWA-Seite. Die E-Mail-Adresse ändert man in der PWA im Konto, dorthin führt `/change-mail`. In PlentyONE gibt es die `/sbc5/…`-Kategorien weiterhin, ohne Weiterleitung würde die PWA sie als leere Seiten zeigen.
+- **Neue Weiterleitung:** eine Zeile in `LTS_REDIRECTS` (alte Adresse ohne Sprachpräfix und ohne Schrägstrich am Ende → Schlüssel der PWA-Seite in `paths`), dazu ein Test. Der Vertragstest prüft, dass es jede Zielseite gibt.
+- **Suche:** Das LTS übergab den Suchbegriff als `?query=`, die PWA erwartet `?term=`. Eine Suche ohne Begriff führt auf die Startseite, weil die Suchseite der PWA ohne Begriff einen Fehler 500 wirft (Original).
+- **Doppeltes Sprachpräfix:** Das LTS erzeugte Links wie `/en/en/…`, die Suchmaschinen kennen könnten. Sie führen auf `/en/…`. Steckt dahinter eine Systemseite, geht es in einem Schritt zum Ziel.
+- **Verschobene Inhaltsseiten** (`LTS_MOVED_PAGES`): `/sbc5/our-glass` und `/sbc5/bank-details` sind echte Inhaltsseiten, ihr Inhalt steht im Shop-Editor. Zum Livegang wandern ihre Kategorien in PlentyONE auf die oberste Ebene, damit `sbc5` aus den Adressen verschwindet (Entscheidung des Shopbetreibers). Neue Adressen: „Unser Glas“ DE `/hitzebestaendiges-glas/`, EN `/en/our-glass/`; „Vorkasse / Überweisung“ `/bank-details/` und `/en/bank-details/`. **Die Weiterleitung erst ausliefern, wenn die Kategorien verschoben sind**, vorher gibt es die neuen Adressen nicht (404). Danach den „Mehr“-Knopf der Startseiten-Kachel im Editor auf die neue Adresse umstellen.
+- **Nicht umgeleitet:** `/wish-list` bleibt 404, weil der Shop keine Wunschliste hat.
+- Die Middleware greift erst auf i18n zu, wenn sie eine alte Adresse erkannt hat (Grund wie bei `accountRedirect.ts`: Original-Tests ersetzen `useNuxtApp`). Den Pfad baut sie selbst, nämlich Sprachpräfix plus Pfad aus `paths`, weil `useLocalizedPath` keine Zielsprache kennt und `useLocalePath` per ESLint verboten ist. Das funktioniert, weil der Shop in jeder Sprache dieselben Pfade nutzt (`prefix_and_default`).
+
 ### Test
 
 Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet hoch), 1180 px (Tablet quer) und 1440 px (Desktop).
@@ -395,9 +407,9 @@ Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet ho
 
 ## 6. Offene Punkte
 
-- [ ] Exakte Farbwerte und Schrift aus dem LTS-CSS übernehmen.
+- [x] Farbwerte und Schrift aus dem LTS übernehmen: umgesetzt in `glas-jena.css` (Variablen `--gj-…`, Schrift Source Sans 3), vom Shopbetreiber abgenommen (2026-10-22).
 - [x] Artikeldaten prüfen: Viele Artikel zeigten „1 Milliliter“ als Einheit. Am 2026-10-07 sind alle 347 aktiven Variationen in PlentyONE auf „Stück, Inhalt 1“ mit ausgeschaltetem Grundpreis umgestellt (Kannen und Gläser sind 1 Stück; die Kapazität in ml steht im Variantennamen als Hilfsfeld). Die PWA zeigt „Inhalt | Grundpreis“ nur bei eingeschaltetem Grundpreis.
 - [x] Copyright-Jahr im Footer automatisch setzen.
 - [x] Alle „Wussten Sie schon“-Fakten aus dem LTS-Shop sammeln (14 deutsche und 14 englische; gehören in den Block „Did you know“ der Startseite).
-- [ ] Englische Texte für den Sprachwechsel prüfen.
+- [x] Englische Texte für den Sprachwechsel prüfen (vom Shopbetreiber geprüft, 2026-10-22).
 - [x] SEO mobil: Das Server-HTML für Handys enthält jetzt alle Kategorie-Links (mobiles Menü, siehe oben).

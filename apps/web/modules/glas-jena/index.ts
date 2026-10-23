@@ -350,5 +350,12 @@ export default defineNuxtModule({
         gtag.enabled = false;
       }
     });
+
+    /* Old addresses of the LTS shop (system pages, `/sbc5/…`, search), see utils/ltsRedirect.ts */
+    addRouteMiddleware({
+      name: 'glas-jena-lts-redirect',
+      path: resolve('./runtime/middleware/ltsRedirect'),
+      global: true,
+    });
   },
 });

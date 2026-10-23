@@ -21,6 +21,9 @@ import {
 } from '../utils/pageBanner';
 import { CONSENT_COOKIE, GTM_COOKIE_GROUP } from '../utils/googleTagManager';
 import { CONFIRMATION_ORDER_STATE, CONFIRMATION_ROUTE } from '../utils/purchaseTracking';
+import { LTS_REDIRECTS } from '../utils/ltsRedirect';
+/* The contract test runs without the Nuxt auto-imports */
+import { paths } from '../../../../app/utils/paths';
 
 /* Vitest runs in apps/web (the Nuxt test environment gives no file URL for this module) */
 const WEB_DIR = process.cwd();
@@ -212,6 +215,17 @@ describe('upstream contract of the glas-jena module', () => {
     ]) {
       expect(typeof getTranslation('de', key)).toBe('string');
     }
+  });
+
+  it('should find a page for every target of the LTS redirects', () => {
+    /* `paths` value → route name, e.g. '/my-account/personal-data' → 'my-account-personal-data', '/' → 'index' */
+    const toRouteName = (path: string) => path.replace(/^\//, '').replace(/\//g, '-') || 'index';
+
+    const missing = [...new Set(Object.values(LTS_REDIRECTS))]
+      .map((pathKey) => paths[pathKey])
+      .filter((path) => !routeNames.includes(toRouteName(path)));
+
+    expect(missing).toEqual([]);
   });
 
   it('should find every page the banner has a title for', () => {
