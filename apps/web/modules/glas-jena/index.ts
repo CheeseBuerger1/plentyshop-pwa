@@ -285,6 +285,12 @@ export default defineNuxtModule({
     addPlugin(resolve('./runtime/plugins/noindexPages'), { append: true });
 
     /*
+     * "Empfohlen" sorts by its first level from the editor (variation position), which PlentyONE does not apply itself,
+     * see utils/recommendedSorting.ts. Appended: it wraps the SDK of shop-core's plugin.
+     */
+    addPlugin(resolve('./runtime/plugins/recommendedSorting'), { append: true });
+
+    /*
      * Item pages: og:type "product" with price and Open Graph tags from the item data; canonical, hreflang and og:url
      * without tracking parameters; the module's breadcrumbs for search engines, see utils/seo.ts. Appended like homeSeo.
      */

@@ -137,4 +137,21 @@ describe('upstream contract of the glas-jena module: category page', () => {
     expect(card).toContain('data-testid="product-card-link"');
     expect(card).toContain('<div class="relative overflow-hidden">');
   });
+
+  it('should find the recommended sorting and the SDK that plugins/recommendedSorting.ts builds on', () => {
+    /* Category pages send the default sorting ("Empfohlen") as `sort` to getFacet */
+    expect(readApp('composables/useCategoryFilter/useCategoryFilter.ts')).toContain(
+      'sort: currentRoute.query.sort?.toString() ?? defaultOption,',
+    );
+    const settings = readApp('configuration/settings.config.ts');
+    expect(settings).toContain('"default.recommended_sorting"');
+    expect(settings).toContain('recommendedFirstSortingOption:');
+    /* The SDK module `plentysystems` of shop-core: a property of the provided `$sdk` that the plugin wraps */
+    const sdkPlugin = readFileSync(
+      join(process.cwd(), '../../node_modules/@plentymarkets/shop-core/dist/runtime/plugins/sdk.js'),
+      'utf8',
+    );
+    expect(sdkPlugin).toContain('plentysystems: buildModule(middlewareModule, {');
+    expect(sdkPlugin).toMatch(/provide: \{\s*sdk\s*\}/);
+  });
 });
