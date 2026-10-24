@@ -64,4 +64,22 @@ describe('upstream contract of the glas-jena module: search engines', () => {
     expect(urlPageMeta).toContain("prevParams.delete('page');");
     expect(urlPageMeta).toContain("nextParams.set('page', String(facetsFromUrl.page + 1));");
   });
+
+  it('should find the function pages and the robots handling that plugins/noindexPages.ts builds on', () => {
+    /* The pages of NOINDEX_PAGE_NAMES exist and set no robots of their own (login and registration do) */
+    for (const page of ['cart', 'guest/login', 'reset-password', 'newsletter/unsubscribe', 'readonly-checkout']) {
+      expect(readApp(`pages/${page}.vue`)).not.toContain("name: 'robots'");
+    }
+    expect(readApp('pages/login.vue')).toContain("meta: [{ name: 'robots', content: 'noindex, nofollow' }],");
+    /* The shop's robots default comes from app.vue; the unsubscription asks for a setting the original does not know */
+    expect(readApp('app.vue')).toContain('robots: () => robots.value,');
+    expect(readApp('pages/newsletter/unsubscribe.vue')).toContain(
+      "setRobotForStaticPage('NewsletterUnsubscribePage');",
+    );
+    expect(readApp('composables/useRobots/useRobot.ts')).not.toContain("case 'NewsletterUnsubscribePage':");
+    /* The sitemap module skips pages with `meta.sitemap === false` (SITEMAP_EXCLUDED_PAGE_PATHS) */
+    expect(readFileSync(join(process.cwd(), 'modules/sitemap/index.ts'), 'utf8')).toContain(
+      'if (page.meta?.sitemap === false) return;',
+    );
+  });
 });

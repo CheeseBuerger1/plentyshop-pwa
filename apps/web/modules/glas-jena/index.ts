@@ -11,6 +11,7 @@ import { getGtmHeadScript, getGtmNoscript } from './runtime/utils/googleTagManag
 import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './runtime/utils/navigation';
 import { ACCOUNT_MENU_BREAKPOINT, ACCOUNT_MENU_MIN_WIDTH } from './runtime/utils/accountMenu';
 import { SHIPPING_COUNTRY_ROUTE } from './runtime/utils/cartShipping';
+import { SITEMAP_EXCLUDED_PAGE_PATHS } from './runtime/utils/noindexPages';
 
 /** Original components (Nuxt name) replaced by the module's own ones. */
 export const COMPONENT_OVERRIDES: Record<string, string> = {
@@ -179,6 +180,10 @@ const extendPages = (pages: NuxtPage[], resolve: (path: string) => string) => {
     if (override) {
       page.file = resolve(override);
     }
+    /* Not indexed, so not in the content sitemap either (`meta.sitemap` of the sitemap module), see utils/noindexPages.ts */
+    if (SITEMAP_EXCLUDED_PAGE_PATHS.includes(page.path)) {
+      page.meta = { ...page.meta, sitemap: false };
+    }
     if (page.children) {
       extendPages(page.children, resolve);
     }
@@ -275,6 +280,9 @@ export default defineNuxtModule({
 
     /* English title and description of the home page for search engines, see HOME_SEO_TEXTS in utils/home.ts */
     addPlugin(resolve('./runtime/plugins/homeSeo'), { append: true });
+
+    /* Function pages (cart, guest login, …) not in search engines, see utils/noindexPages.ts. Appended like homeSeo. */
+    addPlugin(resolve('./runtime/plugins/noindexPages'), { append: true });
 
     /*
      * Item pages: og:type "product" with price and Open Graph tags from the item data; canonical, hreflang and og:url
