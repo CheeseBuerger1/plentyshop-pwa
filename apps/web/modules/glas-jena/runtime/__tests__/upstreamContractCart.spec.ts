@@ -50,6 +50,9 @@ describe('upstream contract of the glas-jena module: cart page', () => {
       expect(original).toContain(part);
       expect(copy).toContain(part);
     }
+    /* The empty cart of the original has no button of its own; the copy adds "Weiter einkaufen" (would be twice) */
+    expect(original).toMatch(/\{\{ t\('cart\.empty'\) \}\}<\/h2>\s*<ModuleComponentRendering area="cart\.empty"/);
+    expect(copy).toContain('data-testid="gj-cart-continue-shopping"');
   });
 
   it('should find the row of the checkout layout that glas-jena.css hides above the cart ("Zurück")', () => {
