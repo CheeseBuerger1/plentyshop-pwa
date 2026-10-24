@@ -1997,6 +1997,15 @@ body:has([data-testid='overlay']) [data-testid='cookie-bar-open-btn'] {
 }
 
 /*
+ * Cart page: the hint below a locked country of delivery ("Bitte ändern Sie Ihre Adresse in der Kasse …") in a warm
+ * brown, so it stands out from the grey texts (wish of the shop owner, 2026-10-24: "chocolate"). Chocolate (#d2691e) has
+ * only 3.63:1 on white, too little for 14 px text (4.5:1); #b5541a is the closest brown with 4.94:1.
+ */
+.font-body [data-testid='gj-cart-shipping-country-locked'] {
+  color: #b5541a;
+}
+
+/*
  * Cart page: the right column (country of delivery, shipping method, order summary) stays in view below the header
  * while the articles scroll, so the country is never far away with many articles. The original keeps it 40 px from
  * the top, i.e. behind the header wherever the header stays at the top too (from 992 px, or with "sticky").

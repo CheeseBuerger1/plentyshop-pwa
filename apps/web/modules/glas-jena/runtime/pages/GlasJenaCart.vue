@@ -6,6 +6,8 @@
     delivery and, if there is more than one, the shipping method (GlasJenaCartShipping.vue, 2026-10-19). The order
     summary is in the column that stays in view on wide screens, so the country is never far away with many articles
   - no "Zurück" button of the checkout layout above the cart (glas-jena.css, the banner shows the page title)
+  - the empty cart has a button "Weiter einkaufen" to the home page; without it, the page was a dead end (the original
+    shows only "Ihr Warenkorb ist leer"; wish of the shop owner, 2026-10-24)
   Everything else is the original; upstreamContractCart.spec.ts shows when the original changes.
 -->
 <template>
@@ -61,6 +63,15 @@
     </div>
     <div v-else class="flex items-center justify-center flex-col pt-24 pb-32" data-testid="cart-page-content">
       <h2 class="mt-8 typography-headline-3 font-bold">{{ t('cart.empty') }}</h2>
+      <UiButton
+        data-testid="gj-cart-continue-shopping"
+        :tag="NuxtLink"
+        :to="localePath(paths.home)"
+        size="lg"
+        class="mt-6"
+      >
+        {{ tLocal('continueShopping') }}
+      </UiButton>
       <ModuleComponentRendering area="cart.empty" class="mt-6" />
     </div>
   </NuxtLayout>
@@ -81,7 +92,7 @@ const { setPageMeta } = usePageMeta();
 
 definePageMeta({ pageType: 'static' });
 
-/* Own text of the introduction (below); shop texts come from the global `t` */
+/* Own texts (introduction, "Weiter einkaufen"; below); shop texts come from the global `t` */
 const { t: tLocal } = useI18n({ useScope: 'local' });
 
 const NuxtLink = resolveComponent('NuxtLink');
@@ -99,10 +110,12 @@ setPageMeta(t('common.labels.cart'), icon);
 <i18n lang="json">
 {
   "en": {
-    "intro": "Here you can change quantities, remove items and choose the country of delivery. Your order starts with “{checkout}”; before sending it, you will see all details once more."
+    "intro": "Here you can change quantities, remove items and choose the country of delivery. Your order starts with “{checkout}”; before sending it, you will see all details once more.",
+    "continueShopping": "Continue shopping"
   },
   "de": {
-    "intro": "Hier können Sie Mengen ändern, Artikel entfernen und das Lieferland wählen. Mit „{checkout}“ beginnen Sie die Bestellung; vor dem Absenden sehen Sie noch einmal alle Angaben."
+    "intro": "Hier können Sie Mengen ändern, Artikel entfernen und das Lieferland wählen. Mit „{checkout}“ beginnen Sie die Bestellung; vor dem Absenden sehen Sie noch einmal alle Angaben.",
+    "continueShopping": "Weiter einkaufen"
   }
 }
 </i18n>
