@@ -16,6 +16,8 @@ export const LTS_REDIRECTS: Record<string, keyof typeof paths> = {
   '/gtc': 'termsAndConditions',
   '/sbc5/gtc': 'termsAndConditions',
   '/sbc5/contact': 'contact',
+  /* Older contact address that search engines still know (a 404 in the Search Console, 2026-10-24) */
+  '/content/kontakt': 'contact',
   '/sbc5/legal-disclosure': 'legalDisclosure',
   '/sbc5/privacy-policy': 'privacyPolicy',
   '/sbc5/cancellation-rights': 'cancellationRights',
