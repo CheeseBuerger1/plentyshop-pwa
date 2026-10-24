@@ -12,6 +12,11 @@ describe('ltsRedirect', () => {
       expect(findLtsRedirect('/sbc5/my-account/', {})).toEqual({ path: '/my-account/personal-data', query: {} });
     });
 
+    it('should send the older contact address to the contact page', () => {
+      expect(findLtsRedirect('/content/kontakt/', {})).toEqual({ path: '/contact', query: {} });
+      expect(findLtsRedirect('/en/content/kontakt', {})).toEqual({ locale: 'en', path: '/contact', query: {} });
+    });
+
     it('should keep the language prefix of the old address', () => {
       expect(findLtsRedirect('/en/sbc5/gtc/', {})).toEqual({ locale: 'en', path: '/terms-and-conditions', query: {} });
       expect(findLtsRedirect('/en/basket', {})).toEqual({ locale: 'en', path: '/cart', query: {} });
