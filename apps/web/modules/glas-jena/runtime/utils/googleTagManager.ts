@@ -31,9 +31,14 @@ export const getGtag = (): Gtag => {
   );
 };
 
+/** Global of the head script that loads the container once (head script and client plugin share it). */
+export const GTM_LOADER = 'glasJenaLoadGtm' satisfies keyof GtagWindow;
+
 /**
- * Head script, before GTM and the app: consent default `denied`, then the choice already stored in the consent cookie
- * (returning visitors), then the GTM loader. Later choices in the banner follow via the client plugin.
+ * Head script, before the app: consent default `denied` and the loader `glasJenaLoadGtm`. GTM is only loaded with the
+ * visitor's consent (decision of the shop owner, 2026-10-25), so without it nothing is sent to Google, not even the
+ * cookieless pings of the consent mode: here if the consent cookie already holds it (returning visitors), otherwise
+ * by the client plugin once the visitor accepts in the banner. No noscript part, as it would load GTM without consent.
  */
 export const getGtmHeadScript = (containerId = GTM_CONTAINER_ID) =>
   [
@@ -41,19 +46,24 @@ export const getGtmHeadScript = (containerId = GTM_CONTAINER_ID) =>
     'w.dataLayer=w.dataLayer||[];',
     'w.gtag=w.gtag||function(){w.dataLayer.push(arguments);};',
     `w.gtag('consent','default',${JSON.stringify(getConsentState(false))});`,
-    'try{',
-    `var m=d.cookie.match(/(?:^|;\\s*)${CONSENT_COOKIE}=([^;]*)/);`,
-    'var g=m&&JSON.parse(decodeURIComponent(m[1])).groups;',
-    `if(g&&g[${JSON.stringify(GTM_COOKIE_GROUP)}]&&g[${JSON.stringify(GTM_COOKIE_GROUP)}][${JSON.stringify(GTM_COOKIE_NAME)}]===true)`,
-    `w.gtag('consent','update',${JSON.stringify(getConsentState(true))});`,
-    '}catch(e){}',
+    'var l=false;',
+    `w.${GTM_LOADER}=function(){`,
+    'if(l)return;l=true;',
     "w.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});",
     "var s=d.createElement('script');s.async=true;",
     `s.src='https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(containerId)}';`,
     'd.head.appendChild(s);',
+    '};',
+    'try{',
+    `var m=d.cookie.match(/(?:^|;\\s*)${CONSENT_COOKIE}=([^;]*)/);`,
+    'var g=m&&JSON.parse(decodeURIComponent(m[1])).groups;',
+    `if(g&&g[${JSON.stringify(GTM_COOKIE_GROUP)}]&&g[${JSON.stringify(GTM_COOKIE_GROUP)}][${JSON.stringify(GTM_COOKIE_NAME)}]===true){`,
+    `w.gtag('consent','update',${JSON.stringify(getConsentState(true))});`,
+    `w.${GTM_LOADER}();`,
+    '}',
+    '}catch(e){}',
     '})(window,document);',
   ].join('');
 
-/** The noscript part of the GTM snippet (right after the opening body tag). */
-export const getGtmNoscript = (containerId = GTM_CONTAINER_ID) =>
-  `<iframe src="https://www.googletagmanager.com/ns.html?id=${encodeURIComponent(containerId)}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`;
+/** Loads the container if the head script has not done so yet (after the consent in the banner). */
+export const loadGtm = () => (window as unknown as GtagWindow)[GTM_LOADER]?.();

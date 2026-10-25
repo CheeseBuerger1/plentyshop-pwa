@@ -7,7 +7,7 @@ import {
   defineNuxtModule,
 } from 'nuxt/kit';
 import type { NuxtPage } from 'nuxt/schema';
-import { getGtmHeadScript, getGtmNoscript } from './runtime/utils/googleTagManager';
+import { getGtmHeadScript } from './runtime/utils/googleTagManager';
 import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './runtime/utils/navigation';
 import { ACCOUNT_MENU_BREAKPOINT, ACCOUNT_MENU_MIN_WIDTH } from './runtime/utils/accountMenu';
 import { SHIPPING_COUNTRY_ROUTE } from './runtime/utils/cartShipping';
@@ -334,17 +334,11 @@ export default defineNuxtModule({
     addPlugin({ src: resolve('./runtime/plugins/lastInteractiveElement.client'), mode: 'client' });
 
     /*
-     * Google Tag Manager with consent default "denied" and the `purchase` event for Google Ads, see
+     * Google Tag Manager, loaded only with the visitor's consent, and the `purchase` event for Google Ads, see
      * utils/googleTagManager.ts and utils/purchaseTracking.ts.
      */
     nuxt.options.app.head.script ??= [];
     nuxt.options.app.head.script.unshift({ key: 'glas-jena-gtm', innerHTML: getGtmHeadScript() });
-    nuxt.options.app.head.noscript ??= [];
-    nuxt.options.app.head.noscript.push({
-      key: 'glas-jena-gtm',
-      tagPosition: 'bodyOpen',
-      innerHTML: getGtmNoscript(),
-    });
     addPlugin({ src: resolve('./runtime/plugins/googleTagManager.server'), mode: 'server' });
     addPlugin({ src: resolve('./runtime/plugins/googleTagManager.client'), mode: 'client' });
     nuxt.hook('i18n:registerModule', (register) =>
