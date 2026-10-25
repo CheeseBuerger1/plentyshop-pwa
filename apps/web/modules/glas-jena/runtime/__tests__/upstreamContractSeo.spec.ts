@@ -20,6 +20,19 @@ describe('upstream contract of the glas-jena module: search engines', () => {
     expect(structuredData).toMatch(/return \{\s*setLogoMeta,\s*setProductMetaData,/);
   });
 
+  it('should find the Organization JSON-LD of the layouts and the sources of name and logo that the module uses', () => {
+    /* The layouts call setLogoMeta, which the module replaces; the original has no name and a fixed logo path */
+    const structuredData = readApp('composables/useStructuredData/useStructuredData.ts');
+    expect(structuredData).toContain("logo: runtimeConfig.public.domain + '/_nuxt-plenty/images/logo.png',");
+    expect(readApp('layouts/default.vue')).toContain('setLogoMeta();');
+    expect(readApp('layouts/simplifiedHeaderAndFooter.vue')).toContain('useStructuredData().setLogoMeta();');
+    /* Name like the suffix of the page titles, logo like the header */
+    expect(readApp('composables/usePageTitle/usePageTitle.ts')).toContain(
+      'const titleSuffix = computed(() => getOgTitle() || runtimeConfig.ogTitle || openGraph.title);',
+    );
+    expect(readApp('components/ui/Logo.vue')).toContain("useSiteSettings('headerLogo');");
+  });
+
   it('should find the current item that the Open Graph tags of plugins/seo.ts read', () => {
     /* The product page puts the shown item (or the editor's dummy item) into `useProducts().currentProduct` */
     const productPage = readApp('pages/product/[slug].vue');
@@ -51,7 +64,7 @@ describe('upstream contract of the glas-jena module: search engines', () => {
     expect(app).toMatch(/const getCategoryMetaTitle = \(\) => \{[\s\S]*?return getMetaTitle\(\);\s*\};/);
     expect(app).toContain('title: () => title.value,');
     expect(app).toContain('usePageTitle();');
-    /* The page name gets the shop name as suffix: "Warenkorb | OnlineMarket -GLAS in JENA-" */
+    /* The page name gets the shop name as suffix: "Warenkorb | -GLAS in JENA-" */
     expect(readApp('composables/usePageTitle/usePageTitle.ts')).toContain(
       'return `${titleChunk} | ${titleSuffix.value}`;',
     );

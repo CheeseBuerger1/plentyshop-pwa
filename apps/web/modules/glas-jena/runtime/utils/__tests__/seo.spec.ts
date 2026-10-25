@@ -3,6 +3,7 @@ import {
   GLAS_JENA_BREADCRUMBS_KEY,
   correctSeoTags,
   getBreadcrumbListJsonLd,
+  getOrganizationJsonLd,
   getProductOpenGraph,
   toCanonicalUrl,
   withMetaDescription,
@@ -117,5 +118,28 @@ describe('seo', () => {
     const withoutOwn = [shop, productJsonLd];
     correctSeoTags(withoutOwn);
     expect(withoutOwn).toEqual([shop, productJsonLd]);
+  });
+
+  it('should describe the shop with its name, home page and logo', () => {
+    expect(
+      getOrganizationJsonLd({
+        name: '-GLAS in JENA-',
+        url: 'https://www.glas-jena.de',
+        logo: 'https://cdn02.plentyone.com/x/frontend/layout/jenaglas_logo-header.png',
+      }),
+    ).toEqual({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: '-GLAS in JENA-',
+      url: 'https://www.glas-jena.de',
+      logo: 'https://cdn02.plentyone.com/x/frontend/layout/jenaglas_logo-header.png',
+    });
+  });
+
+  it('should make a relative logo absolute and leave out a missing one', () => {
+    expect(getOrganizationJsonLd({ name: 'Shop', url: 'https://www.glas-jena.de/', logo: '/logo.svg' })).toMatchObject({
+      logo: 'https://www.glas-jena.de/logo.svg',
+    });
+    expect(getOrganizationJsonLd({ name: 'Shop', url: 'https://www.glas-jena.de' })).not.toHaveProperty('logo');
   });
 });
