@@ -1,6 +1,10 @@
 import { productGetters, type Product } from '@plentymarkets/shop-api';
-import type { BreadcrumbList as SchemaBreadcrumbList, WithContext } from 'schema-dts';
-import type { BreadcrumbListEntry, ProductOpenGraph, SeoHeadTag } from './types';
+import type {
+  BreadcrumbList as SchemaBreadcrumbList,
+  Organization as SchemaOrganization,
+  WithContext,
+} from 'schema-dts';
+import type { BreadcrumbListEntry, OrganizationEntry, ProductOpenGraph, SeoHeadTag } from './types';
 
 /** `og:type` of item pages; home page and categories keep the shop's `website`. */
 export const PRODUCT_OG_TYPE = 'product';
@@ -14,7 +18,10 @@ export const CANONICAL_PAGE_PARAM = 'page';
 /** Key of the module's breadcrumbs for search engines, see GlasJenaBreadcrumbs.vue. */
 export const GLAS_JENA_BREADCRUMBS_KEY = 'glas-jena-breadcrumbs';
 
-const JSON_LD_TYPE = 'application/ld+json';
+/** Key of the module's Organization JSON-LD, see useGlasJenaStructuredData.ts. */
+export const GLAS_JENA_ORGANIZATION_KEY = 'glas-jena-organization';
+
+export const JSON_LD_TYPE = 'application/ld+json';
 /** Links whose address is a page of the shop for search engines (hreflang alternates are checked separately) */
 const SEO_LINK_RELS = ['canonical', 'prev', 'next'];
 const BREADCRUMB_LIST_RE = /"@type"\s*:\s*"BreadcrumbList"/;
@@ -66,6 +73,19 @@ export const getBreadcrumbListJsonLd = (entries: BreadcrumbListEntry[]): WithCon
     name: entry.name,
     item: entry.url,
   })),
+});
+
+/**
+ * The shop for search engines with its name and logo. The shop's own Organization JSON-LD has neither name nor a
+ * working logo (`/_nuxt-plenty/images/logo.png` is a 404 in this shop, found 2026-10-25). A relative logo address
+ * gets the home page in front; without a logo the field is left out.
+ */
+export const getOrganizationJsonLd = ({ name, url, logo }: OrganizationEntry): WithContext<SchemaOrganization> => ({
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name,
+  url,
+  ...(logo ? { logo: logo.startsWith('/') ? `${url.replace(/\/$/, '')}${logo}` : logo } : {}),
 });
 
 const isJsonLd = (tag: SeoHeadTag) => tag.tag === 'script' && tag.props.type === JSON_LD_TYPE;

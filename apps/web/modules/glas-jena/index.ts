@@ -319,6 +319,8 @@ export default defineNuxtModule({
      * homeSeo: it uses the head and the route, which before the shop's plugins (i18n) broke the hydration.
      */
     addPlugin(resolve('./runtime/plugins/notOrderable'), { append: true });
+    /* Their disabled buttons get the shown text as name for screen readers */
+    addPlugin({ src: resolve('./runtime/plugins/notOrderableLabel.client'), mode: 'client' });
 
     /* Country of delivery in the cart: changes the country of the visitor's session, see utils/cartShipping.ts */
     addServerHandler({

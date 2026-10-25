@@ -86,6 +86,9 @@ export type ProductOpenGraph = {
 /** One entry of the breadcrumbs for search engines: its name and its absolute address. */
 export type BreadcrumbListEntry = { name: string; url: string };
 
+/** The shop for search engines: its name, home page and logo (absolute or relative to the home page). */
+export type OrganizationEntry = { name: string; url: string; logo?: string };
+
 /** The parts of a head tag (unhead `HeadTag`) that seo.ts reads and changes. */
 export type SeoHeadTag = {
   tag: string;
