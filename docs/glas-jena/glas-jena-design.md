@@ -366,6 +366,7 @@ Umgesetzt in `GlasJenaCookiebar.vue` (ersetzt die Original-Komponente `Cookiebar
 - **Cookie-Symbol** unten links (Schieferblau, 44 × 44 px) öffnet den Banner jederzeit wieder, damit die Einwilligung geändert oder widerrufen werden kann.
 - **Texte:** Die Kurztexte (Deutsch/Englisch) stehen in der Komponente (`<i18n>`), Gruppennamen und Cookie-Details aus den Shop-Übersetzungen. Der Kurztext ist vom Shopbetreiber freigegeben (2026-10-22).
 - **Rechtlich:** „Ablehnen“ auf der ersten Ebene gleichwertig zu „Akzeptieren“; optionale Gruppen nicht vorab einschalten.
+- **Google Tag Manager erst nach Zustimmung** (Entscheidung des Shopbetreibers, 2026-10-25): Der Container (Google Ads mit Conversion-Messung, kein Google Analytics) lädt erst, wenn der Eintrag „Google“ der Gruppe Marketing erlaubt ist. Bei wiederkehrenden Besuchern mit gespeicherter Zustimmung lädt ihn das Kopf-Skript sofort, sonst das Client-Plugin beim Zustimmen im Banner. Vorher geht keine Anfrage an Google, auch nicht die cookielosen Meldungen des erweiterten Consent Mode, und es gibt keinen noscript-Teil. Folge: Google Ads kann Conversions ohne Zustimmung nicht hochrechnen. Ein `purchase` ohne Zustimmung bleibt im Data Layer und wird nicht gesendet. Umgesetzt in `utils/googleTagManager.ts` und `plugins/googleTagManager.client.ts`.
 
 ### Footer
 

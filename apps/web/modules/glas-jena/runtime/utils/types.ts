@@ -6,8 +6,11 @@ export type ConsentState = Record<ConsentType, 'granted' | 'denied'>;
 /** The `gtag` command function: pushes its `arguments` object into the data layer. */
 export type Gtag = (...args: unknown[]) => void;
 
-/** The globals of the head script (the shop declares `window.dataLayer` with gtag-only types). */
-export type GtagWindow = { dataLayer?: unknown[]; gtag?: Gtag };
+/**
+ * The globals of the head script (the shop declares `window.dataLayer` with gtag-only types); `glasJenaLoadGtm` loads
+ * the container once, see googleTagManager.ts.
+ */
+export type GtagWindow = { dataLayer?: unknown[]; gtag?: Gtag; glasJenaLoadGtm?: () => void };
 
 /** The `purchase` event in the data layer, see purchaseTracking.ts. */
 export interface PurchaseEvent {
