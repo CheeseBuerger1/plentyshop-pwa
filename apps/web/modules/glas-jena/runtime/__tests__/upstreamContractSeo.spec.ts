@@ -20,6 +20,21 @@ describe('upstream contract of the glas-jena module: search engines', () => {
     expect(structuredData).toMatch(/return \{\s*setLogoMeta,\s*setProductMetaData,/);
   });
 
+  it('should find the GTIN-13 of the Product JSON-LD and the editor setting that withGtin13 follows', () => {
+    /* The shop takes the GTIN-13 from `seoSettings`, where the module puts the barcode */
+    expect(readApp('composables/useStructuredData/useStructuredData.ts')).toContain(
+      'const gtin13 = productSeoSettingsGetters.getGtin13(product);',
+    );
+    const settings = readApp('configuration/settings.config.ts');
+    expect(settings).toContain('seoRichSnippetBarcodeGtin13:');
+    expect(settings).toContain('seoRichSnippetBarcodeGtin13Id:');
+    /* The options of the editor: 1 "Do not display", 2 first GTIN-13 barcode, 3 barcode by ID */
+    const editor = readApp('components/settings/seo/search-engines/rich-snippet-mapping/05.BarcodeGtin13.vue');
+    expect(editor).toContain("ref(['1', '2', '3'])");
+    expect(editor).toContain('"seoRichSnippetBarcodeGtin13-2": "Use first GTIN-13 barcode from variation"');
+    expect(editor).toContain('"seoRichSnippetBarcodeGtin13-3": "Use specific GTIN-13 barcode by ID"');
+  });
+
   it('should find the Organization JSON-LD of the layouts and the sources of name and logo that the module uses', () => {
     /* The layouts call setLogoMeta, which the module replaces; the original has no name and a fixed logo path */
     const structuredData = readApp('composables/useStructuredData/useStructuredData.ts');
