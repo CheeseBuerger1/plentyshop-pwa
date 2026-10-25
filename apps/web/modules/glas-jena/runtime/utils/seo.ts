@@ -63,6 +63,39 @@ export const withMetaDescription = (product: Product): Product => {
   return metaDescription ? { ...product, texts: { ...product.texts, description: metaDescription } } : product;
 };
 
+/** Barcode type of the EAN in PlentyONE. */
+export const GTIN13_BARCODE_TYPE = 'GTIN_13';
+
+/** Options of the editor setting "GTIN-13 barcode" that show a barcode (1 is "Do not display"). */
+export const GTIN13_SOURCE = { first: '2', byId: '3' } as const;
+
+/**
+ * The item for the shop's Product JSON-LD with its GTIN-13 from the variation's barcodes, chosen like the editor
+ * setting "GTIN-13 barcode" (first GTIN-13 barcode, or the barcode with the given ID). PlentyONE leaves
+ * `seoSettings.gtin13` empty although the setting is on and the item has an EAN (found 2026-10-25, also after a shop
+ * update); a GTIN that PlentyONE does deliver is kept.
+ *
+ * @param source Value of the setting `seoRichSnippetBarcodeGtin13` (saved as string or number).
+ * @param barcodeId Value of `seoRichSnippetBarcodeGtin13Id`, used with `GTIN13_SOURCE.byId`.
+ */
+export const withGtin13 = (product: Product, source: unknown, barcodeId?: unknown): Product => {
+  if (product.seoSettings?.gtin13) {
+    return product;
+  }
+
+  const barcodes = product.barcodes ?? [];
+  const barcode =
+    String(source) === GTIN13_SOURCE.first
+      ? barcodes.find(({ type }) => type === GTIN13_BARCODE_TYPE)
+      : String(source) === GTIN13_SOURCE.byId
+        ? barcodes.find(({ id }) => String(id) === String(barcodeId))
+        : undefined;
+
+  return barcode?.code
+    ? { ...product, seoSettings: { ...product.seoSettings, gtin13: barcode.code } as Product['seoSettings'] }
+    : product;
+};
+
 /** Breadcrumbs for search engines with the names that the page shows and absolute addresses. */
 export const getBreadcrumbListJsonLd = (entries: BreadcrumbListEntry[]): WithContext<SchemaBreadcrumbList> => ({
   '@context': 'https://schema.org',
