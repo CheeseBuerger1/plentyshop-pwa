@@ -292,7 +292,7 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('utils/blocks/block-icons.ts')).toContain("'~~/modules/*/runtime/components/blocks/**/icon.svg'");
   });
 
-  it('should find the grid structure that the equal heights of hero image and tiles rely on', () => {
+  it('should find the grid structures that glas-jena.css relies on (tile heights, articles per row)', () => {
     /* glas-jena.css: `[data-testid='multi-grid-column'] > div:only-child:has(> * > * > [data-testid='gj-tile'])` */
     expect(readApp('components/blocks/structure/MultiGrid/MultiGrid.vue')).toMatch(
       /data-testid="multi-grid-column"\s*>\s*<div\s+v-for="row in columns\[cell\.colIndex\]"[^>]*>\s*<slot/,
@@ -303,6 +303,8 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('components/PageBlock/PageBlockContent.vue')).toMatch(
       /<template>\s*<div[^>]*:class="wrapperClass">/,
     );
+    expect(readApp('components/blocks/ItemGrid/ItemGrid.vue')).toContain('desktop: props.content?.itemsPerRowDesktop,');
+    expect(readApp('utils/grid/index.ts')).toMatch(/'@lg:grid-cols-4',[\s\S]*colLg\[desktop\]/);
   });
 
   it('should find the slider that the item carousel block reuses and restyles', () => {
