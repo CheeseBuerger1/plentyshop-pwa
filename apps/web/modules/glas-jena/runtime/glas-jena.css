@@ -312,7 +312,7 @@
   }
 }
 
-/* Results per row like the articles of a category: three from 768 px, two from 576 px, one below */
+/* Results per row like the articles of a category: three from 768 px (four from 1200 px, see below), two from 576 px, one below */
 @container (min-width: 768px) {
   [data-testid='category-layout'] [data-testid='category-grid'] {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -360,6 +360,24 @@
   /* One result of the three beside the list */
   [data-testid='category-layout']:has(.gj-search-tree) [data-testid='category-sorting'] {
     width: calc((100% - 2rem - 17.875rem - 0.5rem - 3rem) / 3);
+  }
+}
+
+/*
+ * From a window width of 1200 px four results per row like the articles of a category (as requested by the shop
+ * owner), the sorting as wide as one of them.
+ */
+@media (min-width: 1200px) {
+  [data-testid='category-layout'] [data-testid='category-grid'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  [data-testid='category-layout'] [data-testid='category-sorting'] {
+    width: calc((100% - 2rem - 4.5rem) / 4);
+  }
+
+  [data-testid='category-layout']:has(.gj-search-tree) [data-testid='category-sorting'] {
+    width: calc((100% - 2rem - 17.875rem - 0.5rem - 4.5rem) / 4);
   }
 }
 
@@ -460,6 +478,26 @@ main [data-testid='category-layout'] {
     [data-testid='category-sort']
     [data-testid='category-sorting'] {
     margin-bottom: 1rem;
+  }
+}
+
+/*
+ * Four articles per row (the template's desktop setting, from 1024 px) only from a window width of 1200 px, where the
+ * header reaches its full width; below the cards are too narrow for "In den Warenkorb" on one line, so three per row
+ * as before (as requested by the shop owner). From 1200 px the select is as wide as one of the four articles.
+ */
+@media (max-width: 1199.98px) {
+  @container (min-width: 1024px) {
+    [data-testid='category-grid'].\@lg\:grid-cols-4 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  [data-testid='multi-grid-structure']:has(.gj-category-tree):has([data-testid='category-grid'].\@lg\:grid-cols-4)
+    [data-testid='category-sort'] {
+    max-width: calc((100% - 4.5rem) / 4);
   }
 }
 
