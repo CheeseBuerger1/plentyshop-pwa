@@ -3,6 +3,7 @@ import {
   addRouteMiddleware,
   addServerHandler,
   addTemplate,
+  addVitePlugin,
   createResolver,
   defineNuxtModule,
 } from 'nuxt/kit';
@@ -12,6 +13,7 @@ import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './r
 import { ACCOUNT_MENU_BREAKPOINT, ACCOUNT_MENU_MIN_WIDTH } from './runtime/utils/accountMenu';
 import { SHIPPING_COUNTRY_ROUTE } from './runtime/utils/cartShipping';
 import { SITEMAP_EXCLUDED_PAGE_PATHS } from './runtime/utils/noindexPages';
+import { getScriptFileNames } from './runtime/utils/scriptFileNames';
 
 /** Original components (Nuxt name) replaced by the module's own ones. */
 export const COMPONENT_OVERRIDES: Record<string, string> = {
@@ -383,5 +385,29 @@ export default defineNuxtModule({
     nuxt.hook('pwa:beforeBuildServiceWorker', (options) => {
       options.workbox.dontCacheBustURLsMatching = PRECACHE_WITHOUT_REVISION;
     });
+
+    /*
+     * CDN: new names for the browser's script files with every build, see utils/scriptFileNames.ts. Nuxt's own plugin
+     * (`nuxt:environments`, enforce `pre`) sets `<buildAssetsDir>[hash].js` first; this one runs after it and wins.
+     */
+    if (!nuxt.options.dev) {
+      const scriptFileNames = getScriptFileNames(nuxt.options.app.buildAssetsDir, nuxt.options.buildId);
+      addVitePlugin(
+        {
+          name: 'glas-jena:script-file-names',
+          configEnvironment(name) {
+            if (name !== 'client') {
+              return;
+            }
+            return {
+              build: {
+                rolldownOptions: { output: { chunkFileNames: scriptFileNames, entryFileNames: scriptFileNames } },
+              },
+            };
+          },
+        },
+        { server: false },
+      );
+    }
   },
 });
