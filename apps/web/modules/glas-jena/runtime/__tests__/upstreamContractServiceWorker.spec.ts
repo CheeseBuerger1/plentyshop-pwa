@@ -1,6 +1,7 @@
 /**
  * Upstream contract of the service worker: the module gives every precached file a revision (hook
- * `pwa:beforeBuildServiceWorker` in index.ts, PRECACHE_WITHOUT_REVISION).
+ * `pwa:beforeBuildServiceWorker` in index.ts, PRECACHE_WITHOUT_REVISION), and the script files get new names with every
+ * build for the CDN (utils/scriptFileNames.ts).
  *
  * Part of the upstream contract of the glas-jena module, see upstreamContract.spec.ts; in its own file because that
  * one has reached the maximum length of a file (ESLint `max-lines`).
@@ -30,6 +31,18 @@ describe('upstream contract of the glas-jena module: service worker', () => {
   it('should find the hook of @vite-pwa/nuxt before the service worker is built', () => {
     const nuxtPwa = readPackage('@vite-pwa/nuxt/dist/module.d.mts');
     expect(nuxtPwa).toContain("'pwa:beforeBuildServiceWorker': (options: ResolvedVitePWAOptions) => HookResult;");
+  });
+
+  it("should find Nuxt's script file names that the module marks with the build (utils/scriptFileNames.ts)", () => {
+    /* Nuxt sets `<buildAssetsDir>[hash].js` for the client, but only where no other plugin or config has set names */
+    const viteBuilder = readPackage('nuxt/node_modules/@nuxt/vite-builder/dist/index.mjs');
+    expect(viteBuilder).toContain(
+      'const fileNames = withoutLeadingSlash(join(nuxt.options.app.buildAssetsDir, "[hash].js"));',
+    );
+    expect(viteBuilder).toContain(
+      'chunkFileNames: outputConfig?.chunkFileNames ?? (nuxt.options.dev ? void 0 : fileNames),',
+    );
+    expect(viteBuilder).toContain('output?.entryFileNames.includes("[hash]"));');
   });
 
   it('should let no file of the shop go without revision', () => {

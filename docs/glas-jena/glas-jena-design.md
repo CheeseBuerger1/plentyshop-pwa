@@ -419,6 +419,11 @@ Der Service Worker des Originals (`@vite-pwa/nuxt`, `registerType: 'prompt'`) le
 - **Ursache (zwei Builds verglichen, 2026-10-24):** Bei einer reinen CSS-Änderung behielten vier Skripte ihren Namen und änderten nur die CSS-Datei, die sie laden. vite-plugin-pwa speichert alle Dateien in `_nuxt/` ohne Revision (`dontCacheBustURLsMatching = ^_nuxt/`), weil es neue Namen für neuen Inhalt erwartet. Der Service Worker hielt die alte Fassung deshalb für aktuell und ersetzte sie nie.
 - **Korrektur:** Das Modul setzt im Hook `pwa:beforeBuildServiceWorker` `dontCacheBustURLsMatching` auf ein Muster, das nie passt (`PRECACHE_WITHOUT_REVISION` in `index.ts`). Jede Datei bekommt eine Revision aus ihrem Inhalt, geänderte Dateien holt der neue Service Worker neu. Bis er übernimmt, kann ein kurzer Mischstand bleiben. Vertragstest `upstreamContractServiceWorker.spec.ts`.
 
+### CDN (CloudFront): neue Skriptnamen bei jedem Build
+
+- **Fehler (2026-10-26):** Nach dem Update mit PR #113/#114 zeigte die Suche für alle Besucher weiter drei statt vier Treffer pro Zeile. Vor dem Shop liegt CloudFront und hält Dateien aus `/_nuxt/` ein Jahr lang (`max-age=31536000, immutable`, Abfrageparameter zählen nicht). Drei Skripte mit unverändertem Namen kamen noch in der Fassung vom 25.10. und luden eine CSS-Datei vom 24.10. hinter der neuen. Bei gleich starken Regeln gewann der alte Stand. Neue oder stärkere Regeln wirkten trotzdem.
+- **Korrektur:** Ein Vite-Plugin des Moduls (`glas-jena:script-file-names`, nur im Produktions-Build) hängt an die Namen aller Browser-Skripte die ersten 8 Zeichen der Build-Kennung von Nuxt an: `_nuxt/<hash>-<kennung>.js` statt `_nuxt/<hash>.js` (`runtime/utils/scriptFileNames.ts`). Jeder Build bekommt so neue Skriptnamen, die CSS-Dateien behalten ihre Inhalts-Hashes. Geprüft mit zwei Builds hintereinander: 541 Skripte, keiner mit gleichem Namen, alle 38 CSS-Dateien gleich. Nach einem Shop-Update laden Besucher die Skripte einmal neu. Vertragstest in `upstreamContractServiceWorker.spec.ts` (Nuxt setzt `[hash].js` nur, wo niemand sonst Namen vorgibt).
+
 ### Test
 
 Jede Seite in diesen vier Breiten prüfen: ca. 390 px (Handy), 820 px (Tablet hoch), 1180 px (Tablet quer) und 1440 px (Desktop).
