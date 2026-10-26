@@ -2184,6 +2184,18 @@ html:has(.gj-header-wrapper--sticky) .font-body [data-testid='gj-cart-side'] {
   gap: 0;
 }
 
+/*
+ * The same line at the top of the preview instead of below it, where it was out of sight below long suggestions (as
+ * requested by the shop owner, 2026-10-26); the line between it and the suggestions moves below it. Only the order on
+ * screen changes: the keyboard reaches it after the suggestions as before, Enter in the search field leads to the
+ * same results.
+ */
+[data-testid='gj-header-search-panel'] section > a {
+  order: -1;
+  border-top-width: 0;
+  border-bottom: 1px solid rgb(var(--colors-neutral-200));
+}
+
 /* Suggested articles: angular, a thin frame instead of the shadow */
 [data-testid='gj-header-search-panel'] [data-testid='search-suggestion-product'] {
   border: 1px solid rgb(var(--colors-neutral-200));

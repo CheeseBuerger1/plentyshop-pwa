@@ -67,6 +67,9 @@ describe('upstream contract of the glas-jena module: search preview', () => {
       /* The preview is a <section>, the line "Alle Ergebnisse …" its direct link with the parts in a span */
       ':aria-label="t(\'searchBar.searchSuggestions\')"',
       '<span class="flex items-center gap-1 min-w-0">',
+      /* The line moves to the top by `order` in the section's flex column and takes its line from the top to the bottom */
+      'flex flex-col max-h-dropdown',
+      'class="border-t border-neutral-200 hover:bg-neutral-50',
       /* Categories: the only list that wraps; the path comes from `category.label` */
       '<ul v-if="results?.categories?.length" class="flex flex-wrap gap-1.5">',
       ':to="category.url"',
