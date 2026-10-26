@@ -151,7 +151,7 @@
         <!-- Real links (with hreflang) to the language versions, so crawlers can follow them -->
         <li v-for="locale in locales" :key="locale" class="gj-mnav__item">
           <a
-            :href="switchLocalePath(locale)"
+            :href="languagePath(locale)"
             class="gj-mnav__link gj-mnav__link--language"
             :class="{ 'gj-mnav__link--active': locale === currentLocale }"
             :hreflang="locale"
@@ -192,6 +192,7 @@ import {
   logOutToHomePage,
 } from '../utils/accountMenu';
 import { getNativeLanguageName } from '../utils/locale';
+import { useGlasJenaLanguagePath } from '../composables/useGlasJenaLanguagePath';
 import {
   LANGUAGE_MENU_LABEL,
   SLIDE_BACK,
@@ -221,7 +222,7 @@ const emit = defineEmits<GlasJenaMobileNavigationEmits>();
 
 const { locale: currentLocale } = useI18n();
 const localePath = useLocalizedPath();
-const switchLocalePath = useSwitchLocalePath();
+const languagePath = useGlasJenaLanguagePath();
 const router = useRouter();
 const { isOpen, close } = useMegaMenu();
 const { isAuthorized, logout } = useCustomer();

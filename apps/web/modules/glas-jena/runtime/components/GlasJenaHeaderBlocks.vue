@@ -106,7 +106,7 @@
         <!-- A real link (with hreflang) to the other language version, so crawlers can follow it -->
         <a
           v-if="hasSingleAlternativeLocale && alternativeLocale"
-          :href="switchLocalePath(alternativeLocale)"
+          :href="languagePath(alternativeLocale)"
           :hreflang="alternativeLocale"
           :lang="alternativeLocale"
           class="gj-header__tile gj-header__tile--medium gj-header__tile--text gj-header__tile--language"
@@ -218,6 +218,7 @@ import {
 import { getNativeLanguageName } from '../utils/locale';
 import { DESKTOP_NAVIGATION_BREAKPOINT, isPlainLeftClick } from '../utils/navigation';
 import { useHoverIntent } from '../composables/useHoverIntent';
+import { useGlasJenaLanguagePath } from '../composables/useGlasJenaLanguagePath';
 import GlasJenaLineIcon from './GlasJenaLineIcon.vue';
 import GlasJenaMobileNavigation from './GlasJenaMobileNavigation.vue';
 import GlasJenaNavigation from './GlasJenaNavigation.vue';
@@ -237,7 +238,7 @@ const { open: openMegaMenu } = useMegaMenu();
 const { getAvailableLocales, switchLocale, toggle: toggleLanguageSelect } = useLocalization();
 const { locale: currentLocale } = useI18n();
 const { t: tLocal } = useI18n({ useScope: 'local' });
-const switchLocalePath = useSwitchLocalePath();
+const languagePath = useGlasJenaLanguagePath();
 
 /** The block editor keeps the original, editor-configurable header. */
 const useOriginalHeader = computed(() => isEditing.value);

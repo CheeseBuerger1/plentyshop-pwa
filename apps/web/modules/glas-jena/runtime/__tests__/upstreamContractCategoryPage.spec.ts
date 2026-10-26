@@ -154,4 +154,19 @@ describe('upstream contract of the glas-jena module: category page', () => {
     expect(sdkPlugin).toContain('plentysystems: buildModule(middlewareModule, {');
     expect(sdkPlugin).toMatch(/provide: \{\s*sdk\s*\}/);
   });
+
+  it('should find the category addresses per language that the language links take (useGlasJenaLanguagePath)', () => {
+    /* Loaded before the page renders (also on the server), for routes of the type `category` */
+    const blocksPlugin = readApp('plugins/05.blocks.ts');
+    expect(blocksPlugin).toContain("if (type === 'category') {");
+    expect(blocksPlugin).toContain('await fetchProducts(getFacetsFromURL())');
+    expect(blocksPlugin).toContain('await fetchForRoute(router.currentRoute.value);');
+    /* The hreflang links of a category: keys of `languageUrls` are hreflang codes, paths without language prefix */
+    const pageMeta = readApp('composables/useUrlPageMeta/useUrlPageMeta.ts');
+    expect(pageMeta).toContain('const i18nKey = hreflangLocaleMapperToI18n(key);');
+    expect(pageMeta).toContain(": localePath(productsCatalog.languageUrls[key] || '/', i18nKey as Locale);");
+    expect(readApp('composables/useUrlPageMeta/hreflangLocaleMapperToI18n.ts')).toContain(
+      'export const hreflangLocaleMapperToI18n = (locale: string): string => {',
+    );
+  });
 });
