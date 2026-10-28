@@ -35,6 +35,21 @@ describe('upstream contract of the glas-jena module: search engines', () => {
     expect(editor).toContain('"seoRichSnippetBarcodeGtin13-3": "Use specific GTIN-13 barcode by ID"');
   });
 
+  it('should find the offer fields and the editor settings that withSeoFallback completes', () => {
+    /* The shop takes availability and condition of the offer from `seoSettings`, where the module puts the fallback */
+    const structuredData = readApp('composables/useStructuredData/useStructuredData.ts');
+    expect(structuredData).toContain('availability: productSeoSettingsGetters.getMappedAvailability(product)');
+    expect(structuredData).toContain('itemCondition: productSeoSettingsGetters.getConditionOfItem(product)');
+    /* SEO_AVAILABILITY_SETTINGS (availability 1 … 10) and ITEM_CONDITION_SETTINGS (condition IDs 0 … 4) */
+    const settings = readApp('configuration/settings.config.ts');
+    for (let availability = 1; availability <= 10; availability++) {
+      expect(settings).toContain(`seoAvailability${availability}:`);
+    }
+    for (const condition of ['New', 'Used', 'NewBox', 'NewLabel', 'BStock']) {
+      expect(settings).toContain(`itemCondition${condition}:`);
+    }
+  });
+
   it('should find the Organization JSON-LD of the layouts and the sources of name and logo that the module uses', () => {
     /* The layouts call setLogoMeta, which the module replaces; the original has no name and a fixed logo path */
     const structuredData = readApp('composables/useStructuredData/useStructuredData.ts');

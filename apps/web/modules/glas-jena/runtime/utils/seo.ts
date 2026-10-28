@@ -96,6 +96,64 @@ export const withGtin13 = (product: Product, source: unknown, barcodeId?: unknow
     : product;
 };
 
+/** Prefix of the editor settings `seoAvailability1` … `seoAvailability10` (schema.org value of availability 1 … 10). */
+export const SEO_AVAILABILITY_SETTING_PREFIX = 'seoAvailability';
+
+/** The editor settings of the availabilities, one for each of PlentyONE's availabilities 1 … 10. */
+export const SEO_AVAILABILITY_SETTINGS = Array.from(
+  { length: 10 },
+  (_, index) => `${SEO_AVAILABILITY_SETTING_PREFIX}${index + 1}`,
+);
+
+/** The editor settings of the item conditions, in the order of PlentyONE's condition IDs (0 new … 4 B-stock). */
+export const ITEM_CONDITION_SETTINGS = [
+  'itemConditionNew',
+  'itemConditionUsed',
+  'itemConditionNewBox',
+  'itemConditionNewLabel',
+  'itemConditionBStock',
+];
+
+const settingValue = (value: unknown) => (typeof value === 'string' && value ? value : undefined);
+
+/**
+ * The item for the shop's Product JSON-LD with availability and condition of its offer from the editor settings
+ * (SEO » Search engines) when PlentyONE delivers none. For single items PlentyONE delivers `seoSettings: []` for
+ * minutes at a time (about one item page in 20, a second request gets the same; found 2026-10-28), so the offer had
+ * no `availability` ("missing field" in the Search Console) and no `itemCondition`. PlentyONE maps the same settings
+ * itself: the variation's availability ID to `seoAvailability<ID>`, the item's condition ID to `ITEM_CONDITION_SETTINGS`.
+ * Values that PlentyONE does deliver are kept; without a setting the field stays empty as before.
+ *
+ * @param getSetting Value of an editor setting by its key.
+ */
+export const withSeoFallback = (product: Product, getSetting: (key: string) => unknown): Product => {
+  const seoSettings: Partial<NonNullable<Product['seoSettings']>> = Array.isArray(product.seoSettings)
+    ? {}
+    : (product.seoSettings ?? {});
+
+  const availabilityId = product.variation?.availabilityId;
+  const mappedAvailability =
+    !seoSettings.mappedAvailability && availabilityId
+      ? settingValue(getSetting(`${SEO_AVAILABILITY_SETTING_PREFIX}${availabilityId}`))
+      : undefined;
+
+  const conditionSetting = ITEM_CONDITION_SETTINGS[Number(product.item?.condition?.id)];
+  const conditionOfItem =
+    !seoSettings.conditionOfItem && conditionSetting ? settingValue(getSetting(conditionSetting)) : undefined;
+
+  if (!mappedAvailability && !conditionOfItem) {
+    return product;
+  }
+  return {
+    ...product,
+    seoSettings: {
+      ...seoSettings,
+      ...(mappedAvailability && { mappedAvailability }),
+      ...(conditionOfItem && { conditionOfItem }),
+    } as Product['seoSettings'],
+  };
+};
+
 /** Breadcrumbs for search engines with the names that the page shows and absolute addresses. */
 export const getBreadcrumbListJsonLd = (entries: BreadcrumbListEntry[]): WithContext<SchemaBreadcrumbList> => ({
   '@context': 'https://schema.org',
