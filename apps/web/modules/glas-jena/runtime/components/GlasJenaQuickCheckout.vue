@@ -107,11 +107,11 @@
       </div>
       <!-- Wide view: the buttons start 112 px from the top, where "Warenkorb prüfen" stood below the cart summary -->
       <div class="pt-0 pb-8 px-10 @lg:pt-28">
-        <!-- Three times the space below "Einkauf fortsetzen" as between "Zum Warenkorb" and "Zur Kasse" (36 / 12 px) -->
+        <!-- More space below "Einkauf fortsetzen" than between "Zum Warenkorb" and "Zur Kasse" (30 / 12 px) -->
         <UiButton
           data-testid="gj-quick-checkout-continue-button"
           size="lg"
-          class="w-full mb-9"
+          class="w-full mb-s"
           variant="secondary"
           @click="close"
         >
