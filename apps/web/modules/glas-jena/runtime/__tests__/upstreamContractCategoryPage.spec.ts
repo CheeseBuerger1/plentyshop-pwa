@@ -169,4 +169,11 @@ describe('upstream contract of the glas-jena module: category page', () => {
       'export const hreflangLocaleMapperToI18n = (locale: string): string => {',
     );
   });
+
+  it('should find the empty ClientOnly in the grid that glas-jena.css hides in the server HTML', () => {
+    /* glas-jena.css: `[data-testid='multi-grid-structure'] > span:empty` – not needed any more if this fails */
+    expect(readApp('components/blocks/structure/MultiGrid/MultiGrid.vue')).toMatch(
+      /<\/template>\s*<ClientOnly>\s*<div\s+v-if="gridRow\.free > 0 && shouldEnableEditorFeatures"/,
+    );
+  });
 });
