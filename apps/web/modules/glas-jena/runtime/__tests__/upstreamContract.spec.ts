@@ -307,6 +307,13 @@ describe('upstream contract of the glas-jena module', () => {
     expect(readApp('utils/grid/index.ts')).toMatch(/'@lg:grid-cols-4',[\s\S]*colLg\[desktop\]/);
   });
 
+  it('should find the empty ClientOnly in the grid that glas-jena.css hides in the server HTML', () => {
+    /* glas-jena.css: `[data-testid='multi-grid-structure'] > span:empty` – not needed any more if this fails */
+    expect(readApp('components/blocks/structure/MultiGrid/MultiGrid.vue')).toMatch(
+      /<\/template>\s*<ClientOnly>\s*<div\s+v-if="gridRow\.free > 0 && shouldEnableEditorFeatures"/,
+    );
+  });
+
   it('should find the slider that the item carousel block reuses and restyles', () => {
     /* GlasJenaProductCarousel: ProductSlider with its test ids, card image size and the scrollable's side buttons */
     const slider = readApp('components/ProductSlider/ProductSlider.vue');

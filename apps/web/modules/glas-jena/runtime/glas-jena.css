@@ -449,6 +449,16 @@ main [data-testid='category-layout'] {
 }
 
 /*
+ * No layout shift on hydration: the editor grid (MultiGrid.vue, PlentyONE's code) wraps its "x/12 free" placeholder in
+ * a `<ClientOnly>` without fallback after each row, which Nuxt renders as an empty `<span>` in the server HTML. The
+ * span takes a grid cell, so on categories with the category list the item grid first stands below the list and only
+ * jumps up beside it once the spans disappear after hydration (CLS about 0.32 on desktop).
+ */
+[data-testid='multi-grid-structure'] > span:empty {
+  display: none;
+}
+
+/*
  * Sorting above the articles like the LTS shop: the category template has three cells in this order – "Sort and
  * filter" (3/12, with the category list), "Sort" (9/12) and the item grid (9/12). The editor's grid only knows cells
  * side by side, so the column with the category list spans both rows here; "Sort" then stands beside it above the
