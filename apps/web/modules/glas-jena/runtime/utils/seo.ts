@@ -4,6 +4,7 @@ import type {
   Organization as SchemaOrganization,
   WithContext,
 } from 'schema-dts';
+import { getMerchantReturnPolicyJsonLd, getShippingServiceJsonLd } from './merchantPolicies';
 import type { BreadcrumbListEntry, OrganizationEntry, ProductOpenGraph, SeoHeadTag } from './types';
 
 /** `og:type` of item pages; home page and categories keep the shop's `website`. */
@@ -167,9 +168,10 @@ export const getBreadcrumbListJsonLd = (entries: BreadcrumbListEntry[]): WithCon
 });
 
 /**
- * The shop for search engines with its name and logo. The shop's own Organization JSON-LD has neither name nor a
- * working logo (`/_nuxt-plenty/images/logo.png` is a 404 in this shop, found 2026-10-25). A relative logo address
- * gets the home page in front; without a logo the field is left out.
+ * The shop for search engines with its name and logo, its shipping and its returns (see merchantPolicies.ts). The
+ * shop's own Organization JSON-LD has neither name nor a working logo (`/_nuxt-plenty/images/logo.png` is a 404 in
+ * this shop, found 2026-10-25). A relative logo address gets the home page in front; without a logo the field is left
+ * out.
  */
 export const getOrganizationJsonLd = ({ name, url, logo }: OrganizationEntry): WithContext<SchemaOrganization> => ({
   '@context': 'https://schema.org',
@@ -177,6 +179,8 @@ export const getOrganizationJsonLd = ({ name, url, logo }: OrganizationEntry): W
   name,
   url,
   ...(logo ? { logo: logo.startsWith('/') ? `${url.replace(/\/$/, '')}${logo}` : logo } : {}),
+  hasShippingService: getShippingServiceJsonLd(),
+  hasMerchantReturnPolicy: getMerchantReturnPolicyJsonLd(),
 });
 
 const isJsonLd = (tag: SeoHeadTag) => tag.tag === 'script' && tag.props.type === JSON_LD_TYPE;

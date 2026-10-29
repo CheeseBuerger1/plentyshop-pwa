@@ -1,4 +1,5 @@
 import type { Product } from '@plentymarkets/shop-api';
+import { getMerchantReturnPolicyJsonLd, getShippingServiceJsonLd } from '../merchantPolicies';
 import {
   GLAS_JENA_BREADCRUMBS_KEY,
   correctSeoTags,
@@ -132,7 +133,7 @@ describe('seo', () => {
     expect(withoutOwn).toEqual([shop, productJsonLd]);
   });
 
-  it('should describe the shop with its name, home page and logo', () => {
+  it('should describe the shop with its name, home page, logo, shipping and returns', () => {
     expect(
       getOrganizationJsonLd({
         name: '-GLAS in JENA-',
@@ -145,6 +146,8 @@ describe('seo', () => {
       name: '-GLAS in JENA-',
       url: 'https://www.glas-jena.de',
       logo: 'https://cdn02.plentyone.com/x/frontend/layout/jenaglas_logo-header.png',
+      hasShippingService: getShippingServiceJsonLd(),
+      hasMerchantReturnPolicy: getMerchantReturnPolicyJsonLd(),
     });
   });
 
