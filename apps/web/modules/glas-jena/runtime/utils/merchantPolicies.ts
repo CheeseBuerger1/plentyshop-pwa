@@ -1,17 +1,15 @@
-import type { MerchantReturnPolicy, OfferShippingDetails, ShippingConditions, ShippingService } from 'schema-dts';
-import { safeSerializeJsonLd } from '~/utils/jsonLdHelper';
-import type { ProductJsonLd } from './types';
+import type { MerchantReturnPolicy, ShippingConditions, ShippingService } from 'schema-dts';
 
 /*
- * Shipping and returns of the shop for search engines: for the whole shop in the Organization JSON-LD (see
- * getOrganizationJsonLd) and for each item in the offer of its Product JSON-LD (see completeProductJsonLd; the Rich Results
- * Test and the Search Console only look there). Copied from PlentyONE and the shop pages "Versand" and "Widerrufsbelehrung" (checked 2026-10-29 with guest
+ * Shipping and returns of the shop for search engines (Organization JSON-LD, see getOrganizationJsonLd). Google takes
+ * them for the offers of all item pages, so the items need no `shippingDetails` / `hasMerchantReturnPolicy` of their
+ * own. Copied from PlentyONE and the shop pages "Versand" and "Widerrufsbelehrung" (checked 2026-10-29 with guest
  * baskets): when the shipping costs in PlentyONE change, change them here too.
  */
 
 const CURRENCY = 'EUR';
 
-/** DHL parcel within Germany by the gross weight of the parcel, up to kilograms (Google takes whole kilograms only) */
+/** DHL parcel within Germany by the gross weight of the parcel, up to kilograms */
 export const SHIPPING_RATES_DE = [
   { maxKg: 1, rate: 7.8 },
   { maxKg: 3, rate: 8.5 },
@@ -99,7 +97,7 @@ export const getShippingServiceJsonLd = (): ShippingService => ({
       weight: {
         '@type': 'QuantitativeValue',
         minValue: SHIPPING_RATES_DE[index - 1]?.maxKg ?? 0,
-        maxValue: Math.floor(maxKg),
+        maxValue: maxKg,
         unitCode: 'KGM',
       },
       shippingRate: amount(rate),
@@ -115,7 +113,7 @@ export const getShippingServiceJsonLd = (): ShippingService => ({
   ],
 });
 
-/** Return within 14 days in any way (no `returnMethod`), at the customer's cost, everything paid is refunded */
+/** Return within 14 days in any way (no `returnMethod`), at the customer's cost */
 export const getMerchantReturnPolicyJsonLd = (): MerchantReturnPolicy => ({
   '@type': 'MerchantReturnPolicy',
   applicableCountry: RETURN_COUNTRIES,
@@ -123,66 +121,4 @@ export const getMerchantReturnPolicyJsonLd = (): MerchantReturnPolicy => ({
   returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
   merchantReturnDays: RETURN_DAYS,
   returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility',
-  refundType: 'https://schema.org/FullRefund',
 });
-
-/**
- * The DHL rate within Germany for one item alone, like in the table above: free from 150 €, otherwise by the gross
- * weight of the variation in grams; undefined without a weight or above the table.
- */
-export const getShippingRateDE = (weightG: number, price: number) => {
-  if (price >= FREE_SHIPPING_DE_FROM) {
-    return 0;
-  }
-  if (!(weightG > 0)) {
-    return undefined;
-  }
-  return SHIPPING_RATES_DE.find(({ maxKg }) => weightG <= maxKg * 1000)?.rate;
-};
-
-/** Shipping of one item within Germany for its offer */
-export const getOfferShippingDetailsJsonLd = (rate: number): OfferShippingDetails => ({
-  '@type': 'OfferShippingDetails',
-  shippingRate: amount(rate),
-  shippingDestination: toGermany,
-  deliveryTime: {
-    '@type': 'ShippingDeliveryTime',
-    handlingTime: { '@type': 'QuantitativeValue', ...HANDLING_DAYS, unitCode: 'DAY' },
-    transitTime: { '@type': 'QuantitativeValue', ...TRANSIT_DAYS, unitCode: 'DAY' },
-  },
-});
-
-const PRODUCT_JSON_LD_RE = /"@type"\s*:\s*"Product"/;
-
-/** UN/CEFACT code of grams: the shop gives the weight of the variation in grams but without a unit */
-const GRAM_UNIT_CODE = 'GRM';
-
-/**
- * The shop's Product JSON-LD (useStructuredData.ts, serialized) with shipping and returns in its offer and the unit of
- * its weight: the shop builds them itself, so the module completes the resolved head tag. Without the unit Google has
- * no shipping weight for the weight ranges of the shipping (Merchant Center "missing shipping weight", 2026-10-29).
- * The rate comes from the weight and the price of the JSON-LD (gross weight of the variation in grams, price of the
- * offer). Other JSON-LD stays as it is.
- */
-export const completeProductJsonLd = (jsonLd: string) => {
-  if (!PRODUCT_JSON_LD_RE.test(jsonLd)) {
-    return jsonLd;
-  }
-  const product = JSON.parse(jsonLd) as ProductJsonLd;
-  if (product['@type'] !== 'Product' || !product.offers) {
-    return jsonLd;
-  }
-
-  const weightG = Number(product.weight?.value);
-  if (product.weight && weightG > 0 && !product.weight.unitCode) {
-    product.weight.unitCode = GRAM_UNIT_CODE;
-  }
-  for (const offer of [product.offers].flat()) {
-    const rate = getShippingRateDE(weightG, Number(offer.price));
-    if (rate !== undefined) {
-      offer.shippingDetails = getOfferShippingDetailsJsonLd(rate);
-    }
-    offer.hasMerchantReturnPolicy = getMerchantReturnPolicyJsonLd();
-  }
-  return safeSerializeJsonLd(product, 4);
-};

@@ -4,7 +4,7 @@ import type {
   Organization as SchemaOrganization,
   WithContext,
 } from 'schema-dts';
-import { getMerchantReturnPolicyJsonLd, getShippingServiceJsonLd, completeProductJsonLd } from './merchantPolicies';
+import { getMerchantReturnPolicyJsonLd, getShippingServiceJsonLd } from './merchantPolicies';
 import type { BreadcrumbListEntry, OrganizationEntry, ProductOpenGraph, SeoHeadTag } from './types';
 
 /** `og:type` of item pages; home page and categories keep the shop's `website`. */
@@ -204,7 +204,6 @@ const isOgUrl = (tag: SeoHeadTag) =>
  * - canonical, hreflang, prev/next and og:url without tracking or filter parameters (see `toCanonicalUrl`); the shop
  *   takes over the whole query string on categories and static pages
  * - the shop's breadcrumbs for search engines are removed when the module's own ones are there
- * - the offer of the shop's Product JSON-LD gets shipping and returns (see `completeProductJsonLd`)
  */
 export const correctSeoTags = (tags: SeoHeadTag[]) => {
   const hasOwnBreadcrumbs = tags.some((tag) => isJsonLd(tag) && tag.key === GLAS_JENA_BREADCRUMBS_KEY);
@@ -220,9 +219,6 @@ export const correctSeoTags = (tags: SeoHeadTag[]) => {
       tag.props.href = toCanonicalUrl(tag.props.href as string);
     } else if (isOgUrl(tag)) {
       tag.props.content = toCanonicalUrl(tag.props.content as string);
-    } else if (isJsonLd(tag) && tag.innerHTML) {
-      /* A new tag object instead of setting `innerHTML`: PlentyONE's code check refuses such an assignment (2026-10-29) */
-      tags.splice(index, 1, { ...tag, innerHTML: completeProductJsonLd(tag.innerHTML) });
     }
   }
 };
