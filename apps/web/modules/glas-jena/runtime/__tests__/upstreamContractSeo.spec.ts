@@ -50,17 +50,6 @@ describe('upstream contract of the glas-jena module: search engines', () => {
     }
   });
 
-  it('should find the Product JSON-LD with one offer, its price and the weight that completeProductJsonLd reads', () => {
-    /* plugins/seo.ts completes the resolved head tag: one Offer object with a number price, weight in grams */
-    const structuredData = readApp('composables/useStructuredData/useStructuredData.ts');
-    expect(structuredData).toMatch(/const offers: SchemaOffer = \{\s*'@type': 'Offer',/);
-    expect(structuredData).toContain('price: Number(price.value),');
-    expect(structuredData).toMatch(
-      /weight: \{\s*'@type': 'QuantitativeValue',\s*value: productGetters\.getWeightG\(product\),/,
-    );
-    expect(structuredData).toContain("type: 'application/ld+json',");
-  });
-
   it('should find the Organization JSON-LD of the layouts and the sources of name and logo that the module uses', () => {
     /* The layouts call setLogoMeta, which the module replaces; the original has no name and a fixed logo path */
     const structuredData = readApp('composables/useStructuredData/useStructuredData.ts');

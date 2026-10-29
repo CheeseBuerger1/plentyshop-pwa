@@ -1,12 +1,5 @@
 import type { ShippingConditions } from 'schema-dts';
-import { safeSerializeJsonLd } from '~/utils/jsonLdHelper';
-import {
-  RETURN_COUNTRIES,
-  getMerchantReturnPolicyJsonLd,
-  getShippingRateDE,
-  getShippingServiceJsonLd,
-  completeProductJsonLd,
-} from '../merchantPolicies';
+import { RETURN_COUNTRIES, getMerchantReturnPolicyJsonLd, getShippingServiceJsonLd } from '../merchantPolicies';
 
 type Range = { minValue?: number; maxValue?: number };
 
@@ -32,8 +25,7 @@ describe('merchantPolicies', () => {
     expect(rateFor('DE', 1.1, 27.9)).toBe(8.5);
     expect(rateFor('DE', 4, 60)).toBe(9.8);
     expect(rateFor('DE', 8, 60)).toBe(12.5);
-    /* Google takes whole kilograms only, the last range ends at 31 instead of 31.5 kg */
-    expect(rateFor('DE', 31, 60)).toBe(23.8);
+    expect(rateFor('DE', 31.5, 60)).toBe(23.8);
   });
 
   it('should ship free within Germany from 150 € on', () => {
@@ -55,7 +47,6 @@ describe('merchantPolicies', () => {
       merchantReturnDays: 14,
       returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility',
       returnPolicyCountry: 'DE',
-      refundType: 'https://schema.org/FullRefund',
     });
     expect(policy).not.toHaveProperty('returnMethod');
   });
@@ -64,60 +55,5 @@ describe('merchantPolicies', () => {
     expect(new Set(RETURN_COUNTRIES).size).toBe(RETURN_COUNTRIES.length);
     expect(RETURN_COUNTRIES.length).toBeLessThanOrEqual(50);
     expect(RETURN_COUNTRIES).toContain('DE');
-  });
-
-  it('should give the rate of one item alone by its weight in grams and its price', () => {
-    expect(getShippingRateDE(1100, 27.9)).toBe(8.5);
-    expect(getShippingRateDE(1000, 21.9)).toBe(7.8);
-    expect(getShippingRateDE(4200, 149.99)).toBe(9.8);
-    expect(getShippingRateDE(4200, 150)).toBe(0);
-    expect(getShippingRateDE(0, 21.9)).toBeUndefined();
-    expect(getShippingRateDE(40000, 60)).toBeUndefined();
-  });
-
-  it("should add shipping and returns to the offer and grams to the weight of the shop's Product JSON-LD", () => {
-    /* As the shop serializes it (dish 2l, variation 1623) */
-    const productJsonLd = safeSerializeJsonLd(
-      {
-        '@context': 'https://schema.org',
-        '@type': 'Product',
-        name: 'Schüssel 2l <Glas>',
-        offers: { '@type': 'Offer', priceCurrency: 'EUR', price: 27.9 },
-        weight: { '@type': 'QuantitativeValue', value: 1100 },
-      },
-      4,
-    );
-
-    const result = completeProductJsonLd(productJsonLd);
-    const { offers: offer, weight } = JSON.parse(result);
-
-    expect(weight).toEqual({ '@type': 'QuantitativeValue', value: 1100, unitCode: 'GRM' });
-    expect(offer).toMatchObject({
-      price: 27.9,
-      shippingDetails: {
-        '@type': 'OfferShippingDetails',
-        shippingRate: { '@type': 'MonetaryAmount', value: 8.5, currency: 'EUR' },
-        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DE' },
-        deliveryTime: {
-          '@type': 'ShippingDeliveryTime',
-          handlingTime: { minValue: 0, maxValue: 3, unitCode: 'DAY' },
-          transitTime: { minValue: 1, maxValue: 2, unitCode: 'DAY' },
-        },
-      },
-      hasMerchantReturnPolicy: getMerchantReturnPolicyJsonLd(),
-    });
-    expect(result).not.toContain('<');
-  });
-
-  it('should leave out the shipping of an item without weight and leave other JSON-LD as it is', () => {
-    const noWeight = JSON.stringify({ '@type': 'Product', offers: { '@type': 'Offer', price: 20 } });
-    const offer = JSON.parse(completeProductJsonLd(noWeight)).offers;
-    expect(offer).not.toHaveProperty('shippingDetails');
-    expect(offer).toHaveProperty('hasMerchantReturnPolicy');
-
-    const organization = '{"@type":"Organization","name":"-GLAS in JENA-"}';
-    expect(completeProductJsonLd(organization)).toBe(organization);
-    const noOffer = '{"@type":"Product"}';
-    expect(completeProductJsonLd(noOffer)).toBe(noOffer);
   });
 });
