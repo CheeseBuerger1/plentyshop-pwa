@@ -10,6 +10,7 @@ const SEO_HEAD_PLUGIN_KEY = 'glas-jena-seo';
  *   its defaults there: shop name, home page text, title picture); high priority so they win over app.vue
  * - all pages: canonical, hreflang, prev/next and og:url without tracking or filter parameters, and the module's
  *   breadcrumbs for search engines instead of the shop's ones
+ * - item pages: shipping and returns in the offer of the Product JSON-LD
  */
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute();

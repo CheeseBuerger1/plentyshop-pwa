@@ -86,6 +86,14 @@ export type ProductOpenGraph = {
 /** One entry of the breadcrumbs for search engines: its name and its absolute address. */
 export type BreadcrumbListEntry = { name: string; url: string };
 
+/** The parts of the shop's Product JSON-LD that completeProductJsonLd reads and completes (merchantPolicies.ts). */
+export type ProductJsonLd = {
+  '@type'?: string;
+  weight?: { value?: number; unitCode?: string };
+  offers?: OfferJsonLd | OfferJsonLd[];
+};
+export type OfferJsonLd = { price?: number; [property: string]: unknown };
+
 /** The shop for search engines: its name, home page and logo (absolute or relative to the home page). */
 export type OrganizationEntry = { name: string; url: string; logo?: string };
 
