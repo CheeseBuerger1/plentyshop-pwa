@@ -1,4 +1,5 @@
 import type { ShippingConditions } from 'schema-dts';
+import { safeSerializeJsonLd } from '~/utils/jsonLdHelper';
 import {
   RETURN_COUNTRIES,
   getMerchantReturnPolicyJsonLd,
@@ -76,7 +77,7 @@ describe('merchantPolicies', () => {
 
   it("should add shipping and returns to the offer and grams to the weight of the shop's Product JSON-LD", () => {
     /* As the shop serializes it (dish 2l, variation 1623) */
-    const productJsonLd = JSON.stringify(
+    const productJsonLd = safeSerializeJsonLd(
       {
         '@context': 'https://schema.org',
         '@type': 'Product',
@@ -84,9 +85,8 @@ describe('merchantPolicies', () => {
         offers: { '@type': 'Offer', priceCurrency: 'EUR', price: 27.9 },
         weight: { '@type': 'QuantitativeValue', value: 1100 },
       },
-      null,
       4,
-    ).replaceAll('<', String.raw`\u003C`);
+    );
 
     const result = completeProductJsonLd(productJsonLd);
     const { offers: offer, weight } = JSON.parse(result);

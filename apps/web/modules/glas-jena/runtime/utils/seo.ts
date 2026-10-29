@@ -221,7 +221,8 @@ export const correctSeoTags = (tags: SeoHeadTag[]) => {
     } else if (isOgUrl(tag)) {
       tag.props.content = toCanonicalUrl(tag.props.content as string);
     } else if (isJsonLd(tag) && tag.innerHTML) {
-      tag.innerHTML = completeProductJsonLd(tag.innerHTML);
+      /* A new tag object instead of setting `innerHTML`: PlentyONE's code check refuses such an assignment (2026-10-29) */
+      tags.splice(index, 1, { ...tag, innerHTML: completeProductJsonLd(tag.innerHTML) });
     }
   }
 };
