@@ -1,6 +1,7 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import GlasJenaFreeShippingHint from '../GlasJenaFreeShippingHint.vue';
 import { GERMANY_COUNTRY_ID } from '../../utils/freeShipping';
+import { FREE_SHIPPING_FROM_SETTING } from '../../utils/merchantPolicies';
 
 const { cart } = vi.hoisted(() => ({ cart: { value: {} as { shippingCountryId?: number; itemSum?: number } } }));
 
@@ -16,6 +17,10 @@ const mountWith = (shippingCountryId: number, itemSum: number) => {
 };
 
 describe('GlasJenaFreeShippingHint', () => {
+  afterEach(() => {
+    useSiteSettings(FREE_SHIPPING_FROM_SETTING).updateSetting('');
+  });
+
   it('should show how much is missing to free shipping within Germany and the way to it as a bar', async () => {
     const wrapper = await mountWith(GERMANY_COUNTRY_ID, 55.8);
     const bar = wrapper.find(BAR);
@@ -39,5 +44,17 @@ describe('GlasJenaFreeShippingHint', () => {
     const wrapper = await mountWith(2, 27.9);
 
     expect(wrapper.find(HINT).exists()).toBe(false);
+  });
+  it('should take the limit from the editor setting and show nothing without free shipping', async () => {
+    useSiteSettings(FREE_SHIPPING_FROM_SETTING).updateSetting('200');
+    const wrapper = await mountWith(GERMANY_COUNTRY_ID, 150);
+
+    expect(wrapper.find(REMAINDER).text()).toContain('50.00');
+    expect(wrapper.find(BAR).attributes('aria-valuemax')).toBe('200');
+
+    useSiteSettings(FREE_SHIPPING_FROM_SETTING).updateSetting('0');
+    const withoutLimit = await mountWith(GERMANY_COUNTRY_ID, 150);
+
+    expect(withoutLimit.find(HINT).exists()).toBe(false);
   });
 });

@@ -19,4 +19,9 @@ describe('getFreeShippingRemainder', () => {
     expect(getFreeShippingRemainder(null, 27.9)).toBeUndefined();
     expect(getFreeShippingRemainder(GERMANY_COUNTRY_ID, undefined)).toBeUndefined();
   });
+  it('should use the limit of the editor setting, and give nothing without free shipping', () => {
+    expect(getFreeShippingRemainder(GERMANY_COUNTRY_ID, 150, 200)).toBe(50);
+    expect(getFreeShippingRemainder(GERMANY_COUNTRY_ID, 210, 200)).toBe(0);
+    expect(getFreeShippingRemainder(GERMANY_COUNTRY_ID, 27.9, null)).toBeUndefined();
+  });
 });

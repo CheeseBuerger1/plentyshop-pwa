@@ -21,8 +21,26 @@ export const SHIPPING_RATES_DE = [
   { maxKg: 31.5, rate: 23.8 },
 ];
 
-/** Orders from this item value on are shipped free within Germany (150.00 € is free already) */
-export const FREE_SHIPPING_DE_FROM = 150;
+/** Orders from this item value on are shipped free within Germany (150.00 € is free already), unless the editor says else */
+export const FREE_SHIPPING_DE_DEFAULT = 150;
+
+/** Editor setting (Checkout » Other settings » Free Shipping) with the limit of free shipping within Germany */
+export const FREE_SHIPPING_FROM_SETTING = 'glasJenaFreeShippingFrom';
+
+/**
+ * The limit of free shipping within Germany from the editor setting: the default while the setting is empty or not a
+ * number, null (no free shipping) for 0 or less.
+ * @example toFreeShippingFrom('') // 150
+ * @example toFreeShippingFrom('200') // 200
+ * @example toFreeShippingFrom('0') // null
+ */
+export const toFreeShippingFrom = (value: unknown) => {
+  const limit = value === '' || value === null || value === undefined ? Number.NaN : Number(value);
+  if (Number.isNaN(limit)) {
+    return FREE_SHIPPING_DE_DEFAULT;
+  }
+  return limit > 0 ? limit : null;
+};
 
 /** Shipped within 3 working days after payment ("Versand"), DHL takes 1–2 days */
 const HANDLING_DAYS = { minValue: 0, maxValue: 3 };
@@ -76,10 +94,10 @@ const transitTime = {
 
 /**
  * Shipping within Germany. Where several conditions apply Google takes the lowest rate, so the weight ranges may share
- * their limits (exactly 1 kg costs 7.80 €) and the free shipping needs no upper weight. No conditions for other
- * countries: their rates depend on the country, the shop shows them in the checkout.
+ * their limits (exactly 1 kg costs 7.80 €) and the free shipping (from `freeFrom`, none for null) needs no upper
+ * weight. No conditions for other countries: their rates depend on the country, the shop shows them in the checkout.
  */
-export const getShippingServiceJsonLd = (): ShippingService => ({
+export const getShippingServiceJsonLd = (freeFrom: number | null = FREE_SHIPPING_DE_DEFAULT): ShippingService => ({
   '@type': 'ShippingService',
   fulfillmentType: 'https://schema.org/FulfillmentTypeDelivery',
   handlingTime: {
@@ -106,13 +124,17 @@ export const getShippingServiceJsonLd = (): ShippingService => ({
       shippingRate: amount(rate),
       transitTime,
     })),
-    {
-      '@type': 'ShippingConditions',
-      shippingDestination: toGermany,
-      orderValue: { '@type': 'MonetaryAmount', minValue: FREE_SHIPPING_DE_FROM, currency: CURRENCY },
-      shippingRate: amount(0),
-      transitTime,
-    },
+    ...(freeFrom === null
+      ? []
+      : [
+          {
+            '@type': 'ShippingConditions',
+            shippingDestination: toGermany,
+            orderValue: { '@type': 'MonetaryAmount', minValue: freeFrom, currency: CURRENCY },
+            shippingRate: amount(0),
+            transitTime,
+          } as const,
+        ]),
   ],
 });
 
@@ -128,11 +150,15 @@ export const getMerchantReturnPolicyJsonLd = (): MerchantReturnPolicy => ({
 });
 
 /**
- * The DHL rate within Germany for one item alone, like in the table above: free from 150 €, otherwise by the gross
- * weight of the variation in grams; undefined without a weight or above the table.
+ * The DHL rate within Germany for one item alone, like in the table above: free from `freeFrom` (none for null),
+ * otherwise by the gross weight of the variation in grams; undefined without a weight or above the table.
  */
-export const getShippingRateDE = (weightG: number, price: number) => {
-  if (price >= FREE_SHIPPING_DE_FROM) {
+export const getShippingRateDE = (
+  weightG: number,
+  price: number,
+  freeFrom: number | null = FREE_SHIPPING_DE_DEFAULT,
+) => {
+  if (freeFrom !== null && price >= freeFrom) {
     return 0;
   }
   if (!(weightG > 0)) {
@@ -163,9 +189,9 @@ const GRAM_UNIT_CODE = 'GRM';
  * its weight: the shop builds them itself, so the module completes the resolved head tag. Without the unit Google has
  * no shipping weight for the weight ranges of the shipping (Merchant Center "missing shipping weight", 2026-10-29).
  * The rate comes from the weight and the price of the JSON-LD (gross weight of the variation in grams, price of the
- * offer). Other JSON-LD stays as it is.
+ * offer), free from `freeFrom` (see getShippingRateDE). Other JSON-LD stays as it is.
  */
-export const completeProductJsonLd = (jsonLd: string) => {
+export const completeProductJsonLd = (jsonLd: string, freeFrom: number | null = FREE_SHIPPING_DE_DEFAULT) => {
   if (!PRODUCT_JSON_LD_RE.test(jsonLd)) {
     return jsonLd;
   }
@@ -179,7 +205,7 @@ export const completeProductJsonLd = (jsonLd: string) => {
     product.weight.unitCode = GRAM_UNIT_CODE;
   }
   for (const offer of [product.offers].flat()) {
-    const rate = getShippingRateDE(weightG, Number(offer.price));
+    const rate = getShippingRateDE(weightG, Number(offer.price), freeFrom);
     if (rate !== undefined) {
       offer.shippingDetails = getOfferShippingDetailsJsonLd(rate);
     }

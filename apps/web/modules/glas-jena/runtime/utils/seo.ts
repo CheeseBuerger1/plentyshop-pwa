@@ -171,15 +171,20 @@ export const getBreadcrumbListJsonLd = (entries: BreadcrumbListEntry[]): WithCon
  * The shop for search engines with its name and logo, its shipping and its returns (see merchantPolicies.ts). The
  * shop's own Organization JSON-LD has neither name nor a working logo (`/_nuxt-plenty/images/logo.png` is a 404 in
  * this shop, found 2026-10-25). A relative logo address gets the home page in front; without a logo the field is left
- * out.
+ * out. Free shipping within Germany from `freeShippingFrom` (editor setting, see merchantPolicies.ts).
  */
-export const getOrganizationJsonLd = ({ name, url, logo }: OrganizationEntry): WithContext<SchemaOrganization> => ({
+export const getOrganizationJsonLd = ({
+  name,
+  url,
+  logo,
+  freeShippingFrom,
+}: OrganizationEntry): WithContext<SchemaOrganization> => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name,
   url,
   ...(logo ? { logo: logo.startsWith('/') ? `${url.replace(/\/$/, '')}${logo}` : logo } : {}),
-  hasShippingService: getShippingServiceJsonLd(),
+  hasShippingService: getShippingServiceJsonLd(freeShippingFrom),
   hasMerchantReturnPolicy: getMerchantReturnPolicyJsonLd(),
 });
 
@@ -204,9 +209,10 @@ const isOgUrl = (tag: SeoHeadTag) =>
  * - canonical, hreflang, prev/next and og:url without tracking or filter parameters (see `toCanonicalUrl`); the shop
  *   takes over the whole query string on categories and static pages
  * - the shop's breadcrumbs for search engines are removed when the module's own ones are there
- * - the offer of the shop's Product JSON-LD gets shipping and returns (see `completeProductJsonLd`)
+ * - the offer of the shop's Product JSON-LD gets shipping and returns (see `completeProductJsonLd`), free from
+ *   `freeShippingFrom` (editor setting)
  */
-export const correctSeoTags = (tags: SeoHeadTag[]) => {
+export const correctSeoTags = (tags: SeoHeadTag[], freeShippingFrom?: number | null) => {
   const hasOwnBreadcrumbs = tags.some((tag) => isJsonLd(tag) && tag.key === GLAS_JENA_BREADCRUMBS_KEY);
 
   for (let index = tags.length - 1; index >= 0; index--) {
@@ -221,7 +227,7 @@ export const correctSeoTags = (tags: SeoHeadTag[]) => {
     } else if (isOgUrl(tag)) {
       tag.props.content = toCanonicalUrl(tag.props.content as string);
     } else if (isJsonLd(tag) && tag.innerHTML) {
-      tags.splice(index, 1, { ...tag, innerHTML: completeProductJsonLd(tag.innerHTML) });
+      tags.splice(index, 1, { ...tag, innerHTML: completeProductJsonLd(tag.innerHTML, freeShippingFrom) });
     }
   }
 };

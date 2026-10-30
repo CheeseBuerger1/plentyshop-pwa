@@ -137,4 +137,14 @@ describe('upstream contract of the glas-jena module: cart page', () => {
     expect(cartTypes).toContain('customerShippingAddressId: number | null;');
     expect(cartTypes).toContain('customerInvoiceAddressId?: number | null;');
   });
+  it('should find the settings loader of the editor that shows the module setting "Free shipping from"', () => {
+    /* GlasJenaFreeShippingFrom.vue lies in modules/glas-jena/runtime/components/settings/checkout/other-settings/ */
+    expect(readApp('utils/settings-groups-imports/index.ts')).toContain(
+      "import.meta.glob('~~/modules/*/runtime/components/settings/**/*.vue'",
+    );
+    expect(readApp('components/settings/checkout/other-settings/View.vue')).toContain('SiteConfigurationView');
+    expect(readApp('composables/useSiteSettings/createSiteSettingsLogic.ts')).toContain(
+      'await sdk.plentysystems.setConfiguration({ settings });',
+    );
+  });
 });

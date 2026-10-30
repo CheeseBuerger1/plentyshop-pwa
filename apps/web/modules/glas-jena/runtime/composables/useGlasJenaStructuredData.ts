@@ -1,5 +1,6 @@
 import { useStructuredData as useShopStructuredData } from '~/composables/useStructuredData/useStructuredData';
 import { openGraph } from '~/configuration/app.config';
+import { useGlasJenaFreeShippingFrom } from './useGlasJenaFreeShippingFrom';
 import {
   GLAS_JENA_ORGANIZATION_KEY,
   ITEM_CONDITION_SETTINGS,
@@ -34,6 +35,7 @@ export const useStructuredData: typeof useShopStructuredData = () => {
     const runtimeConfig = useRuntimeConfig().public;
     const { getSetting: getOgTitle } = useSiteSettings('ogTitle');
     const { getSetting: getHeaderLogo } = useSiteSettings('headerLogo');
+    const freeShippingFrom = useGlasJenaFreeShippingFrom();
     /* The same name as the suffix of the page titles, see usePageTitle */
     const name = getOgTitle() || runtimeConfig.ogTitle || openGraph.title;
 
@@ -43,7 +45,12 @@ export const useStructuredData: typeof useShopStructuredData = () => {
           key: GLAS_JENA_ORGANIZATION_KEY,
           type: JSON_LD_TYPE,
           innerHTML: safeSerializeJsonLd(
-            getOrganizationJsonLd({ name, url: runtimeConfig.domain, logo: getHeaderLogo() || undefined }),
+            getOrganizationJsonLd({
+              name,
+              url: runtimeConfig.domain,
+              logo: getHeaderLogo() || undefined,
+              freeShippingFrom: freeShippingFrom.value,
+            }),
           ),
         },
       ],

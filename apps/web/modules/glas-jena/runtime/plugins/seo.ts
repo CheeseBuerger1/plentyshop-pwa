@@ -1,5 +1,6 @@
 import { getProductOpenGraph, correctSeoTags } from '../utils/seo';
 import type { SeoHeadTag } from '../utils/types';
+import { useGlasJenaFreeShippingFrom } from '../composables/useGlasJenaFreeShippingFrom';
 
 /** Key of the head plugin that corrects the resolved tags (unhead loads a plugin of the same key only once) */
 const SEO_HEAD_PLUGIN_KEY = 'glas-jena-seo';
@@ -14,6 +15,8 @@ const SEO_HEAD_PLUGIN_KEY = 'glas-jena-seo';
  */
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute();
+  /* Free shipping within Germany in the offers of the Product JSON-LD (editor setting) */
+  const freeShippingFrom = useGlasJenaFreeShippingFrom();
   const { currentProduct } = useProducts();
   /* The current item stays in the state after leaving its page, so only product pages count */
   const openGraph = computed(() => {
@@ -56,6 +59,6 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   injectHead(nuxtApp).use({
     key: SEO_HEAD_PLUGIN_KEY,
-    hooks: { 'tags:resolve': ({ tags }: { tags: SeoHeadTag[] }) => correctSeoTags(tags) },
+    hooks: { 'tags:resolve': ({ tags }: { tags: SeoHeadTag[] }) => correctSeoTags(tags, freeShippingFrom.value) },
   });
 });
