@@ -133,6 +133,17 @@ describe('seo', () => {
     expect(withoutOwn).toEqual([shop, productJsonLd]);
   });
 
+  it("should replace the shop's Product JSON-LD with the completed one", () => {
+    const productJsonLd = breadcrumbScript('{"@type":"Product","offers":{"@type":"Offer","price":20}}');
+    const tags = [productJsonLd];
+
+    correctSeoTags(tags);
+
+    expect(tags[0]).not.toBe(productJsonLd);
+    expect(tags[0]).toMatchObject({ tag: 'script', props: { type: 'application/ld+json' } });
+    expect(JSON.parse(tags[0]?.innerHTML ?? '').offers).toHaveProperty('hasMerchantReturnPolicy');
+  });
+
   it('should describe the shop with its name, home page, logo, shipping and returns', () => {
     expect(
       getOrganizationJsonLd({
