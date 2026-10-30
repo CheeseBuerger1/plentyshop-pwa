@@ -1,11 +1,13 @@
 import type { ShippingConditions } from 'schema-dts';
 import { safeSerializeJsonLd } from '~/utils/jsonLdHelper';
 import {
+  FREE_SHIPPING_DE_DEFAULT,
   RETURN_COUNTRIES,
   getMerchantReturnPolicyJsonLd,
   getShippingRateDE,
   getShippingServiceJsonLd,
   completeProductJsonLd,
+  toFreeShippingFrom,
 } from '../merchantPolicies';
 
 type Range = { minValue?: number; maxValue?: number };
@@ -14,8 +16,8 @@ const inRange = (range: Range | undefined, value: number) =>
   !range || ((range.minValue ?? -Infinity) <= value && value <= (range.maxValue ?? Infinity));
 
 /** The rate Google takes for one parcel: the lowest of all conditions that apply, undefined without any */
-const rateFor = (country: string, kg: number, orderValue: number) => {
-  const conditions = getShippingServiceJsonLd().shippingConditions as Exclude<ShippingConditions, string>[];
+const rateFor = (country: string, kg: number, orderValue: number, freeFrom?: number | null) => {
+  const conditions = getShippingServiceJsonLd(freeFrom).shippingConditions as Exclude<ShippingConditions, string>[];
   const rates = conditions
     .filter((condition) => (condition.shippingDestination as { addressCountry: string }).addressCountry === country)
     .filter((condition) => inRange(condition.weight as Range, kg) && inRange(condition.orderValue as Range, orderValue))
@@ -119,5 +121,26 @@ describe('merchantPolicies', () => {
     expect(completeProductJsonLd(organization)).toBe(organization);
     const noOffer = '{"@type":"Product"}';
     expect(completeProductJsonLd(noOffer)).toBe(noOffer);
+  });
+  it('should take the limit of free shipping from the editor setting, 150 € while it is empty', () => {
+    expect(toFreeShippingFrom('')).toBe(FREE_SHIPPING_DE_DEFAULT);
+    expect(toFreeShippingFrom(undefined)).toBe(150);
+    expect(toFreeShippingFrom('abc')).toBe(150);
+    expect(toFreeShippingFrom('200')).toBe(200);
+    expect(toFreeShippingFrom(99.5)).toBe(99.5);
+    expect(toFreeShippingFrom('0')).toBeNull();
+    expect(toFreeShippingFrom('-5')).toBeNull();
+  });
+
+  it('should ship free from another limit, or never without one', () => {
+    expect(rateFor('DE', 2, 150, 200)).toBe(8.5);
+    expect(rateFor('DE', 2, 200, 200)).toBe(0);
+    expect(rateFor('DE', 2, 500, null)).toBe(8.5);
+    expect(getShippingRateDE(1100, 150, 200)).toBe(8.5);
+    expect(getShippingRateDE(1100, 500, null)).toBe(8.5);
+
+    const offerJsonLd = JSON.stringify({ '@type': 'Product', offers: { price: 160 }, weight: { value: 1100 } });
+    expect(JSON.parse(completeProductJsonLd(offerJsonLd, 200)).offers.shippingDetails.shippingRate.value).toBe(8.5);
+    expect(JSON.parse(completeProductJsonLd(offerJsonLd)).offers.shippingDetails.shippingRate.value).toBe(0);
   });
 });

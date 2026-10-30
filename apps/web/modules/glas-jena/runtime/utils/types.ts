@@ -95,7 +95,7 @@ export type ProductJsonLd = {
 export type OfferJsonLd = { price?: number; [property: string]: unknown };
 
 /** The shop for search engines: its name, home page and logo (absolute or relative to the home page). */
-export type OrganizationEntry = { name: string; url: string; logo?: string };
+export type OrganizationEntry = { name: string; url: string; logo?: string; freeShippingFrom?: number | null };
 
 /** The parts of a head tag (unhead `HeadTag`) that seo.ts reads and changes. */
 export type SeoHeadTag = {

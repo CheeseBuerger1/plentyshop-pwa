@@ -6,6 +6,7 @@
     delivery and, if there is more than one, the shipping method (GlasJenaCartShipping.vue, 2026-10-19). The order
     summary is in the column that stays in view on wide screens, so the country is never far away with many articles
   - no "Zurück" button of the checkout layout above the cart (glas-jena.css, the banner shows the page title)
+  - below the country, the way to free shipping within Germany (GlasJenaFreeShippingHint.vue, 2026-10-30)
   - the empty cart has a button "Weiter einkaufen" to the home page; without it, the page was a dead end (the original
     shows only "Ihr Warenkorb ist leer"; wish of the shop owner, 2026-10-24)
   Everything else is the original; upstreamContractCart.spec.ts shows when the original changes.
@@ -40,6 +41,8 @@
           <OrderSummary :cart="cart">
             <!-- Country and shipping method below the totals, where the coupon field was (the shop has no coupons) -->
             <GlasJenaCartShipping class="mb-5" />
+            <!-- Way to free shipping (Germany): 12 px below the country, 28 px above the button -->
+            <GlasJenaFreeShippingHint class="-mt-2 mb-7" />
             <UiButton
               data-testid="checkout-button"
               :tag="NuxtLink"
@@ -82,6 +85,7 @@ import { SfLoaderCircular } from '@storefront-ui/vue';
 import { cartGetters } from '@plentymarkets/shop-api';
 import type { Locale } from '#i18n';
 import GlasJenaCartShipping from '../components/GlasJenaCartShipping.vue';
+import GlasJenaFreeShippingHint from '../components/GlasJenaFreeShippingHint.vue';
 import { useGlasJenaCartShipping } from '../composables/useGlasJenaCartShipping';
 
 defineI18nRoute({
