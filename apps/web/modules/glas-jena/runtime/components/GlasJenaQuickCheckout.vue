@@ -6,6 +6,7 @@
   - no short description of the article; the VAT/shipping note sits directly under the price, followed by the cart
     summary ("Ihr Warenkorb enthält … Artikel", subtotal), which moves here from the top of the right column, so that
     column starts with the buttons
+  - below the subtotal, the way to free shipping within Germany (GlasJenaFreeShippingHint.vue)
   - spacing of the right column: narrow view (columns stacked) less space between the summary and the buttons; wide
     view the buttons start where "Warenkorb prüfen" used to be (112 px from the top)
   - "Anzahl" in the size and colour of the summary; the window is a named dialog and handles the focus (see script)
@@ -101,6 +102,7 @@
             </p>
             <p v-else data-testid="subtotal" class="text-base text-right">{{ format(totals.subTotal) }}</p>
           </div>
+          <GlasJenaFreeShippingHint class="mt-2" />
         </div>
 
         <VariationProperties :product="lastUpdatedProduct" />
@@ -158,6 +160,7 @@ import type { Product } from '@plentymarkets/shop-api';
 import { cartGetters, productGetters, productImageGetters } from '@plentymarkets/shop-api';
 import ProductPrice from '~/components/ProductPrice/ProductPrice.vue';
 import { getLastInteractiveElement } from '../utils/lastInteractiveElement';
+import GlasJenaFreeShippingHint from './GlasJenaFreeShippingHint.vue';
 const props = defineProps<QuickCheckoutProps>();
 
 const { format } = usePriceFormatter();
