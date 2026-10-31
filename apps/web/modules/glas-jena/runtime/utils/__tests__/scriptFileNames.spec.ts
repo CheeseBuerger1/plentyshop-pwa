@@ -19,7 +19,7 @@ describe('scriptFileNames', () => {
   });
 
   it('should give the service worker the build mark, a new name for every build', () => {
-    expect(getServiceWorkerFileName('3f2a9c1b-77d4-4e1a-9b0c-5d6e7f8a9b0c')).toBe('sw-3f2a9c1b.js');
+    expect(getServiceWorkerFileName('3f2a9c1b-77d4-4e1a-9b0c-5d6e7f8a9b0c')).toBe('sw-3f2a9c1b.mjs');
     expect(getServiceWorkerFileName('9e8d7c6b-1111')).not.toBe(getServiceWorkerFileName('3f2a9c1b-0000'));
   });
 });

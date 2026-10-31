@@ -92,4 +92,11 @@ describe('upstream contract of the glas-jena module: service worker', () => {
     /* The worker and its registration take `filename` from the options (vite-plugin-pwa) */
     expect(readPackage('vite-plugin-pwa/dist/index.js')).toContain('const sw = options.buildBase + options.filename;');
   });
+
+  it("should find the shop's server serving the public files with the type of their extension (worker `.mjs`)", () => {
+    /* The hosting passes `sw-<mark>.mjs` to Nitro, which serves it from the public folder as JavaScript */
+    const nitroRollup = readPackage('nitropack/dist/rollup/index.mjs');
+    expect(nitroRollup).toContain('"#nitro-internal-virtual/public-assets-data": async () => {');
+    expect(nitroRollup).toContain('let mimeType = mime.getType(id.replace(/\\.(gz|br)$/, "")) || "text/plain";');
+  });
 });

@@ -23,9 +23,14 @@ export const getScriptFileNames = (buildAssetsDir: string, buildId: string) =>
   `${buildAssetsDir.replace(/^\/+/, '').replace(/\/*$/, '/')}[hash]-${getBuildMark(buildId)}.js`;
 
 /**
- * Name of the service worker with the build mark (`sw-<mark>.js` instead of `sw.js`). The CDN keeps `/sw.js` for a year
- * like the scripts: after the deployment of a smaller precache the shop pages had the new build for hours, but
+ * Name of the service worker with the build mark (`sw-<mark>.mjs` instead of `sw.js`). The CDN keeps `/sw.js` for a
+ * year like the scripts: after the deployment of a smaller precache the shop pages had the new build for hours, but
  * CloudFront still served the old `sw.js` (2026-10-31), so the browsers never saw a new worker. With a new name per
  * build the pages register the new worker, the browser replaces the old one (same scope).
+ *
+ * `.mjs`, not `.js`: the hosting answers `.js` files in the root folder only from the files PlentyONE uploads with a
+ * deployment, and it left out `sw-<mark>.js` (nginx 404, 2026-10-31). Paths ending in `.mjs` reach the shop's server,
+ * which serves the worker from its public folder as JavaScript. The extension does not matter to the browser (a
+ * classic worker, as before).
  */
-export const getServiceWorkerFileName = (buildId: string) => `sw-${getBuildMark(buildId)}.js`;
+export const getServiceWorkerFileName = (buildId: string) => `sw-${getBuildMark(buildId)}.mjs`;
