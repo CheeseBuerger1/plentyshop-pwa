@@ -7,13 +7,13 @@ import {
   createResolver,
   defineNuxtModule,
 } from 'nuxt/kit';
-import type { NuxtPage } from 'nuxt/schema';
+import type { ModuleDependencies, Nuxt, NuxtPage } from 'nuxt/schema';
 import { getGtmHeadScript } from './runtime/utils/googleTagManager';
 import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './runtime/utils/navigation';
 import { ACCOUNT_MENU_BREAKPOINT, ACCOUNT_MENU_MIN_WIDTH } from './runtime/utils/accountMenu';
 import { SHIPPING_COUNTRY_ROUTE } from './runtime/utils/cartShipping';
 import { SITEMAP_EXCLUDED_PAGE_PATHS } from './runtime/utils/noindexPages';
-import { getScriptFileNames } from './runtime/utils/scriptFileNames';
+import { getScriptFileNames, getServiceWorkerFileName } from './runtime/utils/scriptFileNames';
 import { PRECACHE_GLOB_PATTERNS, SCRIPT_RUNTIME_CACHING } from './runtime/utils/servicePrecache';
 
 /** Original components (Nuxt name) replaced by the module's own ones. */
@@ -204,6 +204,16 @@ export default defineNuxtModule({
   meta: {
     name: 'glas-jena',
   },
+  /*
+   * The service worker with the build mark in its name like the scripts (CDN, see utils/scriptFileNames.ts): set as an
+   * option of @vite-pwa/nuxt before that module starts, so the worker and its registration in the pages both use it.
+   * Only for builds; the dev server keeps `sw.js`.
+   */
+  moduleDependencies: (nuxt: Nuxt): ModuleDependencies => ({
+    '@vite-pwa/nuxt': nuxt.options.dev
+      ? {}
+      : { overrides: { filename: getServiceWorkerFileName(nuxt.options.buildId) } },
+  }),
   setup(_options, nuxt) {
     const { resolve } = createResolver(import.meta.url);
 
