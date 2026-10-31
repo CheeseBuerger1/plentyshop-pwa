@@ -21,3 +21,11 @@ export const getBuildMark = (buildId: string) =>
  */
 export const getScriptFileNames = (buildAssetsDir: string, buildId: string) =>
   `${buildAssetsDir.replace(/^\/+/, '').replace(/\/*$/, '/')}[hash]-${getBuildMark(buildId)}.js`;
+
+/**
+ * Name of the service worker with the build mark (`sw-<mark>.js` instead of `sw.js`). The CDN keeps `/sw.js` for a year
+ * like the scripts: after the deployment of a smaller precache the shop pages had the new build for hours, but
+ * CloudFront still served the old `sw.js` (2026-10-31), so the browsers never saw a new worker. With a new name per
+ * build the pages register the new worker, the browser replaces the old one (same scope).
+ */
+export const getServiceWorkerFileName = (buildId: string) => `sw-${getBuildMark(buildId)}.js`;

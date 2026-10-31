@@ -81,4 +81,15 @@ describe('upstream contract of the glas-jena module: service worker', () => {
       expect(PRECACHE_WITHOUT_REVISION.test(url)).toBe(false);
     }
   });
+
+  it('should find the option dependencies of Nuxt modules that set the name of the service worker', () => {
+    /* index.ts: `moduleDependencies` overrides `filename` of @vite-pwa/nuxt (config key `pwa`) before it starts */
+    expect(readPackage('nuxt/node_modules/@nuxt/kit/dist/index.mjs')).toContain('getModuleDependencies');
+    expect(JSON.parse(readPackage('@vite-pwa/nuxt/dist/module.json'))).toMatchObject({
+      name: '@vite-pwa/nuxt',
+      configKey: 'pwa',
+    });
+    /* The worker and its registration take `filename` from the options (vite-plugin-pwa) */
+    expect(readPackage('vite-plugin-pwa/dist/index.js')).toContain('const sw = options.buildBase + options.filename;');
+  });
 });
