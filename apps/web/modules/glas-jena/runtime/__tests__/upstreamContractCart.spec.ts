@@ -147,4 +147,24 @@ describe('upstream contract of the glas-jena module: cart page', () => {
       'await sdk.plentysystems.setConfiguration({ settings });',
     );
   });
+  it('should find the original article line of the cart unchanged except for the quantity check of the copy', () => {
+    /*
+     * GlasJenaCartProductCard.vue is a copy: without its header comment, with the original comparison and import, it
+     * has to be the original. If this fails, the original changed: take the change over into the copy (or drop the
+     * copy if the original compares with the article's quantity now).
+     */
+    const original = readApp('components/ui/CartProductCard/CartProductCard.vue').replace(/\r\n/g, '\n');
+    const copy = readModule('components/GlasJenaCartProductCard.vue')
+      .replace(/\r\n/g, '\n')
+      .replace(/^<!--[\s\S]*?-->\n/, '')
+      .replace(
+        '  /* The quantity of this article (the original compared with `cartData.itemQuantity`, see above) */\n',
+        '',
+      )
+      .replace('quantityCast === cartGetters.getItemQty(cartItem)', 'quantityCast === cartData.value.itemQuantity')
+      .replace("from '~/utils/debounce'", "from '../../../utils/debounce'");
+
+    expect(original).toContain('quantityCast === cartData.value.itemQuantity) return;');
+    expect(copy).toBe(original);
+  });
 });

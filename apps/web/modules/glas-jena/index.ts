@@ -60,6 +60,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   CategoryTree: './runtime/components/GlasJenaCategoryTree.vue',
   /* Item cards: disabled add-to-cart button for items that cannot be ordered ("Aktuell nicht lieferbar") */
   UiProductCard: './runtime/components/GlasJenaProductCard.vue',
+  /* Cart: a new quantity compared with the article, not with the number of all articles (1 → 2 with two articles) */
+  UiCartProductCard: './runtime/components/GlasJenaCartProductCard.vue',
   /* Product gallery: clear arrows on the big picture instead of the hardly visible ones on the thumbnail strip */
   Gallery: './runtime/components/GlasJenaGallery.vue',
   /* Breadcrumbs: unchanged on the page, for search engines with their real names and absolute addresses */
