@@ -34,3 +34,9 @@ export const getScriptFileNames = (buildAssetsDir: string, buildId: string) =>
  * classic worker, as before).
  */
 export const getServiceWorkerFileName = (buildId: string) => `sw-${getBuildMark(buildId)}.mjs`;
+
+/**
+ * Name of the file Workbox writes for the service worker: always `<name>.js` whatever the extension of its name (its
+ * bundler's `[name].js`), so `sw-<mark>.mjs` comes out as `sw-<mark>.js`. The module renames it, see index.ts.
+ */
+export const getWrittenServiceWorkerFileName = (fileName: string) => fileName.replace(/\.mjs$/, '.js');

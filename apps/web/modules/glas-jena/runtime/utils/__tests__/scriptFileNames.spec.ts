@@ -1,4 +1,10 @@
-import { BUILD_MARK_LENGTH, getBuildMark, getScriptFileNames, getServiceWorkerFileName } from '../scriptFileNames';
+import {
+  BUILD_MARK_LENGTH,
+  getBuildMark,
+  getScriptFileNames,
+  getServiceWorkerFileName,
+  getWrittenServiceWorkerFileName,
+} from '../scriptFileNames';
 
 describe('scriptFileNames', () => {
   it('should mark a build with the first characters of its id, letters and digits only', () => {
@@ -21,5 +27,10 @@ describe('scriptFileNames', () => {
   it('should give the service worker the build mark, a new name for every build', () => {
     expect(getServiceWorkerFileName('3f2a9c1b-77d4-4e1a-9b0c-5d6e7f8a9b0c')).toBe('sw-3f2a9c1b.mjs');
     expect(getServiceWorkerFileName('9e8d7c6b-1111')).not.toBe(getServiceWorkerFileName('3f2a9c1b-0000'));
+  });
+
+  it('should know that Workbox writes the worker `.mjs` as `.js`', () => {
+    expect(getWrittenServiceWorkerFileName('sw-3f2a9c1b.mjs')).toBe('sw-3f2a9c1b.js');
+    expect(getWrittenServiceWorkerFileName('sw.js')).toBe('sw.js');
   });
 });

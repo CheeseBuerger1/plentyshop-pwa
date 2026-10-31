@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs';
+import { rename } from 'node:fs/promises';
+import { join } from 'node:path';
 import {
   addPlugin,
   addRouteMiddleware,
@@ -13,7 +16,11 @@ import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './r
 import { ACCOUNT_MENU_BREAKPOINT, ACCOUNT_MENU_MIN_WIDTH } from './runtime/utils/accountMenu';
 import { SHIPPING_COUNTRY_ROUTE } from './runtime/utils/cartShipping';
 import { SITEMAP_EXCLUDED_PAGE_PATHS } from './runtime/utils/noindexPages';
-import { getScriptFileNames, getServiceWorkerFileName } from './runtime/utils/scriptFileNames';
+import {
+  getScriptFileNames,
+  getServiceWorkerFileName,
+  getWrittenServiceWorkerFileName,
+} from './runtime/utils/scriptFileNames';
 import { PRECACHE_GLOB_PATTERNS, SCRIPT_RUNTIME_CACHING } from './runtime/utils/servicePrecache';
 
 /** Original components (Nuxt name) replaced by the module's own ones. */
@@ -406,6 +413,26 @@ export default defineNuxtModule({
       options.workbox.globPatterns = PRECACHE_GLOB_PATTERNS;
       options.workbox.runtimeCaching = [SCRIPT_RUNTIME_CACHING, ...(options.workbox.runtimeCaching ?? [])];
     });
+
+    /*
+     * The service worker `sw-<mark>.mjs` (see utils/scriptFileNames.ts) comes out of Workbox as `sw-<mark>.js`: renamed
+     * after @vite-pwa/nuxt has written it (its hook is registered before `modules:done`) and before Nitro lists the
+     * public files for the server, so the server serves it under the name the pages register.
+     */
+    if (!nuxt.options.dev) {
+      const serviceWorkerFileName = getServiceWorkerFileName(nuxt.options.buildId);
+      nuxt.hook('modules:done', () => {
+        nuxt.hook('nitro:build:public-assets', async (nitro) => {
+          const publicDir = nitro.options.output.publicDir;
+          const written = join(publicDir, getWrittenServiceWorkerFileName(serviceWorkerFileName));
+          if (!existsSync(written)) {
+            console.warn(`[glas-jena] Service worker ${written} not found; the pages register a missing file.`);
+            return;
+          }
+          await rename(written, join(publicDir, serviceWorkerFileName));
+        });
+      });
+    }
 
     /*
      * CDN: new names for the browser's script files with every build, see utils/scriptFileNames.ts. Nuxt's own plugin
