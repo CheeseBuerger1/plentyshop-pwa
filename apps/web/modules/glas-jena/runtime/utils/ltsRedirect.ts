@@ -1,4 +1,8 @@
+import { paths } from '~/utils/paths';
 import type { LtsMovedPage, LtsRedirect } from './types';
+
+/** Permanent redirect: search engines replace the old LTS address with the new one. */
+export const LTS_REDIRECT_STATUS = 301;
 
 /**
  * Old addresses of the LTS shop (www.glas-jena.de) without language prefix and trailing slash, and the key of the
