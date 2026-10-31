@@ -14,6 +14,7 @@ import { ACCOUNT_MENU_BREAKPOINT, ACCOUNT_MENU_MIN_WIDTH } from './runtime/utils
 import { SHIPPING_COUNTRY_ROUTE } from './runtime/utils/cartShipping';
 import { SITEMAP_EXCLUDED_PAGE_PATHS } from './runtime/utils/noindexPages';
 import { getScriptFileNames } from './runtime/utils/scriptFileNames';
+import { PRECACHE_GLOB_PATTERNS, SCRIPT_RUNTIME_CACHING } from './runtime/utils/servicePrecache';
 
 /** Original components (Nuxt name) replaced by the module's own ones. */
 export const COMPONENT_OVERRIDES: Record<string, string> = {
@@ -388,6 +389,10 @@ export default defineNuxtModule({
      */
     nuxt.hook('pwa:beforeBuildServiceWorker', (options) => {
       options.workbox.dontCacheBustURLsMatching = PRECACHE_WITHOUT_REVISION;
+      /* Styles, fonts and icons at installation (1.3 instead of 20 MB), scripts once they are used, see
+         utils/servicePrecache.ts */
+      options.workbox.globPatterns = PRECACHE_GLOB_PATTERNS;
+      options.workbox.runtimeCaching = [SCRIPT_RUNTIME_CACHING, ...(options.workbox.runtimeCaching ?? [])];
     });
 
     /*

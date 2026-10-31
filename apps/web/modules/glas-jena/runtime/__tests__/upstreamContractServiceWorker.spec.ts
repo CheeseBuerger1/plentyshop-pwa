@@ -1,24 +1,55 @@
 /**
  * Upstream contract of the service worker: the module gives every precached file a revision (hook
  * `pwa:beforeBuildServiceWorker` in index.ts, PRECACHE_WITHOUT_REVISION), and the script files get new names with every
- * build for the CDN (utils/scriptFileNames.ts).
+ * build for the CDN (utils/scriptFileNames.ts). The precache holds only styles, fonts and icons, scripts are stored
+ * once used (utils/servicePrecache.ts).
  *
  * Part of the upstream contract of the glas-jena module, see upstreamContract.spec.ts; in its own file because that
  * one has reached the maximum length of a file (ESLint `max-lines`).
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { minimatch } from 'minimatch';
 import { PRECACHE_WITHOUT_REVISION } from '../../index';
+import { PRECACHE_GLOB_PATTERNS, SCRIPT_URL_PATTERN } from '../utils/servicePrecache';
 
 /* Vitest runs in apps/web (the Nuxt test environment gives no file URL for this module) */
 const readWeb = (path: string) => readFileSync(join(process.cwd(), path), 'utf8');
 const readPackage = (path: string) => readFileSync(join(process.cwd(), '../../node_modules', path), 'utf8');
 
 describe('upstream contract of the glas-jena module: service worker', () => {
-  it('should find the precache of the scripts and styles that the module gives revisions', () => {
+  it('should find the precache of the scripts and styles that the module gives revisions and makes smaller', () => {
     const config = readWeb('nuxt.config.ts');
     expect(config).toContain("registerType: 'prompt',");
     expect(config).toMatch(/globPatterns: \['\*\*\/\*\.\{js,json,css,/);
+    /* The module puts its script cache in front of the shop's runtime caching (navigation, images) */
+    expect(config).toContain('runtimeCaching: [');
+    expect(config).toContain("fallbackURL: '/offline',");
+  });
+
+  it('should precache styles, fonts and icons but no scripts and no warranty notices (20 MB before)', () => {
+    const precached = (file: string) => PRECACHE_GLOB_PATTERNS.some((pattern) => minimatch(file, pattern));
+
+    for (const file of [
+      '_nuxt/entry.BmUTSLgr.css',
+      '_nuxt-plenty/fonts/x.woff2',
+      '_nuxt-plenty/icons/icon-192x192.png',
+    ]) {
+      expect(precached(file)).toBe(true);
+    }
+    for (const file of [
+      '_nuxt/7SPr6-en-8f57d717.js',
+      '_nuxt/guarantee_notice_DE.C5KX7FAS.svg',
+      '_nuxt/builds/x.json',
+    ]) {
+      expect(precached(file)).toBe(false);
+    }
+  });
+
+  it('should store the scripts of the build once used, but not the styles', () => {
+    expect(SCRIPT_URL_PATTERN.test('https://www.glas-jena.de/_nuxt/7SPr6-en-8f57d717.js')).toBe(true);
+    expect(SCRIPT_URL_PATTERN.test('https://www.glas-jena.de/_nuxt/entry.BmUTSLgr.css')).toBe(false);
+    expect(SCRIPT_URL_PATTERN.test('https://www.glas-jena.de/sw.js')).toBe(false);
   });
 
   it('should find the default of vite-plugin-pwa that stores the files of the assets folder without revision', () => {
