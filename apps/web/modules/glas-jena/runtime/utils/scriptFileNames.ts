@@ -40,3 +40,19 @@ export const getServiceWorkerFileName = (buildId: string) => `sw-${getBuildMark(
  * bundler's `[name].js`), so `sw-<mark>.mjs` comes out as `sw-<mark>.js`. The module renames it, see index.ts.
  */
 export const getWrittenServiceWorkerFileName = (fileName: string) => fileName.replace(/\.mjs$/, '.js');
+
+/**
+ * Address the pages register the service worker under: its name with a slash at the end. The hosting passes only such
+ * paths unchanged to the shop's server, which serves a public file also with the slash (2026-10-31: `/sw-<mark>.mjs`
+ * gave the shop's 404 page, `/sw-<mark>.mjs/` the worker). The worker is then in the folder `/sw-<mark>.mjs/`, so it
+ * needs the header `Service-Worker-Allowed: /` for the whole shop, its Workbox runtime inline and precache addresses
+ * from the root (see index.ts and servicePrecache.ts).
+ */
+export const getServiceWorkerUrl = (fileName: string) => `/${fileName}/`;
+
+/**
+ * The registration code of vite-plugin-pwa with the worker's address of `getServiceWorkerUrl`: it registers
+ * `"<base><filename>"` (`new Workbox("/sw-<mark>.mjs", …)`), with no option for another address.
+ */
+export const replaceServiceWorkerUrl = (code: string, fileName: string) =>
+  code.replaceAll(`"/${fileName}"`, `"${getServiceWorkerUrl(fileName)}"`);

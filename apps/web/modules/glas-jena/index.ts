@@ -1,6 +1,3 @@
-import { existsSync } from 'node:fs';
-import { rename } from 'node:fs/promises';
-import { join } from 'node:path';
 import {
   addPlugin,
   addRouteMiddleware,
@@ -16,12 +13,14 @@ import { DESKTOP_NAVIGATION_BREAKPOINT, DESKTOP_NAVIGATION_MIN_WIDTH } from './r
 import { ACCOUNT_MENU_BREAKPOINT, ACCOUNT_MENU_MIN_WIDTH } from './runtime/utils/accountMenu';
 import { SHIPPING_COUNTRY_ROUTE } from './runtime/utils/cartShipping';
 import { SITEMAP_EXCLUDED_PAGE_PATHS } from './runtime/utils/noindexPages';
+import { getScriptFileNames, getServiceWorkerFileName } from './runtime/utils/scriptFileNames';
 import {
-  getScriptFileNames,
-  getServiceWorkerFileName,
-  getWrittenServiceWorkerFileName,
-} from './runtime/utils/scriptFileNames';
-import { PRECACHE_GLOB_PATTERNS, SCRIPT_RUNTIME_CACHING } from './runtime/utils/servicePrecache';
+  PRECACHE_GLOB_PATTERNS,
+  SCRIPT_RUNTIME_CACHING,
+  toRootManifestEntries,
+  toRootPrecacheUrls,
+} from './runtime/utils/servicePrecache';
+import { setupServiceWorkerAddress } from './serviceWorkerAddress';
 
 /** Original components (Nuxt name) replaced by the module's own ones. */
 export const COMPONENT_OVERRIDES: Record<string, string> = {
@@ -412,26 +411,18 @@ export default defineNuxtModule({
          utils/servicePrecache.ts */
       options.workbox.globPatterns = PRECACHE_GLOB_PATTERNS;
       options.workbox.runtimeCaching = [SCRIPT_RUNTIME_CACHING, ...(options.workbox.runtimeCaching ?? [])];
+      /* The worker's address is a folder of its own (`/sw-<mark>.mjs/`, see utils/scriptFileNames.ts): the Workbox
+         runtime inside the worker instead of `./workbox-<hash>.js`, precache addresses from the root */
+      options.workbox.inlineWorkboxRuntime = true;
+      options.workbox.manifestTransforms = [...(options.workbox.manifestTransforms ?? []), toRootPrecacheUrls];
+      options.workbox.additionalManifestEntries = toRootManifestEntries(
+        options.workbox.additionalManifestEntries ?? [],
+      );
     });
 
-    /*
-     * The service worker `sw-<mark>.mjs` (see utils/scriptFileNames.ts) comes out of Workbox as `sw-<mark>.js`: renamed
-     * after @vite-pwa/nuxt has written it (its hook is registered before `modules:done`) and before Nitro lists the
-     * public files for the server, so the server serves it under the name the pages register.
-     */
+    /* The service worker under an address the hosting passes to the shop's server, see serviceWorkerAddress.ts */
     if (!nuxt.options.dev) {
-      const serviceWorkerFileName = getServiceWorkerFileName(nuxt.options.buildId);
-      nuxt.hook('modules:done', () => {
-        nuxt.hook('nitro:build:public-assets', async (nitro) => {
-          const publicDir = nitro.options.output.publicDir;
-          const written = join(publicDir, getWrittenServiceWorkerFileName(serviceWorkerFileName));
-          if (!existsSync(written)) {
-            console.warn(`[glas-jena] Service worker ${written} not found; the pages register a missing file.`);
-            return;
-          }
-          await rename(written, join(publicDir, serviceWorkerFileName));
-        });
-      });
+      setupServiceWorkerAddress(nuxt);
     }
 
     /*
