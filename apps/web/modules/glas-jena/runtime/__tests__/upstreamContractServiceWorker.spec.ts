@@ -93,6 +93,22 @@ describe('upstream contract of the glas-jena module: service worker', () => {
     expect(readPackage('vite-plugin-pwa/dist/index.js')).toContain('const sw = options.buildBase + options.filename;');
   });
 
+  it('should find the registration code and Workbox options the module uses for the worker address with a slash', () => {
+    /* replaceServiceWorkerUrl (utils/scriptFileNames.ts) changes the `"__SW__"` strings after they are filled in */
+    const register = readPackage('vite-plugin-pwa/dist/client/build/register.js');
+    expect(register).toContain('return new Workbox("__SW__", { scope: "__SCOPE__", type: "__TYPE__" });');
+    expect(register).toContain('onRegisteredSW("__SW__", r);');
+    expect(readPackage('vite-plugin-pwa/dist/index.js')).toContain('return content.replace(/__SW__/g, sw)');
+    /* Workbox: runtime inline (no `./workbox-<hash>.js` beside the worker), own manifest transforms after the others */
+    const workboxBundle = readPackage('workbox-build/build/lib/bundle.js');
+    expect(workboxBundle).toContain('if (!inlineWorkboxRuntime) {');
+    expect(readPackage('workbox-build/build/lib/transform-manifest.js')).toContain('manifestTransforms');
+    /* @vite-pwa/nuxt sets the route rule of the worker in `nitro:config`; the module adds its header afterwards */
+    expect(readPackage('@vite-pwa/nuxt/dist/shared/nuxt.9518178d.mjs')).toContain(
+      'nitroConfig.routeRules[`${nuxt.options.app.baseURL}${swName}`] = {',
+    );
+  });
+
   it("should find the shop's server serving the public files with the type of their extension (worker `.mjs`)", () => {
     /* The hosting passes `sw-<mark>.mjs` to Nitro, which serves it from the public folder as JavaScript */
     /* Workbox writes `<name>.js` (its bundler's default name), the module renames it in `nitro:build:public-assets`,

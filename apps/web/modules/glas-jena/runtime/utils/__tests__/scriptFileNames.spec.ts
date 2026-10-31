@@ -3,7 +3,9 @@ import {
   getBuildMark,
   getScriptFileNames,
   getServiceWorkerFileName,
+  getServiceWorkerUrl,
   getWrittenServiceWorkerFileName,
+  replaceServiceWorkerUrl,
 } from '../scriptFileNames';
 
 describe('scriptFileNames', () => {
@@ -32,5 +34,17 @@ describe('scriptFileNames', () => {
   it('should know that Workbox writes the worker `.mjs` as `.js`', () => {
     expect(getWrittenServiceWorkerFileName('sw-3f2a9c1b.mjs')).toBe('sw-3f2a9c1b.js');
     expect(getWrittenServiceWorkerFileName('sw.js')).toBe('sw.js');
+  });
+
+  it('should register the worker with a slash at the end, the path the hosting passes to the server', () => {
+    expect(getServiceWorkerUrl('sw-3f2a9c1b.mjs')).toBe('/sw-3f2a9c1b.mjs/');
+  });
+
+  it("should put that address into vite-plugin-pwa's registration code, nothing else", () => {
+    const code = 'const wb = new Workbox("/sw-3f2a9c1b.mjs", { scope: "/" }); onRegisteredSW("/sw-3f2a9c1b.mjs", r);';
+    expect(replaceServiceWorkerUrl(code, 'sw-3f2a9c1b.mjs')).toBe(
+      'const wb = new Workbox("/sw-3f2a9c1b.mjs/", { scope: "/" }); onRegisteredSW("/sw-3f2a9c1b.mjs/", r);',
+    );
+    expect(replaceServiceWorkerUrl('fetch("/sw-00000000.mjs")', 'sw-3f2a9c1b.mjs')).toBe('fetch("/sw-00000000.mjs")');
   });
 });
