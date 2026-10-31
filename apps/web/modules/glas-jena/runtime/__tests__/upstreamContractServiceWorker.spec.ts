@@ -92,4 +92,18 @@ describe('upstream contract of the glas-jena module: service worker', () => {
     /* The worker and its registration take `filename` from the options (vite-plugin-pwa) */
     expect(readPackage('vite-plugin-pwa/dist/index.js')).toContain('const sw = options.buildBase + options.filename;');
   });
+
+  it("should find the shop's server serving the public files with the type of their extension (worker `.mjs`)", () => {
+    /* The hosting passes `sw-<mark>.mjs` to Nitro, which serves it from the public folder as JavaScript */
+    /* Workbox writes `<name>.js` (its bundler's default name), the module renames it in `nitro:build:public-assets`,
+       which Nuxt calls before Nitro bundles the server with the list of public files */
+    expect(readPackage('workbox-build/build/lib/bundle.js')).toContain("format: inlineWorkboxRuntime ? 'es' : 'amd',");
+    expect(readPackage('workbox-build/build/lib/bundle.js')).not.toContain('entryFileNames');
+    expect(readPackage('nuxt/node_modules/@nuxt/nitro-server/dist/index.mjs')).toContain(
+      'nitro.hooks.hook("rollup:before", async (nitro) => {\n\t\tawait copyPublicAssets(nitro);\n\t\tawait nuxt.callHook("nitro:build:public-assets", nitro);',
+    );
+    const nitroRollup = readPackage('nitropack/dist/rollup/index.mjs');
+    expect(nitroRollup).toContain('"#nitro-internal-virtual/public-assets-data": async () => {');
+    expect(nitroRollup).toContain('let mimeType = mime.getType(id.replace(/\\.(gz|br)$/, "")) || "text/plain";');
+  });
 });
