@@ -1,7 +1,13 @@
 <template>
   <div ref="rootRef" class="gj-gallery" data-testid="gj-gallery" @click="onGalleryClick">
     <Gallery :images="images" :configuration="configuration" />
-    <div v-if="images.length" class="gj-gallery__nav" :style="navStyle">
+    <div
+      v-if="images.length"
+      v-show="isMeasured"
+      class="gj-gallery__nav"
+      :style="navStyle"
+      data-testid="gj-gallery-nav"
+    >
       <button
         type="button"
         class="gj-gallery__enlarge"
@@ -59,8 +65,14 @@ const rootRef = ref<HTMLElement | null>(null);
 const lightboxRef = ref<InstanceType<typeof GlasJenaLightbox> | null>(null);
 const hasMoreImages = computed(() => props.images.length > 1);
 
-/* The buttons' area covers exactly the big picture, wherever the thumbnails are (below or beside it) */
+/*
+ * The buttons' area covers exactly the big picture, wherever the thumbnails are (below or beside it). Hidden until it
+ * is measured in the browser: in the server HTML it had no size yet and jumped onto the picture after hydration,
+ * which PageSpeed counted as a layout shift of the item page (CLS 0.29 on phones, 0.15 on desktop, 2026-10-31); an
+ * element that appears in its place is no shift.
+ */
 const navStyle = ref<Record<string, string>>({});
+const isMeasured = ref(false);
 
 const measure = () => {
   const root = rootRef.value;
@@ -76,6 +88,7 @@ const measure = () => {
     width: `${boxRect.width}px`,
     height: `${boxRect.height}px`,
   };
+  isMeasured.value = true;
 };
 
 const getSwiper = () =>

@@ -93,4 +93,16 @@ describe('GlasJenaGallery', () => {
     await wrapper.find('[data-testid="gj-gallery-next"]').trigger('click');
     expect(swiper.slideTo).toHaveBeenLastCalledWith(2);
   });
+  it('should show the arrows only once their area is measured over the big picture (no layout shift)', async () => {
+    const wrapper = await mountGallery(4);
+
+    expect(wrapper.find('[data-testid="gj-gallery-nav"]').attributes('style')).not.toContain('display: none');
+
+    const unmeasured = await mountSuspended(GlasJenaGallery, {
+      props: { images: [{} as ImagesData] },
+      global: { stubs: { Gallery: { template: '<div data-testid="gallery" />' }, GlasJenaLightbox: LightboxStub } },
+    });
+
+    expect(unmeasured.find('[data-testid="gj-gallery-nav"]').attributes('style')).toContain('display: none');
+  });
 });
