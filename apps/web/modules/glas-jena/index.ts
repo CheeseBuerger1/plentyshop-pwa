@@ -369,7 +369,11 @@ export default defineNuxtModule({
       }
     });
 
-    /* Old addresses of the LTS shop (system pages, `/sbc5/…`, search), see utils/ltsRedirect.ts */
+    /*
+     * Old addresses of the LTS shop (system pages, `/sbc5/…`, search), see utils/ltsRedirect.ts: by the server before
+     * the page is built (fast, no data from PlentyONE), and by the router for links within the shop
+     */
+    addServerHandler({ middleware: true, handler: resolve('./runtime/server/ltsRedirect') });
     addRouteMiddleware({
       name: 'glas-jena-lts-redirect',
       path: resolve('./runtime/middleware/ltsRedirect'),
