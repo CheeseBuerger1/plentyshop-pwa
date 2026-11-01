@@ -1,7 +1,7 @@
-# Adressformate je Lieferland (Konzept)
+# Adressformate je Lieferland
 
-Stand 2026-11-01, Branch `feat/address-formats`. **Alle Fragen geklärt (Abschnitt 10) – noch nichts umgesetzt.**
-Unsichere Punkte sind mit ⚠ markiert.
+Stand 2026-11-02, Branch `feat/address-formats`. **Umgesetzt** (Kasse, Mein Konto, Registrierung); offen ist
+nur die Testbestellung mit DHL-Etikett (Abschnitt 8). Unsichere Punkte sind mit ⚠ markiert.
 
 ## 1. Ist-Zustand
 
@@ -60,8 +60,8 @@ Auf dem DHL-Etikett steht der Adresszusatz **über** Straße und Hausnummer. Das
 Hinterhaus (DE), Flat/Gebäudename (GB), Apt/Suite (US, laut USPS über der Zustellzeile zulässig), Gebäude/Zimmer
 (JP) stehen dort ebenfalls über oder vor der Straßenzeile.
 Der Bundesstaat (`stateId`) wird an DHL übertragen und ist für die USA dort Pflicht (Shopbetreiber, 2026-11-01).
-⚠ Noch offen: ob DHL eine vollständige Zeile in `address1` bei leerem `address2` annimmt (die DHL-API erlaubt
-das für internationale Sendungen). → Etikettentest, siehe Abschnitt 8.
+Hausnummer und PLZ verlangt PlentyONE selbst (außer GB), siehe Abschnitt 2. ⚠ Offen: ob DHL eine britische Zeile
+mit leerem `address2` annimmt (die DHL-API erlaubt das international) → Etikettentest, siehe Abschnitt 8.
 
 ### Aktive Lieferländer
 
@@ -109,293 +109,263 @@ Ergebnisse:
   bei gut der Hälfte der Aufträge). Die PWA-Kasse fragt beides heute nicht ab – das Konzept holt beides zurück.
 - **Namenszusatz und Adressfeld 4** sind praktisch leer (`name4` in 19, `address4` in 25 Auslandsaufträgen) –
   kein Bedarf.
-- **Leere PLZ nimmt PlentyONE an:** Aufträge aus Hongkong (5 von 14) und den VAE (4 von 7) haben keine PLZ.
+- **Leere PLZ in Aufträgen:** Aufträge aus Hongkong (5 von 14) und den VAE (4 von 7) haben keine PLZ. Die
+  Adress-Schnittstelle des Shops nimmt eine leere PLZ heute aber nicht an (Test 2026-11-02), daher „0“ (3.3).
 
 ## 2. Gruppen
+
+**Grundregel von PlentyONE (Test 2026-11-02):** Außer für Großbritannien verlangt PlentyONE beim Speichern einer
+Adresse eine Hausnummer (`address2`) und eine PLZ; ohne sie antwortet es mit `address.validationFailed`. Das ist
+keine Einstellung – die Pflichtfeld-Listen der Shop-Einstellungen (plentyShop LTS im Plugin-Set „PWA-Plugin-Set“:
+`billing_address.require`, `delivery_address.require`, `….en.require`) sind leer. Nur das englische Formular (GB)
+nimmt eine Zeile ohne Hausnummer. Deshalb sind Straße und Hausnummer in allen Ländern außer GB **zwei Felder** in
+der Reihenfolge des Landes (Entscheidung 2026-11-02, statt einer einzigen Adresszeile); der Kunde trägt beides
+selbst ein, nichts wird zerlegt.
 
 Alle Gruppen beginnen mit **Land**, danach Vorname | Nachname und der Firmen-Umschalter (Firma, USt-IdNr.)
 wie heute. Einen eigenen Ansprechpartner bei Firmen gibt es nicht (wie bisher im Shop): wer einen nennen will,
 trägt ihn bei Vorname/Nachname ein (Entscheidung 2026-11-01). Nach dem Adressteil folgt das optionale
-Telefonfeld (3.4). Unterschiede zwischen den Gruppen gibt es nur im Adressteil:
+Telefonfeld (3.4). Straße und Hausnummer stehen in einer eigenen Zeile, die Nummer schmal (120 px).
 
-### A – Straße und Hausnummer getrennt (DE, AT, CH, NL; DE-Sondergebiete)
+| Gruppe | Länder (Beispiele)                   | Straße / Nummer                                          | Zeile 2 (`address3`)    | Ort, Staat, PLZ                        |
+| ------ | ------------------------------------ | -------------------------------------------------------- | ----------------------- | -------------------------------------- |
+| A      | DE, AT, CH, NL                       | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort                             |
+| B      | übriges Europa, IL, Lateinamerika    | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort, darunter Provinz           |
+| C      | US, CA, AU, NZ, IE, FR, LU, ZA, SG … | Hausnummer \| Straße                                     | Wohnung, Suite, Gebäude | Ort \| Staat \| PLZ                    |
+| C, GB  | Großbritannien                       | eine Zeile „Hausnummer und Straße“                       | Wohnung, Suite, Gebäude | Ort \| Postcode                        |
+| D      | JP, KR, CN                           | Stadtteil, Straße \| Nummer (JP: „Block (Chōme-Ban-Gō)“) | Gebäude, Zimmer         | zuerst PLZ \| Präfektur, Stadt, Bezirk |
+| E      | alle übrigen                         | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort, darunter Region            |
 
-| Feld         | DE / EN                                       | Pflicht | PlentyONE            |
-| ------------ | --------------------------------------------- | ------- | -------------------- |
-| Straße       | Straße / Street                               | ja      | `address1`           |
-| Hausnummer   | Hausnr. / House no.                           | ja      | `address2`           |
-| Adresszusatz | Adresszusatz / Additional address information | nein    | `address3`           |
-| PLZ \| Ort   | PLZ / Postcode · Ort / City                   | ja      | `postalCode`, `town` |
+Zuordnung zu PlentyONE in allen Gruppen: Straße `address1`, Hausnummer `address2`, Zeile 2 `address3` (DHL druckt
+ihn über Straße und Hausnummer), PLZ `postalCode`, Ort `town`, Staat `stateId`, Telefon Option Typ 4.
 
-Wie heute; neu sind nur Land oben und der optionale Adresszusatz. Packstation/Postfiliale bleibt unverändert.
-NL: Hausnummer mit Zusatz („123-2“, „12 A“) ins Feld Hausnr.
+Beschriftungen DE / EN: Straße / Street, Hausnummer / House number, Hausnummer und Straße / Street address,
+Stadtteil, Straße / District, street, Block (Chōme-Ban-Gō) / Block (chōme-ban-gō), Adresszusatz / Additional address
+information, Wohnung, Suite, Gebäude / Apt, suite, unit, building, Gebäude, Zimmer / Building, room, Ort / City,
+Stadt, Bezirk / City, ward; PLZ als Postleitzahl / Postal code, ZIP-Code / ZIP code (US), Postleitzahl / Postcode
+(GB, AU, NZ, IM, JE, GI), Eircode (IE); Staat als Bundesstaat / State, Provinz / Province, Präfektur / Prefecture,
+Region / State, region.
 
-### B – Straße und Hausnummer in einem Feld, Nummer hinten (übriges Europa, Lateinamerika u. a.)
-
-| Feld                  | DE / EN                                                      | Pflicht    | PlentyONE                |
-| --------------------- | ------------------------------------------------------------ | ---------- | ------------------------ |
-| Straße und Hausnummer | Straße und Hausnummer / Street and house number              | ja         | `address1` (vollständig) |
-| Adresszusatz          | Adresszusatz (Wohnung, Stockwerk …) / Apartment, floor, etc. | nein       | `address3`               |
-| PLZ \| Ort            | wie A                                                        | je Tabelle | `postalCode`, `town`     |
-| Provinz               | Provinz / Province (bzw. „Bundesstaat“/„State“ bei BR, MX)   | je Tabelle | `stateId`                |
-
-`address2` bleibt leer, die Zeile wird **nicht** in Straße und Nummer zerlegt.
-
-### C – Hausnummer vor der Straße, ein Feld (US, CA, AU, NZ, GB, IE, FR, LU, ZA, SG …)
-
-| Feld          | DE / EN                                                                    | Pflicht    | PlentyONE                |
-| ------------- | -------------------------------------------------------------------------- | ---------- | ------------------------ |
-| Adresszeile 1 | Hausnummer und Straße / Street address                                     | ja         | `address1` (vollständig) |
-| Adresszeile 2 | Wohnung, Suite, Gebäude / Apt, suite, unit, building                       | nein       | `address3`               |
-| Ort           | Ort / City (GB: Town/City)                                                 | ja         | `town`                   |
-| Bundesstaat   | Bundesstaat/Provinz / State, Province                                      | je Tabelle | `stateId`                |
-| PLZ           | PLZ / ZIP code (US), Postal code (CA), Postcode (GB, AU, NZ), Eircode (IE) | je Tabelle | `postalCode`             |
-
-Reihenfolge Ort – Bundesstaat – PLZ wie auf dem Brief („Springfield, IL 62704“).
-
-### D – Gebietsbasiert (JP, KR, CN)
-
-| Feld              | DE / EN                                                                            | Pflicht   | PlentyONE                |
-| ----------------- | ---------------------------------------------------------------------------------- | --------- | ------------------------ |
-| PLZ               | Postleitzahl / Postal code (JP mit 〒-Hinweis)                                     | ja        | `postalCode`             |
-| Präfektur/Provinz | Präfektur / Prefecture (JP), Provinz / Province (CN); KR: keine Liste in PlentyONE | JP, CN ja | `stateId`                |
-| Ort               | Stadt, Bezirk / City, ward (KR: Stadt/Provinz)                                     | ja        | `town`                   |
-| Adresse           | Stadtteil, Chōme-Ban-Gō / District, block, building no.                            | ja        | `address1` (vollständig) |
-| Gebäude, Zimmer   | Gebäude, Zimmer / Building, room                                                   | nein      | `address3`               |
-
-Eingabe in lateinischer Schrift (Hinweis unter dem Formular, siehe 3.5). Beispiel Japan:
-PLZ 100-0005, Präfektur Tokyo, Ort Chiyoda-ku, Adresse 1-2-3 Marunouchi.
-
-### E – Fallback: zwei freie Adresszeilen (alle übrigen Länder und unsichere Fälle)
-
-| Feld          | DE / EN                                                  | Pflicht                | PlentyONE            |
-| ------------- | -------------------------------------------------------- | ---------------------- | -------------------- |
-| Adresszeile 1 | Adresse / Address line 1                                 | ja                     | `address1`           |
-| Adresszeile 2 | Adresszeile 2 / Address line 2                           | nein                   | `address3`           |
-| PLZ \| Ort    | Postleitzahl / Postal code · Ort / City                  | PLZ je Tabelle, Ort ja | `postalCode`, `town` |
-| Region        | Region / State, region (nur wo PlentyONE eine Liste hat) | je Tabelle             | `stateId`            |
+Packstation/Postfiliale (DE) bleibt unverändert. NL: Hausnummer mit Zusatz („123-2“, „12 A“) ins Feld Hausnummer.
 
 ## 3. Gemeinsame Regeln
 
 ### 3.1 Land zuerst
 
 Die Länderauswahl steht oben; Vorbelegung bleibt das Lieferland des Warenkorbs. Wechselt der Kunde das Land,
-baut sich das Formular neu auf. Eingaben bleiben erhalten (Name, Firma, Ort, PLZ). Von A nach B/C/E werden
-Straße und Hausnummer **sichtbar** zu einer Zeile zusammengesetzt (B/E: „Straße Nr.“, C: „Nr. Straße“), der
-Kunde sieht das Ergebnis vor dem Speichern. Von B/C/D/E nach A wird nichts zerlegt: die Zeile steht im Feld
-Straße, die Hausnummer muss der Kunde eintragen.
+baut sich das Formular neu auf, die Eingaben bleiben stehen. Nur beim Wechsel nach Großbritannien werden Straße
+und Hausnummer **sichtbar** zu einer Zeile zusammengesetzt („10 Downing Street“); der Kunde sieht das Ergebnis vor
+dem Speichern. Von Großbritannien in ein anderes Land wird nichts zerlegt: die Zeile steht im Feld Straße, die
+Hausnummer muss der Kunde eintragen. Ein Bundesstaat des alten Landes wird geleert.
 
 ### 3.2 Bundesstaat/Provinz
 
 Auswahlliste aus PlentyONE (`stateId`). Sichtbar, wenn PlentyONE eine Liste hat **und** der Staat laut
 libaddressinput zur Postanschrift gehört (bei DE, CH, NL also nicht). Pflicht, wenn PlentyONE ihn verlangt
 (US, CA) oder libaddressinput ihn verlangt (AU, BR, CN, IN, JP, MX); sonst optional ohne Hinweis (AR, ID, IT, TH;
-Entscheidung 2026-11-01: IT und ID nicht Pflicht, keine Warnung).
+Entscheidung 2026-11-01). In den USA, Kanada und Australien zeigt die Liste die Kürzel („IL“, „ON“, „NSW“,
+PlentyONE `isoCode3166`) alphabetisch (Wunsch 2026-11-02: die langen Namen sahen im schmalen Feld seltsam aus);
+sonst die Namen in der Reihenfolge von PlentyONE (Japans Präfekturen von Nord nach Süd). PlentyONE überträgt den
+Staat an DHL, für die USA ist er dort Pflicht.
 
 ### 3.3 PLZ
 
+- Pflicht in allen Ländern (PlentyONE verlangt sie).
 - Normalisieren vor Prüfung und Speichern: Leerzeichen am Rand entfernen, Buchstaben groß
   („sw1a 2aa“ → „SW1A 2AA“; der NL-Regex von PlentyONE ist sonst bei Kleinbuchstaben falsch).
-- PlentyONE-Regex vorhanden: **streng** (blockiert), wie heute – PlentyONE prüft vermutlich serverseitig
-  dasselbe ⚠.
-- Nur libaddressinput-Muster: **Warnung**, Bestellung bleibt möglich.
-- Pflicht nur, wo libaddressinput die PLZ verlangt (bzw. ohne libaddressinput-Daten, wo PlentyONE einen Regex
-  hat). Länder ohne PLZ-System: Feld ausgeblendet, `postalCode` leer. In Aufträgen nimmt PlentyONE das an
-  (Bestandsaufnahme: HK, AE); ⚠ ob auch die Adress-Schnittstelle des Shops leer annimmt, prüft der Test.
+- PlentyONE-Regex vorhanden: **streng** (blockiert), wie bisher. Kein eigenes Muster darüber hinaus.
+- Länder ohne PLZ-System (HK, AE, MO, PA, JM): Feld ausgeblendet, der Shop schickt unsichtbar „0“
+  (Entscheidung 2026-11-02). Eine gespeicherte Adresse behält ihre PLZ.
 
 ### 3.4 Telefon
 
 Optionales Feld in allen Adressformularen (Kasse Liefer- und Rechnungsadresse, Konto, Registrierung) und für
-alle Länder, wie heute schon im Konto (Entscheidung 2026-11-01). DE / EN: „Telefon (optional)“ /
+alle Länder, wie bisher schon im Konto (Entscheidung 2026-11-01). DE / EN: „Telefon (optional)“ /
 „Phone (optional)“, `type="tel"`, `autocomplete="tel"`. Speicherung über die vorhandene Option Typ 4
 (`telephone`). Keine Formatprüfung, nur Länge 7–18 Zeichen wie im Konto-Formular.
 
-### 3.5 Warnungen statt Blockaden
+### 3.5 Hinweise statt Blockaden
 
-Gelb, nicht blockierend:
+Nur zwei gelbe Hinweise, die die Bestellung nie verhindern (Auswahl des Shopbetreibers, 2026-11-01):
 
-- PLZ passt nicht zum libaddressinput-Muster.
-- Nicht-lateinische Zeichen (z. B. Kanji, Kyrillisch): „Bitte in lateinischen Buchstaben, damit das
+- Nicht-lateinische Zeichen (z. B. Kanji, Kyrillisch): „Bitte verwenden Sie lateinische Buchstaben, damit das
   Versandetikett lesbar ist.“
-- Gruppe C: Adresszeile 1 ohne Ziffer („Hausnummer vergessen?“).
-- Adresszeile 1 länger als 50 Zeichen (Grenze des DHL-Straßenfelds ⚠).
+- Straße (bzw. die Zeile in GB) länger als 50 Zeichen, die Grenze des DHL-Straßenfelds ⚠.
 
-Blockierend bleiben nur: Pflichtfelder, PlentyONE-PLZ-Regex, Bundesstaat bei Pflicht-Ländern.
+Blockierend sind nur: Pflichtfelder, PlentyONE-PLZ-Regex, Bundesstaat in den Pflicht-Ländern.
 
 ### 3.6 Browser-Autofill
 
-Jedes Feld bekommt das passende `autocomplete` (`address-line1`, `address-line2`, `address-level1` für den
-Staat, `address-level2` für den Ort, `postal-code`, `country`, `tel`). In Gruppe A bleibt die Hausnummer
-ohne `address-line2`, damit der Browser dort keinen Zusatz einträgt.
+Jedes Feld bekommt das passende `autocomplete` (`address-line1` für die Straße, `address-line2` für Zeile 2,
+`address-level1` für den Staat, `address-level2` für den Ort, `postal-code`, `country-name`, `tel`). Die
+Hausnummer bekommt keins, damit der Browser dort keinen Zusatz einträgt; ihr Eingabefeld heißt weiter
+`streetNumber` wie im Original.
 
 ## 4. Länder
 
-Erzeugt aus den PlentyONE-Länderdaten des Shops und den libaddressinput-Daten (Abruf 2026-10-31).
-„Bundesstaat/Provinz“: Pflicht/optional mit Anzahl der Einträge in PlentyONE, „–“ = kein Feld.
-„streng“ = PlentyONE-Regex (blockiert), „Warnung“ = libaddressinput-Muster (nur Hinweis).
-Gruppenzuordnung: A–D nach libaddressinput-Format und den Postmustern des Landes; Länder ohne
-libaddressinput-Eintrag oder mit uneinheitlichen Adressen (Landmarken, Gebäudenamen, digitale Adressen)
-→ E.
+Erzeugt aus den PlentyONE-Länderdaten des Shops (Abruf 2026-10-31) und den Listen in `utils/addressFormats.ts`.
+„Straße/Nr.“: Reihenfolge der Felder. „Bundesstaat/Provinz“: Pflicht/optional mit Anzahl der Einträge in PlentyONE,
+„–“ = kein Feld. „streng“ = PlentyONE-Regex (blockiert). Gruppenzuordnung nach libaddressinput-Format und den
+Postmustern des Landes; Länder ohne libaddressinput-Eintrag oder mit uneinheitlichen Adressen → E.
 
-| ID  | ISO | Land                         | Gruppe | Bundesstaat/Provinz | PLZ                                                        | Quelle          | Hinweis                                                                                                   |
-| --- | --- | ---------------------------- | ------ | ------------------- | ---------------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------- |
-| 256 | DE  | Büsingen, Deutschland        | A      | –                   | Pflicht, streng: `^\d{5}$`                                 | libaddressinput | Packstation/Postfiliale nutzen dieselben Felder (address1 = „Packstation“, address2 = Nummer)             |
-| 1   | DE  | Deutschland                  | A      | –                   | Pflicht, streng: `^\d{5}$`                                 | libaddressinput | Packstation/Postfiliale nutzen dieselben Felder (address1 = „Packstation“, address2 = Nummer)             |
-| 255 | DE  | Helgoland, Deutschland       | A      | –                   | Pflicht, streng: `^\d{5}$`                                 | libaddressinput | Packstation/Postfiliale nutzen dieselben Felder (address1 = „Packstation“, address2 = Nummer)             |
-| 21  | NL  | Niederlande                  | A      | –                   | Pflicht, streng: `^\d{4}[ ]?[A-Z]{2}$`                     | libaddressinput | Hausnummer mit Zusatz („123-2“, „12 A“) im Feld Nr.                                                       |
-| 2   | AT  | Österreich                   | A      | –                   | Pflicht, streng: `^(?!0)\d{4}$`                            | libaddressinput |                                                                                                           |
-| 4   | CH  | Schweiz                      | A      | –                   | Pflicht, streng: `^\d{4}$`                                 | libaddressinput | auch frz./ital. Landesteile: Nummer hinter der Straße                                                     |
-| 52  | AL  | Albanien                     | B      | –                   | optional, Warnung: `\d{4}`                                 | libaddressinput |                                                                                                           |
-| 71  | AD  | Andorra                      | B      | –                   | optional, Warnung: `AD[1-7]0\d`                            | libaddressinput |                                                                                                           |
-| 76  | AR  | Argentinien                  | B      | optional (24)       | optional, Warnung: `[A-HJ-NP-Z]\d{4}[A-Z]{3}`              | libaddressinput |                                                                                                           |
-| 51  | AM  | Armenien                     | B      | –                   | optional, Warnung: `(?:37)?\d{4}`                          | libaddressinput |                                                                                                           |
-| 78  | AZ  | Aserbaidschan                | B      | –                   | optional, Warnung: `\d{4}`                                 | libaddressinput |                                                                                                           |
-| 3   | BE  | Belgien                      | B      | –                   | Pflicht, streng: `^\d{4}$`                                 | libaddressinput | frz. Schreibweise ebenfalls „Rue de la Loi 16“                                                            |
-| 88  | BA  | Bosnien und Herzegowina      | B      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 39  | BR  | Brasilien                    | B      | Pflicht (27)        | Pflicht, Warnung: `\d{5}-?\d{3}`                           | libaddressinput | Bairro in Zeile 2                                                                                         |
-| 44  | BG  | Bulgarien                    | B      | –                   | optional, streng: `^\d{4}$`                                | libaddressinput |                                                                                                           |
-| 42  | EA  | Ceuta                        | B      | –                   | optional                                                   | –               | kein Eintrag bei libaddressinput; spanisches Muster (Correos)                                             |
-| 101 | CL  | Chile                        | B      | –                   | optional, Warnung: `\d{7}`                                 | libaddressinput |                                                                                                           |
-| 7   | DK  | Dänemark                     | B      | –                   | Pflicht, streng: `^\d{4}$`                                 | libaddressinput |                                                                                                           |
-| 9   | EE  | Estland                      | B      | –                   | Pflicht, streng: `^\d{5}$`                                 | libaddressinput |                                                                                                           |
-| 122 | FO  | Färöer                       | B      | –                   | optional, Warnung: `\d{3}`                                 | libaddressinput |                                                                                                           |
-| 11  | FI  | Finnland                     | B      | –                   | Pflicht, streng: `^(FI-\|AX-)?\d{5}$`                      | libaddressinput |                                                                                                           |
-| 129 | GE  | Georgien                     | B      | –                   | optional, Warnung: `\d{4}`                                 | libaddressinput |                                                                                                           |
-| 13  | GR  | Griechenland                 | B      | –                   | Pflicht, streng: `^\d{3}[ ]?\d{2}$`                        | libaddressinput |                                                                                                           |
-| 132 | GL  | Grönland                     | B      | –                   | Pflicht, Warnung: `39\d{2}`                                | libaddressinput |                                                                                                           |
-| 144 | IS  | Island                       | B      | –                   | optional, Warnung: `\d{3}`                                 | libaddressinput |                                                                                                           |
-| 59  | IL  | Israel                       | B      | –                   | optional, Warnung: `\d{5}(?:\d{2})?`                       | libaddressinput | Nummer hinter der Straße (hebr. Schreibweise)                                                             |
-| 15  | IT  | Italien                      | B      | optional (107)      | Pflicht, streng: `^\d{5}$`                                 | libaddressinput | Provinz laut libaddressinput Pflicht, im Shop optional ohne Hinweis                                       |
-| 37  | IC  | Kanarische Inseln            | B      | –                   | optional                                                   | –               | kein Eintrag bei libaddressinput; spanisches Muster (Correos)                                             |
-| 47  | KZ  | Kasachstan                   | B      | –                   | optional, Warnung: `\d{6}`                                 | libaddressinput |                                                                                                           |
-| 45  | XK  | Kosovo                       | B      | –                   | optional, Warnung: `[1-7]\d{4}`                            | libaddressinput |                                                                                                           |
-| 54  | HR  | Kroatien                     | B      | –                   | optional, streng: `^(HR-)?\d{5}$`                          | libaddressinput |                                                                                                           |
-| 18  | LV  | Lettland                     | B      | –                   | Pflicht, streng: `^(LV-)?\d{4}$`                           | libaddressinput |                                                                                                           |
-| 34  | LI  | Liechtenstein                | B      | –                   | Pflicht, Warnung: `948[5-9]\|949[0-8]`                     | libaddressinput |                                                                                                           |
-| 33  | LT  | Litauen                      | B      | –                   | Pflicht, streng: `^(LT-)?\d{5}$`                           | libaddressinput |                                                                                                           |
-| 43  | EA  | Melilla                      | B      | –                   | optional                                                   | –               | kein Eintrag bei libaddressinput; spanisches Muster (Correos)                                             |
-| 36  | MX  | Mexico                       | B      | Pflicht (32)        | Pflicht, Warnung: `\d{5}`                                  | libaddressinput | Colonia in Zeile 2                                                                                        |
-| 175 | MD  | Moldavien (Moldau)           | B      | –                   | optional, Warnung: `\d{4}`                                 | libaddressinput |                                                                                                           |
-| 177 | ME  | Montenegro                   | B      | –                   | optional, Warnung: `8\d{4}`                                | libaddressinput |                                                                                                           |
-| 164 | MK  | Nordmazedonien               | B      | –                   | optional, Warnung: `\d{4}`                                 | libaddressinput |                                                                                                           |
-| 20  | NO  | Norwegen                     | B      | –                   | Pflicht, streng: `^\d{4}$`                                 | libaddressinput |                                                                                                           |
-| 198 | PY  | Paraguay                     | B      | –                   | optional, Warnung: `\d{6}`                                 | libaddressinput |                                                                                                           |
-| 199 | PE  | Peru                         | B      | –                   | optional, Warnung: `(?:LIMA \d{1,2}\|CALLAO 0?\d)\|[0-2]…` | libaddressinput |                                                                                                           |
-| 23  | PL  | Polen                        | B      | –                   | Pflicht, streng: `^\d{2}-\d{3}$`                           | libaddressinput |                                                                                                           |
-| 22  | PT  | Portugal                     | B      | –                   | Pflicht, streng: `^\d{4}([\-]\d{3})?$`                     | libaddressinput |                                                                                                           |
-| 41  | RO  | Rumänien                     | B      | –                   | Pflicht, streng: `^\d{6}$`                                 | libaddressinput |                                                                                                           |
-| 40  | RU  | Russland                     | B      | –                   | Pflicht, Warnung: `\d{6}`                                  | libaddressinput |                                                                                                           |
-| 212 | SM  | San Marino                   | B      | –                   | Pflicht, Warnung: `4789\d`                                 | libaddressinput |                                                                                                           |
-| 24  | SE  | Schweden                     | B      | –                   | Pflicht, streng: `^(SE-)?\d{3}[ ]?\d{2}$`                  | libaddressinput |                                                                                                           |
-| 216 | RS  | Serbien                      | B      | –                   | optional, Warnung: `\d{5,6}`                               | libaddressinput |                                                                                                           |
-| 26  | SK  | Slowakische Republik         | B      | –                   | Pflicht, streng: `^\d{3}[ ]?\d{2}$`                        | libaddressinput |                                                                                                           |
-| 27  | SI  | Slowenien                    | B      | –                   | optional, streng: `^(SI-)?\d{4}$`                          | libaddressinput |                                                                                                           |
-| 8   | ES  | Spanien                      | B      | –                   | Pflicht, streng: `^(?:0[1-9]\|[1-4]\d\|5[0-2])\d{3}$`      | libaddressinput | Stockwerk/Tür („3º B“) im selben Feld                                                                     |
-| 65  | ES  | Spanien, Balearen            | B      | –                   | Pflicht, streng: `^(?:0[1-9]\|[1-4]\d\|5[0-2])\d{3}$`      | libaddressinput | Stockwerk/Tür („3º B“) im selben Feld                                                                     |
-| 6   | CZ  | Tschechische Republik        | B      | –                   | Pflicht, streng: `^\d{3}[ ]?\d{2}$`                        | libaddressinput |                                                                                                           |
-| 63  | TR  | Türkei                       | B      | –                   | Pflicht, Warnung: `\d{5}`                                  | libaddressinput |                                                                                                           |
-| 241 | UA  | Ukraine                      | B      | –                   | Pflicht, Warnung: `\d{5}`                                  | libaddressinput |                                                                                                           |
-| 14  | HU  | Ungarn                       | B      | –                   | Pflicht, streng: `^\d{4}$`                                 | libaddressinput |                                                                                                           |
-| 243 | UY  | Uruguay                      | B      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 48  | BY  | Weißrussland                 | B      | –                   | optional, Warnung: `\d{6}`                                 | libaddressinput |                                                                                                           |
-| 5   | CY  | Zypern                       | B      | –                   | optional, streng: `^\d{4}$`                                | libaddressinput |                                                                                                           |
-| 29  | AU  | Australien                   | C      | Pflicht (8)         | Pflicht, Warnung: `\d{4}`                                  | libaddressinput | Labels „Postcode“, „State“                                                                                |
-| 10  | FR  | Frankreich                   | C      | –                   | Pflicht, streng: `^\d{2}[ ]?\d{3}$`                        | libaddressinput | Nummer vorn („12 rue de la Paix“)                                                                         |
-| 124 | GF  | Französisch Guayana          | C      | –                   | Pflicht, Warnung: `9[78]3\d{2}`                            | libaddressinput |                                                                                                           |
-| 131 | GI  | Gibraltar                    | C      | –                   | optional, Warnung: `GX11 1AA`                              | libaddressinput |                                                                                                           |
-| 12  | GB  | Großbritannien               | C      | –                   | Pflicht, streng: `^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]…`     | libaddressinput | Labels „Postcode“, „Town/City“; Gebäudename in Zeile 1 oder 2                                             |
-| 61  | GP  | Guadeloupe                   | C      | –                   | Pflicht, Warnung: `9[78][01]\d{2}`                         | libaddressinput |                                                                                                           |
-| 148 | IM  | Insel Man (Isle of Man)      | C      | –                   | Pflicht, Warnung: `IM\d[\dA-Z]? ?\d[ABD-HJLN-UW-Z]{2}`     | libaddressinput |                                                                                                           |
-| 16  | IE  | Irland                       | C      | –                   | optional, streng: `^([AC-FHKNPRTV-Y][0-9]{2}\|D6W)[ -]…`   | libaddressinput | Eircode optional; County nicht als Liste in PlentyONE                                                     |
-| 150 | JE  | Jersey                       | C      | –                   | Pflicht, Warnung: `JE\d[\dA-Z]? ?\d[ABD-HJLN-UW-Z]{2}`     | libaddressinput |                                                                                                           |
-| 30  | CA  | Kanada                       | C      | Pflicht (13)        | Pflicht, Warnung: `[ABCEGHJKLMNPRSTVXY]\d[ABCEGHJ-NPR…`    | libaddressinput | PlentyONE: Provinz Pflicht; Labels „Postal code“, „Province“                                              |
-| 17  | LU  | Luxemburg                    | C      | –                   | Pflicht, streng: `^(L-)?\d{4}$`                            | libaddressinput | frz. Muster, Nummer vorn („12 rue …“)                                                                     |
-| 56  | MY  | Malaysia                     | C      | –                   | Pflicht, Warnung: `\d{5}`                                  | libaddressinput |                                                                                                           |
-| 173 | YT  | Mayotte                      | C      | –                   | Pflicht, Warnung: `976\d{2}`                               | libaddressinput |                                                                                                           |
-| 35  | MC  | Monaco                       | C      | –                   | optional, Warnung: `980\d{2}`                              | libaddressinput | frz. Muster                                                                                               |
-| 66  | NZ  | Neuseeland                   | C      | –                   | Pflicht, Warnung: `\d{4}`                                  | libaddressinput | Suburb laut libaddressinput Pflicht → Zeile 2 (Hinweis, keine Blockade)                                   |
-| 200 | PH  | Philippinen                  | C      | –                   | optional, Warnung: `\d{4}`                                 | libaddressinput |                                                                                                           |
-| 204 | RE  | Réunion                      | C      | –                   | Pflicht, Warnung: `9[78]4\d{2}`                            | libaddressinput |                                                                                                           |
-| 25  | SG  | Singapur                     | C      | –                   | Pflicht, Warnung: `\d{6}`                                  | libaddressinput |                                                                                                           |
-| 221 | ZA  | Südafrika                    | C      | –                   | Pflicht, Warnung: `\d{4}`                                  | libaddressinput |                                                                                                           |
-| 235 | TT  | Trinidad und Tobago          | C      | –                   | optional, Warnung: `\d{6}`                                 | libaddressinput |                                                                                                           |
-| 28  | US  | USA                          | C      | Pflicht (63)        | Pflicht, Warnung: `(\d{5})(?:[ \-](\d{4}))?`               | libaddressinput | PlentyONE: State Pflicht; Labels „ZIP code“, „State“                                                      |
-| 31  | CN  | China                        | D      | Pflicht (34)        | Pflicht, Warnung: `\d{6}`                                  | libaddressinput | Provinz Pflicht (PlentyONE 34 Einträge); Bezirk + Straße + Nr. in Zeile 1                                 |
-| 32  | JP  | Japan                        | D      | Pflicht (47)        | Pflicht, Warnung: `\d{3}-?\d{4}`                           | libaddressinput | Präfektur Pflicht (PlentyONE 47 Einträge, lateinisch); Chōme-Ban-Gō in Zeile 1, Gebäude/Zimmer in Zeile 2 |
-| 155 | KR  | Südkorea                     | D      | –                   | Pflicht, Warnung: `\d{5}`                                  | libaddressinput | Provinz (do/si) nicht in PlentyONE → mit Ort angeben                                                      |
-| 53  | EG  | Ägypten                      | E      | –                   | optional, Warnung: `\d{7}\|\d{5}`                          | libaddressinput |                                                                                                           |
-| 69  | DZ  | Algerien                     | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 87  | BO  | Bolivien                     | E      | –                   | optional                                                   | –               | kein Eintrag bei libaddressinput                                                                          |
-| 109 | CR  | Costa Rica                   | E      | –                   | optional, Warnung: `\d{4,5}\|\d{3}-\d{4}`                  | libaddressinput | Adressen oft mit Landmarken („200 m norte de …“)                                                          |
-| 115 | DO  | Dominikanische Republik      | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 116 | EC  | Ecuador                      | E      | –                   | optional, Warnung: `\d{6}`                                 | libaddressinput |                                                                                                           |
-| 117 | SV  | El Salvador                  | E      | –                   | optional, Warnung: `[1-3][1-7][0-2]\d`                     | libaddressinput |                                                                                                           |
-| 130 | GH  | Ghana                        | E      | –                   | optional                                                   | –               | kein Eintrag bei libaddressinput; digitale Adressen (GhanaPostGPS)                                        |
-| 57  | HK  | Hongkong                     | E      | –                   | keine PLZ                                                  | libaddressinput | keine PLZ; Gebiet (HK Island/Kowloon/NT) nicht in PlentyONE → im Ort                                      |
-| 38  | IN  | Indien                       | E      | Pflicht (36)        | Pflicht, Warnung: `\d{6}`                                  | libaddressinput | freie Zeilen üblich (Haus, Straße, Locality)                                                              |
-| 145 | ID  | Indonesien                   | E      | optional (41)       | optional, Warnung: `\d{5}`                                 | libaddressinput | Provinz laut libaddressinput Pflicht, im Shop optional ohne Hinweis                                       |
-| 147 | IQ  | Irak                         | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 146 | IR  | Iran                         | E      | –                   | optional, Warnung: `\d{5}-?\d{5}`                          | libaddressinput |                                                                                                           |
-| 149 | JM  | Jamaika                      | E      | –                   | keine PLZ                                                  | libaddressinput |                                                                                                           |
-| 151 | JO  | Jordanien                    | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 98  | KY  | Kaimaninseln                 | E      | –                   | optional, Warnung: `KY\d-\d{4}`                            | libaddressinput |                                                                                                           |
-| 95  | KH  | Kambodscha                   | E      | –                   | optional, Warnung: `\d{5,6}`                               | libaddressinput |                                                                                                           |
-| 97  | CV  | Kap Verde                    | E      | –                   | optional, Warnung: `\d{4}`                                 | libaddressinput |                                                                                                           |
-| 203 | QA  | Katar                        | E      | –                   | optional                                                   | –               | kein Eintrag bei libaddressinput; keine PLZ                                                               |
-| 104 | CO  | Kolumbien                    | E      | –                   | optional, Warnung: `\d{6}`                                 | libaddressinput | Sondermuster „Calle 26 # 13-19“                                                                           |
-| 112 | CU  | Kuba                         | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 156 | KW  | Kuwait                       | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 159 | LB  | Libanon                      | E      | –                   | optional, Warnung: `(?:\d{4})(?: ?(?:\d{4}))?`             | libaddressinput |                                                                                                           |
-| 161 | LR  | Liberia                      | E      | –                   | optional, Warnung: `\d{4}`                                 | libaddressinput |                                                                                                           |
-| 162 | LY  | Libyen                       | E      | –                   | optional                                                   | –               | kein Eintrag bei libaddressinput                                                                          |
-| 163 | MO  | Macau                        | E      | –                   | keine PLZ                                                  | libaddressinput | keine PLZ                                                                                                 |
-| 55  | MV  | Malediven                    | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 19  | MT  | Malta                        | E      | –                   | optional, streng: `^[A-Z]{3}\s?\d{4}$`                     | libaddressinput | Hausname/Nummer uneinheitlich                                                                             |
-| 50  | MA  | Marokko                      | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 183 | NP  | Nepal                        | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 192 | OM  | Oman                         | E      | –                   | optional, Warnung: `(?:PC )?\d{3}`                         | libaddressinput |                                                                                                           |
-| 193 | PK  | Pakistan                     | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 196 | PA  | Panama                       | E      | –                   | keine PLZ                                                  | libaddressinput |                                                                                                           |
-| 214 | SA  | Saudi Arabien                | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput | National Address (Gebäudenr. + Straße + Bezirk) uneinheitlich                                             |
-| 223 | LK  | Sri Lanka                    | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
-| 60  | TW  | Taiwan                       | E      | –                   | Pflicht, Warnung: `\d{3}(?:\d{2,3})?`                      | libaddressinput | gebietsbasiert, aber nicht in Gruppe D verlangt → Fallback                                                |
-| 62  | TH  | Thailand                     | E      | optional (79)       | optional, Warnung: `\d{5}`                                 | libaddressinput | Provinz optional (PlentyONE 79 Einträge)                                                                  |
-| 236 | TN  | Tunesien                     | E      | –                   | optional, Warnung: `\d{4}`                                 | libaddressinput |                                                                                                           |
-| 245 | VE  | Venezuela                    | E      | –                   | optional, Warnung: `\d{4}`                                 | libaddressinput |                                                                                                           |
-| 254 | AE  | Vereinigte Arabische Emirate | E      | –                   | keine PLZ                                                  | libaddressinput | keine PLZ; Emirat nicht in PlentyONE → im Ort                                                             |
-| 246 | VN  | Vietnam                      | E      | –                   | optional, Warnung: `\d{5}\d?`                              | libaddressinput |                                                                                                           |
+| ID  | ISO | Land                         | Gruppe | Straße/Nr.       | Bundesstaat/Provinz  | PLZ                                                     | Quelle          | Hinweis                                                                                       |
+| --- | --- | ---------------------------- | ------ | ---------------- | -------------------- | ------------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------- |
+| 256 | DE  | Büsingen, Deutschland        | A      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{5}$`                              | libaddressinput | Packstation/Postfiliale nutzen dieselben Felder (address1 = „Packstation“, address2 = Nummer) |
+| 1   | DE  | Deutschland                  | A      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{5}$`                              | libaddressinput | Packstation/Postfiliale nutzen dieselben Felder (address1 = „Packstation“, address2 = Nummer) |
+| 255 | DE  | Helgoland, Deutschland       | A      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{5}$`                              | libaddressinput | Packstation/Postfiliale nutzen dieselben Felder (address1 = „Packstation“, address2 = Nummer) |
+| 21  | NL  | Niederlande                  | A      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{4}[ ]?[A-Z]{2}$`                  | libaddressinput | Hausnummer mit Zusatz („123-2“, „12 A“) im Feld Nr.                                           |
+| 2   | AT  | Österreich                   | A      | Straße \| Nr.    | –                    | Pflicht, streng: `^(?!0)\d{4}$`                         | libaddressinput |                                                                                               |
+| 4   | CH  | Schweiz                      | A      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{4}$`                              | libaddressinput | auch frz./ital. Landesteile: Nummer hinter der Straße                                         |
+| 52  | AL  | Albanien                     | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 71  | AD  | Andorra                      | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 76  | AR  | Argentinien                  | B      | Straße \| Nr.    | optional (24)        | Pflicht                                                 | libaddressinput |                                                                                               |
+| 51  | AM  | Armenien                     | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 78  | AZ  | Aserbaidschan                | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 3   | BE  | Belgien                      | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{4}$`                              | libaddressinput | frz. Schreibweise ebenfalls „Rue de la Loi 16“                                                |
+| 88  | BA  | Bosnien und Herzegowina      | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 39  | BR  | Brasilien                    | B      | Straße \| Nr.    | Pflicht (27)         | Pflicht                                                 | libaddressinput | Bairro im Adresszusatz                                                                        |
+| 44  | BG  | Bulgarien                    | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{4}$`                              | libaddressinput |                                                                                               |
+| 42  | EA  | Ceuta                        | B      | Straße \| Nr.    | –                    | Pflicht                                                 | –               | kein Eintrag bei libaddressinput; spanisches Muster (Correos)                                 |
+| 101 | CL  | Chile                        | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 7   | DK  | Dänemark                     | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{4}$`                              | libaddressinput |                                                                                               |
+| 9   | EE  | Estland                      | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{5}$`                              | libaddressinput |                                                                                               |
+| 122 | FO  | Färöer                       | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 11  | FI  | Finnland                     | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^(FI-\|AX-)?\d{5}$`                   | libaddressinput |                                                                                               |
+| 129 | GE  | Georgien                     | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 13  | GR  | Griechenland                 | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{3}[ ]?\d{2}$`                     | libaddressinput |                                                                                               |
+| 132 | GL  | Grönland                     | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 144 | IS  | Island                       | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 59  | IL  | Israel                       | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput | Nummer hinter der Straße (hebr. Schreibweise)                                                 |
+| 15  | IT  | Italien                      | B      | Straße \| Nr.    | optional (107)       | Pflicht, streng: `^\d{5}$`                              | libaddressinput | Provinz laut libaddressinput Pflicht, im Shop optional ohne Hinweis                           |
+| 37  | IC  | Kanarische Inseln            | B      | Straße \| Nr.    | –                    | Pflicht                                                 | –               | kein Eintrag bei libaddressinput; spanisches Muster (Correos)                                 |
+| 47  | KZ  | Kasachstan                   | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 45  | XK  | Kosovo                       | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 54  | HR  | Kroatien                     | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^(HR-)?\d{5}$`                        | libaddressinput |                                                                                               |
+| 18  | LV  | Lettland                     | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^(LV-)?\d{4}$`                        | libaddressinput |                                                                                               |
+| 34  | LI  | Liechtenstein                | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 33  | LT  | Litauen                      | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^(LT-)?\d{5}$`                        | libaddressinput |                                                                                               |
+| 43  | EA  | Melilla                      | B      | Straße \| Nr.    | –                    | Pflicht                                                 | –               | kein Eintrag bei libaddressinput; spanisches Muster (Correos)                                 |
+| 36  | MX  | Mexico                       | B      | Straße \| Nr.    | Pflicht (32)         | Pflicht                                                 | libaddressinput | Colonia im Adresszusatz                                                                       |
+| 175 | MD  | Moldavien (Moldau)           | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 177 | ME  | Montenegro                   | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 164 | MK  | Nordmazedonien               | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 20  | NO  | Norwegen                     | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{4}$`                              | libaddressinput |                                                                                               |
+| 198 | PY  | Paraguay                     | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 199 | PE  | Peru                         | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 23  | PL  | Polen                        | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{2}-\d{3}$`                        | libaddressinput |                                                                                               |
+| 22  | PT  | Portugal                     | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{4}([\-]\d{3})?$`                  | libaddressinput |                                                                                               |
+| 41  | RO  | Rumänien                     | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{6}$`                              | libaddressinput |                                                                                               |
+| 40  | RU  | Russland                     | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 212 | SM  | San Marino                   | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 24  | SE  | Schweden                     | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^(SE-)?\d{3}[ ]?\d{2}$`               | libaddressinput |                                                                                               |
+| 216 | RS  | Serbien                      | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 26  | SK  | Slowakische Republik         | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{3}[ ]?\d{2}$`                     | libaddressinput |                                                                                               |
+| 27  | SI  | Slowenien                    | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^(SI-)?\d{4}$`                        | libaddressinput |                                                                                               |
+| 8   | ES  | Spanien                      | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^(?:0[1-9]\|[1-4]\d\|5[0-2])\d{3}$`   | libaddressinput | Stockwerk/Tür („3º B“) im Adresszusatz                                                        |
+| 65  | ES  | Spanien, Balearen            | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^(?:0[1-9]\|[1-4]\d\|5[0-2])\d{3}$`   | libaddressinput | Stockwerk/Tür („3º B“) im Adresszusatz                                                        |
+| 6   | CZ  | Tschechische Republik        | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{3}[ ]?\d{2}$`                     | libaddressinput |                                                                                               |
+| 63  | TR  | Türkei                       | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 241 | UA  | Ukraine                      | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 14  | HU  | Ungarn                       | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{4}$`                              | libaddressinput |                                                                                               |
+| 243 | UY  | Uruguay                      | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 48  | BY  | Weißrussland                 | B      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 5   | CY  | Zypern                       | B      | Straße \| Nr.    | –                    | Pflicht, streng: `^\d{4}$`                              | libaddressinput |                                                                                               |
+| 29  | AU  | Australien                   | C      | Nr. \| Straße    | Pflicht (8), Kürzel  | Pflicht                                                 | libaddressinput | Labels „Postcode“, „State“                                                                    |
+| 10  | FR  | Frankreich                   | C      | Nr. \| Straße    | –                    | Pflicht, streng: `^\d{2}[ ]?\d{3}$`                     | libaddressinput | Nummer vorn („12 rue de la Paix“)                                                             |
+| 124 | GF  | Französisch Guayana          | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 131 | GI  | Gibraltar                    | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 12  | GB  | Großbritannien               | C      | eine Zeile       | –                    | Pflicht, streng: `^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]…`  | libaddressinput | PlentyONE nimmt eine Zeile ohne Hausnummer (englisches Formular); Label „Postcode“            |
+| 61  | GP  | Guadeloupe                   | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 148 | IM  | Insel Man (Isle of Man)      | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 16  | IE  | Irland                       | C      | Nr. \| Straße    | –                    | Pflicht, streng: `^([AC-FHKNPRTV-Y][0-9]{2}\|D6W)[ -]…` | libaddressinput | County nicht als Liste in PlentyONE                                                           |
+| 150 | JE  | Jersey                       | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 30  | CA  | Kanada                       | C      | Nr. \| Straße    | Pflicht (13), Kürzel | Pflicht                                                 | libaddressinput | PlentyONE: Provinz Pflicht; Label „Province“                                                  |
+| 17  | LU  | Luxemburg                    | C      | Nr. \| Straße    | –                    | Pflicht, streng: `^(L-)?\d{4}$`                         | libaddressinput | frz. Muster, Nummer vorn („12 rue …“)                                                         |
+| 56  | MY  | Malaysia                     | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 173 | YT  | Mayotte                      | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 35  | MC  | Monaco                       | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput | frz. Muster                                                                                   |
+| 66  | NZ  | Neuseeland                   | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput | Suburb im Adresszusatz                                                                        |
+| 200 | PH  | Philippinen                  | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 204 | RE  | Réunion                      | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 25  | SG  | Singapur                     | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 221 | ZA  | Südafrika                    | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 235 | TT  | Trinidad und Tobago          | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 28  | US  | USA                          | C      | Nr. \| Straße    | Pflicht (63), Kürzel | Pflicht                                                 | libaddressinput | PlentyONE und DHL: State Pflicht; Labels „ZIP code“, „State“                                  |
+| 31  | CN  | China                        | D      | Stadtteil \| Nr. | Pflicht (34)         | Pflicht                                                 | libaddressinput | Provinz Pflicht (PlentyONE 34 Einträge)                                                       |
+| 32  | JP  | Japan                        | D      | Stadtteil \| Nr. | Pflicht (47)         | Pflicht                                                 | libaddressinput | Präfektur Pflicht (PlentyONE 47 Einträge, lateinisch); „Block (Chōme-Ban-Gō)“ als Nummer      |
+| 155 | KR  | Südkorea                     | D      | Stadtteil \| Nr. | –                    | Pflicht                                                 | libaddressinput | Provinz (do/si) nicht in PlentyONE → mit Ort angeben                                          |
+| 53  | EG  | Ägypten                      | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 69  | DZ  | Algerien                     | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 87  | BO  | Bolivien                     | E      | Straße \| Nr.    | –                    | Pflicht                                                 | –               | kein Eintrag bei libaddressinput                                                              |
+| 109 | CR  | Costa Rica                   | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput | Adressen oft mit Landmarken („200 m norte de …“)                                              |
+| 115 | DO  | Dominikanische Republik      | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 116 | EC  | Ecuador                      | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 117 | SV  | El Salvador                  | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 130 | GH  | Ghana                        | E      | Straße \| Nr.    | –                    | Pflicht                                                 | –               | kein Eintrag bei libaddressinput; digitale Adressen (GhanaPostGPS)                            |
+| 57  | HK  | Hongkong                     | E      | Straße \| Nr.    | –                    | keine – unsichtbar „0“                                  | libaddressinput | Gebiet (HK Island/Kowloon/NT) nicht in PlentyONE → im Ort                                     |
+| 38  | IN  | Indien                       | E      | Straße \| Nr.    | Pflicht (36)         | Pflicht                                                 | libaddressinput | Haus/Gebäude als Nummer, Locality im Adresszusatz                                             |
+| 145 | ID  | Indonesien                   | E      | Straße \| Nr.    | optional (41)        | Pflicht                                                 | libaddressinput | Provinz laut libaddressinput Pflicht, im Shop optional ohne Hinweis                           |
+| 147 | IQ  | Irak                         | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 146 | IR  | Iran                         | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 149 | JM  | Jamaika                      | E      | Straße \| Nr.    | –                    | keine – unsichtbar „0“                                  | libaddressinput |                                                                                               |
+| 151 | JO  | Jordanien                    | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 98  | KY  | Kaimaninseln                 | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 95  | KH  | Kambodscha                   | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 97  | CV  | Kap Verde                    | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 203 | QA  | Katar                        | E      | Straße \| Nr.    | –                    | Pflicht                                                 | –               | kein Eintrag bei libaddressinput                                                              |
+| 104 | CO  | Kolumbien                    | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput | Sondermuster „Calle 26 # 13-19“                                                               |
+| 112 | CU  | Kuba                         | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 156 | KW  | Kuwait                       | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 159 | LB  | Libanon                      | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 161 | LR  | Liberia                      | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 162 | LY  | Libyen                       | E      | Straße \| Nr.    | –                    | Pflicht                                                 | –               | kein Eintrag bei libaddressinput                                                              |
+| 163 | MO  | Macau                        | E      | Straße \| Nr.    | –                    | keine – unsichtbar „0“                                  | libaddressinput |                                                                                               |
+| 55  | MV  | Malediven                    | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 19  | MT  | Malta                        | E      | Straße \| Nr.    | –                    | Pflicht, streng: `^[A-Z]{3}\s?\d{4}$`                   | libaddressinput | Hausname/Nummer uneinheitlich                                                                 |
+| 50  | MA  | Marokko                      | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 183 | NP  | Nepal                        | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 192 | OM  | Oman                         | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 193 | PK  | Pakistan                     | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 196 | PA  | Panama                       | E      | Straße \| Nr.    | –                    | keine – unsichtbar „0“                                  | libaddressinput |                                                                                               |
+| 214 | SA  | Saudi Arabien                | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput | National Address (Gebäudenr. + Straße + Bezirk) uneinheitlich                                 |
+| 223 | LK  | Sri Lanka                    | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 60  | TW  | Taiwan                       | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput | gebietsbasiert, aber nicht in Gruppe D verlangt                                               |
+| 62  | TH  | Thailand                     | E      | Straße \| Nr.    | optional (79)        | Pflicht                                                 | libaddressinput |                                                                                               |
+| 236 | TN  | Tunesien                     | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 245 | VE  | Venezuela                    | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
+| 254 | AE  | Vereinigte Arabische Emirate | E      | Straße \| Nr.    | –                    | keine – unsichtbar „0“                                  | libaddressinput | Emirat nicht in PlentyONE → im Ort                                                            |
+| 246 | VN  | Vietnam                      | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
 
 ## 5. Abwärtskompatibilität
 
-- **Speicherung:** gleiche Felder wie heute (Abschnitt 1) – keine Migration in PlentyONE.
-- **Bestellungen:** Bestelladressen sind eigene Kopien in PlentyONE und werden nicht verändert. Die Anzeige im
-  Konto (`OrderAddressData`: `address1` + `address2`) funktioniert auch mit leerem `address2`.
-- **Gruppe A:** unverändert, bestehende Adressen bleiben wie sie sind.
-- **Bestehende Adressen in B/C/D/E mit gefüllter Hausnummer** (Altformat aus LTS oder aus der PWA bis heute):
-  „Altformat“ (Entscheidung 2026-11-01) – beim Bearbeiten zeigt das Formular für **diese** Adresse weiter Straße | Hausnr.
-  (dazu die neuen Felder wie Bundesstaat), es wird nichts zusammengesetzt oder zerlegt. Erst wenn der Kunde
-  das Feld Hausnummer leert, gilt das neue Format. Es gibt kein automatisches Zusammensetzen.
+- **Speicherung:** gleiche Felder wie bisher (Abschnitt 1) – keine Migration in PlentyONE.
+- **Bestellungen:** Bestelladressen sind eigene Kopien in PlentyONE und werden nicht verändert.
+- **Bestehende Adressen:** Der Altbestand ist überall im deutschen Muster gespeichert (Straße, Nummer) und passt
+  damit in die zwei Felder aller Länder außer GB.
+- **Britische Adressen mit Hausnummer** (aus LTS oder bis 2026-11): „Altformat“ (Entscheidung 2026-11-01) – beim
+  Bearbeiten zeigt das Formular für **diese** Adresse weiter Straße | Hausnummer (Nummer optional), es wird nichts
+  zusammengesetzt oder zerlegt.
 - **US-/CA-Adressen ohne Bundesstaat:** werden beim nächsten Bearbeiten nach dem Staat gefragt. Laut
   Bestandsaufnahme betrifft das bisher einen US-Auftrag über die PWA; Altadressen aus LTS haben den Staat fast immer.
 
-## 6. Umsetzung (nach Freigabe)
+## 6. Umsetzung
 
-Alles im Modul `apps/web/modules/glas-jena`, keine Originaldatei wird geändert:
+Alles im Modul `apps/web/modules/glas-jena`, keine Originaldatei geändert:
 
-1. `runtime/utils/addressFormats.ts` – Konfiguration: Gruppen (Felder, Reihenfolge, Labels, Zuordnung) und
-   Länderliste (ISO-Code → Gruppe, Staat, PLZ-Pflicht, Muster, Label-Varianten) als Daten; Länder ohne
-   Eintrag → E. Dazu reine Funktionen: Format eines Landes, Schema-Regeln, Warnungen, PLZ-Normalisierung,
-   Altformat-Erkennung, Zusammensetzen beim Länderwechsel.
-2. `runtime/components/GlasJenaAddressFields.vue` – gemeinsamer Adressteil (Land, Adresszeilen, PLZ, Ort,
-   Staat, Telefon, Warnungen), genutzt von:
-3. Ersatz-Komponenten (`COMPONENT_OVERRIDES`): `AddressFormShipping`, `AddressFormBilling`, `AddressForm` –
-   Kopien der Originale, nur der Adressteil ersetzt; Registrierung per Seiten-Override (`PAGE_OVERRIDES`).
-4. `useAddressForm` und `useRegisterForm` per `IMPORT_OVERRIDES`: Schema je Land (Hausnummer nur in A Pflicht,
-   PLZ/Staat je Tabelle).
-5. Übersetzungen DE/EN in `runtime/lang`.
-6. Vertragstest `upstreamContract.spec.ts`: neue Abhängigkeiten (Feldnamen, Test-IDs, Komponenten, Composables).
-
-Kleine Commits in dieser Reihenfolge; gepusht wird erst auf deine Ansage.
+1. `runtime/utils/addressFormats.ts` – Länderdaten als Listen (Gruppen, GB als einzeiliges Land, Staaten
+   Pflicht/optional/Kürzel, Länder ohne PLZ, Beschriftungen) und reine Funktionen: Format eines Landes, Felder und
+   Zeilen in Reihenfolge, Auswahl der Staaten, PLZ-Normalisierung, Altformat, Zusammensetzen beim Wechsel nach GB,
+   Hinweise. Länder ohne Eintrag → E.
+2. `runtime/components/GlasJenaAddressCountry.vue` (Land oben) und `GlasJenaAddressFields.vue` (Adressteil mit
+   Telefon und Hinweisen).
+3. Ersatz-Komponenten (`COMPONENT_OVERRIDES`): `GlasJenaAddressFormShipping.vue`, `GlasJenaAddressFormBilling.vue`
+   (Kasse), `GlasJenaAddressForm.vue` (Mein Konto); Registrierung `pages/GlasJenaRegister.vue` (`PAGE_OVERRIDES`).
+   Kopien der Originale, erzeugt mit den Ersetzungen in `__tests__/addressFormCopy.ts`.
+4. `composables/useGlasJenaAddressForm.ts` (Prüfschema der Kasse, hüllt das Original ein) und
+   `composables/useGlasJenaRegisterForm.ts` (Kopie für die Registrierung).
+5. Übersetzungen DE/EN im i18n-Block von `GlasJenaAddressFields.vue`, Fehlertext Telefon in `runtime/lang`.
+6. Vertragstest `__tests__/upstreamContractAddress.spec.ts`: die Kopien müssen die Originale mit genau den
+   Ersetzungen sein; außerdem die Felder des Original-Schemas und die Feldzuordnung des Shop-Pakets.
 
 ## 7. Autovervollständigung (nur Vorschlag)
 
@@ -408,49 +378,41 @@ kostenlos ab. Falls später gewünscht: selbst gehostete Lösung auf OpenStreetM
 
 ### Unit-Tests (Vitest)
 
-- Jede der 125 PlentyONE-Länder-IDs ergibt ein Format; unbekannte → E.
-- Je Beispiel unten: Formularwerte → `Address` → `mapAddressForServer` ergibt die erwarteten PlentyONE-Felder.
-- Schema: Pflichtfelder, strenge PLZ, Warnungen, PLZ-Normalisierung, Altformat, Länderwechsel A ↔ C.
-- Komponenten: Formular baut sich je Land um (A, C, D, E).
+- `utils/__tests__/addressFormats.spec.ts`: Gruppen, Format je Land, Felder und Zeilen in Reihenfolge (DE, US, GB,
+  GB-Altformat, JP, HK, IT), Kürzel der Staaten, PLZ-Normalisierung, Zusammensetzen, Hinweise.
+- `components/__tests__/GlasJenaAddressFields.spec.ts`: Formular je Land, Altformat, Wechsel nach GB, Staat
+  leeren, unsichtbare PLZ „0“, Hinweise, PLZ beim Verlassen des Feldes.
+- `__tests__/upstreamContractAddress.spec.ts`: Vertragstest (Abschnitt 6).
 
-| Gruppe | Eingabe                                       | `address1`                           | `address2` | `address3` | `postalCode` | `town`      | `stateId` |
-| ------ | --------------------------------------------- | ------------------------------------ | ---------- | ---------- | ------------ | ----------- | --------- |
-| A DE   | Hauptstraße / 12a, 07743 Jena                 | Hauptstraße                          | 12a        |            | 07743        | Jena        |           |
-| A NL   | Keizersgracht / 123-2, 1015cj Amsterdam       | Keizersgracht                        | 123-2      |            | 1015CJ ¹     | Amsterdam   |           |
-| A AT   | Mariahilfer Straße / 1/3/12, 1060 Wien        | Mariahilfer Straße                   | 1/3/12     |            | 1060         | Wien        |           |
-| B IT   | Via Roma 12, 00184 Roma, Provinz Roma         | Via Roma 12                          |            |            | 00184        | Roma        | Roma      |
-| B ES   | Calle Mayor 5, 3º B, 28013 Madrid             | Calle Mayor 5, 3º B                  |            |            | 28013        | Madrid      |           |
-| C US   | 221 Baker St, Apt 4B, Springfield, IL 62704   | 221 Baker St                         |            | Apt 4B     | 62704        | Springfield | Illinois  |
-| C GB   | 10 Downing Street, London, sw1a 2aa           | 10 Downing Street                    |            |            | SW1A 2AA     | London      |           |
-| C FR   | 12 rue de la Paix, 75002 Paris                | 12 rue de la Paix                    |            |            | 75002        | Paris       |           |
-| C CA   | 24 Sussex Dr, Ottawa, ON K1M 1M4              | 24 Sussex Dr                         |            |            | K1M 1M4      | Ottawa      | Ontario   |
-| D JP   | 1-2-3 Marunouchi, Chiyoda-ku, Tokyo 100-0005  | 1-2-3 Marunouchi                     |            |            | 100-0005     | Chiyoda-ku  | Tokyo     |
-| E HK   | Flat A, 12/F, 1 Queen's Road Central, Central | Flat A, 12/F, 1 Queen's Road Central |            |            | (leer)       | Central     |           |
-| Alt US | gespeichert: Baker St / 221                   | Baker St                             | 221        |            | unverändert  |             |           |
+### Im Browser (lokal gegen PlentyONE, 2026-11-02)
 
-¹ Leerzeichen bleibt, wie eingegeben („1015 CJ“ bleibt „1015 CJ“), nur Großschreibung.
+Gastsitzung im lokalen Dev-Server, Adressen über das Formular gespeichert und die Antwort von PlentyONE geprüft:
 
-### Im Browser (lokal gegen PlentyONE)
+| Land | Eingabe                                          | `address1`           | `address2` | `address3`   | `postalCode` | `town`      | `stateId`     | Telefon         |
+| ---- | ------------------------------------------------ | -------------------- | ---------- | ------------ | ------------ | ----------- | ------------- | --------------- |
+| US   | 221 \| Baker St, Apt 4B, Springfield, IL, 62704  | Baker St             | 221        | Apt 4B       | 62704        | Springfield | 30 (Illinois) | +1 217 555 0100 |
+| HK   | 1 \| Queen's Road Central, Flat A, 12/F, Central | Queen's Road Central | 1          | Flat A, 12/F | 0            | Central     | –             | –               |
+| GB   | 10 Downing Street (eine Zeile), London, SW1A 2AA | 10 Downing Street    | –          | –            | SW1A 2AA     | London      | –             | –               |
 
-Gastsitzung im lokalen Dev-Server, je Gruppe eine Adresse speichern und die Antwort von PlentyONE
-(`mapAddressForClient`) gegen die Tabelle prüfen. ⚠ Das legt Gast-Adressen im echten PlentyONE an – freigegeben
-(2026-11-01).
+Abgelehnt (422 `address.validationFailed`): US und IT ohne Hausnummer, HK ohne PLZ. Geprüft außerdem: Layout
+Desktop und Handy (Kasse, Registrierung), Länderwechsel US → HK → GB → JP.
 
 ### Testbestellung und Etiketten
 
 Gastbestellungen im Online-Shop sind freigegeben (2026-11-01): z. B. je eine Bestellung US/GB/JP, im Backend
 prüfen (Auftragsadresse, DHL-Etikett), danach im Backend stornieren. Zahlungsart Vorkasse (löst nur die
 PDF-Auftragsbestätigung aus, keine Rechnung), Test-E-Mail-Adresse des Shopbetreibers. Die DHL-Übertragung macht
-der Shopbetreiber bei jedem Auftrag von Hand – auch beim Testauftrag.
+der Shopbetreiber bei jedem Auftrag von Hand – auch beim Testauftrag. ⚠ Noch offen.
 
 ## 9. Abdeckung
 
 - 125 Lieferländer: A 6, B 54, C 21, D 3, E 41.
-- Bundesstaat-Auswahl in 12 Ländern, Pflicht in 8.
+- Bundesstaat-Auswahl in 12 Ländern, Pflicht in 8, als Kürzel in 3.
 - Nicht abgedeckt: Landessprachliche Labels (nur DE/EN, die Shop-Sprachen); Anzeige von Adressen im Länderformat
-  (Konto, Bestätigung) bleibt wie heute; Postfach/PO Box ohne eigenes Feld (geht in Adresszeile 1).
+  (Konto, Kasse, Bestätigung) bleibt wie bisher („Baker St 221“, ohne Adresszusatz und Staat); Postfach/PO Box ohne
+  eigenes Feld.
 
-## 10. Offene Fragen und Annahmen
+## 10. Entscheidungen und Annahmen
 
 1. ~~Gruppe A nur DE/AT/CH/NL?~~ Geklärt (2026-11-01): ja, DE (mit Helgoland, Büsingen), AT, CH, NL; übrige Länder in B bzw. C.
 2. ~~Zeile 2 → `address3`?~~ Geklärt (2026-11-01): `address3` geht an DHL, `name4`/`address4` nicht.
@@ -462,6 +424,10 @@ der Shopbetreiber bei jedem Auftrag von Hand – auch beim Testauftrag.
    Shopbetreiber.
 8. ~~FedEx-Anbindung?~~ Geklärt (2026-11-01): kein FedEx, nur DHL.
 9. ~~Labels nur DE/EN?~~ Geklärt (2026-11-01): ja, die Shop-Sprachen; landesübliche Begriffe (ZIP code, Postcode, Eircode, Province, Prefecture) innerhalb von DE/EN.
+10. **Hausnummer und PLZ sind in PlentyONE Pflicht** (außer GB, Test 2026-11-02): zwei Felder Straße/Nummer in
+    allen Ländern außer GB (Entscheidung 2026-11-02, statt einer Zeile); Länder ohne PLZ schicken unsichtbar „0“.
+11. **Staaten als Kürzel** in US, CA, AU (Wunsch 2026-11-02).
+12. **Hinweise:** nur nicht-lateinische Schrift und Straße über 50 Zeichen (Auswahl 2026-11-01).
 
 ## Quellen
 
@@ -474,3 +440,5 @@ der Shopbetreiber bei jedem Auftrag von Hand – auch beim Testauftrag.
 - UPU-Länderdatenblätter (Postal addressing systems) wurden nicht einzeln geöffnet; die Gruppenzuordnung
   stützt sich auf libaddressinput und die Hinweise in der Tabelle.
 - DHL-Feldverwendung: Angabe des Shopbetreibers (2026-11-01); Etikett ⚠ noch nicht getestet, siehe Abschnitt 8.
+- Pflichtfelder von PlentyONE: Speichertests über die Shop-Schnittstelle am 2026-11-02 (Abschnitt 8) und
+  Konfiguration des Plugin-Sets „PWA-Plugin-Set“ (Ceres, lesend über die REST-Schnittstelle).
