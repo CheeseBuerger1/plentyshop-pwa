@@ -148,7 +148,8 @@ Straße, die Hausnummer muss der Kunde eintragen.
 
 Auswahlliste aus PlentyONE (`stateId`). Sichtbar, wenn PlentyONE eine Liste hat **und** der Staat laut
 libaddressinput zur Postanschrift gehört (bei DE, CH, NL also nicht). Pflicht, wenn PlentyONE ihn verlangt
-(US, CA) oder libaddressinput ihn verlangt (AU, BR, CN, ID, IN, IT, JP, MX); sonst optional (AR, TH).
+(US, CA) oder libaddressinput ihn verlangt (AU, BR, CN, IN, JP, MX); sonst optional ohne Hinweis (AR, ID, IT, TH;
+Entscheidung 2026-11-01: IT und ID nicht Pflicht, keine Warnung).
 
 ### 3.3 PLZ
 
@@ -223,7 +224,7 @@ libaddressinput-Eintrag oder mit uneinheitlichen Adressen (Landmarken, Gebäuden
 | 132 | GL  | Grönland                     | B      | –                   | Pflicht, Warnung: `39\d{2}`                                | libaddressinput |                                                                                                           |
 | 144 | IS  | Island                       | B      | –                   | optional, Warnung: `\d{3}`                                 | libaddressinput |                                                                                                           |
 | 59  | IL  | Israel                       | B      | –                   | optional, Warnung: `\d{5}(?:\d{2})?`                       | libaddressinput | Nummer hinter der Straße (hebr. Schreibweise)                                                             |
-| 15  | IT  | Italien                      | B      | Pflicht (107)       | Pflicht, streng: `^\d{5}$`                                 | libaddressinput | Provinz laut libaddressinput Pflicht (Kandidat für „nur Warnung“)                                         |
+| 15  | IT  | Italien                      | B      | optional (107)      | Pflicht, streng: `^\d{5}$`                                 | libaddressinput | Provinz laut libaddressinput Pflicht, im Shop optional ohne Hinweis                                       |
 | 37  | IC  | Kanarische Inseln            | B      | –                   | optional                                                   | –               | kein Eintrag bei libaddressinput; spanisches Muster (Correos)                                             |
 | 47  | KZ  | Kasachstan                   | B      | –                   | optional, Warnung: `\d{6}`                                 | libaddressinput |                                                                                                           |
 | 45  | XK  | Kosovo                       | B      | –                   | optional, Warnung: `[1-7]\d{4}`                            | libaddressinput |                                                                                                           |
@@ -291,7 +292,7 @@ libaddressinput-Eintrag oder mit uneinheitlichen Adressen (Landmarken, Gebäuden
 | 130 | GH  | Ghana                        | E      | –                   | optional                                                   | –               | kein Eintrag bei libaddressinput; digitale Adressen (GhanaPostGPS)                                        |
 | 57  | HK  | Hongkong                     | E      | –                   | keine PLZ                                                  | libaddressinput | keine PLZ; Gebiet (HK Island/Kowloon/NT) nicht in PlentyONE → im Ort                                      |
 | 38  | IN  | Indien                       | E      | Pflicht (36)        | Pflicht, Warnung: `\d{6}`                                  | libaddressinput | freie Zeilen üblich (Haus, Straße, Locality)                                                              |
-| 145 | ID  | Indonesien                   | E      | Pflicht (41)        | optional, Warnung: `\d{5}`                                 | libaddressinput | Provinz laut libaddressinput Pflicht, PlentyONE hat 41 Einträge                                           |
+| 145 | ID  | Indonesien                   | E      | optional (41)       | optional, Warnung: `\d{5}`                                 | libaddressinput | Provinz laut libaddressinput Pflicht, im Shop optional ohne Hinweis                                       |
 | 147 | IQ  | Irak                         | E      | –                   | optional, Warnung: `\d{5}`                                 | libaddressinput |                                                                                                           |
 | 146 | IR  | Iran                         | E      | –                   | optional, Warnung: `\d{5}-?\d{5}`                          | libaddressinput |                                                                                                           |
 | 149 | JM  | Jamaika                      | E      | –                   | keine PLZ                                                  | libaddressinput |                                                                                                           |
@@ -404,7 +405,7 @@ erzeugst du selbst bzw. gibst sie frei, damit keine echte Sendung entsteht.
 ## 9. Abdeckung
 
 - 125 Lieferländer: A 6, B 54, C 21, D 3, E 41.
-- Bundesstaat-Auswahl in 12 Ländern, Pflicht in 10.
+- Bundesstaat-Auswahl in 12 Ländern, Pflicht in 8.
 - Nicht abgedeckt: Landessprachliche Labels (nur DE/EN, die Shop-Sprachen); Anzeige von Adressen im Länderformat
   (Konto, Bestätigung) bleibt wie heute; Postfach/PO Box ohne eigenes Feld (geht in Adresszeile 1).
 
@@ -413,7 +414,7 @@ erzeugst du selbst bzw. gibst sie frei, damit keine echte Sendung entsteht.
 1. ~~Gruppe A nur DE/AT/CH/NL?~~ Geklärt (2026-11-01): ja, DE (mit Helgoland, Büsingen), AT, CH, NL; übrige Länder in B bzw. C.
 2. ~~Zeile 2 → `address3`?~~ Geklärt (2026-11-01): `address3` geht an DHL, `name4`/`address4` nicht.
 3. ~~Telefon?~~ Geklärt (2026-11-01): optionales Feld; kein eigener Ansprechpartner bei Firmen.
-4. **Bundesstaat Pflicht** in US, CA, AU, BR, CN, ID, IN, IT, JP, MX – oder bei IT/ID nur Warnung?
+4. ~~Bundesstaat Pflicht?~~ Geklärt (2026-11-01): Pflicht in US, CA, AU, BR, CN, IN, JP, MX; IT und ID optional ohne Hinweis.
 5. **Altadressen:** Altformat beim Bearbeiten beibehalten (Empfehlung) oder sichtbar zusammensetzen?
 6. **Tests mit dem echten PlentyONE:** Gast-Adressen anlegen in Ordnung? Testbestellungen – Zahlungsart,
    Storno, wer erzeugt Etiketten?
