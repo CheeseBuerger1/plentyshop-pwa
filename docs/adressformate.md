@@ -1,6 +1,6 @@
 # Adressformate je Lieferland (Konzept)
 
-Stand 2026-10-31, Branch `feat/address-formats`. **Entwurf zur Freigabe – noch nichts umgesetzt.**
+Stand 2026-11-01, Branch `feat/address-formats`. **Entwurf zur Freigabe – noch nichts umgesetzt.**
 Unsichere Punkte sind mit ⚠ markiert; die offenen Fragen stehen in Abschnitt 10.
 
 ## 1. Ist-Zustand
@@ -20,7 +20,7 @@ Unsichere Punkte sind mit ⚠ markiert; die offenen Fragen stehen in Abschnitt 1
   (Fehlertext ist der Packstation-Text „PLZ ungültig“). Länder ohne PLZ (Hongkong, VAE, Macau, Panama,
   Jamaika) können nur mit erfundener PLZ bestellen.
 - **Bundesstaat fehlt in der Kasse ganz.** PlentyONE meldet für USA und Kanada `isCountryStateMandatory: true`;
-  US-/Kanada-Adressen aus der Kasse haben also keinen Bundesstaat – für FedEx/DHL-Etiketten ein Fehlerrisiko.
+  US-/Kanada-Adressen aus der Kasse haben also keinen Bundesstaat – für DHL-Etiketten ein Fehlerrisiko.
 - Telefon gibt es in der Kasse nicht (nur im Konto, optional).
 - Ein Adresszusatz (address3) wird vom Shop-Paket übertragen, aber in keinem Formular abgefragt.
 - Packstation/Postfiliale (nur DE) schreibt „Packstation“/„Postfiliale“ in `streetName` und die Nummer in
@@ -33,31 +33,31 @@ Unsichere Punkte sind mit ⚠ markiert; die offenen Fragen stehen in Abschnitt 1
 Das Shop-Paket (`@plentymarkets/shop-api` 0.188.0, `mapAddressForServer`/`mapAddressForClient`) speichert über
 `/rest/storefront/contact/addresses`:
 
-| Formularfeld (`Address`)       | PlentyONE-Feld             | Bedeutung in PlentyONE                         |
-| ------------------------------ | -------------------------- | ---------------------------------------------- |
-| `companyName`                  | `name1`                    | Firma                                          |
-| `firstName`                    | `name2`                    | Vorname                                        |
-| `lastName`                     | `name3`                    | Nachname                                       |
-| –                              | `name4`                    | Zusatz/c/o (nicht genutzt)                     |
-| `streetName`                   | `address1`                 | Straße (bzw. „Packstation“)                    |
-| `apartment`                    | `address2`                 | Hausnummer (bzw. Packstationsnummer)           |
-| `additionalAddressInformation` | `address3`                 | Adresszusatz                                   |
-| –                              | `address4`                 | Freifeld (nicht genutzt)                       |
-| `zipCode`                      | `postalCode`               | PLZ                                            |
-| `city`                         | `town`                     | Ort                                            |
-| `state`                        | `stateId`                  | Bundesland/-staat (ID aus der PlentyONE-Liste) |
-| `country`                      | `countryId`                | Land (PlentyONE-ID)                            |
-| `phoneNumber`                  | `telephone` → Option Typ 4 | Telefon                                        |
-| `postNumber`                   | Option Typ 6               | DHL-Postnummer                                 |
-| `vatNumber`                    | `vatNumber`                | USt-IdNr.                                      |
+| Formularfeld (`Address`)       | PlentyONE-Feld             | Bedeutung in PlentyONE                          |
+| ------------------------------ | -------------------------- | ----------------------------------------------- |
+| `companyName`                  | `name1`                    | Firma                                           |
+| `firstName`                    | `name2`                    | Vorname                                         |
+| `lastName`                     | `name3`                    | Nachname                                        |
+| –                              | `name4`                    | Namenszusatz (nicht genutzt, geht nicht an DHL) |
+| `streetName`                   | `address1`                 | Straße (bzw. „Packstation“)                     |
+| `apartment`                    | `address2`                 | Hausnummer (bzw. Packstationsnummer)            |
+| `additionalAddressInformation` | `address3`                 | Adresszusatz                                    |
+| –                              | `address4`                 | Adressfeld 4 (nicht genutzt, geht nicht an DHL) |
+| `zipCode`                      | `postalCode`               | PLZ                                             |
+| `city`                         | `town`                     | Ort                                             |
+| `state`                        | `stateId`                  | Bundesland/-staat (ID aus der PlentyONE-Liste)  |
+| `country`                      | `countryId`                | Land (PlentyONE-ID)                             |
+| `phoneNumber`                  | `telephone` → Option Typ 4 | Telefon                                         |
+| `postNumber`                   | Option Typ 6               | DHL-Postnummer                                  |
+| `vatNumber`                    | `vatNumber`                | USt-IdNr.                                       |
 
 Eine neue Datenstruktur ist also **nicht** nötig: alle benötigten Felder kommen schon heute bei PlentyONE an.
 
-⚠ **Versanddienstleister:** Wie die DHL- und die FedEx-Anbindung in PlentyONE `address1`–`address3`
-verwenden, ist aus dem Code nicht ablesbar. Annahme: DHL setzt Straße = `address1`, Hausnummer = `address2`,
-Zusatz = `address3`; bei leerem `address2` steht die vollständige Zeile in `address1` (DHL Parcel API erlaubt
-die Hausnummer im Straßenfeld für internationale Sendungen). Für FedEx ist offen, ob `address3` auf dem
-Etikett landet und ob die 35-Zeichen-Grenze je Adresszeile greift. → Etikettentest, siehe Abschnitt 8.
+**Versand:** nur DHL (FedEx ist im Shop nicht verfügbar). Laut Shopbetreiber überträgt PlentyONE an DHL Straße
+(`address1`), Hausnummer (`address2`) und Adresszusatz (`address3`); Namenszusatz (`name4`) und Adressfeld 4
+(`address4`) gehen **nicht** an DHL. Das Konzept nutzt deshalb nur `address1`–`address3`.
+⚠ Noch offen: ob DHL eine vollständige Zeile in `address1` bei leerem `address2` annimmt (die DHL-API erlaubt
+das für internationale Sendungen) und ob der Bundesstaat übertragen wird. → Etikettentest, siehe Abschnitt 8.
 
 ### Aktive Lieferländer
 
@@ -99,7 +99,7 @@ NL: Hausnummer mit Zusatz („123-2“, „12 A“) ins Feld Hausnr.
 | Feld          | DE / EN                                                                    | Pflicht    | PlentyONE                |
 | ------------- | -------------------------------------------------------------------------- | ---------- | ------------------------ |
 | Adresszeile 1 | Hausnummer und Straße / Street address                                     | ja         | `address1` (vollständig) |
-| Adresszeile 2 | Wohnung, Suite, Gebäude / Apt, suite, unit, building                       | nein       | `address3` ⚠             |
+| Adresszeile 2 | Wohnung, Suite, Gebäude / Apt, suite, unit, building                       | nein       | `address3`               |
 | Ort           | Ort / City (GB: Town/City)                                                 | ja         | `town`                   |
 | Bundesstaat   | Bundesstaat/Provinz / State, Province                                      | je Tabelle | `stateId`                |
 | PLZ           | PLZ / ZIP code (US), Postal code (CA), Postcode (GB, AU, NZ), Eircode (IE) | je Tabelle | `postalCode`             |
@@ -124,7 +124,7 @@ PLZ 100-0005, Präfektur Tokyo, Ort Chiyoda-ku, Adresse 1-2-3 Marunouchi.
 | Feld          | DE / EN                                                  | Pflicht                | PlentyONE            |
 | ------------- | -------------------------------------------------------- | ---------------------- | -------------------- |
 | Adresszeile 1 | Adresse / Address line 1                                 | ja                     | `address1`           |
-| Adresszeile 2 | Adresszeile 2 / Address line 2                           | nein                   | `address3` ⚠         |
+| Adresszeile 2 | Adresszeile 2 / Address line 2                           | nein                   | `address3`           |
 | PLZ \| Ort    | Postleitzahl / Postal code · Ort / City                  | PLZ je Tabelle, Ort ja | `postalCode`, `town` |
 | Region        | Region / State, region (nur wo PlentyONE eine Liste hat) | je Tabelle             | `stateId`            |
 
@@ -157,8 +157,8 @@ libaddressinput zur Postanschrift gehört (bei DE, CH, NL also nicht). Pflicht, 
 
 ### 3.4 Telefon
 
-⚠ Entscheidung offen (Frage 3). Vorschlag: in der Kasse für alle Länder außer DE als optionales Feld, Pflicht
-für USA (FedEx verlangt eine Empfänger-Telefonnummer). Speicherung über die vorhandene Option Typ 4.
+⚠ Entscheidung offen (Frage 3). Ohne FedEx verlangt kein Versandweg eine Telefonnummer. Möglich: in der Kasse
+für Länder außer DE als optionales Feld (Speicherung über die vorhandene Option Typ 4) oder wie heute weglassen.
 
 ### 3.5 Warnungen statt Blockaden
 
@@ -168,7 +168,7 @@ Gelb, nicht blockierend:
 - Nicht-lateinische Zeichen (z. B. Kanji, Kyrillisch): „Bitte in lateinischen Buchstaben, damit das
   Versandetikett lesbar ist.“
 - Gruppe C: Adresszeile 1 ohne Ziffer („Hausnummer vergessen?“).
-- USA: Adresszeile länger als 35 Zeichen (FedEx-Grenze ⚠).
+- Adresszeile 1 länger als 50 Zeichen (Grenze des DHL-Straßenfelds ⚠).
 
 Blockierend bleiben nur: Pflichtfelder, PlentyONE-PLZ-Regex, Bundesstaat bei Pflicht-Ländern.
 
@@ -269,7 +269,7 @@ libaddressinput-Eintrag oder mit uneinheitlichen Adressen (Landmarken, Gebäuden
 | 25  | SG  | Singapur                     | C      | –                   | Pflicht, Warnung: `\d{6}`                                  | libaddressinput |                                                                                                           |
 | 221 | ZA  | Südafrika                    | C      | –                   | Pflicht, Warnung: `\d{4}`                                  | libaddressinput |                                                                                                           |
 | 235 | TT  | Trinidad und Tobago          | C      | –                   | optional, Warnung: `\d{6}`                                 | libaddressinput |                                                                                                           |
-| 28  | US  | USA                          | C      | Pflicht (63)        | Pflicht, Warnung: `(\d{5})(?:[ \-](\d{4}))?`               | libaddressinput | FedEx/DHL verlangen State; Labels „ZIP code“, „State“                                                     |
+| 28  | US  | USA                          | C      | Pflicht (63)        | Pflicht, Warnung: `(\d{5})(?:[ \-](\d{4}))?`               | libaddressinput | PlentyONE: State Pflicht; Labels „ZIP code“, „State“                                                      |
 | 31  | CN  | China                        | D      | Pflicht (34)        | Pflicht, Warnung: `\d{6}`                                  | libaddressinput | Provinz Pflicht (PlentyONE 34 Einträge); Bezirk + Straße + Nr. in Zeile 1                                 |
 | 32  | JP  | Japan                        | D      | Pflicht (47)        | Pflicht, Warnung: `\d{3}-?\d{4}`                           | libaddressinput | Präfektur Pflicht (PlentyONE 47 Einträge, lateinisch); Chōme-Ban-Gō in Zeile 1, Gebäude/Zimmer in Zeile 2 |
 | 155 | KR  | Südkorea                     | D      | –                   | Pflicht, Warnung: `\d{5}`                                  | libaddressinput | Provinz (do/si) nicht in PlentyONE → mit Ort angeben                                                      |
@@ -390,7 +390,7 @@ deiner Freigabe (Frage 6).
 ### Testbestellung und Etiketten
 
 Nur nach deiner Freigabe und in der von dir gewählten Form (Frage 6): z. B. je eine Bestellung US/GB/JP mit
-Vorkasse, im Backend prüfen (Auftragsadresse, Etikettenvorschau DHL/FedEx), danach stornieren. Etiketten
+Vorkasse, im Backend prüfen (Auftragsadresse, DHL-Etikett), danach stornieren. Etiketten
 erzeugst du selbst bzw. gibst sie frei, damit keine echte Sendung entsteht.
 
 ## 9. Abdeckung
@@ -403,9 +403,8 @@ erzeugst du selbst bzw. gibst sie frei, damit keine echte Sendung entsteht.
 ## 10. Offene Fragen und Annahmen
 
 1. **Gruppe A** nur DE/AT/CH/NL (wie in deiner Vorgabe)? BE, LU, LI, DK usw. stehen in B bzw. C.
-2. **Zeile 2 → `address3`** (Adresszusatz) in B–E. Alternative `address2`. Hängt davon ab, was DHL/FedEx auf
-   das Etikett übernehmen (Etikettentest); in der Konfiguration ist das eine Zeile.
-3. **Telefon:** optional für alle Länder außer DE und Pflicht für USA? Weitere Länder?
+2. ~~Zeile 2 → `address3`?~~ Geklärt (2026-11-01): `address3` geht an DHL, `name4`/`address4` nicht.
+3. **Telefon:** optional für Länder außer DE oder weiter weglassen?
 4. **Bundesstaat Pflicht** in US, CA, AU, BR, CN, ID, IN, IT, JP, MX – oder bei IT/ID nur Warnung?
 5. **Altadressen:** Altformat beim Bearbeiten beibehalten (Empfehlung) oder sichtbar zusammensetzen?
 6. **Tests mit dem echten PlentyONE:** Gast-Adressen anlegen in Ordnung? Testbestellungen – Zahlungsart,
@@ -413,8 +412,7 @@ erzeugst du selbst bzw. gibst sie frei, damit keine echte Sendung entsteht.
 7. **Bestandsaufnahme (nur lesend):** Darf ich im Backend per REST zählen, wie Adressen/Aufträge aus US, GB,
    JP usw. heute aussehen (Hausnummer in `address1` oder `address2`, US mit/ohne `stateId`)? Dafür müsstest du
    dich in meinem Tab anmelden.
-8. **FedEx-Anbindung:** Welche ist im Einsatz (PlentyONE-FedEx-Integration, Versanddienst wie Sendcloud …)?
-   Für welche Versandprofile/Länder?
+8. ~~FedEx-Anbindung?~~ Geklärt (2026-11-01): kein FedEx, nur DHL.
 9. **Annahme:** Labels nur auf DE/EN, nicht in der Landessprache.
 
 ## Quellen
@@ -427,4 +425,4 @@ erzeugst du selbst bzw. gibst sie frei, damit keine echte Sendung entsteht.
 - `@plentymarkets/shop-api` 0.188.0, `mapAddressForServer`/`mapAddressForClient` (Feldzuordnung).
 - UPU-Länderdatenblätter (Postal addressing systems) wurden nicht einzeln geöffnet; die Gruppenzuordnung
   stützt sich auf libaddressinput und die Hinweise in der Tabelle.
-- DHL-/FedEx-Feldverwendung: ⚠ nicht verifiziert, siehe Abschnitt 8.
+- DHL-Feldverwendung: Angabe des Shopbetreibers (2026-11-01); Etikett ⚠ noch nicht getestet, siehe Abschnitt 8.
