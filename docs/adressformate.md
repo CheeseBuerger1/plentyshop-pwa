@@ -410,7 +410,7 @@ erzeugst du selbst bzw. gibst sie frei, damit keine echte Sendung entsteht.
 
 ## 10. Offene Fragen und Annahmen
 
-1. **Gruppe A** nur DE/AT/CH/NL (wie in deiner Vorgabe)? BE, LU, LI, DK usw. stehen in B bzw. C.
+1. ~~Gruppe A nur DE/AT/CH/NL?~~ Geklärt (2026-11-01): ja, DE (mit Helgoland, Büsingen), AT, CH, NL; übrige Länder in B bzw. C.
 2. ~~Zeile 2 → `address3`?~~ Geklärt (2026-11-01): `address3` geht an DHL, `name4`/`address4` nicht.
 3. ~~Telefon?~~ Geklärt (2026-11-01): optionales Feld; kein eigener Ansprechpartner bei Firmen.
 4. **Bundesstaat Pflicht** in US, CA, AU, BR, CN, ID, IN, IT, JP, MX – oder bei IT/ID nur Warnung?
