@@ -1,7 +1,7 @@
 # Adressformate je Lieferland (Konzept)
 
-Stand 2026-11-01, Branch `feat/address-formats`. **Entwurf zur Freigabe – noch nichts umgesetzt.**
-Unsichere Punkte sind mit ⚠ markiert; die offenen Fragen stehen in Abschnitt 10.
+Stand 2026-11-01, Branch `feat/address-formats`. **Alle Fragen geklärt (Abschnitt 10) – noch nichts umgesetzt.**
+Unsichere Punkte sind mit ⚠ markiert.
 
 ## 1. Ist-Zustand
 
@@ -331,12 +331,11 @@ libaddressinput-Eintrag oder mit uneinheitlichen Adressen (Landmarken, Gebäuden
   Konto (`OrderAddressData`: `address1` + `address2`) funktioniert auch mit leerem `address2`.
 - **Gruppe A:** unverändert, bestehende Adressen bleiben wie sie sind.
 - **Bestehende Adressen in B/C/D/E mit gefüllter Hausnummer** (Altformat aus LTS oder aus der PWA bis heute):
-  Vorschlag „Altformat“ – beim Bearbeiten zeigt das Formular für **diese** Adresse weiter Straße | Hausnr.
+  „Altformat“ (Entscheidung 2026-11-01) – beim Bearbeiten zeigt das Formular für **diese** Adresse weiter Straße | Hausnr.
   (dazu die neuen Felder wie Bundesstaat), es wird nichts zusammengesetzt oder zerlegt. Erst wenn der Kunde
-  das Feld Hausnummer leert, gilt das neue Format. Alternative: beim Öffnen sichtbar zu einer Zeile
-  zusammensetzen (Frage 5).
+  das Feld Hausnummer leert, gilt das neue Format. Es gibt kein automatisches Zusammensetzen.
 - **US-/CA-Adressen ohne Bundesstaat:** werden beim nächsten Bearbeiten nach dem Staat gefragt. ⚠ Ob gespeicherte
-  Adressen ohne Staat beim Bestellen schon heute Probleme machen, zeigt die Bestandsaufnahme (Frage 7).
+  Adressen ohne Staat beim Bestellen schon heute Probleme machen, zeigt die Bestandsaufnahme (Abschnitt 10, Punkt 7).
 
 ## 6. Umsetzung (nach Freigabe)
 
@@ -393,14 +392,14 @@ kostenlos ab. Falls später gewünscht: selbst gehostete Lösung auf OpenStreetM
 ### Im Browser (lokal gegen PlentyONE)
 
 Gastsitzung im lokalen Dev-Server, je Gruppe eine Adresse speichern und die Antwort von PlentyONE
-(`mapAddressForClient`) gegen die Tabelle prüfen. ⚠ Das legt Gast-Adressen im echten PlentyONE an – nur nach
-deiner Freigabe (Frage 6).
+(`mapAddressForClient`) gegen die Tabelle prüfen. ⚠ Das legt Gast-Adressen im echten PlentyONE an – freigegeben
+(2026-11-01).
 
 ### Testbestellung und Etiketten
 
-Nur nach deiner Freigabe und in der von dir gewählten Form (Frage 6): z. B. je eine Bestellung US/GB/JP mit
-Vorkasse, im Backend prüfen (Auftragsadresse, DHL-Etikett), danach stornieren. Etiketten
-erzeugst du selbst bzw. gibst sie frei, damit keine echte Sendung entsteht.
+Gastbestellungen im Online-Shop sind freigegeben (2026-11-01): z. B. je eine Bestellung US/GB/JP, im Backend
+prüfen (Auftragsadresse, DHL-Etikett), danach stornieren. Zahlungsart, E-Mail-Adresse und den Umgang mit
+Rechnungen und Etiketten stimme ich vorher mit dem Shopbetreiber ab.
 
 ## 9. Abdeckung
 
@@ -415,12 +414,10 @@ erzeugst du selbst bzw. gibst sie frei, damit keine echte Sendung entsteht.
 2. ~~Zeile 2 → `address3`?~~ Geklärt (2026-11-01): `address3` geht an DHL, `name4`/`address4` nicht.
 3. ~~Telefon?~~ Geklärt (2026-11-01): optionales Feld; kein eigener Ansprechpartner bei Firmen.
 4. ~~Bundesstaat Pflicht?~~ Geklärt (2026-11-01): Pflicht in US, CA, AU, BR, CN, IN, JP, MX; IT und ID optional ohne Hinweis.
-5. **Altadressen:** Altformat beim Bearbeiten beibehalten (Empfehlung) oder sichtbar zusammensetzen?
-6. **Tests mit dem echten PlentyONE:** Gast-Adressen anlegen in Ordnung? Testbestellungen – Zahlungsart,
-   Storno, wer erzeugt Etiketten?
-7. **Bestandsaufnahme (nur lesend):** Darf ich im Backend per REST zählen, wie Adressen/Aufträge aus US, GB,
-   JP usw. heute aussehen (Hausnummer in `address1` oder `address2`, US mit/ohne `stateId`)? Dafür müsstest du
-   dich in meinem Tab anmelden.
+5. ~~Altadressen?~~ Geklärt (2026-11-01): Altformat beim Bearbeiten beibehalten, nichts zusammensetzen.
+6. ~~Tests mit dem echten PlentyONE?~~ Geklärt (2026-11-01): Gastbestellungen im Online-Shop freigegeben.
+7. ~~Bestandsaufnahme?~~ Geklärt (2026-11-01): Einblick ins Backend freigegeben (lesend), Anmeldung durch den
+   Shopbetreiber.
 8. ~~FedEx-Anbindung?~~ Geklärt (2026-11-01): kein FedEx, nur DHL.
 9. ~~Labels nur DE/EN?~~ Geklärt (2026-11-01): ja, die Shop-Sprachen; landesübliche Begriffe (ZIP code, Postcode, Eircode, Province, Prefecture) innerhalb von DE/EN.
 
