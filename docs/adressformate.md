@@ -398,8 +398,9 @@ Gastsitzung im lokalen Dev-Server, je Gruppe eine Adresse speichern und die Antw
 ### Testbestellung und Etiketten
 
 Gastbestellungen im Online-Shop sind freigegeben (2026-11-01): z. B. je eine Bestellung US/GB/JP, im Backend
-prüfen (Auftragsadresse, DHL-Etikett), danach stornieren. Zahlungsart, E-Mail-Adresse und den Umgang mit
-Rechnungen und Etiketten stimme ich vorher mit dem Shopbetreiber ab.
+prüfen (Auftragsadresse, DHL-Etikett), danach im Backend stornieren. Zahlungsart Vorkasse (löst nur die
+PDF-Auftragsbestätigung aus, keine Rechnung), Test-E-Mail-Adresse des Shopbetreibers. Die DHL-Übertragung macht
+der Shopbetreiber bei jedem Auftrag von Hand – auch beim Testauftrag.
 
 ## 9. Abdeckung
 
