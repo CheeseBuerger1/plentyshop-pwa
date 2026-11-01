@@ -6,5 +6,8 @@
       "status": "Measures whether an order was placed via a Google ad (conversion tracking). Google may receive the e-mail address given with the order in hashed (pseudonymised) form.",
       "lifespan": "up to 2 years"
     }
+  },
+  "glasJenaAddress": {
+    "phoneInvalid": "Please enter a phone number of 7 to 18 characters."
   }
 }

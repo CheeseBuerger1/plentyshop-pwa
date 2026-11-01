@@ -72,13 +72,27 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   Gallery: './runtime/components/GlasJenaGallery.vue',
   /* Breadcrumbs: unchanged on the page, for search engines with their real names and absolute addresses */
   UiBreadcrumbs: './runtime/components/GlasJenaBreadcrumbs.vue',
+  /*
+   * Address forms (checkout, account): country first, street and house number apart in DE, AT, CH, NL only, state,
+   * postal code and labels per country, address line 2 and phone number, see utils/addressFormats.ts and
+   * docs/adressformate.md
+   */
+  AddressFormShipping: './runtime/components/GlasJenaAddressFormShipping.vue',
+  AddressFormBilling: './runtime/components/GlasJenaAddressFormBilling.vue',
+  AddressForm: './runtime/components/GlasJenaAddressForm.vue',
 };
 
 /**
  * Replaced components whose original unit test takes the component from Nuxt's registry (`#components`): in the
  * unit tests the original stays, so that upstream test keeps testing the original (the module's copy has its own).
  */
-export const COMPONENT_OVERRIDES_NOT_IN_TESTS = ['CategoryTree', 'UiProductCard', 'Gallery', 'UiBreadcrumbs'];
+export const COMPONENT_OVERRIDES_NOT_IN_TESTS = [
+  'CategoryTree',
+  'UiProductCard',
+  'Gallery',
+  'UiBreadcrumbs',
+  'AddressForm',
+];
 
 /**
  * Files the service worker may precache without a revision: none (a pattern that matches no address), see the hook
@@ -162,6 +176,8 @@ export const PAGE_OVERRIDES: Record<string, string> = {
   '/pages/search.vue': './runtime/pages/GlasJenaSearch.vue',
   /* Cart like the LTS shop: introduction, country of delivery and shipping method below the articles, no "Zurück" */
   '/pages/cart.vue': './runtime/pages/GlasJenaCart.vue',
+  /* Registration: the address part per country like the checkout, see utils/addressFormats.ts */
+  '/pages/register.vue': './runtime/pages/GlasJenaRegister.vue',
 };
 
 const getPageFile = (page: NuxtPage) => page.file?.replace(/\\/g, '/') ?? '';

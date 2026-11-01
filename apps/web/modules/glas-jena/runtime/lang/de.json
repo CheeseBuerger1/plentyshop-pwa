@@ -6,5 +6,8 @@
       "status": "Misst, ob eine Bestellung über eine Google-Anzeige zustande gekommen ist (Conversion-Tracking). Dabei kann Google die bei der Bestellung angegebene E-Mail-Adresse in gehashter (pseudonymisierter) Form erhalten.",
       "lifespan": "bis zu 2 Jahre"
     }
+  },
+  "glasJenaAddress": {
+    "phoneInvalid": "Bitte geben Sie eine Telefonnummer mit 7 bis 18 Zeichen ein."
   }
 }
