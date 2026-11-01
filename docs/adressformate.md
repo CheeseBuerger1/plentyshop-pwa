@@ -422,7 +422,7 @@ erzeugst du selbst bzw. gibst sie frei, damit keine echte Sendung entsteht.
    JP usw. heute aussehen (Hausnummer in `address1` oder `address2`, US mit/ohne `stateId`)? Dafür müsstest du
    dich in meinem Tab anmelden.
 8. ~~FedEx-Anbindung?~~ Geklärt (2026-11-01): kein FedEx, nur DHL.
-9. **Annahme:** Labels nur auf DE/EN, nicht in der Landessprache.
+9. ~~Labels nur DE/EN?~~ Geklärt (2026-11-01): ja, die Shop-Sprachen; landesübliche Begriffe (ZIP code, Postcode, Eircode, Province, Prefecture) innerhalb von DE/EN.
 
 ## Quellen
 
