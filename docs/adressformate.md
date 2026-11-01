@@ -59,8 +59,9 @@ Eine neue Datenstruktur ist also **nicht** nötig: alle benötigten Felder komme
 Auf dem DHL-Etikett steht der Adresszusatz **über** Straße und Hausnummer. Das passt zu den Postmustern: c/o,
 Hinterhaus (DE), Flat/Gebäudename (GB), Apt/Suite (US, laut USPS über der Zustellzeile zulässig), Gebäude/Zimmer
 (JP) stehen dort ebenfalls über oder vor der Straßenzeile.
+Der Bundesstaat (`stateId`) wird an DHL übertragen und ist für die USA dort Pflicht (Shopbetreiber, 2026-11-01).
 ⚠ Noch offen: ob DHL eine vollständige Zeile in `address1` bei leerem `address2` annimmt (die DHL-API erlaubt
-das für internationale Sendungen) und ob der Bundesstaat übertragen wird. → Etikettentest, siehe Abschnitt 8.
+das für internationale Sendungen). → Etikettentest, siehe Abschnitt 8.
 
 ### Aktive Lieferländer
 
@@ -72,7 +73,9 @@ und PLZ-Regex für 37 Länder. Die Rechnungsländer (30, EU/EWR) sind eine Teilm
 ## 2. Gruppen
 
 Alle Gruppen beginnen mit **Land**, danach Vorname | Nachname und der Firmen-Umschalter (Firma, USt-IdNr.)
-wie heute. Unterschiede gibt es nur im Adressteil:
+wie heute. Einen eigenen Ansprechpartner bei Firmen gibt es nicht (wie bisher im Shop): wer einen nennen will,
+trägt ihn bei Vorname/Nachname ein (Entscheidung 2026-11-01). Nach dem Adressteil folgt das optionale
+Telefonfeld (3.4). Unterschiede zwischen den Gruppen gibt es nur im Adressteil:
 
 ### A – Straße und Hausnummer getrennt (DE, AT, CH, NL; DE-Sondergebiete)
 
@@ -160,8 +163,10 @@ libaddressinput zur Postanschrift gehört (bei DE, CH, NL also nicht). Pflicht, 
 
 ### 3.4 Telefon
 
-⚠ Entscheidung offen (Frage 3). Ohne FedEx verlangt kein Versandweg eine Telefonnummer. Möglich: in der Kasse
-für Länder außer DE als optionales Feld (Speicherung über die vorhandene Option Typ 4) oder wie heute weglassen.
+Optionales Feld in allen Adressformularen (Kasse Liefer- und Rechnungsadresse, Konto, Registrierung) und für
+alle Länder, wie heute schon im Konto (Entscheidung 2026-11-01). DE / EN: „Telefon (optional)“ /
+„Phone (optional)“, `type="tel"`, `autocomplete="tel"`. Speicherung über die vorhandene Option Typ 4
+(`telephone`). Keine Formatprüfung, nur Länge 7–18 Zeichen wie im Konto-Formular.
 
 ### 3.5 Warnungen statt Blockaden
 
@@ -407,7 +412,7 @@ erzeugst du selbst bzw. gibst sie frei, damit keine echte Sendung entsteht.
 
 1. **Gruppe A** nur DE/AT/CH/NL (wie in deiner Vorgabe)? BE, LU, LI, DK usw. stehen in B bzw. C.
 2. ~~Zeile 2 → `address3`?~~ Geklärt (2026-11-01): `address3` geht an DHL, `name4`/`address4` nicht.
-3. **Telefon:** optional für Länder außer DE oder weiter weglassen?
+3. ~~Telefon?~~ Geklärt (2026-11-01): optionales Feld; kein eigener Ansprechpartner bei Firmen.
 4. **Bundesstaat Pflicht** in US, CA, AU, BR, CN, ID, IN, IT, JP, MX – oder bei IT/ID nur Warnung?
 5. **Altadressen:** Altformat beim Bearbeiten beibehalten (Empfehlung) oder sichtbar zusammensetzen?
 6. **Tests mit dem echten PlentyONE:** Gast-Adressen anlegen in Ordnung? Testbestellungen – Zahlungsart,
