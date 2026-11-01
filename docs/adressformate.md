@@ -70,6 +70,47 @@ Sondergebiete Helgoland (255), Büsingen (256), Balearen (65), Kanaren (37), Ceu
 PlentyONE führt Bundesstaat-Listen für 15 Länder (AR, AU, BR, CA, CH, CN, DE, ID, IN, IT, JP, MX, NL, TH, US)
 und PLZ-Regex für 37 Länder. Die Rechnungsländer (30, EU/EWR) sind eine Teilmenge.
 
+### Bestandsaufnahme der Aufträge (2026-11-01, nur lesend)
+
+REST `GET /rest/orders?with[]=addresses&countryId=…` (Lieferadresse = Adressbeziehung Typ 2), je Land bis zu
+1.500 neueste Aufträge, DE nur die letzten 500. 36.744 Aufträge gesamt, davon 31.511 nach DE; Aufträge in 68
+Lieferländern. Ausgewertet wurden nur Zählwerte und Muster, keine Namen oder Adressen.
+
+| Land            | Aufträge | `address2` nur Nr. | `address2` leer | `address1` beginnt mit Ziffer | `address3` gefüllt | Bundesstaat gesetzt | Telefon |
+| --------------- | -------- | ------------------ | --------------- | ----------------------------- | ------------------ | ------------------- | ------- |
+| DE (letzte 500) | 500      | 496                | 0               | 0                             | 37                 | 157                 | 127     |
+| AT              | 1.207    | 1.175              | 4               | 1                             | 207                | 3                   | 583     |
+| CH              | 925      | 917                | 3               | 2                             | 66                 | 508                 | 466     |
+| US              | 797      | 659                | 15              | 260                           | 168                | 734                 | 477     |
+| GB              | 385      | 212                | 67              | 96                            | 140                | –                   | 251     |
+| FR              | 245      | 226                | 2               | 27                            | 64                 | –                   | 172     |
+| IT              | 177      | 163                | 3               | 0                             | 42                 | 126                 | 112     |
+| NL              | 161      | 150                | 0               | 0                             | 19                 | 87                  | 97      |
+| AU              | 111      | 97                 | 0               | 15                            | 34                 | 21                  | 79      |
+| CA              | 83       | 71                 | 0               | 23                            | 15                 | 77                  | 57      |
+| KR              | 31       | 17                 | 2               | 13                            | 23                 | –                   | 21      |
+| JP              | 20       | 13                 | 1               | 8                             | 14                 | 18                  | 15      |
+| HK              | 14       | 5                  | 0               | 8                             | 11                 | –                   | 10      |
+| AE              | 7        | 3                  | 1               | 1                             | 4                  | –                   | 5       |
+
+Ergebnisse:
+
+- **Altbestand ist durchweg im deutschen Muster gespeichert** (Straße in `address1`, Nummer in `address2`), auch
+  in US, GB, FR, JP. Das bestätigt die Entscheidung „Altformat“ (Abschnitt 5).
+- **Das deutsche Muster passt im Ausland schlecht:** In den USA beginnt `address1` bei 260 von 797 Aufträgen mit
+  der Hausnummer („123 Main St“), in GB bei 96 von 385, in Kanada bei 23 von 83 – die Kunden haben die ganze
+  Zeile in „Straße“ geschrieben und ins Nummernfeld etwas Zweites (Nummer doppelt, Apt) oder nichts.
+- **Leere Hausnummer kommt bei DHL schon vor:** 67 GB-Aufträge haben ein leeres `address2`. ⚠ Dass diese über
+  DHL verschickt wurden, ist nicht geprüft; der Etikettentest bleibt.
+- **Bundesstaat:** Unter LTS fast immer gesetzt (US 734 von 797, CA 77 von 83, JP 18 von 20). Von den zwei
+  US-Aufträgen über die PWA (seit 2026-10-23) hat **einer keinen Bundesstaat** – der Fehler aus Abschnitt 1 tritt
+  also tatsächlich auf.
+- **Adresszusatz und Telefon wurden unter LTS rege genutzt** (`address3` z. B. US 168, GB 140, AT 207; Telefon
+  bei gut der Hälfte der Aufträge). Die PWA-Kasse fragt beides heute nicht ab – das Konzept holt beides zurück.
+- **Namenszusatz und Adressfeld 4** sind praktisch leer (`name4` in 19, `address4` in 25 Auslandsaufträgen) –
+  kein Bedarf.
+- **Leere PLZ nimmt PlentyONE an:** Aufträge aus Hongkong (5 von 14) und den VAE (4 von 7) haben keine PLZ.
+
 ## 2. Gruppen
 
 Alle Gruppen beginnen mit **Land**, danach Vorname | Nachname und der Firmen-Umschalter (Firma, USt-IdNr.)
@@ -159,8 +200,8 @@ Entscheidung 2026-11-01: IT und ID nicht Pflicht, keine Warnung).
   dasselbe ⚠.
 - Nur libaddressinput-Muster: **Warnung**, Bestellung bleibt möglich.
 - Pflicht nur, wo libaddressinput die PLZ verlangt (bzw. ohne libaddressinput-Daten, wo PlentyONE einen Regex
-  hat). Länder ohne PLZ-System: Feld ausgeblendet, `postalCode` leer ⚠ (ob PlentyONE leer annimmt, prüft der
-  Test).
+  hat). Länder ohne PLZ-System: Feld ausgeblendet, `postalCode` leer. In Aufträgen nimmt PlentyONE das an
+  (Bestandsaufnahme: HK, AE); ⚠ ob auch die Adress-Schnittstelle des Shops leer annimmt, prüft der Test.
 
 ### 3.4 Telefon
 
@@ -334,8 +375,8 @@ libaddressinput-Eintrag oder mit uneinheitlichen Adressen (Landmarken, Gebäuden
   „Altformat“ (Entscheidung 2026-11-01) – beim Bearbeiten zeigt das Formular für **diese** Adresse weiter Straße | Hausnr.
   (dazu die neuen Felder wie Bundesstaat), es wird nichts zusammengesetzt oder zerlegt. Erst wenn der Kunde
   das Feld Hausnummer leert, gilt das neue Format. Es gibt kein automatisches Zusammensetzen.
-- **US-/CA-Adressen ohne Bundesstaat:** werden beim nächsten Bearbeiten nach dem Staat gefragt. ⚠ Ob gespeicherte
-  Adressen ohne Staat beim Bestellen schon heute Probleme machen, zeigt die Bestandsaufnahme (Abschnitt 10, Punkt 7).
+- **US-/CA-Adressen ohne Bundesstaat:** werden beim nächsten Bearbeiten nach dem Staat gefragt. Laut
+  Bestandsaufnahme betrifft das bisher einen US-Auftrag über die PWA; Altadressen aus LTS haben den Staat fast immer.
 
 ## 6. Umsetzung (nach Freigabe)
 
