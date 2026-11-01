@@ -56,6 +56,9 @@ Eine neue Datenstruktur ist also **nicht** nötig: alle benötigten Felder komme
 **Versand:** nur DHL (FedEx ist im Shop nicht verfügbar). Laut Shopbetreiber überträgt PlentyONE an DHL Straße
 (`address1`), Hausnummer (`address2`) und Adresszusatz (`address3`); Namenszusatz (`name4`) und Adressfeld 4
 (`address4`) gehen **nicht** an DHL. Das Konzept nutzt deshalb nur `address1`–`address3`.
+Auf dem DHL-Etikett steht der Adresszusatz **über** Straße und Hausnummer. Das passt zu den Postmustern: c/o,
+Hinterhaus (DE), Flat/Gebäudename (GB), Apt/Suite (US, laut USPS über der Zustellzeile zulässig), Gebäude/Zimmer
+(JP) stehen dort ebenfalls über oder vor der Straßenzeile.
 ⚠ Noch offen: ob DHL eine vollständige Zeile in `address1` bei leerem `address2` annimmt (die DHL-API erlaubt
 das für internationale Sendungen) und ob der Bundesstaat übertragen wird. → Etikettentest, siehe Abschnitt 8.
 
