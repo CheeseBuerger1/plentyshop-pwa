@@ -50,13 +50,22 @@ describe('upstream contract of the glas-jena module: search engines', () => {
     }
   });
 
-  it('should find the Product JSON-LD with one offer, its price and the weight that completeProductJsonLd reads', () => {
-    /* plugins/seo.ts completes the resolved head tag: one Offer object with a number price, weight in grams */
+  it('should find the Product JSON-LD with one offer, its price, weight and sizes that completeProductJsonLd reads', () => {
+    /* plugins/seo.ts completes the resolved head tag: one Offer object with a number price, weight in grams, sizes in mm */
     const structuredData = readApp('composables/useStructuredData/useStructuredData.ts');
     expect(structuredData).toMatch(/const offers: SchemaOffer = \{\s*'@type': 'Offer',/);
     expect(structuredData).toContain('price: Number(price.value),');
     expect(structuredData).toMatch(
       /weight: \{\s*'@type': 'QuantitativeValue',\s*value: productGetters\.getWeightG\(product\),/,
+    );
+    expect(structuredData).toMatch(
+      /depth: \{\s*'@type': 'QuantitativeValue',\s*value: productGetters\.getLengthMM\(product\),/,
+    );
+    expect(structuredData).toMatch(
+      /width: \{\s*'@type': 'QuantitativeValue',\s*value: productGetters\.getWidthMM\(product\),/,
+    );
+    expect(structuredData).toMatch(
+      /height: \{\s*'@type': 'QuantitativeValue',\s*value: productGetters\.getHeightMM\(product\),/,
     );
     expect(structuredData).toContain("type: 'application/ld+json',");
   });
