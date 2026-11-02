@@ -143,7 +143,7 @@ export const useGlasJenaRegisterForm = () => {
     }),
   );
 
-  const { errors, meta, defineField, handleSubmit } = useForm({ validationSchema });
+  const { errors, meta, defineField, handleSubmit, setFieldValue } = useForm({ validationSchema });
 
   const [email, emailAttributes] = defineField('email');
   const [password, passwordAttributes] = defineField('password');
@@ -262,6 +262,7 @@ export const useGlasJenaRegisterForm = () => {
     hasCompany: toRef(state.value, 'hasCompany'),
     turnstileElement: toRef(state.value, 'turnstileElement'),
     errors,
+    setFieldValue,
     onSubmit,
     passwordValidationLength,
     passwordValidationOneDigit,

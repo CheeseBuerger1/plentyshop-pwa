@@ -44,6 +44,7 @@ const addressFields = (kind: AddressFormKind) => `    <GlasJenaAddressFields
       :country="country"
       :countries="${countriesOf(kind)}"
       :errors="errors"
+      :set-field-value="setFieldValue"
       :field-attributes="{
         streetName: streetNameAttributes,
         apartment: apartmentAttributes,
@@ -120,7 +121,40 @@ export const toModuleAddressForm = (original: string, kind: AddressFormKind) => 
       `    additionalAddressInformation: additionalAddressInformation.value,\n` +
       `    phoneNumber: phoneNumber.value,\n`,
   );
-  return copy;
+  /* GlasJenaAddressFields sets fields it changes itself (country change) without checking them */
+  copy = replaceOnce(
+    copy,
+    `const { defineField, errors, setValues, validate, handleSubmit } = useForm({ validationSchema: ${kind === 'Shipping' ? 'shippingSchema' : 'billingSchema'} });`,
+    `const { defineField, errors, setValues, setFieldValue, validate, handleSubmit } = useForm({
+` +
+      `  validationSchema: ${kind === 'Shipping' ? 'shippingSchema' : 'billingSchema'},
+` +
+      `});`,
+  );
+  return withoutCheckOnEdit(copy);
+};
+
+/**
+ * The saved address is filled into the form without checking it (`setValues(…, false)`): checked on opening, every
+ * field was checked again at every change, so a field that became required with a new country (the prefecture of
+ * Japan) was reported before the customer could fill it in (found by the shop owner, 2026-11-03). It is checked when
+ * saving, like a new address. The block is indented once more, as Prettier writes a call with two arguments.
+ */
+const withoutCheckOnEdit = (text: string) => {
+  const start = '  setValues({\n';
+  const end = '  } as unknown as Record<string, string>);\n';
+  const from = text.indexOf(start);
+  const to = text.indexOf(end, from);
+  if (from < 0 || to < 0 || text.indexOf(start, from + 1) >= 0) {
+    throw new Error('setValues of the saved address not found exactly once in the original');
+  }
+  const body = text
+    .slice(from + start.length, to)
+    .split('\n')
+    .map((line) => (line ? `  ${line}` : line))
+    .join('\n');
+  const call = `  setValues(\n    {\n${body}    } as unknown as Record<string, string>,\n    false,\n  );\n`;
+  return text.slice(0, from) + call + text.slice(to + end.length);
 };
 
 const ACCOUNT_FIRST_NAME = `    <label>
@@ -240,6 +274,7 @@ const REGISTER_FIELDS = `        <div class="grid grid-cols-1 @md:grid-cols-[50%
             :country="formFields.country.value"
             :countries="shippingCountries"
             :errors="errors"
+            :set-field-value="setFieldValue"
             :field-attributes="{
               streetName: formFieldsAttributes.streetName.value,
               apartment: formFieldsAttributes.apartment.value,
@@ -275,6 +310,7 @@ export const toModuleRegisterPage = (original: string) => {
       `import GlasJenaAddressFields from '../components/GlasJenaAddressFields.vue';\n` +
       `import { useGlasJenaRegisterForm } from '../composables/useGlasJenaRegisterForm';\n`,
   );
+  copy = replaceOnce(copy, `  errors,\n  onSubmit,\n`, `  errors,\n  setFieldValue,\n  onSubmit,\n`);
   return replaceOnce(copy, `} = useRegisterForm();`, `} = useGlasJenaRegisterForm();`);
 };
 
@@ -367,7 +403,7 @@ export const toModuleRegisterForm = (original: string) => {
     `      apartment,\n`,
     `      apartment,\n      state: addressState,\n      additionalAddressInformation,\n      phoneNumber,\n`,
   );
-  return replaceOnce(
+  copy = replaceOnce(
     copy,
     `      apartment: apartmentAttributes,\n`,
     `      apartment: apartmentAttributes,\n` +
@@ -375,6 +411,13 @@ export const toModuleRegisterForm = (original: string) => {
       `      additionalAddressInformation: additionalAddressInformationAttributes,\n` +
       `      phoneNumber: phoneNumberAttributes,\n`,
   );
+  /* GlasJenaAddressFields sets fields it changes itself (country change) without checking them */
+  copy = replaceOnce(
+    copy,
+    `  const { errors, meta, defineField, handleSubmit } = useForm({ validationSchema });\n`,
+    `  const { errors, meta, defineField, handleSubmit, setFieldValue } = useForm({ validationSchema });\n`,
+  );
+  return replaceOnce(copy, `    errors,\n    onSubmit,\n`, `    errors,\n    setFieldValue,\n    onSubmit,\n`);
 };
 
 /**

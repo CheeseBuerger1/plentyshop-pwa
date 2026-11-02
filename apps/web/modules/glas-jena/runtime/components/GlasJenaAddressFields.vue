@@ -96,6 +96,7 @@ const {
   errors,
   fieldAttributes,
   nativeRequired = false,
+  setFieldValue,
 } = defineProps<GlasJenaAddressFieldsProps>();
 
 const streetName = defineModel<GlasJenaAddressFieldValue>('streetName', { required: true });
@@ -167,11 +168,25 @@ const nonLatin = computed(() =>
 );
 
 /*
+ * A field this part changes itself (country change, hidden postal code): through the form without checking it, where
+ * the form offers that (vee-validate), so the customer sees no error before having had a chance to fill it in.
+ */
+const setQuietly = (name: AddressFieldName, value: string) => {
+  if (setFieldValue) {
+    setFieldValue(name, value, false);
+  } else if (name === 'state') {
+    state.value = value;
+  } else {
+    models[name].value = value;
+  }
+};
+
+/*
  * PlentyONE requires a postal code: countries without one send POSTAL_CODE_NONE in the hidden field. A saved address
  * keeps the code it has.
  */
 if (format.value.postalCode === 'none' && !zipCode.value) {
-  zipCode.value = POSTAL_CODE_NONE;
+  setQuietly('zipCode', POSTAL_CODE_NONE);
 }
 
 watch(
@@ -181,17 +196,17 @@ watch(
     const hadNumberField = !oldFormat.singleLine || legacy.value;
     legacy.value = false;
     if (hadNumberField && format.value.singleLine && apartment.value) {
-      streetName.value = joinStreetAndNumber(streetName.value, apartment.value, format.value.group);
-      apartment.value = '';
+      setQuietly('streetName', joinStreetAndNumber(streetName.value, apartment.value, format.value.group));
+      setQuietly('apartment', '');
     }
     if (state.value && !states.value.some((entry) => entry.id.toString() === state.value)) {
-      state.value = '';
+      setQuietly('state', '');
     }
     /* The hidden code of a country without postal codes replaces the old country's one, and goes when it is left */
     if (format.value.postalCode === 'none') {
-      zipCode.value = POSTAL_CODE_NONE;
+      setQuietly('zipCode', POSTAL_CODE_NONE);
     } else if (oldFormat.postalCode === 'none' && zipCode.value === POSTAL_CODE_NONE) {
-      zipCode.value = '';
+      setQuietly('zipCode', '');
     }
   },
 );

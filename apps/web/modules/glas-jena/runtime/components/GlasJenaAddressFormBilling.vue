@@ -113,6 +113,7 @@
       :country="country"
       :countries="billingCountries"
       :errors="errors"
+      :set-field-value="setFieldValue"
       :field-attributes="{
         streetName: streetNameAttributes,
         apartment: apartmentAttributes,
@@ -183,7 +184,9 @@ const {
 const { invalidVAT, clearInvalidVAT, vatServerError } = useCreateAddress(AddressType.Billing);
 const { addresses: billingAddresses } = useAddressStore(AddressType.Billing);
 const { set: setCheckoutAddress, hasCheckoutAddress } = useCheckoutAddress(AddressType.Billing);
-const { defineField, errors, setValues, validate, handleSubmit } = useForm({ validationSchema: billingSchema });
+const { defineField, errors, setValues, setFieldValue, validate, handleSubmit } = useForm({
+  validationSchema: billingSchema,
+});
 const { billingCountries } = useAggregatedCountries();
 const { restrictedAddresses } = useRestrictedAddress();
 const { setBillingSkeleton } = useCheckout();
@@ -216,21 +219,24 @@ if (!addAddress && address) {
 
   const addressSource = invalidVAT.value || vatServerError.value ? addressToSave.value : address;
 
-  setValues({
-    ...address,
-    firstName: addressSource?.firstName || '',
-    lastName: addressSource?.lastName || '',
-    country: addressSource?.country || '',
-    streetName: addressSource?.streetName || '',
-    apartment: addressSource?.apartment || '',
-    city: addressSource?.city || '',
-    zipCode: addressSource?.zipCode || '',
-    state: addressSource?.state || '',
-    additionalAddressInformation: addressSource?.additionalAddressInformation || '',
-    phoneNumber: addressSource?.phoneNumber || '',
-    companyName: addressSource.companyName || '',
-    vatNumber: addressSource.vatNumber || '',
-  } as unknown as Record<string, string>);
+  setValues(
+    {
+      ...address,
+      firstName: addressSource?.firstName || '',
+      lastName: addressSource?.lastName || '',
+      country: addressSource?.country || '',
+      streetName: addressSource?.streetName || '',
+      apartment: addressSource?.apartment || '',
+      city: addressSource?.city || '',
+      zipCode: addressSource?.zipCode || '',
+      state: addressSource?.state || '',
+      additionalAddressInformation: addressSource?.additionalAddressInformation || '',
+      phoneNumber: addressSource?.phoneNumber || '',
+      companyName: addressSource.companyName || '',
+      vatNumber: addressSource.vatNumber || '',
+    } as unknown as Record<string, string>,
+    false,
+  );
 
   if (!hasCompany.value) {
     companyName.value = '';

@@ -105,6 +105,11 @@ export interface GlasJenaAddressFieldsProps {
   fieldAttributes?: Partial<Record<AddressFieldName, Record<string, unknown>>>;
   /** HTML `required` for forms without vee-validate (account). */
   nativeRequired?: boolean;
+  /**
+   * `setFieldValue` of the form (vee-validate): fields the part changes itself are set without checking them; without
+   * it they are set through their model.
+   */
+  setFieldValue?: (field: AddressFieldName, value: string, shouldValidate?: boolean) => void;
 }
 
 /** Value of a text field of the address part (the account's getter gives the house number as a number). */
