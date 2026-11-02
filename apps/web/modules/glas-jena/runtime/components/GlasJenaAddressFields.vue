@@ -37,6 +37,7 @@
         :placeholder="t('form.selectPlaceholder')"
         :invalid="!!errors?.state"
         :required="nativeRequired && field.required"
+        :aria-required="field.required || undefined"
         wrapper-class-name="bg-white"
         class="!ring-1 !ring-neutral-200"
         autocomplete="address-level1"
@@ -54,6 +55,7 @@
         v-bind="fieldAttributes?.[field.name]"
         :invalid="!!errors?.[field.name]"
         :required="nativeRequired && field.required"
+        :aria-required="field.required || undefined"
         @change="normalize(field, $event)"
       />
       <span v-if="errors?.[field.name]" class="flex text-negative-700 text-sm mt-2">{{ errors[field.name] }}</span>

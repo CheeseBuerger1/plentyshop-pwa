@@ -83,6 +83,8 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   /* Addresses shown like their form: checkout, account, order confirmation and details */
   AddressDisplay: './runtime/components/GlasJenaAddressDisplay.vue',
   OrderAddressData: './runtime/components/GlasJenaOrderAddressData.vue',
+  /* E-mail of the checkout marked as required for screen readers (aria-required) */
+  ContactInformation: './runtime/components/GlasJenaContactInformation.vue',
 };
 
 /**
@@ -95,6 +97,7 @@ export const COMPONENT_OVERRIDES_NOT_IN_TESTS = [
   'Gallery',
   'UiBreadcrumbs',
   'AddressForm',
+  'ContactInformation',
 ];
 
 /**

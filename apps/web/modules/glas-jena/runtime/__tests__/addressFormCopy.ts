@@ -58,7 +58,7 @@ const addressFields = (kind: AddressFormKind) => `    <GlasJenaAddressFields
 `;
 
 /** Replaces exactly one occurrence, so a changed original fails instead of giving a half-changed copy. */
-const replaceOnce = (text: string, search: string, replacement: string) => {
+export const replaceOnce = (text: string, search: string, replacement: string) => {
   const index = text.indexOf(search);
   if (index < 0 || text.indexOf(search, index + 1) >= 0) {
     throw new Error(`Not found exactly once in the original: ${search.slice(0, 80)}`);
@@ -130,6 +130,23 @@ export const toModuleAddressForm = (original: string, kind: AddressFormKind) => 
       `  validationSchema: ${kind === 'Shipping' ? 'shippingSchema' : 'billingSchema'},
 ` +
       `});`,
+  );
+  /* Required fields marked for screen readers too (wish of the shop owner, 2026-11-03): the names unless a company */
+  const companyFlag = kind === 'Shipping' ? 'hasShippingCompany' : 'hasCompany';
+  copy = replaceOnce(
+    copy,
+    `        name="firstName"\n        autocomplete="given-name"\n`,
+    `        name="firstName"\n        autocomplete="given-name"\n        :aria-required="!${companyFlag}"\n`,
+  );
+  copy = replaceOnce(
+    copy,
+    `        name="lastName"\n        autocomplete="family-name"\n`,
+    `        name="lastName"\n        autocomplete="family-name"\n        :aria-required="!${companyFlag}"\n`,
+  );
+  copy = replaceOnce(
+    copy,
+    `        id="${kind.toLowerCase()}CompanyName"\n        v-model="companyName"\n`,
+    `        id="${kind.toLowerCase()}CompanyName"\n        v-model="companyName"\n        aria-required="true"\n`,
   );
   return withoutCheckOnEdit(copy);
 };
@@ -311,6 +328,31 @@ export const toModuleRegisterPage = (original: string) => {
       `import { useGlasJenaRegisterForm } from '../composables/useGlasJenaRegisterForm';\n`,
   );
   copy = replaceOnce(copy, `  errors,\n  onSubmit,\n`, `  errors,\n  setFieldValue,\n  onSubmit,\n`);
+  /* Required fields marked for screen readers too (wish of the shop owner, 2026-11-03) */
+  copy = replaceOnce(
+    copy,
+    `            name="customerEmail"\n`,
+    `            name="customerEmail"\n            aria-required="true"\n`,
+  );
+  for (const field of ['password', 'repeatPassword']) {
+    copy = replaceOnce(
+      copy,
+      `              v-model="formFields.${field}.value"\n`,
+      `              v-model="formFields.${field}.value"\n              aria-required="true"\n`,
+    );
+  }
+  for (const field of ['firstName', 'lastName']) {
+    copy = replaceOnce(
+      copy,
+      `              v-model="formFields.${field}.value"\n`,
+      `              v-model="formFields.${field}.value"\n              :aria-required="!hasCompany"\n`,
+    );
+  }
+  copy = replaceOnce(
+    copy,
+    `              id="companyName"\n              v-model="formFields.companyName.value"\n`,
+    `              id="companyName"\n              v-model="formFields.companyName.value"\n              aria-required="true"\n`,
+  );
   return replaceOnce(copy, `} = useRegisterForm();`, `} = useGlasJenaRegisterForm();`);
 };
 
@@ -418,25 +460,4 @@ export const toModuleRegisterForm = (original: string) => {
     `  const { errors, meta, defineField, handleSubmit, setFieldValue } = useForm({ validationSchema });\n`,
   );
   return replaceOnce(copy, `    errors,\n    onSubmit,\n`, `    errors,\n    setFieldValue,\n    onSubmit,\n`);
-};
-
-/**
- * The module's copy of the order address (GlasJenaOrderAddressData.vue from components/OrderAddressData/
- * OrderAddressData.vue, without the copy's header comment): address line 2 and state are passed on to the display,
- * the original drops them.
- */
-export const toModuleOrderAddressData = (original: string) => {
-  let copy = original.replace(/\r\n/g, '\n');
-  copy = replaceOnce(
-    copy,
-    `import type { OrderAddressDataPropsType } from './types';\n`,
-    `import type { OrderAddressDataPropsType } from '~/components/OrderAddressData/types';\n`,
-  );
-  return replaceOnce(
-    copy,
-    `    apartment: address.address2,\n`,
-    `    apartment: address.address2,\n` +
-      `    additionalAddressInformation: address.address3,\n` +
-      `    state: address.stateId?.toString(),\n`,
-  );
 };

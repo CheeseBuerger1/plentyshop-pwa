@@ -53,6 +53,15 @@ describe('GlasJenaAddressFields', () => {
     expect(wrapper.get('[data-testid="gj-address-zipCode"]').text()).toContain('ZIP code *');
   });
 
+  it('should mark the required fields for screen readers, not the optional ones', async () => {
+    const wrapper = await mountFields('28');
+
+    expect(wrapper.get('input[name="streetName"]').attributes('aria-required')).toBe('true');
+    expect(wrapper.get('select[name="state"]').attributes('aria-required')).toBe('true');
+    expect(wrapper.get('input[name="additionalAddressInformation"]').attributes('aria-required')).toBeUndefined();
+    expect(wrapper.get('input[name="phoneNumber"]').attributes('aria-required')).toBeUndefined();
+  });
+
   it('should keep the input name of the house number of the original forms', async () => {
     const wrapper = await mountFields('1');
 

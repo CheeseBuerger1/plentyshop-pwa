@@ -24,6 +24,7 @@
             v-bind="formFieldsAttributes.email"
             :invalid="!!errors['email']"
             name="customerEmail"
+            aria-required="true"
             type="email"
             autocomplete="email"
           />
@@ -35,6 +36,7 @@
             <UiFormLabel>{{ t('form.passwordLabel') }} {{ t('form.required') }}</UiFormLabel>
             <UiFormPasswordInput
               v-model="formFields.password.value"
+              aria-required="true"
               :title="t('authentication.signup.passwordValidation.invalidPassword')"
               name="password"
               autocomplete="current-password"
@@ -49,6 +51,7 @@
             <UiFormLabel>{{ t('form.repeatPasswordLabel') }} {{ t('form.required') }}</UiFormLabel>
             <UiFormPasswordInput
               v-model="formFields.repeatPassword.value"
+              aria-required="true"
               :title="t('authentication.signup.passwordValidation.invalidPassword')"
               name="password"
               autocomplete="current-password"
@@ -111,6 +114,7 @@
             </UiFormLabel>
             <SfInput
               v-model="formFields.firstName.value"
+              :aria-required="!hasCompany"
               name="firstName"
               autocomplete="given-name"
               v-bind="formFieldsAttributes.firstName"
@@ -125,6 +129,7 @@
             </UiFormLabel>
             <SfInput
               v-model="formFields.lastName.value"
+              :aria-required="!hasCompany"
               name="lastName"
               autocomplete="family-name"
               v-bind="formFieldsAttributes.lastName"
@@ -154,6 +159,7 @@
             <SfInput
               id="companyName"
               v-model="formFields.companyName.value"
+              aria-required="true"
               name="companyName"
               autocomplete="organization"
               v-bind="formFieldsAttributes.companyName"
