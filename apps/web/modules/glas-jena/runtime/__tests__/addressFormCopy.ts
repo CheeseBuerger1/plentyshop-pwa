@@ -376,3 +376,24 @@ export const toModuleRegisterForm = (original: string) => {
       `      phoneNumber: phoneNumberAttributes,\n`,
   );
 };
+
+/**
+ * The module's copy of the order address (GlasJenaOrderAddressData.vue from components/OrderAddressData/
+ * OrderAddressData.vue, without the copy's header comment): address line 2 and state are passed on to the display,
+ * the original drops them.
+ */
+export const toModuleOrderAddressData = (original: string) => {
+  let copy = original.replace(/\r\n/g, '\n');
+  copy = replaceOnce(
+    copy,
+    `import type { OrderAddressDataPropsType } from './types';\n`,
+    `import type { OrderAddressDataPropsType } from '~/components/OrderAddressData/types';\n`,
+  );
+  return replaceOnce(
+    copy,
+    `    apartment: address.address2,\n`,
+    `    apartment: address.address2,\n` +
+      `    additionalAddressInformation: address.address3,\n` +
+      `    state: address.stateId?.toString(),\n`,
+  );
+};

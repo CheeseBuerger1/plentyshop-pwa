@@ -80,6 +80,9 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   AddressFormShipping: './runtime/components/GlasJenaAddressFormShipping.vue',
   AddressFormBilling: './runtime/components/GlasJenaAddressFormBilling.vue',
   AddressForm: './runtime/components/GlasJenaAddressForm.vue',
+  /* Addresses shown like their form: checkout, account, order confirmation and details */
+  AddressDisplay: './runtime/components/GlasJenaAddressDisplay.vue',
+  OrderAddressData: './runtime/components/GlasJenaOrderAddressData.vue',
 };
 
 /**

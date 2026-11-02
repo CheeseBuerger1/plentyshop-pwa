@@ -201,3 +201,6 @@ export interface AddressFieldSlot {
 
 /** A value of an address field: text, or a number (the account's getter gives the house number as one). */
 export type AddressValue = string | number | null | undefined;
+
+/** The shown values of an address per field (the state as its shown text), see getAddressLines in addressFormats.ts. */
+export type AddressLineValues = Partial<Record<AddressFieldName, AddressValue>>;

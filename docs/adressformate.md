@@ -195,7 +195,28 @@ Nur zwei gelbe Hinweise, die die Bestellung nie verhindern (Auswahl des Shopbetr
 
 Blockierend sind nur: Pflichtfelder, PlentyONE-PLZ-Regex, Bundesstaat in den Pflicht-Ländern.
 
-### 3.6 Browser-Autofill
+### 3.6 Anzeige der Adresse
+
+Kasse, Mein Konto (Adressliste), Bestellbestätigung und Bestelldetails zeigen die Adresse genau so, wie das Formular
+des Landes sie abfragt (Wunsch des Shopbetreibers, 2026-11-03): Was im Formular in einer Zeile steht, steht in der
+Anzeige in einer Zeile, in derselben Reihenfolge (`getAddressLines` in `utils/addressFormats.ts`). Davor Firma und
+Name, danach das Land und das Telefon. Beispiele:
+
+| Land | Anzeige                                                                                    |
+| ---- | ------------------------------------------------------------------------------------------ |
+| DE   | Hauptstraße 12a · Hinterhaus · 07743 Jena · Deutschland                                    |
+| US   | 221 Baker St · Apt 4B · Springfield IL 62704 · USA                                         |
+| FR   | 12 rue de la Paix · 75002 Paris · Frankreich                                               |
+| GB   | 10 Downing Street · London SW1A 2AA · Großbritannien                                       |
+| JP   | 100-0005 Tokyo · Chiyoda-ku · Marunouchi 1-2-3 · Marunouchi Building 12F · Japan           |
+| HK   | Queen's Road Central 1 · Central · Hongkong (die unsichtbare PLZ „0“ wird nicht angezeigt) |
+
+Umsetzung: `GlasJenaAddressDisplay.vue` ersetzt `AddressDisplay` (das Original zeigte alles im deutschen Muster, ohne
+Adresszusatz und Staat, auf der Bestellbestätigung auch ohne Land, weil dort die Länder nicht geladen sind – die
+Anzeige lädt sie selbst nach); `GlasJenaOrderAddressData.vue` ersetzt `OrderAddressData` und reicht Adresszusatz und
+Staat aus dem Auftrag weiter. Dieselbe Reihenfolge gilt für die Dokumente (Rechnung, Lieferschein).
+
+### 3.7 Browser-Autofill
 
 Jedes Feld bekommt das passende `autocomplete` (`address-line1` für die Straße, `address-line2` für Zeile 2,
 `address-level1` für den Staat, `address-level2` für den Ort, `postal-code`, `country-name`, `tel`). Die
@@ -419,9 +440,7 @@ Telefonnummer steht nur im Auftrag, nicht auf dem Etikett („Receiver contact�
 
 - 125 Lieferländer: A 6, B 54, C 21, D 3, E 41.
 - Bundesstaat-Auswahl in 12 Ländern, Pflicht in 8, als Kürzel in 3.
-- Nicht abgedeckt: Landessprachliche Labels (nur DE/EN, die Shop-Sprachen); Anzeige von Adressen im Länderformat
-  (Konto, Kasse, Bestätigung) bleibt wie bisher („Baker St 221“, ohne Adresszusatz und Staat); Postfach/PO Box ohne
-  eigenes Feld.
+- Nicht abgedeckt: Landessprachliche Labels (nur DE/EN, die Shop-Sprachen); Postfach/PO Box ohne eigenes Feld.
 
 ### Bekannte Grenze: Telefonnummer lässt sich nicht leeren
 

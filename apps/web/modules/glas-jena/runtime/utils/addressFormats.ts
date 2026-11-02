@@ -4,6 +4,7 @@ import type {
   AddressFieldSlot,
   AddressFormat,
   AddressGroup,
+  AddressLineValues,
   AddressState,
   AddressStateOption,
   AddressValue,
@@ -281,4 +282,34 @@ export const getAddressFields = (format: AddressFormat, legacy = false): Address
   const locality = getLocalityFields(format);
   const phone: AddressFieldSlot = { name: 'phoneNumber', label: 'phone', required: false, span: 3 };
   return [...(format.group === 'D' ? [...locality, ...street] : [...street, ...locality]), phone];
+};
+
+/**
+ * The lines of an address for showing it (checkout, account, order confirmation), exactly as the country's form asks
+ * for it (wish of the shop owner, 2026-11-03): the fields of one row of the form make one line ("221 Baker St",
+ * "Springfield IL 62704"), in the form's order; empty fields and lines are left out. Without the phone number, which
+ * the display shows on its own. The hidden postal code of countries without one is not shown.
+ */
+export const getAddressLines = (format: AddressFormat, values: AddressLineValues, legacy = false): string[] => {
+  const lines: string[] = [];
+  let line: string[] = [];
+  let columns = 0;
+  for (const field of getAddressFields(format, legacy)) {
+    if (field.name === 'phoneNumber') {
+      continue;
+    }
+    const value = String(values[field.name] ?? '').trim();
+    if (value) {
+      line.push(value);
+    }
+    columns += field.span;
+    if (columns >= 3) {
+      if (line.length) {
+        lines.push(line.join(' '));
+      }
+      line = [];
+      columns = 0;
+    }
+  }
+  return lines;
 };

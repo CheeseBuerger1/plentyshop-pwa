@@ -2,6 +2,7 @@ import {
   ADDRESS_GROUP_COUNTRIES,
   getAddressFields,
   getAddressFormat,
+  getAddressLines,
   getAddressGroup,
   getAddressRows,
   getStateOptions,
@@ -279,6 +280,78 @@ describe('addressFormats', () => {
 
     it('should give every other field a row of its own', () => {
       expect(rowNames('GB')).toEqual(['streetName', 'additionalAddressInformation', 'city', 'zipCode', 'phoneNumber']);
+    });
+  });
+
+  describe('getAddressLines', () => {
+    const lines = (iso: string, values: Record<string, string>, legacy = false) =>
+      getAddressLines(getAddressFormat({ isoCode2: iso, ...withStates }), values, legacy);
+
+    it('should show a German address row by row like its form', () => {
+      expect(
+        lines('DE', {
+          streetName: 'Hauptstraße',
+          apartment: '12a',
+          additionalAddressInformation: 'Hinterhaus',
+          zipCode: '07743',
+          city: 'Jena',
+        }),
+      ).toEqual(['Hauptstraße 12a', 'Hinterhaus', '07743 Jena']);
+    });
+
+    it('should show the number first and town, state and ZIP in one line in the US', () => {
+      expect(
+        lines('US', {
+          streetName: 'Baker St',
+          apartment: '221',
+          additionalAddressInformation: 'Apt 4B',
+          city: 'Springfield',
+          state: 'IL',
+          zipCode: '62704',
+        }),
+      ).toEqual(['221 Baker St', 'Apt 4B', 'Springfield IL 62704']);
+    });
+
+    it('should show the postal code before the town in France', () => {
+      expect(lines('FR', { streetName: 'rue de la Paix', apartment: '12', zipCode: '75002', city: 'Paris' })).toEqual([
+        '12 rue de la Paix',
+        '75002 Paris',
+      ]);
+    });
+
+    it('should show the one line of Great Britain, and an old British address with its house number', () => {
+      expect(lines('GB', { streetName: '10 Downing Street', city: 'London', zipCode: 'SW1A 2AA' })).toEqual([
+        '10 Downing Street',
+        'London SW1A 2AA',
+      ]);
+      expect(
+        lines('GB', { streetName: 'Downing Street', apartment: '10', city: 'London', zipCode: 'SW1A 2AA' }, true),
+      ).toEqual(['Downing Street 10', 'London SW1A 2AA']);
+    });
+
+    it('should begin Japan with postal code and prefecture like its form', () => {
+      expect(
+        lines('JP', {
+          zipCode: '100-0005',
+          state: 'Tokyo',
+          city: 'Chiyoda-ku',
+          streetName: 'Marunouchi',
+          apartment: '1-2-3',
+          additionalAddressInformation: 'Marunouchi Building 12F',
+        }),
+      ).toEqual(['100-0005 Tokyo', 'Chiyoda-ku', 'Marunouchi 1-2-3', 'Marunouchi Building 12F']);
+    });
+
+    it('should show the province of Italy below postal code and town', () => {
+      expect(
+        lines('IT', { streetName: 'Via Roma', apartment: '12', zipCode: '00184', city: 'Roma', state: 'Roma' }),
+      ).toEqual(['Via Roma 12', '00184 Roma', 'Roma']);
+    });
+
+    it('should not show the hidden postal code of Hong Kong nor empty fields', () => {
+      expect(
+        lines('HK', { streetName: "Queen's Road Central", apartment: '1', zipCode: '0', city: 'Central', state: '' }),
+      ).toEqual(["Queen's Road Central 1", 'Central']);
     });
   });
 });
