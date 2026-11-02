@@ -410,7 +410,8 @@ freigeschaltet), Paketversand; DHL-Übertragung durch den Shopbetreiber, danach 
 
 Ergebnisse: DHL nimmt die britische Zeile ohne Hausnummer an; in den USA setzt DHL die Hausnummer selbst nach vorn und
 druckt den Staat als Kürzel; der Adresszusatz (`address3`) steht über der Straße. ⚠ Die Präfektur Japans (`stateId`)
-druckt DHL nicht – die Adresse ist über die PLZ eindeutig, wäre aber über den Ort ergänzbar („Chiyoda-ku, Tokyo“). Die
+druckt DHL nicht – die Adresse ist über die PLZ eindeutig, wäre aber über den Ort ergänzbar („Chiyoda-ku, Tokyo“); Entscheidung des Shopbetreibers
+(2026-11-03): so lassen. Die
 Telefonnummer steht nur im Auftrag, nicht auf dem Etikett („Receiver contact“ leer).
 
 ## 9. Abdeckung
