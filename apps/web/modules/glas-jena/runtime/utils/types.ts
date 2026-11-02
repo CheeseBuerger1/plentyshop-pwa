@@ -127,3 +127,77 @@ export interface LtsRedirect {
   path: string;
   query: Record<string, unknown>;
 }
+
+/**
+ * Address form of a country of delivery, see addressFormats.ts and docs/adressformate.md: A the German form (DE, AT,
+ * CH, NL), B number behind the street, C number in front of the street, D area-based (postal code, prefecture and
+ * town first), E all other countries.
+ */
+export type AddressGroup = 'A' | 'B' | 'C' | 'D' | 'E';
+
+/** Whether a field of the address form is shown, and whether it has to be filled. */
+export type AddressFieldRule = 'required' | 'optional' | 'none';
+
+/** Label of the postal code field: the usual word of the country within German and English. */
+export type PostalCodeLabel = 'postalCode' | 'zipCode' | 'postcode' | 'eircode';
+
+/** Label of the state field (PlentyONE `stateId`). */
+export type StateLabel = 'state' | 'province' | 'prefecture' | 'region';
+
+/** The address form of one country, see getAddressFormat in addressFormats.ts. */
+export interface AddressFormat {
+  group: AddressGroup;
+  /** One address line without house number (PlentyONE's English form, GB only). */
+  singleLine: boolean;
+  postalCode: AddressFieldRule;
+  state: AddressFieldRule;
+  postalCodeLabel: PostalCodeLabel;
+  stateLabel: StateLabel;
+  /** Label key of the house number ("block" in Japan). */
+  houseNumberLabel: string;
+  /** States listed by their abbreviation (US, CA, AU). */
+  stateCodes: boolean;
+}
+
+/**
+ * A row of the address part, see getAddressRows in addressFormats.ts: one field in the form's columns, or street and
+ * house number together with the number narrow (in front of the street in group C).
+ */
+export interface AddressFieldRow {
+  key: string;
+  fields: AddressFieldSlot[];
+  numberFirst: boolean;
+}
+
+/** A state of PlentyONE's list of a country (`states` of the shop's countries). */
+export interface AddressState {
+  id: number;
+  name: string;
+  isoCode3166?: string | null;
+}
+
+/** One choice of the state field. */
+export interface AddressStateOption {
+  value: string;
+  label: string;
+}
+
+/** What getAddressFormat needs of a country of the shop (ActiveShippingCountry or GeoRegulatedCountry). */
+export type AddressCountry = { isoCode2?: string | null; states?: unknown[] | null } | null | undefined;
+
+/** Field names of the address part of the forms (those of the shop's `Address`). */
+export type AddressFieldName =
+  'streetName' | 'apartment' | 'additionalAddressInformation' | 'zipCode' | 'city' | 'state' | 'phoneNumber';
+
+/** One field of the address part in the order of the country's form, see getAddressFields in addressFormats.ts. */
+export interface AddressFieldSlot {
+  name: AddressFieldName;
+  /** Key of the label in GlasJenaAddressFields.vue (the field's words differ per group and country). */
+  label: string;
+  required: boolean;
+  /** Columns in the forms' grid `@md:grid-cols-[50%_1fr_120px]`. */
+  span: 1 | 2 | 3;
+}
+
+/** A value of an address field: text, or a number (the account's getter gives the house number as one). */
+export type AddressValue = string | number | null | undefined;

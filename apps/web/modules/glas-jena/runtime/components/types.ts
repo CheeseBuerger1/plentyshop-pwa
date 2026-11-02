@@ -1,4 +1,10 @@
-import type { CategoryTreeItem, ShippingMethod } from '@plentymarkets/shop-api';
+import type {
+  ActiveShippingCountry,
+  CategoryTreeItem,
+  GeoRegulatedCountry,
+  ShippingMethod,
+} from '@plentymarkets/shop-api';
+import type { AddressFieldName } from '../utils/types';
 
 /** A shipping method with its shipping profile and the icon of PlentyONE (see GlasJenaShippingMethodLogo.vue). */
 export interface GlasJenaShippingMethodLogoProps {
@@ -73,3 +79,33 @@ export interface GlasJenaMobileNavigationEmits {
   /** A guest chose "log in" or "create an account": the header opens its login dialog in that view. */
   openLogin: [view: GlasJenaAuthView];
 }
+
+/** A country of the address forms: of delivery (`default`) or, for billing addresses, also a geo-regulated one. */
+export type GlasJenaAddressCountryEntry = ActiveShippingCountry | GeoRegulatedCountry;
+
+export interface GlasJenaAddressCountryProps {
+  /** The countries to choose from (shipping or billing countries of the shop). */
+  countries: GlasJenaAddressCountryEntry[];
+  /** Error of the country field (vee-validate), if any. */
+  error?: string;
+  /** Bindings of the field (vee-validate `defineField`), e.g. for validation on blur. */
+  fieldAttributes?: Record<string, unknown>;
+  /** HTML `required` for forms without vee-validate (account). */
+  nativeRequired?: boolean;
+}
+
+export interface GlasJenaAddressFieldsProps {
+  /** Id of the chosen country (PlentyONE `countryId`). */
+  country: string | null | undefined;
+  /** The countries of the form, for the ISO code and the states of the chosen one. */
+  countries: GlasJenaAddressCountryEntry[];
+  /** Errors per field (vee-validate `errors`). */
+  errors?: Partial<Record<string, string | undefined>>;
+  /** Bindings per field (vee-validate `defineField`). */
+  fieldAttributes?: Partial<Record<AddressFieldName, Record<string, unknown>>>;
+  /** HTML `required` for forms without vee-validate (account). */
+  nativeRequired?: boolean;
+}
+
+/** Value of a text field of the address part (the account's getter gives the house number as a number). */
+export type GlasJenaAddressFieldValue = string | number | undefined;
