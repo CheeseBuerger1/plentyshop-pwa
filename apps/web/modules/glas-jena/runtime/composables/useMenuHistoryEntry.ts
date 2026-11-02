@@ -24,12 +24,21 @@ export const useMenuHistoryEntry = (isOpen: Ref<boolean>, close: () => void) => 
   let isLeaving = false;
   const waiting: (() => void)[] = [];
   let removeRouterHook: (() => void) | undefined;
+  /* One fallback at a time: an older one would end a later leave before its own history step has arrived */
+  let settleTimer: ReturnType<typeof setTimeout> | undefined;
 
   const settle = () => {
+    clearTimeout(settleTimer);
+    settleTimer = undefined;
     removeRouterHook?.();
     removeRouterHook = undefined;
     isLeaving = false;
     waiting.splice(0).forEach((resolve) => resolve());
+  };
+
+  const settleLater = () => {
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(settle, HISTORY_EXIT_TIMEOUT_MS);
   };
 
   /*
@@ -40,7 +49,7 @@ export const useMenuHistoryEntry = (isOpen: Ref<boolean>, close: () => void) => 
     if (isLeaving) {
       /* The router starts a navigation for this step (to the same location); settle once it has finished */
       removeRouterHook ??= router.afterEach(settle);
-      setTimeout(settle, HISTORY_EXIT_TIMEOUT_MS);
+      settleLater();
       return;
     }
     settle();
@@ -71,7 +80,7 @@ export const useMenuHistoryEntry = (isOpen: Ref<boolean>, close: () => void) => 
       }
       waiting.push(resolve);
       leaveEntry();
-      setTimeout(settle, HISTORY_EXIT_TIMEOUT_MS);
+      settleLater();
     });
 
   watch(isOpen, (open) => {
@@ -101,6 +110,7 @@ export const useMenuHistoryEntry = (isOpen: Ref<boolean>, close: () => void) => 
 
   onBeforeUnmount(() => {
     window.removeEventListener('popstate', onPopState);
+    clearTimeout(settleTimer);
     removeRouterHook?.();
   });
 

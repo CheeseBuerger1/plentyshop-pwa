@@ -367,8 +367,8 @@ const replaceCount = (text: string, search: string, replacement: string, count: 
 /**
  * The module's copy of the registration's form (useGlasJenaRegisterForm.ts from composables/useRegisterForm/
  * useRegisterForm.ts, without the copy's header comment): the address rules shared with the checkout
- * (utils/addressSchema.ts: house number not required in Great Britain, state required per country, phone number),
- * the postal code trimmed and capitalised, and state, address line 2 and phone number as fields of the form and of
+ * (utils/addressSchema.ts: house number not required in Great Britain, state required per country, postal code
+ * trimmed and capitalised, phone number), and state, address line 2 and phone number as fields of the form and of
  * both addresses.
  */
 export const toModuleRegisterForm = (original: string) => {
@@ -376,8 +376,7 @@ export const toModuleRegisterForm = (original: string) => {
   copy = replaceOnce(
     copy,
     `import type { UseRegisterFormReturn } from './types';\n`,
-    `import { normalizePostalCode } from '../utils/addressFormats';\n` +
-      `import { getAddressRules } from '../utils/addressSchema';\n`,
+    `import { getAddressRules } from '../utils/addressSchema';\n`,
   );
   copy = replaceOnce(
     copy,
@@ -388,10 +387,15 @@ export const toModuleRegisterForm = (original: string) => {
     copy,
     `  const { getCountryZipCodeRegex } = useAggregatedCountries();\n`,
     `  const { default: shippingCountries, getCountryZipCodeRegex } = useAggregatedCountries();\n` +
-      `  const addressRules = getAddressRules(() => shippingCountries.value, {\n` +
-      `    required: t('error.requiredField'),\n` +
-      `    phoneInvalid: t('glasJenaAddress.phoneInvalid'),\n` +
-      `  });\n`,
+      `  const addressRules = getAddressRules(\n` +
+      `    () => shippingCountries.value,\n` +
+      `    {\n` +
+      `      required: t('error.requiredField'),\n` +
+      `      phoneInvalid: t('glasJenaAddress.phoneInvalid'),\n` +
+      `      zipCodeInvalid: t('PreferredDelivery.packstation.zipcodeInvalid'),\n` +
+      `    },\n` +
+      `    (countryId) => getCountryZipCodeRegex(countryId, AddressType.Shipping),\n` +
+      `  );\n`,
   );
   copy = replaceOnce(
     copy,
@@ -407,10 +411,11 @@ export const toModuleRegisterForm = (original: string) => {
       phoneNumber: addressRules.phoneNumber().default(''),
 `,
   );
-  copy = replaceOnce(
+  copy = replaceBetween(
     copy,
-    `      zipCode: string()\n        .trim()\n`,
-    `      zipCode: string()\n        .transform(normalizePostalCode)\n`,
+    `      zipCode: string()\n`,
+    `        .default(state.value.defaultFormValues.zipCode),\n`,
+    `      zipCode: addressRules.zipCode().default(state.value.defaultFormValues.zipCode),\n`,
   );
   copy = replaceOnce(
     copy,

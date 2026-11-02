@@ -2,7 +2,6 @@ import { AddressType, cartGetters } from '@plentymarkets/shop-api';
 import { toTypedSchema } from '@vee-validate/yup';
 import { boolean, object, string } from 'yup';
 import { useAddressForm as useShopAddressForm } from '~/composables/useAddressForm/useAddressForm';
-import { normalizePostalCode } from '../utils/addressFormats';
 import { getAddressRules } from '../utils/addressSchema';
 
 /**
@@ -15,7 +14,8 @@ import { getAddressRules } from '../utils/addressSchema';
  *   postal codes have POSTAL_CODE_NONE in the hidden field
  * - the state is required in the countries of STATE_REQUIRED_COUNTRIES (PlentyONE's list), optional elsewhere
  * - new: address line 2 (`additionalAddressInformation`, PlentyONE `address3`) and an optional phone number
- * The rules shared with the registration are in utils/addressSchema.ts. Everything else (saving, refreshing shipping and payment) is the original.
+ * These rules are shared with the registration (utils/addressSchema.ts). Everything else (saving, refreshing shipping
+ * and payment) is the original.
  */
 export const useGlasJenaAddressForm = (type: AddressType) => {
   const form = useShopAddressForm(type);
@@ -26,7 +26,12 @@ export const useGlasJenaAddressForm = (type: AddressType) => {
   const required = t('error.requiredField');
   const rules = getAddressRules(
     () => (type === AddressType.Billing ? billingCountries.value : shippingCountries.value),
-    { required, phoneInvalid: t('glasJenaAddress.phoneInvalid') },
+    {
+      required,
+      phoneInvalid: t('glasJenaAddress.phoneInvalid'),
+      zipCodeInvalid: t('PreferredDelivery.packstation.zipcodeInvalid'),
+    },
+    (countryId) => getCountryZipCodeRegex(countryId, type),
   );
 
   const validationSchema = toTypedSchema(
@@ -51,19 +56,7 @@ export const useGlasJenaAddressForm = (type: AddressType) => {
         .default(defaultFormValues.value.additionalAddressInformation ?? ''),
       city: string().required(required).default(defaultFormValues.value.city),
       state: rules.state().default(defaultFormValues.value.state ?? ''),
-      zipCode: string()
-        .transform(normalizePostalCode)
-        .when('country', ([countryId], schema) => {
-          const checked = schema.required(required);
-          const zipCodeRegex = getCountryZipCodeRegex(Number(countryId), type);
-          return zipCodeRegex
-            ? checked.matches(zipCodeRegex, {
-                message: t('PreferredDelivery.packstation.zipcodeInvalid'),
-                excludeEmptyString: true,
-              })
-            : checked;
-        })
-        .default(defaultFormValues.value.zipCode),
+      zipCode: rules.zipCode().default(defaultFormValues.value.zipCode),
       phoneNumber: rules.phoneNumber().default(defaultFormValues.value.phoneNumber ?? ''),
       primary: boolean().default(false),
       companyName: string().when([], {

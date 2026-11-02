@@ -6,13 +6,15 @@ import GlasJenaPaymentButtons from '../GlasJenaPaymentButtons.vue';
 const PREPAYMENT = 6000;
 const PAYPAL = 6001;
 
-const { state, send, order, handlePaymentMethodUpdate, scroll } = vi.hoisted(() => ({
+const { state, cart, send, order, handlePaymentMethodUpdate, scroll } = vi.hoisted(() => ({
   state: {
     list: [] as PaymentMethod[],
     selected: 0,
     excluded: [] as number[],
     paymentLoading: false,
   },
+  /* The cart's payment method, which the original changes only when it was saved */
+  cart: { methodOfPaymentId: 0 },
   send: vi.fn(),
   order: vi.fn(),
   handlePaymentMethodUpdate: vi.fn(),
@@ -28,7 +30,7 @@ vi.mock('~/components/PaymentButtons/PaymentButtons.vue', () => ({
 
 mockNuxtImport('useNotification', () => () => ({ send }));
 mockNuxtImport('scrollToHTMLObject', () => scroll);
-mockNuxtImport('useCart', () => () => ({ data: ref({ methodOfPaymentId: state.selected }) }));
+mockNuxtImport('useCart', () => () => ({ data: { value: cart } }));
 mockNuxtImport('useCartShippingMethods', () => () => ({
   selectedMethod: ref({ excludedPaymentMethodIds: state.excluded } as unknown as ShippingMethod),
 }));
@@ -56,6 +58,10 @@ describe('GlasJenaPaymentButtons', () => {
     state.selected = PREPAYMENT;
     state.excluded = [];
     state.paymentLoading = false;
+    cart.methodOfPaymentId = PREPAYMENT;
+    handlePaymentMethodUpdate.mockImplementation(async (paymentMethodId: number) => {
+      cart.methodOfPaymentId = paymentMethodId;
+    });
   });
 
   it('should order as before with an allowed payment method', async () => {
@@ -75,6 +81,16 @@ describe('GlasJenaPaymentButtons', () => {
 
     expect(handlePaymentMethodUpdate).toHaveBeenCalledWith(PAYPAL);
     expect(send).toHaveBeenCalledWith(expect.objectContaining({ type: 'warning' }));
+  });
+
+  it('should not report a change when the original could not save the new payment method', async () => {
+    state.list = [payment(PAYPAL)];
+    handlePaymentMethodUpdate.mockResolvedValue(undefined);
+
+    await mountButtons();
+
+    expect(handlePaymentMethodUpdate).toHaveBeenCalledWith(PAYPAL);
+    expect(send).not.toHaveBeenCalled();
   });
 
   it('should switch when the shipping method excludes the stored payment method', async () => {
@@ -100,6 +116,7 @@ describe('GlasJenaPaymentButtons', () => {
 
   it('should stop the order while no payment method has been chosen, without choosing one itself', async () => {
     state.selected = 0;
+    cart.methodOfPaymentId = 0;
     const wrapper = await mountButtons();
 
     await wrapper.get('[data-testid="place-order-button"]').trigger('click');

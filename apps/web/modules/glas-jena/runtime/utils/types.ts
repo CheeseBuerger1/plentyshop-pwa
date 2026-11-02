@@ -212,4 +212,5 @@ export type AddressRuleCountry = { id: number; isoCode2?: string | null; states?
 export interface AddressRuleMessages {
   required: string;
   phoneInvalid: string;
+  zipCodeInvalid: string;
 }

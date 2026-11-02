@@ -85,6 +85,35 @@ describe('GlasJenaHeroImage', () => {
     expect(wrapper.findAll('[data-testid="gj-hero-image-img"]')).toHaveLength(1);
   });
 
+  it('should stop the change with the pause button and go on with a full interval', async () => {
+    const wrapper = await mountHeroImage(SEQUENCE);
+    const button = () => wrapper.find('[data-testid="gj-hero-image-pause"]');
+
+    expect(button().attributes('aria-label')).toBe('Pause image change');
+
+    await vi.advanceTimersByTimeAsync(20_000);
+    await button().trigger('click');
+    await vi.advanceTimersByTimeAsync(90_000);
+    expect(getCurrent(wrapper).attributes('alt')).toBe('Tea pot');
+    expect(button().attributes('aria-label')).toBe('Continue image change');
+
+    await button().trigger('click');
+    await vi.advanceTimersByTimeAsync(29_000);
+    expect(getCurrent(wrapper).attributes('alt')).toBe('Tea pot');
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(getCurrent(wrapper).attributes('alt')).toBe('Tea cup');
+  });
+
+  it('should show no pause button when nothing changes', async () => {
+    setReducedMotion(true);
+    const reduced = await mountHeroImage(SEQUENCE);
+    setReducedMotion(false);
+    const single = await mountHeroImage({ slides: [{ large: 'a-1000.jpg', alt: 'Tea pot' }] });
+
+    expect(reduced.find('[data-testid="gj-hero-image-pause"]').exists()).toBe(false);
+    expect(single.find('[data-testid="gj-hero-image-pause"]').exists()).toBe(false);
+  });
+
   it('should show the single image of the first block version', async () => {
     const wrapper = await mountHeroImage({ image: { wideScreen: 'large.jpg', mobile: 'small.jpg', alt: 'Tea pot' } });
     const image = getCurrent(wrapper);

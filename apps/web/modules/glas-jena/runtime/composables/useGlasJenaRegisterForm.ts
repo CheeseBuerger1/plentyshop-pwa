@@ -9,17 +9,21 @@ import { userGetters, cartGetters, type Address, AddressType } from '@plentymark
 import { toTypedSchema } from '@vee-validate/yup';
 import { boolean, object, string } from 'yup';
 import { useForm } from 'vee-validate';
-import { normalizePostalCode } from '../utils/addressFormats';
 import { getAddressRules } from '../utils/addressSchema';
 
 export const useGlasJenaRegisterForm = () => {
   const { send } = useNotification();
   const { data: cartData } = useCart();
   const { default: shippingCountries, getCountryZipCodeRegex } = useAggregatedCountries();
-  const addressRules = getAddressRules(() => shippingCountries.value, {
-    required: t('error.requiredField'),
-    phoneInvalid: t('glasJenaAddress.phoneInvalid'),
-  });
+  const addressRules = getAddressRules(
+    () => shippingCountries.value,
+    {
+      required: t('error.requiredField'),
+      phoneInvalid: t('glasJenaAddress.phoneInvalid'),
+      zipCodeInvalid: t('PreferredDelivery.packstation.zipcodeInvalid'),
+    },
+    (countryId) => getCountryZipCodeRegex(countryId, AddressType.Shipping),
+  );
   const { register, isAuthorized } = useCustomer();
   const router = useRouter();
   const localePath = useLocalizedPath();
@@ -111,16 +115,7 @@ export const useGlasJenaRegisterForm = () => {
       state: addressRules.state().default(''),
       phoneNumber: addressRules.phoneNumber().default(''),
       city: string().trim().required(t('error.requiredField')).default(state.value.defaultFormValues.city),
-      zipCode: string()
-        .transform(normalizePostalCode)
-        .required(t('error.requiredField'))
-        .when('country', ([countryId], schema) => {
-          const zipCodeRegex = getCountryZipCodeRegex(Number(countryId), AddressType.Shipping);
-          return zipCodeRegex
-            ? schema.matches(zipCodeRegex, t('PreferredDelivery.packstation.zipcodeInvalid'))
-            : schema;
-        })
-        .default(state.value.defaultFormValues.zipCode),
+      zipCode: addressRules.zipCode().default(state.value.defaultFormValues.zipCode),
       country: string()
         .trim()
         .required(t('error.requiredField'))
