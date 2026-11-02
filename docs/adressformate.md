@@ -1,7 +1,7 @@
 # Adressformate je Lieferland
 
-Stand 2026-11-02, Branch `feat/address-formats`. **Umgesetzt** (Kasse, Mein Konto, Registrierung); offen ist
-nur die Testbestellung mit DHL-Etikett (Abschnitt 8). Unsichere Punkte sind mit ⚠ markiert.
+Stand 2026-11-02, Branch `feat/address-formats`. **Umgesetzt** (Kasse, Mein Konto, Registrierung), mit
+Testbestellungen und DHL-Etiketten geprüft (Abschnitt 8). Unsichere Punkte sind mit ⚠ markiert.
 
 ## 1. Ist-Zustand
 
@@ -60,8 +60,8 @@ Auf dem DHL-Etikett steht der Adresszusatz **über** Straße und Hausnummer. Das
 Hinterhaus (DE), Flat/Gebäudename (GB), Apt/Suite (US, laut USPS über der Zustellzeile zulässig), Gebäude/Zimmer
 (JP) stehen dort ebenfalls über oder vor der Straßenzeile.
 Der Bundesstaat (`stateId`) wird an DHL übertragen und ist für die USA dort Pflicht (Shopbetreiber, 2026-11-01).
-Hausnummer und PLZ verlangt PlentyONE selbst (außer GB), siehe Abschnitt 2. ⚠ Offen: ob DHL eine britische Zeile
-mit leerem `address2` annimmt (die DHL-API erlaubt das international) → Etikettentest, siehe Abschnitt 8.
+Hausnummer und PLZ verlangt PlentyONE selbst (außer GB), siehe Abschnitt 2. Eine britische Zeile mit leerem
+`address2` nimmt DHL an (Etikettentest, Abschnitt 8).
 
 ### Aktive Lieferländer
 
@@ -397,12 +397,21 @@ Gastsitzung im lokalen Dev-Server, Adressen über das Formular gespeichert und d
 Abgelehnt (422 `address.validationFailed`): US und IT ohne Hausnummer, HK ohne PLZ. Geprüft außerdem: Layout
 Desktop und Handy (Kasse, Registrierung), Länderwechsel US → HK → GB → JP.
 
-### Testbestellung und Etiketten
+### Testbestellung und Etiketten (2026-11-02)
 
-Gastbestellungen im Online-Shop sind freigegeben (2026-11-01): z. B. je eine Bestellung US/GB/JP, im Backend
-prüfen (Auftragsadresse, DHL-Etikett), danach im Backend stornieren. Zahlungsart Vorkasse (löst nur die
-PDF-Auftragsbestätigung aus, keine Rechnung), Test-E-Mail-Adresse des Shopbetreibers. Die DHL-Übertragung macht
-der Shopbetreiber bei jedem Auftrag von Hand – auch beim Testauftrag. ⚠ Noch offen.
+Drei Gastbestellungen über den lokalen Dev-Server gegen PlentyONE, Vorkasse (dafür vorübergehend für US, GB, JP
+freigeschaltet), Paketversand; DHL-Übertragung durch den Shopbetreiber, danach storniert (Status 8).
+
+| Auftrag | Land | Empfänger auf dem DHL-Etikett (Paket International)                           |
+| ------- | ---- | ----------------------------------------------------------------------------- |
+| 55069   | GB   | 10 Downing Street · London · SW1A 2AA · UNITED KINGDOM                        |
+| 55070   | US   | Apt 4B · 221 Baker St · Springfield IL 62704 · UNITED STATES OF AMERICA (USA) |
+| 55071   | JP   | Marunouchi Building 12F · Marunouchi 1-2-3 · 100-0005 Chiyoda-ku · JAPAN      |
+
+Ergebnisse: DHL nimmt die britische Zeile ohne Hausnummer an; in den USA setzt DHL die Hausnummer selbst nach vorn und
+druckt den Staat als Kürzel; der Adresszusatz (`address3`) steht über der Straße. ⚠ Die Präfektur Japans (`stateId`)
+druckt DHL nicht – die Adresse ist über die PLZ eindeutig, wäre aber über den Ort ergänzbar („Chiyoda-ku, Tokyo“). Die
+Telefonnummer steht nur im Auftrag, nicht auf dem Etikett („Receiver contact“ leer).
 
 ## 9. Abdeckung
 
@@ -439,6 +448,6 @@ der Shopbetreiber bei jedem Auftrag von Hand – auch beim Testauftrag. ⚠ Noch
 - `@plentymarkets/shop-api` 0.188.0, `mapAddressForServer`/`mapAddressForClient` (Feldzuordnung).
 - UPU-Länderdatenblätter (Postal addressing systems) wurden nicht einzeln geöffnet; die Gruppenzuordnung
   stützt sich auf libaddressinput und die Hinweise in der Tabelle.
-- DHL-Feldverwendung: Angabe des Shopbetreibers (2026-11-01); Etikett ⚠ noch nicht getestet, siehe Abschnitt 8.
+- DHL-Feldverwendung: Angabe des Shopbetreibers (2026-11-01), Etiketten der Testaufträge 55069–55071 (Abschnitt 8).
 - Pflichtfelder von PlentyONE: Speichertests über die Shop-Schnittstelle am 2026-11-02 (Abschnitt 8) und
   Konfiguration des Plugin-Sets „PWA-Plugin-Set“ (Ceres, lesend über die REST-Schnittstelle).
