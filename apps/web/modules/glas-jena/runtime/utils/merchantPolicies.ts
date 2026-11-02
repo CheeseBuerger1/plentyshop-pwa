@@ -167,8 +167,15 @@ export const getShippingRateDE = (
   return SHIPPING_RATES_DE.find(({ maxKg }) => weightG <= maxKg * 1000)?.rate;
 };
 
-/** Shipping of one item within Germany for its offer */
-export const getOfferShippingDetailsJsonLd = (rate: number): OfferShippingDetails => ({
+/**
+ * A weight in grams in kilograms with its unit: Google takes weights in kilograms (`KGM`) or pounds (`LBR`) only, grams
+ * (`GRM`) leave the Merchant Center with "missing shipping weight" (2026-11-02). The unit text is for other readers.
+ */
+const toKilograms = (weightG: number) =>
+  ({ '@type': 'QuantitativeValue', value: weightG / 1000, unitCode: 'KGM', unitText: 'kg' }) as const;
+
+/** Shipping of one item within Germany for its offer, with the gross weight of the parcel in grams when there is one */
+export const getOfferShippingDetailsJsonLd = (rate: number, weightG?: number): OfferShippingDetails => ({
   '@type': 'OfferShippingDetails',
   shippingRate: amount(rate),
   shippingDestination: toGermany,
@@ -177,19 +184,21 @@ export const getOfferShippingDetailsJsonLd = (rate: number): OfferShippingDetail
     handlingTime: { '@type': 'QuantitativeValue', ...HANDLING_DAYS, unitCode: 'DAY' },
     transitTime: { '@type': 'QuantitativeValue', ...TRANSIT_DAYS, unitCode: 'DAY' },
   },
+  ...(weightG && weightG > 0 ? { weight: toKilograms(weightG) } : {}),
 });
 
 const PRODUCT_JSON_LD_RE = /"@type"\s*:\s*"Product"/;
 
-/** UN/CEFACT code of grams: the shop gives the weight of the variation in grams but without a unit */
-const GRAM_UNIT_CODE = 'GRM';
+/** The sizes of the Product JSON-LD: the shop gives them in millimetres without a unit */
+const DIMENSIONS = ['depth', 'width', 'height'] as const;
 
 /**
- * The shop's Product JSON-LD (useStructuredData.ts, serialized) with shipping and returns in its offer and the unit of
- * its weight: the shop builds them itself, so the module completes the resolved head tag. Without the unit Google has
- * no shipping weight for the weight ranges of the shipping (Merchant Center "missing shipping weight", 2026-10-29).
- * The rate comes from the weight and the price of the JSON-LD (gross weight of the variation in grams, price of the
- * offer), free from `freeFrom` (see getShippingRateDE). Other JSON-LD stays as it is.
+ * The shop's Product JSON-LD (useStructuredData.ts, serialized) with shipping and returns in its offer and the units of
+ * its weight and sizes: the shop builds them itself, so the module completes the resolved head tag. Without a unit
+ * Google has no shipping weight for the weight ranges of the shipping (Merchant Center "missing shipping weight",
+ * 2026-10-29). Weight in kilograms (also in the shipping of the offer, like the shop's former templates), sizes in
+ * centimetres. The rate comes from the weight and the price of the JSON-LD (gross weight of the variation in grams,
+ * price of the offer), free from `freeFrom` (see getShippingRateDE). Other JSON-LD stays as it is.
  */
 export const completeProductJsonLd = (jsonLd: string, freeFrom: number | null = FREE_SHIPPING_DE_DEFAULT) => {
   if (!PRODUCT_JSON_LD_RE.test(jsonLd)) {
@@ -202,12 +211,18 @@ export const completeProductJsonLd = (jsonLd: string, freeFrom: number | null = 
 
   const weightG = Number(product.weight?.value);
   if (product.weight && weightG > 0 && !product.weight.unitCode) {
-    product.weight.unitCode = GRAM_UNIT_CODE;
+    product.weight = toKilograms(weightG);
+  }
+  for (const dimension of DIMENSIONS) {
+    const sizeMM = Number(product[dimension]?.value);
+    if (product[dimension] && sizeMM > 0 && !product[dimension].unitCode) {
+      product[dimension] = { '@type': 'QuantitativeValue', value: sizeMM / 10, unitCode: 'CMT', unitText: 'cm' };
+    }
   }
   for (const offer of [product.offers].flat()) {
     const rate = getShippingRateDE(weightG, Number(offer.price), freeFrom);
     if (rate !== undefined) {
-      offer.shippingDetails = getOfferShippingDetailsJsonLd(rate);
+      offer.shippingDetails = getOfferShippingDetailsJsonLd(rate, weightG);
     }
     offer.hasMerchantReturnPolicy = getMerchantReturnPolicyJsonLd();
   }
