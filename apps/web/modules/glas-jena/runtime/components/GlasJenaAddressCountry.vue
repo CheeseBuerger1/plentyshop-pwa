@@ -12,6 +12,7 @@
       :placeholder="t('form.selectPlaceholder')"
       :invalid="!!error"
       :required="nativeRequired"
+      aria-required="true"
       wrapper-class-name="bg-white"
       class="!ring-1 !ring-neutral-200"
       autocomplete="country-name"

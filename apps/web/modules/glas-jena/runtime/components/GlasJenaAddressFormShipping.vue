@@ -31,6 +31,7 @@
         v-model="firstName"
         name="firstName"
         autocomplete="given-name"
+        :aria-required="!hasShippingCompany"
         v-bind="firstNameAttributes"
         :invalid="!!errors['firstName']"
       />
@@ -48,6 +49,7 @@
         v-model="lastName"
         name="lastName"
         autocomplete="family-name"
+        :aria-required="!hasShippingCompany"
         v-bind="lastNameAttributes"
         :invalid="!!errors['lastName']"
       />
@@ -73,6 +75,7 @@
       <SfInput
         id="shippingCompanyName"
         v-model="companyName"
+        aria-required="true"
         name="companyName"
         autocomplete="organization"
         v-bind="companyNameAttributes"

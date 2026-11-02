@@ -11,10 +11,10 @@ import { join } from 'node:path';
 import {
   toModuleAccountAddressForm,
   toModuleAddressForm,
-  toModuleOrderAddressData,
   toModuleRegisterForm,
   toModuleRegisterPage,
 } from './addressFormCopy';
+import { toModuleContactInformation, toModuleOrderAddressData } from './displayCopy';
 
 /* Vitest runs in apps/web (the Nuxt test environment gives no file URL for this module) */
 const readApp = (path: string) => readFileSync(join(process.cwd(), 'app', path), 'utf8');
@@ -60,6 +60,12 @@ describe('upstream contract of the glas-jena module: address forms', () => {
       .replace(/^\/\*[\s\S]*?\*\/\n/, '');
 
     expect(copy).toBe(toModuleRegisterForm(readApp('composables/useRegisterForm/useRegisterForm.ts')));
+  });
+
+  it('should find the contact information unchanged except for the required mark of the copy', () => {
+    expect(readCopy('components/GlasJenaContactInformation.vue')).toBe(
+      toModuleContactInformation(readApp('components/ContactInformation/ContactInformation.vue')),
+    );
   });
 
   it('should find the order address unchanged except for address line 2 and state of the copy', () => {

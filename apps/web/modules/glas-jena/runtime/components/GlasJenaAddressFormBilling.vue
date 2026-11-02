@@ -29,6 +29,7 @@
         v-model="firstName"
         name="firstName"
         autocomplete="given-name"
+        :aria-required="!hasCompany"
         v-bind="firstNameAttributes"
         :invalid="!!errors['firstName']"
       />
@@ -46,6 +47,7 @@
         v-model="lastName"
         name="lastName"
         autocomplete="family-name"
+        :aria-required="!hasCompany"
         v-bind="lastNameAttributes"
         :invalid="!!errors['lastName']"
       />
@@ -71,6 +73,7 @@
       <SfInput
         id="billingCompanyName"
         v-model="companyName"
+        aria-required="true"
         name="companyName"
         autocomplete="organization"
         v-bind="companyNameAttributes"
