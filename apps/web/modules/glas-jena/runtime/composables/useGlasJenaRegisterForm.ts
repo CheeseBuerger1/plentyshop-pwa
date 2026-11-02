@@ -2,21 +2,24 @@
  * Form of the registration (copy of composables/useRegisterForm/useRegisterForm.ts for GlasJenaRegister.vue) with the
  * address rules per country of useGlasJenaAddressForm (concept in docs/adressformate.md): house number not required in
  * Great Britain, postal code trimmed and capitalised, state required per country, and state, address line 2 and phone
- * number as fields of both addresses. Made by __tests__/addressFormCopy.ts; upstreamContractAddress.spec.ts shows when
+ * number as fields of both addresses. Made by copies/addressFormCopy.ts; upstreamContractAddress.spec.ts shows when
  * the original changes.
  */
 import { userGetters, cartGetters, type Address, AddressType } from '@plentymarkets/shop-api';
 import { toTypedSchema } from '@vee-validate/yup';
 import { boolean, object, string } from 'yup';
 import { useForm } from 'vee-validate';
-import { getAddressFormat, normalizePostalCode } from '../utils/addressFormats';
+import { normalizePostalCode } from '../utils/addressFormats';
+import { getAddressRules } from '../utils/addressSchema';
 
 export const useGlasJenaRegisterForm = () => {
   const { send } = useNotification();
   const { data: cartData } = useCart();
   const { default: shippingCountries, getCountryZipCodeRegex } = useAggregatedCountries();
-  const formatOf = (countryId: string | undefined) =>
-    getAddressFormat(shippingCountries.value.find((entry) => entry.id === Number(countryId)));
+  const addressRules = getAddressRules(() => shippingCountries.value, {
+    required: t('error.requiredField'),
+    phoneInvalid: t('glasJenaAddress.phoneInvalid'),
+  });
   const { register, isAuthorized } = useCustomer();
   const router = useRouter();
   const localePath = useLocalizedPath();
@@ -103,23 +106,10 @@ export const useGlasJenaRegisterForm = () => {
           otherwise: (schema) => schema.optional().default(state.value.defaultFormValues.vatNumber),
         }),
       streetName: string().trim().required(t('error.requiredField')).default(state.value.defaultFormValues.streetName),
-      apartment: string()
-        .trim()
-        .when('country', ([countryId], schema) =>
-          formatOf(countryId).singleLine ? schema.optional() : schema.required(t('error.requiredField')),
-        )
-        .default(state.value.defaultFormValues.apartment),
-      additionalAddressInformation: string().trim().optional().default(''),
-      state: string()
-        .when('country', ([countryId], schema) =>
-          formatOf(countryId).state === 'required' ? schema.required(t('error.requiredField')) : schema.optional(),
-        )
-        .default(''),
-      phoneNumber: string()
-        .trim()
-        .optional()
-        .matches(/^.{7,18}$/, { message: t('glasJenaAddress.phoneInvalid'), excludeEmptyString: true })
-        .default(''),
+      apartment: addressRules.apartment().default(state.value.defaultFormValues.apartment),
+      additionalAddressInformation: addressRules.additionalAddressInformation().default(''),
+      state: addressRules.state().default(''),
+      phoneNumber: addressRules.phoneNumber().default(''),
       city: string().trim().required(t('error.requiredField')).default(state.value.defaultFormValues.city),
       zipCode: string()
         .transform(normalizePostalCode)

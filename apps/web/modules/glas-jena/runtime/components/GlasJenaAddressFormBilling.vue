@@ -2,7 +2,7 @@
   Billing address form of the checkout (replaces components/AddressFormBilling/AddressFormBilling.vue, see
   COMPONENT_OVERRIDES): the address part per country (wish of the shop owner, 2026-10-31; concept in
   docs/adressformate.md). Copy of the original with the changes of GlasJenaAddressFormShipping.vue, see
-  __tests__/addressFormCopy.ts. Everything else is the original; upstreamContractAddress.spec.ts shows when it changes.
+  copies/addressFormCopy.ts. Everything else is the original; upstreamContractAddress.spec.ts shows when it changes.
 -->
 <template>
   <form

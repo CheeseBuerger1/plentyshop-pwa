@@ -4,11 +4,10 @@
  * the country moves to the top (GlasJenaAddressCountry), the address part from the street to the country becomes
  * GlasJenaAddressFields, the schema comes from useGlasJenaAddressForm, and state, address line 2 and phone number are
  * fields of the form. upstreamContractAddress.spec.ts applies these changes to the originals and expects the copies;
- * if the original changed, it fails and the change has to be taken over into the copy.
+ * if an original changed, it fails: make the copies again with generate.ts (see index.ts) and check the result.
  */
 
-/** Which of the two checkout forms. */
-type AddressFormKind = 'Shipping' | 'Billing';
+import type { AddressFormKind } from './types';
 
 const FIRST_NAME_LABEL = `    <label>
       <UiFormLabel class="flex">
@@ -367,16 +366,18 @@ const replaceCount = (text: string, search: string, replacement: string, count: 
 
 /**
  * The module's copy of the registration's form (useGlasJenaRegisterForm.ts from composables/useRegisterForm/
- * useRegisterForm.ts, without the copy's header comment): the rules of useGlasJenaAddressForm (house number not
- * required in Great Britain, postal code trimmed and capitalised, state required per country) and state, address
- * line 2 and phone number as fields of the form and of both addresses.
+ * useRegisterForm.ts, without the copy's header comment): the address rules shared with the checkout
+ * (utils/addressSchema.ts: house number not required in Great Britain, state required per country, phone number),
+ * the postal code trimmed and capitalised, and state, address line 2 and phone number as fields of the form and of
+ * both addresses.
  */
 export const toModuleRegisterForm = (original: string) => {
   let copy = original.replace(/\r\n/g, '\n');
   copy = replaceOnce(
     copy,
     `import type { UseRegisterFormReturn } from './types';\n`,
-    `import { getAddressFormat, normalizePostalCode } from '../utils/addressFormats';\n`,
+    `import { normalizePostalCode } from '../utils/addressFormats';\n` +
+      `import { getAddressRules } from '../utils/addressSchema';\n`,
   );
   copy = replaceOnce(
     copy,
@@ -387,8 +388,10 @@ export const toModuleRegisterForm = (original: string) => {
     copy,
     `  const { getCountryZipCodeRegex } = useAggregatedCountries();\n`,
     `  const { default: shippingCountries, getCountryZipCodeRegex } = useAggregatedCountries();\n` +
-      `  const formatOf = (countryId: string | undefined) =>\n` +
-      `    getAddressFormat(shippingCountries.value.find((entry) => entry.id === Number(countryId)));\n`,
+      `  const addressRules = getAddressRules(() => shippingCountries.value, {\n` +
+      `    required: t('error.requiredField'),\n` +
+      `    phoneInvalid: t('glasJenaAddress.phoneInvalid'),\n` +
+      `  });\n`,
   );
   copy = replaceOnce(
     copy,
@@ -398,23 +401,10 @@ export const toModuleRegisterForm = (original: string) => {
   copy = replaceOnce(
     copy,
     `      apartment: string().trim().required(t('error.requiredField')).default(state.value.defaultFormValues.apartment),\n`,
-    `      apartment: string()
-        .trim()
-        .when('country', ([countryId], schema) =>
-          formatOf(countryId).singleLine ? schema.optional() : schema.required(t('error.requiredField')),
-        )
-        .default(state.value.defaultFormValues.apartment),
-      additionalAddressInformation: string().trim().optional().default(''),
-      state: string()
-        .when('country', ([countryId], schema) =>
-          formatOf(countryId).state === 'required' ? schema.required(t('error.requiredField')) : schema.optional(),
-        )
-        .default(''),
-      phoneNumber: string()
-        .trim()
-        .optional()
-        .matches(/^.{7,18}$/, { message: t('glasJenaAddress.phoneInvalid'), excludeEmptyString: true })
-        .default(''),
+    `      apartment: addressRules.apartment().default(state.value.defaultFormValues.apartment),
+      additionalAddressInformation: addressRules.additionalAddressInformation().default(''),
+      state: addressRules.state().default(''),
+      phoneNumber: addressRules.phoneNumber().default(''),
 `,
   );
   copy = replaceOnce(

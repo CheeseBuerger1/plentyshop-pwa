@@ -204,3 +204,12 @@ export type AddressValue = string | number | null | undefined;
 
 /** The shown values of an address per field (the state as its shown text), see getAddressLines in addressFormats.ts. */
 export type AddressLineValues = Partial<Record<AddressFieldName, AddressValue>>;
+
+/** What the address rules need of a country of the form, see addressSchema.ts. */
+export type AddressRuleCountry = { id: number; isoCode2?: string | null; states?: unknown[] | null };
+
+/** The error texts of the address rules, see addressSchema.ts. */
+export interface AddressRuleMessages {
+  required: string;
+  phoneInvalid: string;
+}

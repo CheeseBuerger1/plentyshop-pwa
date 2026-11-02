@@ -382,9 +382,12 @@ Alles im Modul `apps/web/modules/glas-jena`, keine Originaldatei geändert:
    Telefon und Hinweisen).
 3. Ersatz-Komponenten (`COMPONENT_OVERRIDES`): `GlasJenaAddressFormShipping.vue`, `GlasJenaAddressFormBilling.vue`
    (Kasse), `GlasJenaAddressForm.vue` (Mein Konto); Registrierung `pages/GlasJenaRegister.vue` (`PAGE_OVERRIDES`).
-   Kopien der Originale, erzeugt mit den Ersetzungen in `__tests__/addressFormCopy.ts`.
+   Kopien der Originale, erzeugt mit den Ersetzungen in `copies/addressFormCopy.ts` (Liste aller Kopien in
+   `copies/index.ts`). Nach einem Shop-Update, wenn der Vertragstest ein geändertes Original meldet, in `apps/web`
+   `npx jiti modules/glas-jena/copies/generate.ts` ausführen und das Ergebnis prüfen.
 4. `composables/useGlasJenaAddressForm.ts` (Prüfschema der Kasse, hüllt das Original ein) und
-   `composables/useGlasJenaRegisterForm.ts` (Kopie für die Registrierung).
+   `composables/useGlasJenaRegisterForm.ts` (Kopie für die Registrierung); beide nehmen die Prüfregeln je Land
+   (Hausnummer, Bundesstaat, Adresszusatz, Telefon) aus `utils/addressSchema.ts`.
 5. Übersetzungen DE/EN im i18n-Block von `GlasJenaAddressFields.vue`, Fehlertext Telefon in `runtime/lang`.
 6. Vertragstest `__tests__/upstreamContractAddress.spec.ts`: die Kopien müssen die Originale mit genau den
    Ersetzungen sein; außerdem die Felder des Original-Schemas und die Feldzuordnung des Shop-Pakets.

@@ -1,7 +1,7 @@
 <!--
   Address of an order (replaces components/OrderAddressData/OrderAddressData.vue, see COMPONENT_OVERRIDES): copy of the
   original that also passes address line 2 (`address3`) and the state to the display (GlasJenaAddressDisplay.vue), so
-  the order confirmation and details show the address like its form. Made by __tests__/addressFormCopy.ts;
+  the order confirmation and details show the address like its form. Made by copies/addressFormCopy.ts;
   upstreamContractAddress.spec.ts shows when the original changes.
 -->
 <template>

@@ -1,7 +1,7 @@
 <!--
   Contact information of the checkout (replaces components/ContactInformation/ContactInformation.vue, see
   COMPONENT_OVERRIDES): copy of the original whose e-mail field is marked as required for screen readers too
-  (`aria-required`, wish of the shop owner, 2026-11-03). Made by __tests__/addressFormCopy.ts;
+  (`aria-required`, wish of the shop owner, 2026-11-03). Made by copies/addressFormCopy.ts;
   upstreamContractAddress.spec.ts shows when the original changes.
 -->
 <template>
