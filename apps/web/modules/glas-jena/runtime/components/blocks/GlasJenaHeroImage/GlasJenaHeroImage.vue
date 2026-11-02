@@ -133,12 +133,16 @@ const start = () => {
   timer = setInterval(showNext, intervalMs.value);
 };
 
-/* Going on starts a full interval: the image shown stays for the set time */
+/*
+ * Going on shows the next image at once, so the customer sees the button work (wish of the shop owner, 2026-11-03);
+ * it then stays for the set time
+ */
 const togglePause = () => {
   paused.value = !paused.value;
   if (paused.value) {
     stop();
   } else {
+    showNext();
     start();
   }
 };

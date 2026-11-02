@@ -85,7 +85,7 @@ describe('GlasJenaHeroImage', () => {
     expect(wrapper.findAll('[data-testid="gj-hero-image-img"]')).toHaveLength(1);
   });
 
-  it('should stop the change with the pause button and go on with a full interval', async () => {
+  it('should stop the change with the pause button and go on with the next image at once', async () => {
     const wrapper = await mountHeroImage(SEQUENCE);
     const button = () => wrapper.find('[data-testid="gj-hero-image-pause"]');
 
@@ -98,10 +98,11 @@ describe('GlasJenaHeroImage', () => {
     expect(button().attributes('aria-label')).toBe('Continue image change');
 
     await button().trigger('click');
-    await vi.advanceTimersByTimeAsync(29_000);
-    expect(getCurrent(wrapper).attributes('alt')).toBe('Tea pot');
-    await vi.advanceTimersByTimeAsync(1_000);
     expect(getCurrent(wrapper).attributes('alt')).toBe('Tea cup');
+    await vi.advanceTimersByTimeAsync(29_000);
+    expect(getCurrent(wrapper).attributes('alt')).toBe('Tea cup');
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(getCurrent(wrapper).attributes('alt')).toBe('Salad');
   });
 
   it('should show no pause button when nothing changes', async () => {
