@@ -421,6 +421,16 @@ Telefonnummer steht nur im Auftrag, nicht auf dem Etikett („Receiver contact�
   (Konto, Kasse, Bestätigung) bleibt wie bisher („Baker St 221“, ohne Adresszusatz und Staat); Postfach/PO Box ohne
   eigenes Feld.
 
+### Bekannte Grenze: Telefonnummer lässt sich nicht leeren
+
+Test 2026-11-02 (Gastadresse über `doSaveAddress`, dieselbe Adresse mehrfach gespeichert): Eine neue Telefonnummer
+übernimmt PlentyONE, eine leere (`''`, `null`, Leerzeichen) übergeht es – die alte Nummer bleibt. Adresszusatz
+(`address3`) und Bundesstaat (`stateId`) lassen sich dagegen leeren. Ursache: Telefon ist eine Option der Adresse
+(Typ 4), kein Adressfeld; die Shop-Schnittstelle (`/rest/storefront/contact/addresses`) entfernt leere Optionen beim
+Aktualisieren nicht. Das Formular schickt den leeren Wert korrekt (`telephone: ''` über `mapAddressForServer`). Das
+gilt genauso für das Original-Formular im Konto und vermutlich für die anderen Optionen (E-Mail, DHL-Postnummer). Die
+Nummer steht nur im Auftrag, nicht auf dem DHL-Etikett.
+
 ## 10. Entscheidungen und Annahmen
 
 1. ~~Gruppe A nur DE/AT/CH/NL?~~ Geklärt (2026-11-01): ja, DE (mit Helgoland, Büsingen), AT, CH, NL; übrige Länder in B bzw. C.
