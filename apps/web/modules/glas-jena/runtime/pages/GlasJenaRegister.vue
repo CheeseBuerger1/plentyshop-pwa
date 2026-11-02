@@ -193,6 +193,7 @@
             :country="formFields.country.value"
             :countries="shippingCountries"
             :errors="errors"
+            :set-field-value="setFieldValue"
             :field-attributes="{
               streetName: formFieldsAttributes.streetName.value,
               apartment: formFieldsAttributes.apartment.value,
@@ -286,6 +287,7 @@ const {
   hasCompany,
   turnstileElement,
   errors,
+  setFieldValue,
   onSubmit,
   passwordValidationLength,
   passwordValidationOneDigit,

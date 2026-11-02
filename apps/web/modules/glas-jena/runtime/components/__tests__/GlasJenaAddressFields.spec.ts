@@ -101,6 +101,18 @@ describe('GlasJenaAddressFields', () => {
     expect(wrapper.props('zipCode')).toBe('');
   });
 
+  it('should set the fields it changes itself through the form without checking them', async () => {
+    const setFieldValue = vi.fn();
+    const wrapper = await mountSuspended(GlasJenaAddressFields, {
+      props: { country: '28', countries: COUNTRIES, ...EMPTY, state: '30', setFieldValue },
+    });
+
+    await wrapper.setProps({ country: '57' });
+
+    expect(setFieldValue).toHaveBeenCalledWith('state', '', false);
+    expect(setFieldValue).toHaveBeenCalledWith('zipCode', '0', false);
+  });
+
   it('should note letters outside the Latin script and a street longer than DHL takes, without errors', async () => {
     const wrapper = await mountFields('1', { streetName: 'x'.repeat(51), city: '東京' });
 

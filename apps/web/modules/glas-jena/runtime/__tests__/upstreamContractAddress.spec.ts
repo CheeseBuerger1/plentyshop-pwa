@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import {
   toModuleAccountAddressForm,
   toModuleAddressForm,
+  toModuleOrderAddressData,
   toModuleRegisterForm,
   toModuleRegisterPage,
 } from './addressFormCopy';
@@ -59,6 +60,34 @@ describe('upstream contract of the glas-jena module: address forms', () => {
       .replace(/^\/\*[\s\S]*?\*\/\n/, '');
 
     expect(copy).toBe(toModuleRegisterForm(readApp('composables/useRegisterForm/useRegisterForm.ts')));
+  });
+
+  it('should find the order address unchanged except for address line 2 and state of the copy', () => {
+    expect(readCopy('components/GlasJenaOrderAddressData.vue')).toBe(
+      toModuleOrderAddressData(readApp('components/OrderAddressData/OrderAddressData.vue')),
+    );
+  });
+
+  it('should find what the original address display shows, which GlasJenaAddressDisplay shows too', () => {
+    /* A new line of the original (e.g. another getter) would be missing in the module's display */
+    const display = readApp('components/AddressDisplay/AddressDisplay.vue');
+    const getters = [...display.matchAll(/userAddressGetters\.(\w+)\(/g)].map(([, name]) => name);
+
+    expect([...new Set(getters)].sort()).toEqual(
+      [
+        'getCity',
+        'getCompanyName',
+        'getFirstName',
+        'getLastName',
+        'getPhone',
+        'getPostCode',
+        'getPostNumber',
+        'getStreetName',
+        'getStreetNumber',
+      ].sort(),
+    );
+    expect(display).toContain('useAggregatedCountries().localeCountryName(address.country)');
+    expect(readApp('components/AddressDisplay/types.ts')).toContain('address: Address;');
   });
 
   it('should find the fields of the original schema that useGlasJenaAddressForm rebuilds', () => {

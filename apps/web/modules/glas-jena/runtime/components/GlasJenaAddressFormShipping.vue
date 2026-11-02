@@ -115,6 +115,7 @@
       :country="country"
       :countries="shippingCountries"
       :errors="errors"
+      :set-field-value="setFieldValue"
       :field-attributes="{
         streetName: streetNameAttributes,
         apartment: apartmentAttributes,
@@ -198,7 +199,9 @@ const {
   refreshAddressDependencies,
 } = useGlasJenaAddressForm(AddressType.Shipping);
 const { invalidVAT, clearInvalidVAT, vatServerError } = useCreateAddress(AddressType.Shipping);
-const { defineField, errors, setValues, validate, handleSubmit } = useForm({ validationSchema: shippingSchema });
+const { defineField, errors, setValues, setFieldValue, validate, handleSubmit } = useForm({
+  validationSchema: shippingSchema,
+});
 
 const { labelText: firstNameLabelText, helperText: firstNameHelperText } = useFormLabel(
   t('form.firstNameLabel'),
@@ -232,21 +235,24 @@ if (!addAddress && address) {
 
   const addressSource = invalidVAT.value || vatServerError.value ? shippingAddressToSave.value : address;
 
-  setValues({
-    ...address,
-    firstName: addressSource?.firstName || '',
-    lastName: addressSource?.lastName || '',
-    country: addressSource?.country || '',
-    streetName: addressSource?.streetName || '',
-    apartment: addressSource?.apartment || '',
-    city: addressSource?.city || '',
-    zipCode: addressSource?.zipCode || '',
-    state: addressSource?.state || '',
-    additionalAddressInformation: addressSource?.additionalAddressInformation || '',
-    phoneNumber: addressSource?.phoneNumber || '',
-    companyName: addressSource.companyName || '',
-    vatNumber: addressSource.vatNumber || '',
-  } as unknown as Record<string, string>);
+  setValues(
+    {
+      ...address,
+      firstName: addressSource?.firstName || '',
+      lastName: addressSource?.lastName || '',
+      country: addressSource?.country || '',
+      streetName: addressSource?.streetName || '',
+      apartment: addressSource?.apartment || '',
+      city: addressSource?.city || '',
+      zipCode: addressSource?.zipCode || '',
+      state: addressSource?.state || '',
+      additionalAddressInformation: addressSource?.additionalAddressInformation || '',
+      phoneNumber: addressSource?.phoneNumber || '',
+      companyName: addressSource.companyName || '',
+      vatNumber: addressSource.vatNumber || '',
+    } as unknown as Record<string, string>,
+    false,
+  );
 
   if (!hasShippingCompany.value) {
     companyName.value = '';

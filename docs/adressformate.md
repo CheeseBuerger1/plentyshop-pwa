@@ -127,21 +127,21 @@ wie heute. Einen eigenen Ansprechpartner bei Firmen gibt es nicht (wie bisher im
 trägt ihn bei Vorname/Nachname ein (Entscheidung 2026-11-01). Nach dem Adressteil folgt das optionale
 Telefonfeld (3.4). Straße und Hausnummer stehen in einer eigenen Zeile, die Nummer schmal (120 px).
 
-| Gruppe | Länder (Beispiele)                                                 | Straße / Nummer                                          | Zeile 2 (`address3`)    | Ort, Staat, PLZ                        |
-| ------ | ------------------------------------------------------------------ | -------------------------------------------------------- | ----------------------- | -------------------------------------- |
-| A      | DE, AT, CH, NL                                                     | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort                             |
-| B      | übriges Europa, IL, Lateinamerika                                  | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort, darunter Provinz           |
-| C      | US, CA, AU                                                         | Hausnummer                                               | Straße                  | Wohnung, Suite, Gebäude                | Ort | Staat | PLZ |
-| C      | NZ, IE, IM, JE, GI, FR, GF, GP, RE, YT, MC, LU, ZA, SG, MY, PH, TT | Hausnummer                                               | Straße                  | Wohnung, Suite, Gebäude                | PLZ | Ort   |
-| C, GB  | Großbritannien                                                     | eine Zeile „Hausnummer und Straße“                       | Wohnung, Suite, Gebäude | Ort \| Postcode                        |
-| D      | JP, KR, CN                                                         | Stadtteil, Straße \| Nummer (JP: „Block (Chōme-Ban-Gō)“) | Gebäude, Zimmer         | zuerst PLZ \| Präfektur, Stadt, Bezirk |
-| E      | alle übrigen                                                       | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort, darunter Region            |
+| Gruppe | Länder (Beispiele)                                                 | Straße / Nummer                                  | Zeile 2 (`address3`)    | Ort, Staat, PLZ                        |
+| ------ | ------------------------------------------------------------------ | ------------------------------------------------ | ----------------------- | -------------------------------------- |
+| A      | DE, AT, CH, NL                                                     | Straße \| Hausnummer                             | Adresszusatz            | PLZ \| Ort                             |
+| B      | übriges Europa, IL, Lateinamerika                                  | Straße \| Hausnummer                             | Adresszusatz            | PLZ \| Ort, darunter Provinz           |
+| C      | US, CA, AU                                                         | Hausnummer                                       | Straße                  | Wohnung, Suite, Gebäude                | Ort | Staat | PLZ |
+| C      | NZ, IE, IM, JE, GI, FR, GF, GP, RE, YT, MC, LU, ZA, SG, MY, PH, TT | Hausnummer                                       | Straße                  | Wohnung, Suite, Gebäude                | PLZ | Ort   |
+| C, GB  | Großbritannien                                                     | eine Zeile „Hausnummer und Straße“               | Wohnung, Suite, Gebäude | Ort \| Postcode                        |
+| D      | JP, KR, CN                                                         | Stadtteil, Straße \| Nummer (JP: „Chōme-Ban-Gō“) | Gebäude, Zimmer         | zuerst PLZ \| Präfektur, Stadt, Bezirk |
+| E      | alle übrigen                                                       | Straße \| Hausnummer                             | Adresszusatz            | PLZ \| Ort, darunter Region            |
 
 Zuordnung zu PlentyONE in allen Gruppen: Straße `address1`, Hausnummer `address2`, Zeile 2 `address3` (DHL druckt
 ihn über Straße und Hausnummer), PLZ `postalCode`, Ort `town`, Staat `stateId`, Telefon Option Typ 4.
 
 Beschriftungen DE / EN: Straße / Street, Hausnummer / House number, Hausnummer und Straße / Street address,
-Stadtteil, Straße / District, street, Block (Chōme-Ban-Gō) / Block (chōme-ban-gō), Adresszusatz / Additional address
+Stadtteil, Straße / District, street, Chōme-Ban-Gō / Chōme-ban-gō, Adresszusatz / Additional address
 information, Wohnung, Suite, Gebäude / Apt, suite, unit, building, Gebäude, Zimmer / Building, room, Ort / City,
 Stadt, Bezirk / City, ward; PLZ als Postleitzahl / Postal code, ZIP-Code / ZIP code (US), Postleitzahl / Postcode
 (GB, AU, NZ, IM, JE, GI), Eircode (IE); Staat als Bundesstaat / State, Provinz / Province, Präfektur / Prefecture,
@@ -195,7 +195,28 @@ Nur zwei gelbe Hinweise, die die Bestellung nie verhindern (Auswahl des Shopbetr
 
 Blockierend sind nur: Pflichtfelder, PlentyONE-PLZ-Regex, Bundesstaat in den Pflicht-Ländern.
 
-### 3.6 Browser-Autofill
+### 3.6 Anzeige der Adresse
+
+Kasse, Mein Konto (Adressliste), Bestellbestätigung und Bestelldetails zeigen die Adresse genau so, wie das Formular
+des Landes sie abfragt (Wunsch des Shopbetreibers, 2026-11-03): Was im Formular in einer Zeile steht, steht in der
+Anzeige in einer Zeile, in derselben Reihenfolge (`getAddressLines` in `utils/addressFormats.ts`). Davor Firma und
+Name, danach das Land und das Telefon. Beispiele:
+
+| Land | Anzeige                                                                                    |
+| ---- | ------------------------------------------------------------------------------------------ |
+| DE   | Hauptstraße 12a · Hinterhaus · 07743 Jena · Deutschland                                    |
+| US   | 221 Baker St · Apt 4B · Springfield IL 62704 · USA                                         |
+| FR   | 12 rue de la Paix · 75002 Paris · Frankreich                                               |
+| GB   | 10 Downing Street · London SW1A 2AA · Großbritannien                                       |
+| JP   | 100-0005 Tokyo · Chiyoda-ku · Marunouchi 1-2-3 · Marunouchi Building 12F · Japan           |
+| HK   | Queen's Road Central 1 · Central · Hongkong (die unsichtbare PLZ „0“ wird nicht angezeigt) |
+
+Umsetzung: `GlasJenaAddressDisplay.vue` ersetzt `AddressDisplay` (das Original zeigte alles im deutschen Muster, ohne
+Adresszusatz und Staat, auf der Bestellbestätigung auch ohne Land, weil dort die Länder nicht geladen sind – die
+Anzeige lädt sie selbst nach); `GlasJenaOrderAddressData.vue` ersetzt `OrderAddressData` und reicht Adresszusatz und
+Staat aus dem Auftrag weiter. Dieselbe Reihenfolge gilt für die Dokumente (Rechnung, Lieferschein).
+
+### 3.7 Browser-Autofill
 
 Jedes Feld bekommt das passende `autocomplete` (`address-line1` für die Straße, `address-line2` für Zeile 2,
 `address-level1` für den Staat, `address-level2` für den Ort, `postal-code`, `country-name`, `tel`). Die
@@ -293,7 +314,7 @@ Postmustern des Landes; Länder ohne libaddressinput-Eintrag oder mit uneinheitl
 | 235 | TT  | Trinidad und Tobago          | C      | Nr. \| Straße    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
 | 28  | US  | USA                          | C      | Nr. \| Straße    | Pflicht (63), Kürzel | Pflicht                                                 | libaddressinput | PlentyONE und DHL: State Pflicht; Labels „ZIP code“, „State“                                  |
 | 31  | CN  | China                        | D      | Stadtteil \| Nr. | Pflicht (34)         | Pflicht                                                 | libaddressinput | Provinz Pflicht (PlentyONE 34 Einträge)                                                       |
-| 32  | JP  | Japan                        | D      | Stadtteil \| Nr. | Pflicht (47)         | Pflicht                                                 | libaddressinput | Präfektur Pflicht (PlentyONE 47 Einträge, lateinisch); „Block (Chōme-Ban-Gō)“ als Nummer      |
+| 32  | JP  | Japan                        | D      | Stadtteil \| Nr. | Pflicht (47)         | Pflicht                                                 | libaddressinput | Präfektur Pflicht (PlentyONE 47 Einträge, lateinisch); „Chōme-Ban-Gō“ als Nummer              |
 | 155 | KR  | Südkorea                     | D      | Stadtteil \| Nr. | –                    | Pflicht                                                 | libaddressinput | Provinz (do/si) nicht in PlentyONE → mit Ort angeben                                          |
 | 53  | EG  | Ägypten                      | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
 | 69  | DZ  | Algerien                     | E      | Straße \| Nr.    | –                    | Pflicht                                                 | libaddressinput |                                                                                               |
@@ -419,9 +440,7 @@ Telefonnummer steht nur im Auftrag, nicht auf dem Etikett („Receiver contact�
 
 - 125 Lieferländer: A 6, B 54, C 21, D 3, E 41.
 - Bundesstaat-Auswahl in 12 Ländern, Pflicht in 8, als Kürzel in 3.
-- Nicht abgedeckt: Landessprachliche Labels (nur DE/EN, die Shop-Sprachen); Anzeige von Adressen im Länderformat
-  (Konto, Kasse, Bestätigung) bleibt wie bisher („Baker St 221“, ohne Adresszusatz und Staat); Postfach/PO Box ohne
-  eigenes Feld.
+- Nicht abgedeckt: Landessprachliche Labels (nur DE/EN, die Shop-Sprachen); Postfach/PO Box ohne eigenes Feld.
 
 ### Bekannte Grenze: Telefonnummer lässt sich nicht leeren
 
