@@ -225,6 +225,18 @@ describe('addressFormats', () => {
       ]);
     });
 
+    it('should put the postal code before the town in France, Ireland and the other countries of group C', () => {
+      expect(layout('FR', { states: false })).toEqual([
+        'apartment:1*',
+        'streetName:2*',
+        'additionalAddressInformation:3',
+        'zipCode:1*',
+        'city:2*',
+        'phoneNumber:3',
+      ]);
+      expect(layout('IE', { states: false }).slice(3, 5)).toEqual(['zipCode:1*', 'city:2*']);
+    });
+
     it('should show street and an optional house number for a British address in its old form', () => {
       expect(layout('GB', { legacy: true, states: false }).slice(0, 2)).toEqual(['streetName:2*', 'apartment:1']);
     });

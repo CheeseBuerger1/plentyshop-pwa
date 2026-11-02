@@ -127,14 +127,15 @@ wie heute. Einen eigenen Ansprechpartner bei Firmen gibt es nicht (wie bisher im
 trägt ihn bei Vorname/Nachname ein (Entscheidung 2026-11-01). Nach dem Adressteil folgt das optionale
 Telefonfeld (3.4). Straße und Hausnummer stehen in einer eigenen Zeile, die Nummer schmal (120 px).
 
-| Gruppe | Länder (Beispiele)                   | Straße / Nummer                                          | Zeile 2 (`address3`)    | Ort, Staat, PLZ                        |
-| ------ | ------------------------------------ | -------------------------------------------------------- | ----------------------- | -------------------------------------- |
-| A      | DE, AT, CH, NL                       | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort                             |
-| B      | übriges Europa, IL, Lateinamerika    | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort, darunter Provinz           |
-| C      | US, CA, AU, NZ, IE, FR, LU, ZA, SG … | Hausnummer \| Straße                                     | Wohnung, Suite, Gebäude | Ort \| Staat \| PLZ                    |
-| C, GB  | Großbritannien                       | eine Zeile „Hausnummer und Straße“                       | Wohnung, Suite, Gebäude | Ort \| Postcode                        |
-| D      | JP, KR, CN                           | Stadtteil, Straße \| Nummer (JP: „Block (Chōme-Ban-Gō)“) | Gebäude, Zimmer         | zuerst PLZ \| Präfektur, Stadt, Bezirk |
-| E      | alle übrigen                         | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort, darunter Region            |
+| Gruppe | Länder (Beispiele)                                                 | Straße / Nummer                                          | Zeile 2 (`address3`)    | Ort, Staat, PLZ                        |
+| ------ | ------------------------------------------------------------------ | -------------------------------------------------------- | ----------------------- | -------------------------------------- |
+| A      | DE, AT, CH, NL                                                     | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort                             |
+| B      | übriges Europa, IL, Lateinamerika                                  | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort, darunter Provinz           |
+| C      | US, CA, AU                                                         | Hausnummer                                               | Straße                  | Wohnung, Suite, Gebäude                | Ort | Staat | PLZ |
+| C      | NZ, IE, IM, JE, GI, FR, GF, GP, RE, YT, MC, LU, ZA, SG, MY, PH, TT | Hausnummer                                               | Straße                  | Wohnung, Suite, Gebäude                | PLZ | Ort   |
+| C, GB  | Großbritannien                                                     | eine Zeile „Hausnummer und Straße“                       | Wohnung, Suite, Gebäude | Ort \| Postcode                        |
+| D      | JP, KR, CN                                                         | Stadtteil, Straße \| Nummer (JP: „Block (Chōme-Ban-Gō)“) | Gebäude, Zimmer         | zuerst PLZ \| Präfektur, Stadt, Bezirk |
+| E      | alle übrigen                                                       | Straße \| Hausnummer                                     | Adresszusatz            | PLZ \| Ort, darunter Region            |
 
 Zuordnung zu PlentyONE in allen Gruppen: Straße `address1`, Hausnummer `address2`, Zeile 2 `address3` (DHL druckt
 ihn über Straße und Hausnummer), PLZ `postalCode`, Ort `town`, Staat `stateId`, Telefon Option Typ 4.
@@ -449,6 +450,8 @@ gelöscht haben will, dem entfernt sie der Shopbetreiber im Backend.
     allen Ländern außer GB (Entscheidung 2026-11-02, statt einer Zeile); Länder ohne PLZ schicken unsichtbar „0“.
 11. **Staaten als Kürzel** in US, CA, AU (Wunsch 2026-11-02).
 12. **Hinweise:** nur nicht-lateinische Schrift und Straße über 50 Zeichen (Auswahl 2026-11-01).
+13. **PLZ vor Ort in Gruppe C ohne Bundesstaat** (Frankreich, Irland, Neuseeland usw., Entscheidung 2026-11-03):
+    nach Aufträgen überwiegt PLZ, Ort (vor allem Frankreich); USA, Kanada, Australien und Großbritannien bleiben Ort vor PLZ.
 
 ## Quellen
 

@@ -220,9 +220,11 @@ const row = (fields: AddressFieldSlot[]): AddressFieldSlot[] =>
   }));
 
 /**
- * Postal code, town and state in the order of the country's addresses: "Springfield, IL 62704" in group C (town,
- * state, ZIP in one row), postal code and prefecture first in group D, postal code and town elsewhere with the state
- * below. Fields the country does not use are left out, the others take their columns.
+ * Postal code, town and state in the order of the country's addresses: "Springfield, IL 62704" in group C with a
+ * state (US, CA, AU: town, state, ZIP in one row) and in Great Britain (town, postcode), postal code and prefecture
+ * first in group D, postal code and town everywhere else with the state below – also in the other countries of group C
+ * (France and the others write it so; chosen by the shop owner for all of them, 2026-11-03). Fields the country does
+ * not use are left out, the others take their columns.
  */
 const getLocalityFields = (format: AddressFormat): AddressFieldSlot[] => {
   const zip: AddressFieldSlot[] =
@@ -239,7 +241,7 @@ const getLocalityFields = (format: AddressFormat): AddressFieldSlot[] => {
     required: true,
     span: 3,
   };
-  if (format.group === 'C') {
+  if (format.group === 'C' && (state.length || format.singleLine)) {
     return row([city, ...state, ...zip]);
   }
   if (format.group === 'D') {
