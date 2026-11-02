@@ -218,7 +218,7 @@ watch(
     "label": {
       "street": "Street",
       "houseNumber": "House number",
-      "block": "Block (chōme-ban-gō)",
+      "block": "Chōme-ban-gō",
       "additionalInformation": "Additional address information",
       "streetAddress": "Street address",
       "districtStreet": "District, street",
@@ -242,7 +242,7 @@ watch(
     "label": {
       "street": "Straße",
       "houseNumber": "Hausnummer",
-      "block": "Block (Chōme-Ban-Gō)",
+      "block": "Chōme-Ban-Gō",
       "additionalInformation": "Adresszusatz",
       "streetAddress": "Hausnummer und Straße",
       "districtStreet": "Stadtteil, Straße",
