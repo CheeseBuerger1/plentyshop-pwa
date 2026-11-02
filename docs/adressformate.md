@@ -429,7 +429,8 @@ Test 2026-11-02 (Gastadresse über `doSaveAddress`, dieselbe Adresse mehrfach ge
 (Typ 4), kein Adressfeld; die Shop-Schnittstelle (`/rest/storefront/contact/addresses`) entfernt leere Optionen beim
 Aktualisieren nicht. Das Formular schickt den leeren Wert korrekt (`telephone: ''` über `mapAddressForServer`). Das
 gilt genauso für das Original-Formular im Konto und vermutlich für die anderen Optionen (E-Mail, DHL-Postnummer). Die
-Nummer steht nur im Auftrag, nicht auf dem DHL-Etikett.
+Nummer steht nur im Auftrag, nicht auf dem DHL-Etikett. Entscheidung des Shopbetreibers (2026-11-02): so lassen; wer die Nummer
+gelöscht haben will, dem entfernt sie der Shopbetreiber im Backend.
 
 ## 10. Entscheidungen und Annahmen
 
