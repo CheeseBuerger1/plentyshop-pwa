@@ -16,9 +16,9 @@ export const useGlasJenaShippingRefresh = (when: () => boolean = () => true) => 
   const { getShippingMethods } = useCartShippingMethods();
   const cartContent = computed(() => getCartContentKey(cart.value?.items));
 
-  return watch(cartContent, async (content, previous) => {
+  return watch(cartContent, async (content) => {
     /* An empty cart has no shipping methods: the cart page shows its empty state, the checkout goes to the cart */
-    if (content && content !== previous && when()) {
+    if (content && when()) {
       await getShippingMethods();
     }
   });

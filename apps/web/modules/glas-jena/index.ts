@@ -73,7 +73,7 @@ export const COMPONENT_OVERRIDES: Record<string, string> = {
   /* Breadcrumbs: unchanged on the page, for search engines with their real names and absolute addresses */
   UiBreadcrumbs: './runtime/components/GlasJenaBreadcrumbs.vue',
   /*
-   * Address forms (checkout, account): country first, street and house number apart in DE, AT, CH, NL only, state,
+   * Address forms (checkout, account): country first, street and house number apart except in Great Britain, state,
    * postal code and labels per country, address line 2 and phone number, see utils/addressFormats.ts and
    * docs/adressformate.md
    */

@@ -1,9 +1,9 @@
 <!--
   Shipping address form of the checkout (replaces components/AddressFormShipping/AddressFormShipping.vue, see
   COMPONENT_OVERRIDES): the address part per country of delivery (wish of the shop owner, 2026-10-31; concept in
-  docs/adressformate.md). Copy of the original with these changes, see __tests__/addressFormCopy.ts: the country is the
+  docs/adressformate.md). Copy of the original with these changes, see copies/addressFormCopy.ts: the country is the
   first field (GlasJenaAddressCountry), the fields from the street on come from GlasJenaAddressFields (street and
-  house number apart in group A only, state, address line 2, optional phone number), the schema from
+  house number apart except in Great Britain, state, address line 2, optional phone number), the schema from
   useGlasJenaAddressForm. Everything else is the original; upstreamContractAddress.spec.ts shows when it changes.
 -->
 <template>

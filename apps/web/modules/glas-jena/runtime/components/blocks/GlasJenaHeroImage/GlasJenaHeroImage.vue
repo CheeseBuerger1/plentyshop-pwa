@@ -20,6 +20,22 @@
         data-testid="gj-hero-image-img"
       />
     </template>
+    <button
+      v-if="rotates"
+      type="button"
+      class="gj-hero-image__pause"
+      :aria-label="paused ? t('play') : t('pause')"
+      :title="paused ? t('play') : t('pause')"
+      data-testid="gj-hero-image-pause"
+      @click="togglePause"
+    >
+      <svg v-if="paused" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M8 5v14l11-7z" fill="currentColor" />
+      </svg>
+      <svg v-else viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M7 5h3.5v14H7zm6.5 0H17v14h-3.5z" fill="currentColor" />
+      </svg>
+    </button>
   </div>
 </template>
 
@@ -37,10 +53,13 @@ import {
  * Large image at the top of the home page, like the LTS shop: fills its column and is cropped from the top, so the
  * lower part of the picture always stays visible. With several images (as requested by the shop owner) they change
  * one after the other, starting with a random one: every image stays for the set time (20 s), then the next one fades
- * in over it. Only the first image is part of the page; each further one is loaded one step ahead, shortly before it is due. Screen readers get
- * only the visible image's text. With "reduce motion" or a single image nothing changes.
+ * in over it. Only the first image is part of the page; each further one is loaded one step ahead, shortly before it
+ * is due. Screen readers get only the visible image's text. With "reduce motion" or a single image nothing changes.
+ * A button in the corner stops and restarts the change (WCAG 2.2.2 "Pause, Stop, Hide", wish of the shop owner,
+ * 2026-11-03).
  */
 const props = defineProps<GlasJenaHeroImageProps>();
+const { t } = useI18n({ useScope: 'local' });
 
 const images = computed(() => getHeroSlides(props.content).map(getHeroSlideImage));
 const intervalMs = computed(() => clampHeroSliderInterval(props.content?.interval) * 1000);
@@ -90,6 +109,11 @@ const showNext = () => {
 
 let timer: ReturnType<typeof setInterval> | undefined;
 
+/* Whether the images change, i.e. the pause button shows: only known in the browser ("reduce motion") */
+const rotates = ref(false);
+/* Stopped with the button; stays stopped when the block is edited */
+const paused = ref(false);
+
 const stop = () => {
   if (timer) {
     clearInterval(timer);
@@ -101,11 +125,26 @@ const start = () => {
   stop();
   const changes = images.value.filter(Boolean).length > 1;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!changes || reduceMotion) {
+  rotates.value = changes && !reduceMotion;
+  if (!rotates.value || paused.value) {
     return;
   }
   preloadNext();
   timer = setInterval(showNext, intervalMs.value);
+};
+
+/*
+ * Going on shows the next image at once, so the customer sees the button work (wish of the shop owner, 2026-11-03);
+ * it then stays for the set time
+ */
+const togglePause = () => {
+  paused.value = !paused.value;
+  if (paused.value) {
+    stop();
+  } else {
+    showNext();
+    start();
+  }
 };
 
 onMounted(start);
@@ -171,4 +210,49 @@ watch([images, intervalMs], () => {
     transition: none;
   }
 }
+
+/*
+ * Pause button in the bottom right corner: half transparent, so it hardly covers the picture, opaque on hover and
+ * focus; square like everything in the flat look (glas-jena.css). 44 px like the arrows of the product carousel (WCAG
+ * 2.5.8 asks for at least 24 px); the dark icon on the light square keeps 4.6:1 over any picture (white at 60 % over
+ * black gives #999), icons need 3:1 (WCAG 1.4.11).
+ */
+.gj-hero-image__pause {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  color: #263238;
+  background-color: rgb(255 255 255 / 0.6);
+  border: 1px solid rgb(38 50 56 / 0.25);
+  transition: background-color 0.2s;
+}
+
+.gj-hero-image__pause:hover,
+.gj-hero-image__pause:focus-visible {
+  background-color: rgb(255 255 255 / 0.9);
+}
+
+.gj-hero-image__pause:focus-visible {
+  outline: 2px solid #263238;
+  outline-offset: 2px;
+}
+
+/* The icon large in the button (wish of the shop owner, 2026-11-03) */
+.gj-hero-image__pause svg {
+  width: 1.875rem;
+  height: 1.875rem;
+}
 </style>
+
+<i18n lang="json">
+{
+  "en": { "pause": "Pause image change", "play": "Continue image change" },
+  "de": { "pause": "Bildwechsel anhalten", "play": "Bildwechsel fortsetzen" }
+}
+</i18n>

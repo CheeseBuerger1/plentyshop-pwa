@@ -1,7 +1,7 @@
 <!--
   Registration (replaces pages/register.vue, see PAGE_OVERRIDES): the address part per country like the checkout (wish
   of the shop owner, 2026-10-31; concept in docs/adressformate.md). Copy of the original with the changes of
-  __tests__/addressFormCopy.ts: the country above the name, the address part from GlasJenaAddressFields, the form from
+  copies/addressFormCopy.ts: the country above the name, the address part from GlasJenaAddressFields, the form from
   useGlasJenaRegisterForm. Everything else is the original; upstreamContractAddress.spec.ts shows when it changes.
 -->
 <template>

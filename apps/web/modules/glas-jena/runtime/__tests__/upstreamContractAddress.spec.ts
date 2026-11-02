@@ -1,20 +1,13 @@
 /**
- * Upstream contract of the address forms per country (GlasJenaAddressFormShipping.vue, GlasJenaAddressFormBilling.vue,
- * GlasJenaAddressForm.vue, GlasJenaRegister.vue, useGlasJenaAddressForm.ts, useGlasJenaRegisterForm.ts; concept in
- * docs/adressformate.md).
+ * Upstream contract of the address forms per country (copies of the original forms, useGlasJenaAddressForm.ts,
+ * GlasJenaAddressDisplay.vue; concept in docs/adressformate.md).
  *
  * Part of the upstream contract of the glas-jena module, see upstreamContract.spec.ts; in its own file because that
  * one has reached the maximum length of a file (ESLint `max-lines`).
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-  toModuleAccountAddressForm,
-  toModuleAddressForm,
-  toModuleRegisterForm,
-  toModuleRegisterPage,
-} from './addressFormCopy';
-import { toModuleContactInformation, toModuleOrderAddressData } from './displayCopy';
+import { getCopyHeader, MODULE_COPIES } from '../../copies';
 
 /* Vitest runs in apps/web (the Nuxt test environment gives no file URL for this module) */
 const readApp = (path: string) => readFileSync(join(process.cwd(), 'app', path), 'utf8');
@@ -22,56 +15,19 @@ const readModule = (path: string) => readFileSync(join(process.cwd(), 'modules/g
 const readPackage = (path: string) => readFileSync(join(process.cwd(), '../../node_modules', path), 'utf8');
 
 /** A copy of the module without its header comment. */
-const readCopy = (path: string) =>
-  readModule(path)
-    .replace(/\r\n/g, '\n')
-    .replace(/^<!--[\s\S]*?-->\n/, '');
+const readCopy = (path: string) => {
+  const copy = readModule(path).replace(/\r\n/g, '\n');
+  return copy.slice(getCopyHeader(copy).length);
+};
 
 describe('upstream contract of the glas-jena module: address forms', () => {
   /*
-   * The copies are the originals with the changes of addressFormCopy.ts. If one of these fails, the original changed:
-   * take the change over into the copy (or adapt addressFormCopy.ts if a replaced part moved).
+   * Every copy is its original with the changes of copies/ (MODULE_COPIES). If one fails, the original changed: make the
+   * copies again (`npx jiti modules/glas-jena/copies/generate.ts` in apps/web) and check the result, or adapt the rule
+   * that no longer finds its place.
    */
-  it('should find the shipping address form of the checkout unchanged except for the changes of the copy', () => {
-    const original = readApp('components/AddressFormShipping/AddressFormShipping.vue');
-
-    expect(readCopy('components/GlasJenaAddressFormShipping.vue')).toBe(toModuleAddressForm(original, 'Shipping'));
-  });
-
-  it('should find the billing address form of the checkout unchanged except for the changes of the copy', () => {
-    const original = readApp('components/AddressFormBilling/AddressFormBilling.vue');
-
-    expect(readCopy('components/GlasJenaAddressFormBilling.vue')).toBe(toModuleAddressForm(original, 'Billing'));
-  });
-
-  it("should find the account's address form unchanged except for the changes of the copy", () => {
-    const original = readApp('components/AddressForm/AddressForm.vue');
-
-    expect(readCopy('components/GlasJenaAddressForm.vue')).toBe(toModuleAccountAddressForm(original));
-  });
-
-  it('should find the registration page unchanged except for the changes of the copy', () => {
-    expect(readCopy('pages/GlasJenaRegister.vue')).toBe(toModuleRegisterPage(readApp('pages/register.vue')));
-  });
-
-  it("should find the registration's form unchanged except for the changes of the copy", () => {
-    const copy = readModule('composables/useGlasJenaRegisterForm.ts')
-      .replace(/\r\n/g, '\n')
-      .replace(/^\/\*[\s\S]*?\*\/\n/, '');
-
-    expect(copy).toBe(toModuleRegisterForm(readApp('composables/useRegisterForm/useRegisterForm.ts')));
-  });
-
-  it('should find the contact information unchanged except for the required mark of the copy', () => {
-    expect(readCopy('components/GlasJenaContactInformation.vue')).toBe(
-      toModuleContactInformation(readApp('components/ContactInformation/ContactInformation.vue')),
-    );
-  });
-
-  it('should find the order address unchanged except for address line 2 and state of the copy', () => {
-    expect(readCopy('components/GlasJenaOrderAddressData.vue')).toBe(
-      toModuleOrderAddressData(readApp('components/OrderAddressData/OrderAddressData.vue')),
-    );
+  it.each(MODULE_COPIES)('should find the original of $file unchanged except for the changes of the copy', (copy) => {
+    expect(readCopy(copy.file)).toBe(copy.make(readApp(copy.original)));
   });
 
   it('should find what the original address display shows, which GlasJenaAddressDisplay shows too', () => {

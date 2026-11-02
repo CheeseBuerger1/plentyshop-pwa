@@ -47,7 +47,10 @@ export const useGlasJenaPaymentGuard = () => {
     switching = true;
     try {
       await handlePaymentMethodUpdate(fallback.id);
-      send({ message: t('billing.methodChanged'), type: 'warning' });
+      /* The original reports a failed save itself and leaves the cart's method as it was: then nothing changed */
+      if (cart.value?.methodOfPaymentId === fallback.id) {
+        send({ message: t('billing.methodChanged'), type: 'warning' });
+      }
     } finally {
       switching = false;
     }

@@ -1,7 +1,7 @@
 <!--
   Address form of "Mein Konto" (replaces components/AddressForm/AddressForm.vue, see COMPONENT_OVERRIDES): the address
   part per country like the checkout (wish of the shop owner, 2026-10-31; concept in docs/adressformate.md). Copy of
-  the original with the changes of __tests__/addressFormCopy.ts: country first, the address part from
+  the original with the changes of copies/addressFormCopy.ts: country first, the address part from
   GlasJenaAddressFields, address line 2. Everything else is the original; upstreamContractAddress.spec.ts shows when it
   changes.
 -->

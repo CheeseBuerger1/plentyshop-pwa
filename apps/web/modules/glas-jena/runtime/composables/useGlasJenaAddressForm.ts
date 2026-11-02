@@ -1,16 +1,8 @@
-import {
-  type ActiveShippingCountry,
-  AddressType,
-  cartGetters,
-  type GeoRegulatedCountry,
-} from '@plentymarkets/shop-api';
+import { AddressType, cartGetters } from '@plentymarkets/shop-api';
 import { toTypedSchema } from '@vee-validate/yup';
 import { boolean, object, string } from 'yup';
 import { useAddressForm as useShopAddressForm } from '~/composables/useAddressForm/useAddressForm';
-import { getAddressFormat, normalizePostalCode } from '../utils/addressFormats';
-
-/** Length of a phone number, as in the account's address form (`minlength`/`maxlength`). */
-const PHONE_LENGTH = /^.{7,18}$/;
+import { getAddressRules } from '../utils/addressSchema';
 
 /**
  * The shop's `useAddressForm` with a validation schema per country of delivery, for the module's address forms of the
@@ -22,7 +14,8 @@ const PHONE_LENGTH = /^.{7,18}$/;
  *   postal codes have POSTAL_CODE_NONE in the hidden field
  * - the state is required in the countries of STATE_REQUIRED_COUNTRIES (PlentyONE's list), optional elsewhere
  * - new: address line 2 (`additionalAddressInformation`, PlentyONE `address3`) and an optional phone number
- * Everything else (saving, refreshing shipping and payment) is the original.
+ * These rules are shared with the registration (utils/addressSchema.ts). Everything else (saving, refreshing shipping
+ * and payment) is the original.
  */
 export const useGlasJenaAddressForm = (type: AddressType) => {
   const form = useShopAddressForm(type);
@@ -30,14 +23,16 @@ export const useGlasJenaAddressForm = (type: AddressType) => {
   const { data: cartData } = useCart();
   const { default: shippingCountries, billingCountries, getCountryZipCodeRegex } = useAggregatedCountries();
 
-  const formatOf = (countryId: string | undefined) => {
-    const countries = type === AddressType.Billing ? billingCountries.value : shippingCountries.value;
-    const country = countries.find(
-      (entry: ActiveShippingCountry | GeoRegulatedCountry) => entry.id === Number(countryId),
-    );
-    return getAddressFormat(country);
-  };
   const required = t('error.requiredField');
+  const rules = getAddressRules(
+    () => (type === AddressType.Billing ? billingCountries.value : shippingCountries.value),
+    {
+      required,
+      phoneInvalid: t('glasJenaAddress.phoneInvalid'),
+      zipCodeInvalid: t('PreferredDelivery.packstation.zipcodeInvalid'),
+    },
+    (countryId) => getCountryZipCodeRegex(countryId, type),
+  );
 
   const validationSchema = toTypedSchema(
     object({
@@ -55,38 +50,14 @@ export const useGlasJenaAddressForm = (type: AddressType) => {
         .required(required)
         .default(defaultFormValues.value.country ?? cartGetters.getShippingCountryId(cartData.value).toString()),
       streetName: string().required(required).default(defaultFormValues.value.streetName),
-      apartment: string()
-        .when('country', ([countryId], schema) =>
-          formatOf(countryId).singleLine ? schema.optional() : schema.required(required),
-        )
-        .default(defaultFormValues.value.apartment),
-      additionalAddressInformation: string()
-        .optional()
+      apartment: rules.apartment().default(defaultFormValues.value.apartment),
+      additionalAddressInformation: rules
+        .additionalAddressInformation()
         .default(defaultFormValues.value.additionalAddressInformation ?? ''),
       city: string().required(required).default(defaultFormValues.value.city),
-      state: string()
-        .when('country', ([countryId], schema) =>
-          formatOf(countryId).state === 'required' ? schema.required(required) : schema.optional(),
-        )
-        .default(defaultFormValues.value.state ?? ''),
-      zipCode: string()
-        .transform(normalizePostalCode)
-        .when('country', ([countryId], schema) => {
-          const checked = schema.required(required);
-          const zipCodeRegex = getCountryZipCodeRegex(Number(countryId), type);
-          return zipCodeRegex
-            ? checked.matches(zipCodeRegex, {
-                message: t('PreferredDelivery.packstation.zipcodeInvalid'),
-                excludeEmptyString: true,
-              })
-            : checked;
-        })
-        .default(defaultFormValues.value.zipCode),
-      phoneNumber: string()
-        .trim()
-        .optional()
-        .matches(PHONE_LENGTH, { message: t('glasJenaAddress.phoneInvalid'), excludeEmptyString: true })
-        .default(defaultFormValues.value.phoneNumber ?? ''),
+      state: rules.state().default(defaultFormValues.value.state ?? ''),
+      zipCode: rules.zipCode().default(defaultFormValues.value.zipCode),
+      phoneNumber: rules.phoneNumber().default(defaultFormValues.value.phoneNumber ?? ''),
       primary: boolean().default(false),
       companyName: string().when([], {
         is: () => hasCompany.value,
