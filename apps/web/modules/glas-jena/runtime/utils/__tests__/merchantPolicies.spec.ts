@@ -77,7 +77,7 @@ describe('merchantPolicies', () => {
     expect(getShippingRateDE(40000, 60)).toBeUndefined();
   });
 
-  it("should add shipping and returns to the offer and grams to the weight of the shop's Product JSON-LD", () => {
+  it("should add shipping and returns to the offer and units to the weight and sizes of the shop's Product JSON-LD", () => {
     /* As the shop serializes it (dish 2l, variation 1623) */
     const productJsonLd = safeSerializeJsonLd(
       {
@@ -85,15 +85,23 @@ describe('merchantPolicies', () => {
         '@type': 'Product',
         name: 'Schüssel 2l <Glas>',
         offers: { '@type': 'Offer', priceCurrency: 'EUR', price: 27.9 },
+        depth: { '@type': 'QuantitativeValue', value: 235 },
+        width: { '@type': 'QuantitativeValue', value: 230 },
+        height: { '@type': 'QuantitativeValue', value: 0 },
         weight: { '@type': 'QuantitativeValue', value: 1100 },
       },
       4,
     );
 
     const result = completeProductJsonLd(productJsonLd);
-    const { offers: offer, weight } = JSON.parse(result);
+    const { offers: offer, weight, depth, width, height } = JSON.parse(result);
 
-    expect(weight).toEqual({ '@type': 'QuantitativeValue', value: 1100, unitCode: 'GRM' });
+    /* Google takes kilograms or pounds only (shipping policy: weight "must be LBR or KGM") */
+    const kilograms = { '@type': 'QuantitativeValue', value: 1.1, unitCode: 'KGM', unitText: 'kg' };
+    expect(weight).toEqual(kilograms);
+    expect(depth).toEqual({ '@type': 'QuantitativeValue', value: 23.5, unitCode: 'CMT', unitText: 'cm' });
+    expect(width).toEqual({ '@type': 'QuantitativeValue', value: 23, unitCode: 'CMT', unitText: 'cm' });
+    expect(height).toEqual({ '@type': 'QuantitativeValue', value: 0 });
     expect(offer).toMatchObject({
       price: 27.9,
       shippingDetails: {
@@ -105,10 +113,19 @@ describe('merchantPolicies', () => {
           handlingTime: { minValue: 0, maxValue: 3, unitCode: 'DAY' },
           transitTime: { minValue: 1, maxValue: 2, unitCode: 'DAY' },
         },
+        weight: kilograms,
       },
       hasMerchantReturnPolicy: getMerchantReturnPolicyJsonLd(),
     });
     expect(result).not.toContain('<');
+  });
+
+  it('should leave the weight out of the shipping of a free item without weight', () => {
+    const noWeight = JSON.stringify({ '@type': 'Product', offers: { price: 200 }, weight: { value: 0 } });
+    const { offers: offer, weight } = JSON.parse(completeProductJsonLd(noWeight));
+    expect(offer.shippingDetails.shippingRate.value).toBe(0);
+    expect(offer.shippingDetails).not.toHaveProperty('weight');
+    expect(weight).toEqual({ value: 0 });
   });
 
   it('should leave out the shipping of an item without weight and leave other JSON-LD as it is', () => {

@@ -89,9 +89,13 @@ export type BreadcrumbListEntry = { name: string; url: string };
 /** The parts of the shop's Product JSON-LD that completeProductJsonLd reads and completes (merchantPolicies.ts). */
 export type ProductJsonLd = {
   '@type'?: string;
-  weight?: { value?: number; unitCode?: string };
+  weight?: QuantityJsonLd;
+  depth?: QuantityJsonLd;
+  width?: QuantityJsonLd;
+  height?: QuantityJsonLd;
   offers?: OfferJsonLd | OfferJsonLd[];
 };
+export type QuantityJsonLd = { '@type'?: string; value?: number; unitCode?: string; unitText?: string };
 export type OfferJsonLd = { price?: number; [property: string]: unknown };
 
 /** The shop for search engines: its name, home page and logo (absolute or relative to the home page). */
