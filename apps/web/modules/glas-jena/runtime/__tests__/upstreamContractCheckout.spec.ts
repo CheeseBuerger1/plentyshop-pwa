@@ -265,4 +265,28 @@ describe('upstream contract of the glas-jena module: checkout', () => {
     expect(payment).toContain('!paymentMethod.isSelectable ||');
     expect(payment).toContain('data-testid="checkout-payment"');
   });
+
+  it('should find the Google Pay client that useGlasJenaGooglePay replaces', () => {
+    /* Fixed upstream (`isSandbox` read): the wrapper and the override can go */
+    const googlePay = readApp('composables/useGooglePay/useGooglePay.ts');
+    expect(googlePay).toContain(
+      "environment: config.value ? (paypalGetters.isProduction(config.value) ? 'PRODUCTION' : 'TEST') : 'TEST',",
+    );
+    expect(googlePay).toContain('state.value.paymentsClient = getPaymentsClient();');
+    expect(readPackage('@plentymarkets/shop-api/lib/index.es.js')).toContain(
+      'return config.extra ? !config.extra.sandbox : false;',
+    );
+    expect(readPackage('@plentymarkets/shop-api/lib/types/api/paypal.d.ts')).toContain('isSandbox: boolean;');
+    /* The original checkIsEligible, which the wrapper repeats with its own initialize */
+    for (const part of [
+      'const checkIsEligible = async () => {',
+      'if (await initialize()) {',
+      'const request = getIsReadyToPayRequest();',
+      'const response = await toRaw(state.value.paymentsClient).isReadyToPay(request);',
+      'if (response.result) {',
+      '...toRefs(state.value),',
+    ]) {
+      expect(googlePay).toContain(part);
+    }
+  });
 });
