@@ -133,6 +133,7 @@ const EXTRA_VIEWPORT_BREAKPOINTS = {
  * - `useSearchSuggestions`: copy of the original; suggested search terms without fragments, categories of the search
  *   preview with their path, see utils/searchPreview.ts
  * - `useStructuredData`: wraps the original; the Product JSON-LD takes the meta description, see utils/seo.ts
+ * - `useGooglePay`: wraps the original; Google Pay runs live when PayPal does, see utils/googlePay.ts
  */
 export const IMPORT_OVERRIDES = [
   {
@@ -149,6 +150,11 @@ export const IMPORT_OVERRIDES = [
     name: 'useStructuredData',
     file: /\/app\/composables\/useStructuredData\/useStructuredData(\.ts)?$/,
     replacement: './runtime/composables/useGlasJenaStructuredData',
+  },
+  {
+    name: 'useGooglePay',
+    file: /\/app\/composables\/useGooglePay\/useGooglePay(\.ts)?$/,
+    replacement: './runtime/composables/useGlasJenaGooglePay',
   },
 ];
 

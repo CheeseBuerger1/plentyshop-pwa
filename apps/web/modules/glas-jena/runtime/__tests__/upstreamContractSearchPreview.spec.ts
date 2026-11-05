@@ -17,6 +17,7 @@ const REPLACED_IMPORT_FILES = [
   'composables/defaults.ts',
   'composables/useSearch/useSearchSuggestions.ts',
   'composables/useStructuredData/useStructuredData.ts',
+  'composables/useGooglePay/useGooglePay.ts',
 ];
 
 describe('upstream contract of the glas-jena module: search preview', () => {
