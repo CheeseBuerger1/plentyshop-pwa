@@ -49,17 +49,17 @@ describe('merchantPolicies', () => {
     expect(rateFor('AT', 1, 200)).toBeUndefined();
   });
 
-  it('should take back items within 14 days at the customer cost, in any way', () => {
+  it('should take back items within 14 days by mail at the customer cost', () => {
     const policy = getMerchantReturnPolicyJsonLd();
 
     expect(policy).toMatchObject({
       returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
       merchantReturnDays: 14,
+      returnMethod: 'https://schema.org/ReturnByMail',
       returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility',
       returnPolicyCountry: 'DE',
       refundType: 'https://schema.org/FullRefund',
     });
-    expect(policy).not.toHaveProperty('returnMethod');
   });
 
   it('should name each return country once and no more than Google takes', () => {
