@@ -138,13 +138,17 @@ export const getShippingServiceJsonLd = (freeFrom: number | null = FREE_SHIPPING
   ],
 });
 
-/** Return within 14 days in any way (no `returnMethod`), at the customer's cost, everything paid is refunded */
+/**
+ * Return within 14 days by mail, at the customer's cost, everything paid is refunded. Google reports a missing
+ * `returnMethod` in Search Console (merchant listings, 2026-11-09).
+ */
 export const getMerchantReturnPolicyJsonLd = (): MerchantReturnPolicy => ({
   '@type': 'MerchantReturnPolicy',
   applicableCountry: RETURN_COUNTRIES,
   returnPolicyCountry: 'DE',
   returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
   merchantReturnDays: RETURN_DAYS,
+  returnMethod: 'https://schema.org/ReturnByMail',
   returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility',
   refundType: 'https://schema.org/FullRefund',
 });
