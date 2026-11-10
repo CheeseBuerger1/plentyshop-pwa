@@ -416,6 +416,9 @@ export default defineNuxtModule({
       }
     });
 
+    /* HSTS on every answer of the server, before the LTS redirects so they have it too, see runtime/server/hsts.ts */
+    addServerHandler({ middleware: true, handler: resolve('./runtime/server/hsts') });
+
     /*
      * Old addresses of the LTS shop (system pages, `/sbc5/…`, search), see utils/ltsRedirect.ts: by the server before
      * the page is built (fast, no data from PlentyONE), and by the router for links within the shop
