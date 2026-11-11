@@ -120,6 +120,24 @@ describe('merchantPolicies', () => {
     expect(result).not.toContain('<');
   });
 
+  it("should remove the empty fields of the shop's Product JSON-LD and keep the others", () => {
+    /* As live on 2026-11-11 (teapot NOVA+ 105075) */
+    const productJsonLd = JSON.stringify({
+      '@type': 'Product',
+      name: 'Teekanne NOVA+ 1.2l - S',
+      review: [],
+      releaseDate: '',
+      image: ['https://cdn02.plentyone.com/item/images/1016/full/77166004-NOVA-S.jpg'],
+      offers: { price: 49.9 },
+    });
+
+    const product = JSON.parse(completeProductJsonLd(productJsonLd));
+
+    expect(product).not.toHaveProperty('review');
+    expect(product).not.toHaveProperty('releaseDate');
+    expect(product).toMatchObject({ name: 'Teekanne NOVA+ 1.2l - S', image: [expect.any(String)] });
+  });
+
   it('should leave the weight out of the shipping of a free item without weight', () => {
     const noWeight = JSON.stringify({ '@type': 'Product', offers: { price: 200 }, weight: { value: 0 } });
     const { offers: offer, weight } = JSON.parse(completeProductJsonLd(noWeight));

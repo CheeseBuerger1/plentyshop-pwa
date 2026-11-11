@@ -11,6 +11,10 @@ import {
   withMetaDescription,
   withSeoFallback,
 } from '../utils/seo';
+import { GLAS_JENA_STORE_KEY, getStoreJsonLd } from '../utils/store';
+
+/** Route name of the home page without the language (pages/index.vue) */
+const HOME_ROUTE_NAME = 'index';
 
 /**
  * The shop's `useStructuredData` (replaces the auto-import, see IMPORT_OVERRIDES in the module's index.ts), with
@@ -19,7 +23,8 @@ import {
  *   and its GTIN-13 from the variation's barcodes when PlentyONE delivers none (see `withGtin13`); availability and
  *   condition of the offer from the editor settings when PlentyONE delivers no SEO data (see `withSeoFallback`)
  * - the Organization JSON-LD of the layouts (`setLogoMeta`) has the shop name of the page titles and the header logo
- *   of the shop settings, see `getOrganizationJsonLd`
+ *   of the shop settings, see `getOrganizationJsonLd`; on the home page also the factory outlet as Store with
+ *   address and opening hours, see `getStoreJsonLd`
  */
 export const useStructuredData: typeof useShopStructuredData = () => {
   const structuredData = useShopStructuredData();
@@ -54,6 +59,23 @@ export const useStructuredData: typeof useShopStructuredData = () => {
           ),
         },
       ],
+    });
+
+    /* The factory outlet with address and opening hours, only on the home page (see getStoreJsonLd) */
+    const route = useRoute();
+    const getRouteBaseName = useRouteBaseName();
+    useHead({
+      script: computed(() =>
+        getRouteBaseName(route) === HOME_ROUTE_NAME
+          ? [
+              {
+                key: GLAS_JENA_STORE_KEY,
+                type: JSON_LD_TYPE,
+                innerHTML: safeSerializeJsonLd(getStoreJsonLd(runtimeConfig.domain, getHeaderLogo() || undefined)),
+              },
+            ]
+          : [],
+      ),
     });
   };
 

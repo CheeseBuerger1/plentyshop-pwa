@@ -1,6 +1,6 @@
 <template>
   <div ref="rootRef" class="gj-gallery" data-testid="gj-gallery" @click="onGalleryClick">
-    <Gallery :images="images" :configuration="configuration" />
+    <Gallery :images="galleryImages" :configuration="configuration" />
     <div
       v-if="images.length"
       v-show="isMeasured"
@@ -34,7 +34,7 @@
         />
       </template>
     </div>
-    <GlasJenaLightbox ref="lightboxRef" :images="images" @close="onLightboxClose" />
+    <GlasJenaLightbox ref="lightboxRef" :images="galleryImages" @close="onLightboxClose" />
   </div>
 </template>
 
@@ -42,7 +42,12 @@
 import type { Swiper as SwiperType } from 'swiper';
 import Gallery from '~/components/Gallery/Gallery.vue';
 import type { GalleryProps } from '~/components/Gallery/types';
+import { productGetters } from '@plentymarkets/shop-api';
 import GlasJenaLightbox from './GlasJenaLightbox.vue';
+import { withImageAlternate } from '../utils/imageAlt';
+
+/** `meta.type` of the item page (pages/product/[slug].vue) */
+const PRODUCT_PAGE_TYPE = 'product';
 
 /** The big picture of the shop's gallery and its Swiper element (Swiper keeps its instance on the element). */
 const MAIN_BOX_SELECTOR = '[data-testid="gallery-images"]';
@@ -59,6 +64,19 @@ const SWIPER_SELECTOR = `${MAIN_BOX_SELECTOR} .swiper`;
  * the phone hint "double tap to zoom" are hidden (a tap opens the lightbox).
  */
 const props = defineProps<GalleryProps>();
+
+/*
+ * The item's name as alternative text of pictures without one (the original falls back to the file name), see
+ * utils/imageAlt.ts. Only on item pages: the current item stays in the state after leaving its page.
+ */
+const route = useRoute();
+const { currentProduct } = useProducts();
+const galleryImages = computed(() =>
+  withImageAlternate(
+    props.images,
+    route.meta.type === PRODUCT_PAGE_TYPE && currentProduct.value ? productGetters.getName(currentProduct.value) : '',
+  ),
+);
 
 const { t } = useI18n({ useScope: 'local' });
 const rootRef = ref<HTMLElement | null>(null);
