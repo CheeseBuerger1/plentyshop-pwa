@@ -13,7 +13,7 @@
           class="gj-header__logo"
           data-testid="gj-header-logo"
         >
-          <UiLogo />
+          <GlasJenaLogo />
         </NuxtLink>
 
         <div class="gj-header__nav">
@@ -220,6 +220,7 @@ import { DESKTOP_NAVIGATION_BREAKPOINT, isPlainLeftClick } from '../utils/naviga
 import { useHoverIntent } from '../composables/useHoverIntent';
 import { useGlasJenaLanguagePath } from '../composables/useGlasJenaLanguagePath';
 import GlasJenaLineIcon from './GlasJenaLineIcon.vue';
+import GlasJenaLogo from './GlasJenaLogo.vue';
 import GlasJenaMobileNavigation from './GlasJenaMobileNavigation.vue';
 import GlasJenaNavigation from './GlasJenaNavigation.vue';
 import GlasJenaPageBanner from './GlasJenaPageBanner.vue';

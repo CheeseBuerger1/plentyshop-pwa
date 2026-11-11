@@ -193,6 +193,19 @@ export const getOfferShippingDetailsJsonLd = (rate: number, weightG?: number): O
 
 const PRODUCT_JSON_LD_RE = /"@type"\s*:\s*"Product"/;
 
+/**
+ * Removes the shop's empty fields of the Product JSON-LD, e.g. `"review": []` without reviews and `"releaseDate": ""`
+ * (SEO check, 2026-11-11): an empty value says nothing, and an empty date is not a valid one.
+ */
+const removeEmptyFields = (jsonLd: object) => {
+  const fields = jsonLd as Record<string, unknown>;
+  for (const [key, value] of Object.entries(fields)) {
+    if (value === '' || (Array.isArray(value) && value.length === 0)) {
+      Reflect.deleteProperty(fields, key);
+    }
+  }
+};
+
 /** The sizes of the Product JSON-LD: the shop gives them in millimetres without a unit */
 const DIMENSIONS = ['depth', 'width', 'height'] as const;
 
@@ -223,6 +236,7 @@ export const completeProductJsonLd = (jsonLd: string, freeFrom: number | null = 
       product[dimension] = { '@type': 'QuantitativeValue', value: sizeMM / 10, unitCode: 'CMT', unitText: 'cm' };
     }
   }
+  removeEmptyFields(product);
   for (const offer of [product.offers].flat()) {
     const rate = getShippingRateDE(weightG, Number(offer.price), freeFrom);
     if (rate !== undefined) {
