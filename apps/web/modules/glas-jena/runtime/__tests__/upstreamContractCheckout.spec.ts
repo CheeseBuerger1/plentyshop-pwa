@@ -166,7 +166,9 @@ describe('upstream contract of the glas-jena module: checkout', () => {
       'data-testid="shipping-method-no-address-set"',
       'const { disabled = false, loading = false } = defineProps<ShippingMethodProps>();',
       'const { shippingMethods } = useCheckoutPagePaymentAndShipping();',
-      "emit('update:shippingMethod', radioModel.value);",
+      /* Since v2.51.0 the radio follows the cart (#2963), as the copy's `:checked` always did */
+      "emit('update:shippingMethod', shippingId);",
+      'get: () => shippingProviderGetters.getShippingProfileId(cart.value),',
     ]) {
       expect(original).toContain(part);
     }
