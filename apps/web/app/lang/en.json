@@ -256,7 +256,7 @@
     "addButton": "Add billing address",
     "description": "Add a billing address. You will receive the invoice to the email address provided above.",
     "heading": "Billing Address",
-    "methodChanged": "The selected payment method is not available anymore."
+    "methodChanged": "The selected payment method is not available anymore. An alternative payment method has been selected, if available."
   },
   "cart": {
     "empty": "Your cart is empty",
@@ -1298,6 +1298,7 @@
       "additionalAuthRequiredName": "Confirmation of the last name is required to access this order.",
       "assignPaymentFailed": "The payment could not be assigned to the order.",
       "createFailed": "The order could not be created.",
+      "duplicateOrder": "The order has already been created. Please check your emails.",
       "loadOrdersFailed": "The orders could not be loaded.",
       "migrateUnauthorized": "The order could not be added to your account.",
       "notFound": "The order does not exist.",
@@ -1306,6 +1307,9 @@
       "paymentMethodNotExist": "The selected payment method does not exist.",
       "paymentMethodSwitchFailed": "The payment method could not be switched. Please try again.",
       "paymentMethodSwitchDisabled": "Switching the payment method is disabled."
+    },
+    "orderProperty": {
+      "fileUploadFailed": "Upload failed. Please ensure the SVG syntax is valid and remove any <!DOCTYPE> declarations before trying again."
     },
     "security": {
       "invalidCsrfToken": "For your security, this action was forbidden. Please try to refresh the page.",
@@ -1317,6 +1321,9 @@
     },
     "notifyMe": {
       "alreadySubscribed": "You have already subscribed to this product"
+    },
+    "checkout": {
+      "shippingProviderNotExisting": "The selected shipping provider no longer exists. Please choose a different shipping provider."
     },
     "unknownError": "An unknown error has occurred."
   },

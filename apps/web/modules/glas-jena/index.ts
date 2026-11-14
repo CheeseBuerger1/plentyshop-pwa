@@ -120,6 +120,19 @@ export const LAYOUT_OVERRIDES: Record<string, string> = {
  */
 export const ERROR_COMPONENT_OVERRIDE = './runtime/components/GlasJenaError.vue';
 
+/**
+ * Plugins of the shop (file in app/plugins) that the module removes:
+ * - `06.clean-url.client.ts`: strips every query param missing from the PlentyONE setting `cacheKeyQueryParams` from
+ *   the address bar. That list lacks `term`, `sort`, `redirect`, `utm_*` and `gclid`, so a reloaded or shared search
+ *   would lose its term, a category its sorting, the login its way back, and Google tags (loaded only after the
+ *   cookie consent) the campaign. Canonical, hreflang and JSON-LD still use the cleaned path (useCleanQuery).
+ */
+export const REMOVED_PLUGINS = ['06.clean-url.client.ts'];
+
+/** Whether a plugin of the app (its `src`) is one of REMOVED_PLUGINS of the shop. */
+export const isRemovedPlugin = (src: string) =>
+  REMOVED_PLUGINS.some((file) => src.replace(/\\/g, '/').endsWith(`/app/plugins/${file}`));
+
 /** Own nuxt-viewport breakpoints of the module: desktop navigation (992 px) and account menu (825 px). */
 const EXTRA_VIEWPORT_BREAKPOINTS = {
   [DESKTOP_NAVIGATION_BREAKPOINT]: DESKTOP_NAVIGATION_MIN_WIDTH,
@@ -315,6 +328,7 @@ export default defineNuxtModule({
       }
       /* Error page in the shop's formatting: wraps the original error.vue, see GlasJenaError.vue */
       app.errorComponent = resolve(ERROR_COMPONENT_OVERRIDE);
+      app.plugins = app.plugins.filter(({ src }) => !isRemovedPlugin(src));
     });
 
     /* Account pages without the trailing slash of the shop's URL setting, see utils/accountRedirect.ts */

@@ -256,7 +256,7 @@
     "addButton": "Rechnungsadresse hinzufügen",
     "description": "Fügen Sie eine Rechnungsadresse hinzu. Sie werden die Rechnung an die oben angegebene E-Mail-Adresse erhalten.",
     "heading": "Rechnungsadresse",
-    "methodChanged": "Die von Ihnen ausgewählte Zahlungsart ist nicht mehr verfügbar."
+    "methodChanged": "Die von Ihnen ausgewählte Zahlungsart ist nicht mehr verfügbar. Es wurde, falls verfügbar, eine alternative Zahlungsart ausgewählt."
   },
   "cart": {
     "empty": "Ihr Warenkorb ist leer",
@@ -1298,6 +1298,7 @@
       "additionalAuthRequiredName": "Für diese Bestellung ist eine Bestätigung des verwendeten Nachnamens erforderlich.",
       "assignPaymentFailed": "Die Zahlung konnte nicht zugewiesen werden.",
       "createFailed": "Die Bestellung konnte nicht erstellt werden.",
+      "duplicateOrder": "Der Auftrag wurde bereits angelegt. Bitte überprüfen Sie Ihre E-Mails.",
       "loadOrdersFailed": "Die Bestellungen konnten nicht geladen werden.",
       "migrateUnauthorized": "Die Bestellung konnte nicht zu Ihrem Account hinzugefügt werden.",
       "notFound": "Die Bestellung existiert nicht.",
@@ -1306,6 +1307,9 @@
       "paymentMethodNotExist": "Die gewählte Zahlungsart existiert nicht mehr. Bitte wählen Sie eine andere Zahlungsart aus.",
       "paymentMethodSwitchFailed": "Bei der Änderung der Zahlungsart ist ein Fehler aufgetreten.",
       "paymentMethodSwitchDisabled": "Die Möglichkeit zur Änderung der Zahlungsart ist deaktiviert."
+    },
+    "orderProperty": {
+      "fileUploadFailed": "Hochladen fehlgeschlagen. Bitte stellen Sie sicher, dass die SVG-Syntax gültig ist und entfernen Sie etwaige <!DOCTYPE>-Deklarationen, bevor Sie es erneut versuchen."
     },
     "security": {
       "invalidCsrfToken": "Aus Sicherheitsgründen wurde diese Aktion verweigert. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
@@ -1317,6 +1321,9 @@
     },
     "notifyMe": {
       "alreadySubscribed": "Sie haben sich bereits für diesen Artikel registriert"
+    },
+    "checkout": {
+      "shippingProviderNotExisting": "Der ausgewählte Versanddienstleister existiert nicht mehr. Bitte wählen Sie einen anderen Versanddienstleister aus."
     },
     "unknownError": "Es ist ein unbekannter Fehler aufgetreten."
   },

@@ -5,7 +5,7 @@
  * Part of the upstream contract of the glas-jena module, see upstreamContract.spec.ts; in its own file because that
  * one has reached the maximum length of a file (ESLint `max-lines`).
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { shippingProviderGetters } from '@plentymarkets/shop-api';
 import { BLOCKED_SET_COOKIES, PLENTY_SESSION_COOKIE, PWA_SESSION_COOKIE } from '../utils/cartShipping';
@@ -13,7 +13,8 @@ import { BLOCKED_SET_COOKIES, PLENTY_SESSION_COOKIE, PWA_SESSION_COOKIE } from '
 /* Vitest runs in apps/web (the Nuxt test environment gives no file URL for this module) */
 const readApp = (path: string) => readFileSync(join(process.cwd(), 'app', path), 'utf8');
 const readModule = (path: string) => readFileSync(join(process.cwd(), 'modules/glas-jena/runtime', path), 'utf8');
-const readPackage = (path: string) => readFileSync(join(process.cwd(), '../../node_modules', path), 'utf8');
+const NODE_MODULES = join(process.cwd(), '../../node_modules');
+const readPackage = (path: string) => readFileSync(join(NODE_MODULES, path), 'utf8');
 
 describe('upstream contract of the glas-jena module: cart page', () => {
   it('should find the parts of the cart page that the module copy GlasJenaCart builds on', () => {
@@ -121,11 +122,18 @@ describe('upstream contract of the glas-jena module: cart page', () => {
     ]) {
       expect(middleware).toContain(part);
     }
-    /* The middleware passes the browser's user agent on; without one axios sends its default with the same version */
+    /*
+     * The middleware passes the browser's user agent on; without one its axios sends `axios/<version>`. Since
+     * shop-api 0.190 that axios (pinned by shop-api, in its own node_modules) can be newer than the one of the shop
+     * that the route uses: a request without a user agent (no browser) then only gets a new session.
+     */
     expect(middleware).toMatch(/const FORWARD_HEADERS_KEYS = \[[^\]]*'user-agent',?\s*\];/);
     expect(middleware).not.toMatch(/['"]user-agent['"]\s*\]\s*=/i);
     const pinnedAxios = JSON.parse(readPackage('@plentymarkets/shop-api/package.json')).dependencies.axios;
-    expect(JSON.parse(readPackage('axios/package.json')).version).toBe(pinnedAxios);
+    const middlewareAxios = existsSync(join(NODE_MODULES, '@plentymarkets/shop-api/node_modules/axios'))
+      ? '@plentymarkets/shop-api/node_modules/axios/package.json'
+      : 'axios/package.json';
+    expect(JSON.parse(readPackage(middlewareAxios)).version).toBe(pinnedAxios);
     /* The shop passes the browser's user agent on to the middleware */
     expect(readPackage('@plentymarkets/shop-core/dist/runtime/plugins/sdk.js')).toContain(
       'useRequestHeaders(["cookie", "x-plenty-debug-mode", "x-plenty-debug", "user-agent"])',
