@@ -1,5 +1,12 @@
+import type { RouteLocationNormalizedLoaded } from 'vue-router';
 import type { Order } from '@plentymarkets/shop-api';
-import { buildPurchaseEvent, pushPurchaseOnce, TRACKED_ORDER_KEY_PREFIX } from '../purchaseTracking';
+import {
+  buildPurchaseEvent,
+  CONFIRMATION_ROUTE,
+  isPurchaseReady,
+  pushPurchaseOnce,
+  TRACKED_ORDER_KEY_PREFIX,
+} from '../purchaseTracking';
 
 const createOrder = (id: number, totalGross: unknown, email?: string, billingEmail?: string) =>
   ({
@@ -49,6 +56,28 @@ describe('buildPurchaseEvent', () => {
     expect(buildPurchaseEvent({ totals: { totalGross: 20, currency: 'EUR' } } as unknown as Order)).toBeNull();
     expect(buildPurchaseEvent(createOrder(1, undefined))).toBeNull();
     expect(buildPurchaseEvent({ order: { id: 1 } } as unknown as Order)).toBeNull();
+  });
+});
+
+const createRoute = (name: string, orderId: string) =>
+  ({ name, params: { orderId, accessKey: 'key' } }) as unknown as RouteLocationNormalizedLoaded;
+
+describe('isPurchaseReady', () => {
+  const order = createOrder(400, 11.3);
+
+  it('should be ready on the confirmation page of the order with consent, in every shop language', () => {
+    expect(isPurchaseReady(order, createRoute(CONFIRMATION_ROUTE, '400'), true)).toBe(true);
+    expect(isPurchaseReady(order, createRoute(`${CONFIRMATION_ROUTE}___en`, '400'), true)).toBe(true);
+  });
+
+  it('should not be ready without consent, so the flag stays unset until the visitor accepts', () => {
+    expect(isPurchaseReady(order, createRoute(CONFIRMATION_ROUTE, '400'), false)).toBe(false);
+  });
+
+  it('should not be ready without the order, on another page or with the order of another confirmation', () => {
+    expect(isPurchaseReady(null, createRoute(CONFIRMATION_ROUTE, '400'), true)).toBe(false);
+    expect(isPurchaseReady(order, createRoute('checkout', '400'), true)).toBe(false);
+    expect(isPurchaseReady(order, createRoute(CONFIRMATION_ROUTE, '401'), true)).toBe(false);
   });
 });
 
