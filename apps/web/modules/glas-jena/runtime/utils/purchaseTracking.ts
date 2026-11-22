@@ -1,3 +1,4 @@
+import type { RouteLocationNormalizedLoaded } from 'vue-router';
 import type { Order } from '@plentymarkets/shop-api';
 import { orderGetters } from '@plentymarkets/shop-api';
 import type { AddressWithOptions, FlagStorage, GtagWindow, PurchaseEvent } from './types';
@@ -14,7 +15,8 @@ export const CONFIRMATION_ORDER_STATE = 'soft-login';
 
 /**
  * Flag per order in localStorage: unlike sessionStorage it also covers the confirmation link opened again in a new
- * tab (e.g. from the order e-mail), not only a reload.
+ * tab (e.g. from the order e-mail), not only a reload. Only set when the event is really pushed, i.e. with consent
+ * (see isPurchaseReady), so a purchase without consent is still sent once the visitor accepts later.
  */
 export const TRACKED_ORDER_KEY_PREFIX = 'gj-purchase-tracked-';
 
@@ -54,6 +56,17 @@ export const buildPurchaseEvent = (order: Order): PurchaseEvent | null => {
   }
   return event;
 };
+
+/**
+ * Whether the `purchase` event may be pushed: the visitor consented to Google and the confirmation page has the
+ * order of its URL. Without consent nothing is pushed (and no flag set), as GTM would read the event before the
+ * consent update in the data layer and the conversion could not be attributed.
+ */
+export const isPurchaseReady = (order: Order | null, route: RouteLocationNormalizedLoaded, granted: boolean) =>
+  granted &&
+  !!order &&
+  String(route.name ?? '').startsWith(CONFIRMATION_ROUTE) &&
+  orderGetters.getId(order) === String(route.params.orderId);
 
 /** Orders pushed in this page view, in case the storage is not available (e.g. blocked). */
 const pushedOrders = new Set<string>();
