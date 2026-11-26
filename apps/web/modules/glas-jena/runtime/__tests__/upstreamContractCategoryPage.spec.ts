@@ -176,4 +176,29 @@ describe('upstream contract of the glas-jena module: category page', () => {
       /<\/template>\s*<ClientOnly>\s*<div\s+v-if="gridRow\.free > 0 && shouldEnableEditorFeatures"/,
     );
   });
+
+  it('should find the hidden first item pictures that glas-jena.css shows before hydration (LCP)', () => {
+    /* glas-jena.css: `[data-testid='image-slot'][fetchpriority='high'].opacity-0` – placeholder, then the picture */
+    const card = readApp('components/ui/ProductCard/ProductCard.vue');
+    expect(card).toMatch(
+      /<div\s+v-if="!mainImageLoaded"\s+class="absolute inset-0 rounded-md bg-neutral-100 animate-pulse"[\s\S]*?<NuxtImg\s+v-if="canLoadMainImage"/,
+    );
+    expect(card).toContain(":fetchpriority=\"priority ? 'high' : 'auto'\"");
+    expect(card).toContain("mainImageLoaded ? 'opacity-100' : 'opacity-0',");
+    expect(card).toContain('data-testid="image-slot"');
+    expect(card).toContain("'absolute inset-0 object-contain rounded-md w-full h-full opacity-0 transition-opacity");
+  });
+
+  it('should find the picture preloads without fetch priority that utils/imagePreload.ts prioritizes (LCP)', () => {
+    expect(readApp('components/ui/ProductCard/ProductCard.vue')).toContain(':preload="priority"');
+    /* NuxtImg puts the preload into the head (useHead) on the server, a fetch priority only with `preload` as object */
+    const nuxtImg = readFileSync(
+      join(process.cwd(), 'node_modules/@nuxt/image/dist/runtime/components/NuxtImg.vue'),
+      'utf8',
+    );
+    /* As a pattern: Vitest replaces `import.meta.server` in this file's source, also inside a string */
+    expect(nuxtImg).toMatch(/if \(import\.meta\.server && props\.preload\) \{/);
+    expect(nuxtImg).toMatch(/rel: "preload",\s*as: "image",/);
+    expect(nuxtImg).toContain('props.preload.fetchPriority ? { fetchpriority: props.preload.fetchPriority } : {}');
+  });
 });
