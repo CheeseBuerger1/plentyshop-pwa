@@ -395,6 +395,9 @@ export default defineNuxtModule({
     /* Breadcrumbs on one line: the whole path if it fits, otherwise the short form, see utils/breadcrumbsFit.ts */
     addPlugin({ src: resolve('./runtime/plugins/breadcrumbsFit.client'), mode: 'client' });
 
+    /* The first picture preload of a page with a high fetch priority (LCP), see utils/imagePreload.ts */
+    addPlugin({ src: resolve('./runtime/plugins/imagePreloadPriority.server'), mode: 'server' });
+
     /* Remembers the last control the visitor used, so the cart window can give the focus back, see utils/lastInteractiveElement.ts */
     addPlugin({ src: resolve('./runtime/plugins/lastInteractiveElement.client'), mode: 'client' });
 

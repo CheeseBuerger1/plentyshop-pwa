@@ -459,6 +459,22 @@ main [data-testid='category-layout'] {
 }
 
 /*
+ * Item pictures in view at once (LCP): the item card (ProductCard.vue, PlentyONE's code) renders its first pictures
+ * with `fetchpriority="high"` in the server HTML, but with `opacity-0` and a grey placeholder above them until the
+ * script sets them visible after hydration. The picture is there after about 1 s, but on mobile it only shows up after
+ * 3–7 s (LCP "render delay"). Those pictures show as soon as they are loaded; `position: relative` puts them above the
+ * placeholder (absolutely positioned before them), the hover picture after them still covers them. Once the script
+ * has marked the picture as loaded the card's own classes apply again (`opacity-100`, hover fade).
+ */
+[data-testid='image-slot'][fetchpriority='high'] {
+  position: relative;
+}
+
+[data-testid='image-slot'][fetchpriority='high'].opacity-0 {
+  opacity: 1;
+}
+
+/*
  * Sorting above the articles like the LTS shop: the category template has three cells in this order – "Sort and
  * filter" (3/12, with the category list), "Sort" (9/12) and the item grid (9/12). The editor's grid only knows cells
  * side by side, so the column with the category list spans both rows here; "Sort" then stands beside it above the

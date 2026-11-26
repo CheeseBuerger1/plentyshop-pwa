@@ -214,3 +214,9 @@ export interface AddressRuleMessages {
   phoneInvalid: string;
   zipCodeInvalid: string;
 }
+
+/** What imagePreload.ts needs of a resolved head tag (unhead's `HeadTag`). */
+export interface HeadTagLike {
+  tag: string;
+  props: Record<string, string>;
+}
