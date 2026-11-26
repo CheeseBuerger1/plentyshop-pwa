@@ -1,13 +1,14 @@
 import { FIRST_IMAGE_PRELOAD_PRIORITY, prioritizeFirstImagePreload } from '../imagePreload';
+import type { HeadTagLike } from '../types';
 
-const imagePreload = (href: string, extra: Record<string, string> = {}) => ({
+const imagePreload = (href: string, extra: Record<string, string> = {}): HeadTagLike => ({
   tag: 'link',
   props: { rel: 'preload', as: 'image', href, ...extra },
 });
 
 describe('imagePreload', () => {
   it('should give only the first picture preload a high fetch priority', () => {
-    const tags = [
+    const tags: HeadTagLike[] = [
       { tag: 'link', props: { rel: 'modulepreload', href: '/_nuxt/entry.js' } },
       { tag: 'link', props: { rel: 'preload', as: 'font', href: '/font.woff2' } },
       imagePreload('/first.webp'),
@@ -23,7 +24,7 @@ describe('imagePreload', () => {
   });
 
   it('should keep a fetch priority that the preload already has', () => {
-    const tags = [imagePreload('/first.webp', { fetchpriority: 'low' })];
+    const tags: HeadTagLike[] = [imagePreload('/first.webp', { fetchpriority: 'low' })];
 
     prioritizeFirstImagePreload(tags);
 
@@ -31,7 +32,7 @@ describe('imagePreload', () => {
   });
 
   it('should leave pages without picture preloads alone', () => {
-    const tags = [{ tag: 'meta', props: { name: 'robots', content: 'all' } }];
+    const tags: HeadTagLike[] = [{ tag: 'meta', props: { name: 'robots', content: 'all' } }];
 
     prioritizeFirstImagePreload(tags);
 
